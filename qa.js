@@ -120,7 +120,7 @@ function getSlideColourPairs(slide, layout, theme) {
 
   // Section label
   if (slide.sectionLabel) {
-    pairs.push({ element: "section-label", fg: theme.accent, bg, size: 8, bold: true });
+    pairs.push({ element: "section-label", fg: theme.accentLight || theme.accent, bg, size: 8, bold: true });
   }
 
   // Body text

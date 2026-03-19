@@ -103,26 +103,26 @@ function createGrid(slideWidth, slideHeight, cols = 60, rows = 40, margin = 0.5,
 const THEMES = {
   light: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "1A1A1A",
-    text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
-    accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
+    text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
+    accent: "B7311A", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   dark: {
     bg: "1A1A1A", bgAlt: "242424", bgDark: "111111",
-    text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478",
-    accent: "E06B5A", accent2: "5AABBF", accent3: "78B87E", accent4: "DDBA5C",
+    text: "F0EBE3", textMid: "B8B0A2", textLight: "A09890",
+    accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "F0EBE3", black: "1A1A1A", grey: "3A3A3A",
   },
   red: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "6B1A10",
-    text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
-    accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
+    text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
+    accent: "B7311A", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   blue: {
     bg: "F0F4F8", bgAlt: "F7FAFB", bgDark: "0F2A4A",
-    text: "1A1A1A", textMid: "4A5568", textLight: "8C9AAF",
-    accent: "2C7A92", accent2: "C44230", accent3: "548C5A", accent4: "C79B38",
+    text: "1A1A1A", textMid: "4A5568", textLight: "7A8598",
+    accent: "1B5E80", accent2: "B7311A", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "CBD5E0",
   },
 };
@@ -547,7 +547,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(4), y: g.cy(5), w: g.cw(30), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -579,7 +579,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(25), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -703,7 +703,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(1), y: g.cy(1), w: g.cw(20), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -982,7 +982,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(25), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1050,7 +1050,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(30), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1097,7 +1097,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(30), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1384,7 +1384,7 @@ h1{font-size:clamp(1.8rem,5vmin,3.5rem);font-weight:700;line-height:1.1;letter-s
 h2.subtitle{font-size:clamp(1rem,2.5vmin,1.6rem);font-weight:400;color:var(--text-mid)}
 p{font-size:clamp(0.85rem,1.8vmin,1.2rem);line-height:1.5;color:var(--text-mid)}
 .label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
-  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+  color:var(--accent-light,var(--accent));font-weight:700;display:block;margin-bottom:1vmin}
 blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
   background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
   font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
@@ -1577,7 +1577,7 @@ async function generateHTML(inputPath, outputPath, options = {}) {
   const cssVars = Object.entries({
     bg: theme.bg, "bg-alt": theme.bgAlt, "bg-dark": theme.bgDark,
     text: theme.text, "text-mid": theme.textMid, "text-light": theme.textLight,
-    accent: theme.accent, accent2: theme.accent2, accent3: theme.accent3, accent4: theme.accent4,
+    accent: theme.accent, "accent-light": theme.accentLight || theme.accent, accent2: theme.accent2, accent3: theme.accent3, accent4: theme.accent4,
     white: theme.white, black: theme.black, grey: theme.grey,
   }).map(([k, v]) => `--${k}:#${v}`).join(";");
 
@@ -1696,7 +1696,7 @@ async function generateReview(inputPath, outputPath, options = {}) {
   const cssVars = Object.entries({
     bg: theme.bg, "bg-alt": theme.bgAlt, "bg-dark": theme.bgDark,
     text: theme.text, "text-mid": theme.textMid, "text-light": theme.textLight,
-    accent: theme.accent, accent2: theme.accent2, accent3: theme.accent3, accent4: theme.accent4,
+    accent: theme.accent, "accent-light": theme.accentLight || theme.accent, accent2: theme.accent2, accent3: theme.accent3, accent4: theme.accent4,
     white: theme.white, black: theme.black, grey: theme.grey,
   }).map(([k, v]) => `--${k}:#${v}`).join(";");
 
