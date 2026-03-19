@@ -38,6 +38,33 @@ try {
 }
 
 // ═══════════════════════════════════════════════════════
+// COLOR UTILITIES
+// ═══════════════════════════════════════════════════════
+
+function isDarkColor(hex) {
+  if (!hex) return false;
+  hex = hex.replace(/^#/, "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return (r * 0.299 + g * 0.587 + b * 0.114) < 128;
+}
+
+function adaptThemeForBg(theme, bgHex) {
+  if (!bgHex) return theme;
+  const bgDark = isDarkColor(bgHex);
+  const themeBgDark = isDarkColor(theme.bg);
+  if (bgDark === themeBgDark) return theme;
+  if (bgDark && !themeBgDark) {
+    return { ...theme, text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478" };
+  }
+  if (!bgDark && themeBgDark) {
+    return { ...theme, text: "1A1A1A", textMid: "5C5549", textLight: "8C8478" };
+  }
+  return theme;
+}
+
+// ═══════════════════════════════════════════════════════
 // GRID SYSTEM
 // ═══════════════════════════════════════════════════════
 
@@ -1140,21 +1167,24 @@ async function generate(inputPath, outputPath, options = {}) {
     const layout = detectLayout(slide, idx, slides.length);
     const s = pres.addSlide();
 
-    // Background override
-    if (slide.bgOverride) {
-      s.background = { color: slide.bgOverride };
-    }
-
     // Speaker notes
     if (slide.notes) {
       s.addNotes(slide.notes);
     }
 
+    // Adapt text colors when bg override darkness differs from theme
+    const effectiveTheme = adaptThemeForBg(theme, slide.bgOverride);
+
     const fontFace = slide.fontOverride || globalFont;
     const opts = { fontFace, basePath };
 
     const renderer = LAYOUTS[layout] || LAYOUTS.split;
-    renderer(s, slide, g, theme, pres, idx + 1, opts);
+    renderer(s, slide, g, effectiveTheme, pres, idx + 1, opts);
+
+    // Background override applied AFTER renderer so it takes precedence
+    if (slide.bgOverride) {
+      s.background = { color: slide.bgOverride };
+    }
   });
 
   await pres.writeFile({ fileName: outputPath });
