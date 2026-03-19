@@ -1,20 +1,39 @@
 # rastersysteme
 
-**Swiss 60-column grid slide generator.** Takes Markdown, outputs PPTX on a Müller-Brockmann / Gerstner-inspired modular grid with Musica Viva layout arrangements.
+**Swiss 60-column grid slide generator.** Takes Markdown, outputs PPTX/HTML on a Müller-Brockmann / Gerstner-inspired modular grid with Musica Viva layout arrangements.
 
 ## Quick Start
 
 ```bash
 npm install
-node raster.js slides.md
+npm run raster -- slides.md
 ```
 
 Output: `slides.pptx`
 
+## npm Scripts
+
+```bash
+# Generate PPTX (default)
+npm run raster -- slides.md --theme dark
+
+# Generate HTML slideshow
+npm run raster -- slides.md --format html --theme dark
+
+# Visual review (thumbnail grid with validation)
+npm run raster -- slides.md --format review --theme dark
+
+# Claude-directed art direction → slides
+npm run compose -- slides.md --theme dark --intensity radical
+
+# Run unit tests (78 tests: grid, themes, parser, layout, typography, colour)
+npm test
+```
+
 ## Usage
 
 ```bash
-node raster.js <input.md> [output.pptx] [--theme light|dark|red|blue] [--ratio 16:9|4:3] [--font "Font Name"]
+node raster.js <input.md> [output] [--theme light|dark|red|blue] [--ratio 16:9|4:3] [--font "Font Name"] [--format pptx|html|review]
 ```
 
 ## Markdown Format
@@ -166,10 +185,16 @@ Guides are hierarchical:
 ## Programmatic Use
 
 ```javascript
-const { generate, parseMarkdown, createGrid, THEMES, LAYOUTS } = require("./raster.js");
+const { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS } = require("./raster.js");
 
-// Generate a deck
+// Generate PPTX
 await generate("slides.md", "output.pptx", { theme: "dark", ratio: "16:9", font: "Georgia" });
+
+// Generate HTML slideshow
+await generateHTML("slides.md", "output.html", { theme: "dark" });
+
+// Generate visual review page
+await generateReview("slides.md", "review.html", { theme: "dark" });
 
 // Parse markdown only
 const slides = parseMarkdown(fs.readFileSync("slides.md", "utf-8"));
@@ -179,6 +204,27 @@ const g = createGrid(10, 5.625);
 console.log(g.cx(30)); // x position of column 30
 console.log(g.cw(12)); // width spanning 12 columns
 ```
+
+## HTML Slideshow Controls
+
+| Key | Action |
+|-----|--------|
+| Arrow keys / Space | Navigate slides |
+| **N** | Toggle speaker notes |
+| **F** | Fullscreen |
+| Home / End | First / last slide |
+| Swipe (touch) | Navigate on mobile |
+
+## Review Mode
+
+`--format review` generates a thumbnail grid of all slides with:
+
+- Colour-coded borders (green = ok, yellow = warning, red = issue)
+- Content tags (title, bullets, table, code, notes, etc.)
+- Speaker notes preview
+- Arrow key grid navigation, Enter to zoom
+- Lightbox with arrow key slide-by-slide inspection
+- Console validation output for CI pipelines
 
 ## Google Slides Workflow
 

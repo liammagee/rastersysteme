@@ -56,10 +56,20 @@ function adaptThemeForBg(theme, bgHex) {
   const themeBgDark = isDarkColor(theme.bg);
   if (bgDark === themeBgDark) return theme;
   if (bgDark && !themeBgDark) {
-    return { ...theme, text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478" };
+    // Light theme on dark bg: lighten text AND brighten accents
+    return {
+      ...theme,
+      text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478",
+      accent: "E06B5A", accent2: "5AABBF", accent3: "78B87E", accent4: "DDBA5C",
+    };
   }
   if (!bgDark && themeBgDark) {
-    return { ...theme, text: "1A1A1A", textMid: "5C5549", textLight: "8C8478" };
+    // Dark theme on light bg: darken text, use muted accents
+    return {
+      ...theme,
+      text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
+      accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
+    };
   }
   return theme;
 }
@@ -92,27 +102,27 @@ function createGrid(slideWidth, slideHeight, cols = 60, rows = 40, margin = 0.5,
 
 const THEMES = {
   light: {
-    bg: "F8F5F0", bgAlt: "FFFFFF", bgDark: "1A1A1A",
+    bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "1A1A1A",
     text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
-    accent: "E63222", accent2: "1B4FA0", accent3: "2A7A4B", accent4: "F2C12E",
+    accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   dark: {
-    bg: "1A1A1A", bgAlt: "2A2A2A", bgDark: "111111",
+    bg: "1A1A1A", bgAlt: "242424", bgDark: "111111",
     text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478",
-    accent: "E63222", accent2: "4A90D9", accent3: "5CB87A", accent4: "F2C12E",
-    white: "FFFFFF", black: "1A1A1A", grey: "444444",
+    accent: "E06B5A", accent2: "5AABBF", accent3: "78B87E", accent4: "DDBA5C",
+    white: "F0EBE3", black: "1A1A1A", grey: "3A3A3A",
   },
   red: {
-    bg: "F8F5F0", bgAlt: "FFFFFF", bgDark: "8B1A10",
+    bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "6B1A10",
     text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
-    accent: "E63222", accent2: "1B4FA0", accent3: "2A7A4B", accent4: "F2C12E",
+    accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   blue: {
-    bg: "F0F4F8", bgAlt: "FFFFFF", bgDark: "0F2A4A",
+    bg: "F0F4F8", bgAlt: "F7FAFB", bgDark: "0F2A4A",
     text: "1A1A1A", textMid: "4A5568", textLight: "8C9AAF",
-    accent: "1B4FA0", accent2: "E63222", accent3: "2A7A4B", accent4: "F2C12E",
+    accent: "2C7A92", accent2: "C44230", accent3: "548C5A", accent4: "C79B38",
     white: "FFFFFF", black: "1A1A1A", grey: "CBD5E0",
   },
 };
@@ -1611,6 +1621,381 @@ ${generateHTMLJS()}
 }
 
 // ═══════════════════════════════════════════════════════
+// REVIEW / VISUAL VALIDATION
+// ═══════════════════════════════════════════════════════
+
+function validateSlide(slide, layout) {
+  const issues = [];
+  const warnings = [];
+
+  // Content checks
+  if (!slide.title && !slide.subtitle && !slide.body.length && !slide.bullets.length &&
+      !slide.tables.length && !slide.codeBlocks.length && !slide.images.length &&
+      !slide.blockquote && layout !== "blank") {
+    issues.push("Empty slide — no content detected");
+  }
+  if (slide.bullets.length > 8 && layout === "stagger") {
+    warnings.push("Stagger with " + slide.bullets.length + " items may overflow");
+  }
+  if (slide.bullets.length > 6 && layout === "bullets") {
+    warnings.push("Dense bullets (" + slide.bullets.length + ") — consider stagger or split");
+  }
+  if (slide.tables.length > 0 && slide.tables[0].rows.length > 10) {
+    warnings.push("Table has " + slide.tables[0].rows.length + " rows — may overflow");
+  }
+  if (slide.codeBlocks.length > 0 && slide.codeBlocks[0].code.split("\n").length > 20) {
+    warnings.push("Code block has " + slide.codeBlocks[0].code.split("\n").length + " lines — may clip");
+  }
+  if (slide.title && slide.title.length > 50) {
+    warnings.push("Long title (" + slide.title.length + " chars)");
+  }
+  if (slide.subtitle && slide.subtitle.length > 60) {
+    warnings.push("Long subtitle (" + slide.subtitle.length + " chars)");
+  }
+
+  // Layout-specific checks
+  if (layout === "fragment" && slide.bullets.length + slide.links.length > 9) {
+    issues.push("Fragment max 9 cells — " + (slide.bullets.length + slide.links.length) + " items will clip");
+  }
+  if (layout === "image" && slide.images.length > 0) {
+    slide.images.forEach(img => {
+      if (!img.src) issues.push("Image with empty src");
+    });
+  }
+  if (!slide.title && !slide.subtitle && layout !== "section" && layout !== "blank") {
+    warnings.push("No heading — slide may lack visual anchor");
+  }
+
+  // Content type inventory
+  const content = [];
+  if (slide.title) content.push("title");
+  if (slide.subtitle) content.push("subtitle");
+  if (slide.sectionLabel) content.push("label");
+  if (slide.bullets.length) content.push(slide.bullets.length + " bullets");
+  if (slide.body.length) content.push(slide.body.length + " body");
+  if (slide.blockquote) content.push("quote");
+  if (slide.tables.length) content.push(slide.tables.length + " table");
+  if (slide.codeBlocks.length) content.push(slide.codeBlocks.length + " code");
+  if (slide.images.length) content.push(slide.images.length + " image");
+  if (slide.links.length) content.push(slide.links.length + " link");
+  if (slide.notes) content.push("notes");
+  if (slide.fontOverride) content.push("font:" + slide.fontOverride);
+  if (slide.bgOverride) content.push("bg:#" + slide.bgOverride);
+
+  return { issues, warnings, content };
+}
+
+async function generateReview(inputPath, outputPath, options = {}) {
+  const themeName = options.theme || "light";
+  const theme = THEMES[themeName] || THEMES.light;
+  const globalFont = options.font || "Helvetica Neue";
+
+  const md = fs.readFileSync(inputPath, "utf-8");
+  const slides = parseMarkdown(md);
+
+  const cssVars = Object.entries({
+    bg: theme.bg, "bg-alt": theme.bgAlt, "bg-dark": theme.bgDark,
+    text: theme.text, "text-mid": theme.textMid, "text-light": theme.textLight,
+    accent: theme.accent, accent2: theme.accent2, accent3: theme.accent3, accent4: theme.accent4,
+    white: theme.white, black: theme.black, grey: theme.grey,
+  }).map(([k, v]) => `--${k}:#${v}`).join(";");
+
+  const cards = slides.map((slide, idx) => {
+    const layout = detectLayout(slide, idx, slides.length);
+    const renderer = HTML_LAYOUTS[layout] || HTML_LAYOUTS.split;
+    const fontStyle = slide.fontOverride ? `font-family:'${esc(slide.fontOverride)}',var(--font);` : "";
+    const bgStyle = slide.bgOverride ? `background:#${slide.bgOverride};` : "";
+    const slideStyle = fontStyle + bgStyle;
+    const validation = validateSlide(slide, layout);
+
+    const statusClass = validation.issues.length > 0 ? "has-issues" :
+                        validation.warnings.length > 0 ? "has-warnings" : "ok";
+    const statusIcon = validation.issues.length > 0 ? "\u2716" :
+                       validation.warnings.length > 0 ? "\u26A0" : "\u2714";
+
+    const issuesHTML = [...validation.issues.map(i => `<div class="issue">\u2716 ${esc(i)}</div>`),
+                        ...validation.warnings.map(w => `<div class="warning">\u26A0 ${esc(w)}</div>`)].join("");
+    const contentHTML = validation.content.map(c => `<span class="tag">${esc(c)}</span>`).join("");
+    const notesPreview = slide.notes ? esc(slide.notes.slice(0, 120)) + (slide.notes.length > 120 ? "..." : "") : "";
+
+    return `<div class="card ${statusClass}" data-index="${idx}">
+  <div class="card-header">
+    <span class="card-num">${String(idx + 1).padStart(2, "0")}</span>
+    <span class="card-layout">${layout}</span>
+    <span class="card-status">${statusIcon}</span>
+  </div>
+  <div class="card-preview">
+    <div class="slide-scaled layout-${layout}" style="${slideStyle}">${renderer(slide)}</div>
+  </div>
+  <div class="card-meta">
+    <div class="tags">${contentHTML}</div>
+    ${issuesHTML}
+    ${notesPreview ? `<div class="notes-preview">${notesPreview}</div>` : ""}
+  </div>
+</div>`;
+  }).join("\n");
+
+  // Summary stats
+  const total = slides.length;
+  const layoutCounts = {};
+  let totalIssues = 0, totalWarnings = 0;
+  slides.forEach((slide, idx) => {
+    const layout = detectLayout(slide, idx, slides.length);
+    layoutCounts[layout] = (layoutCounts[layout] || 0) + 1;
+    const v = validateSlide(slide, layout);
+    totalIssues += v.issues.length;
+    totalWarnings += v.warnings.length;
+  });
+  const layoutSummary = Object.entries(layoutCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([l, c]) => `<span class="tag">${l} \u00d7${c}</span>`).join("");
+
+  const title = esc(path.basename(inputPath, ".md"));
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Review: ${title}</title>
+<style>
+:root{${cssVars};--font:'${globalFont}','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#111;color:#ccc;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;padding:20px}
+
+.review-header{margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid #333}
+.review-header h1{font-size:20px;color:#fff;margin-bottom:8px}
+.review-header .summary{display:flex;gap:16px;align-items:center;flex-wrap:wrap;font-size:13px;color:#888}
+.review-header .stat{background:#222;padding:4px 10px;border-radius:3px}
+.review-header .stat.issues{color:#E63222}
+.review-header .stat.warnings{color:#F2C12E}
+.review-header .stat.ok{color:#2A7A4B}
+.review-header .layouts{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
+
+.card{background:#1a1a1a;border:1px solid #333;border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
+.card:hover,.card.focused{border-color:#666;outline:2px solid #555;outline-offset:2px}
+.card.has-issues{border-color:#E63222}
+.card.has-issues.focused{outline-color:#E63222}
+.card.has-warnings{border-color:#F2C12E}
+.card.has-warnings.focused{outline-color:#F2C12E}
+
+.card-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#222;font-size:12px}
+.card-num{color:#fff;font-weight:700;font-family:'SF Mono',monospace}
+.card-layout{color:var(--accent);text-transform:uppercase;letter-spacing:0.1em;font-size:10px;font-weight:700}
+.card-status{margin-left:auto;font-size:14px}
+.ok .card-status{color:#2A7A4B}
+.has-warnings .card-status{color:#F2C12E}
+.has-issues .card-status{color:#E63222}
+
+.card-preview{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;background:#000}
+.slide-scaled{position:absolute;width:1280px;height:720px;transform-origin:top left;
+  padding:40px;display:flex;flex-direction:column;gap:14px;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+
+.card-meta{padding:10px 12px;font-size:11px;display:flex;flex-direction:column;gap:6px}
+.tags{display:flex;flex-wrap:wrap;gap:4px}
+.tag{background:#2a2a2a;color:#999;padding:2px 6px;border-radius:2px;font-size:10px}
+.issue{color:#E63222;font-size:11px}
+.warning{color:#F2C12E;font-size:11px}
+.notes-preview{color:#555;font-size:10px;font-style:italic;line-height:1.4;max-height:2.8em;overflow:hidden}
+
+/* Slide content styles (scaled down) */
+${generateHTMLCSS()}
+
+/* Override for scaled context */
+.slide-scaled h1{font-size:28px}
+.slide-scaled h2.subtitle{font-size:14px}
+.slide-scaled p{font-size:11px}
+.slide-scaled .label{font-size:7px}
+.slide-scaled .bullet.level-0{font-size:12px}
+.slide-scaled .bullet.level-1{font-size:10px;padding-left:20px}
+.slide-scaled .bullet.level-2,.slide-scaled .bullet.level-3{font-size:9px;padding-left:40px}
+.slide-scaled .dot{width:16px;height:16px;min-width:16px;min-height:16px;font-size:8px}
+.slide-scaled .bullets{gap:6px}
+.slide-scaled .pill{padding:6px 10px;font-size:8px}
+.slide-scaled .pills{gap:4px}
+.slide-scaled table{font-size:9px}
+.slide-scaled thead th{padding:4px 8px}
+.slide-scaled tbody td{padding:3px 8px}
+.slide-scaled .code-block code{font-size:8px;line-height:1.4}
+.slide-scaled .code-block pre{padding:12px}
+.slide-scaled .code-lang{font-size:6px}
+.slide-scaled blockquote{font-size:10px;padding:8px 12px}
+.slide-scaled .stagger-bar{padding:10px 16px;font-size:11px}
+.slide-scaled .frag-cell{padding:10px;font-size:9px}
+.slide-scaled .accent-block{padding:40px}
+.slide-scaled .accent-block h1{font-size:24px}
+.slide-scaled .accent-bar{width:50px;height:2px}
+.slide-scaled .links a{font-size:10px}
+.slide-scaled .section-title{font-size:32px}
+.slide-scaled .rotated-text{font-size:24px}
+.slide-scaled .rotated-body{font-size:12px}
+.slide-scaled .rotated-bullet{font-size:10px}
+.slide-scaled .overlap-a,.slide-scaled .overlap-b{font-size:11px;padding:16px}
+.slide-scaled .split-left{padding-right:20px}
+.slide-scaled .arc-outer{width:200px}
+
+/* Lightbox */
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:1000;display:none;align-items:center;justify-content:center;cursor:pointer}
+.lightbox.open{display:flex}
+.lightbox-inner{width:90vw;max-width:1280px;aspect-ratio:16/9;position:relative}
+.lightbox-slide{position:absolute;inset:0;display:flex;flex-direction:column;gap:14px;
+  padding:40px;font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.lightbox-info{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#222;padding:8px 16px;border-radius:4px;font-size:12px;color:#888;display:flex;gap:12px}
+.lightbox-close{position:fixed;top:20px;right:20px;color:#666;font-size:24px;cursor:pointer}
+.lightbox-close:hover{color:#fff}
+.lightbox-nav{position:fixed;top:50%;font-size:32px;color:#444;cursor:pointer;padding:20px;user-select:none}
+.lightbox-nav:hover{color:#fff}
+.lightbox-prev{left:10px;transform:translateY(-50%)}
+.lightbox-next{right:10px;transform:translateY(-50%)}
+</style>
+</head>
+<body>
+<div class="review-header">
+  <h1>\u2630 Review: ${title}</h1>
+  <div class="summary">
+    <span class="stat">${total} slides</span>
+    <span class="stat">Theme: ${themeName}</span>
+    <span class="stat ${totalIssues > 0 ? "issues" : "ok"}">${totalIssues} issues</span>
+    <span class="stat ${totalWarnings > 0 ? "warnings" : "ok"}">${totalWarnings} warnings</span>
+  </div>
+  <div class="layouts">${layoutSummary}</div>
+</div>
+<div class="grid">
+${cards}
+</div>
+<div class="lightbox" id="lb">
+  <div class="lightbox-close" id="lb-close">\u2715</div>
+  <div class="lightbox-prev lightbox-nav" id="lb-prev">\u2039</div>
+  <div class="lightbox-next lightbox-nav" id="lb-next">\u203A</div>
+  <div class="lightbox-inner" id="lb-inner"></div>
+  <div class="lightbox-info" id="lb-info"></div>
+</div>
+<script>
+(function(){
+  const cards=document.querySelectorAll('.card');
+  const lb=document.getElementById('lb');
+  const lbInner=document.getElementById('lb-inner');
+  const lbInfo=document.getElementById('lb-info');
+  let current=-1;
+
+  // Scale slide previews to fit cards
+  function scaleAll(){
+    document.querySelectorAll('.card-preview').forEach(function(p){
+      const s=p.querySelector('.slide-scaled');
+      if(!s)return;
+      const scale=p.clientWidth/1280;
+      s.style.transform='scale('+scale+')';
+    });
+  }
+  scaleAll();
+  window.addEventListener('resize',scaleAll);
+
+  function openLB(idx){
+    current=idx;
+    const card=cards[idx];
+    const preview=card.querySelector('.slide-scaled');
+    const layout=card.querySelector('.card-layout').textContent;
+    const num=card.querySelector('.card-num').textContent;
+    lbInner.innerHTML='';
+    const clone=preview.cloneNode(true);
+    clone.className='lightbox-slide '+preview.className.replace('slide-scaled','');
+    clone.style.transform='none';
+    clone.style.position='absolute';
+    lbInner.appendChild(clone);
+    lbInfo.innerHTML='<span>'+num+'</span><span>'+layout+'</span><span>'+(idx+1)+' / '+cards.length+'</span>';
+    lb.classList.add('open');
+  }
+  function closeLB(){lb.classList.remove('open');current=-1}
+  function navLB(dir){
+    if(current<0)return;
+    const next=current+dir;
+    if(next>=0&&next<cards.length)openLB(next);
+  }
+
+  // Grid navigation state
+  let focused=-1;
+  function focusCard(idx){
+    if(idx<0||idx>=cards.length)return;
+    if(focused>=0)cards[focused].classList.remove('focused');
+    focused=idx;
+    cards[focused].classList.add('focused');
+    cards[focused].scrollIntoView({block:'nearest',behavior:'smooth'});
+  }
+  function getGridCols(){
+    if(!cards.length)return 1;
+    const first=cards[0].getBoundingClientRect();
+    let cols=1;
+    for(let i=1;i<cards.length;i++){
+      if(cards[i].getBoundingClientRect().top>first.top+10)break;
+      cols++;
+    }
+    return cols;
+  }
+
+  cards.forEach(function(c,i){
+    c.addEventListener('click',function(){openLB(i)});
+    c.addEventListener('mouseenter',function(){focusCard(i)});
+  });
+  document.getElementById('lb-close').addEventListener('click',function(e){e.stopPropagation();closeLB()});
+  document.getElementById('lb-prev').addEventListener('click',function(e){e.stopPropagation();navLB(-1)});
+  document.getElementById('lb-next').addEventListener('click',function(e){e.stopPropagation();navLB(1)});
+  lb.addEventListener('click',closeLB);
+  lbInner.addEventListener('click',function(e){e.stopPropagation()});
+
+  document.addEventListener('keydown',function(e){
+    // Lightbox mode
+    if(current>=0){
+      if(e.key==='Escape'){closeLB();e.preventDefault()}
+      else if(e.key==='ArrowRight'){navLB(1);e.preventDefault()}
+      else if(e.key==='ArrowLeft'){navLB(-1);e.preventDefault()}
+      return;
+    }
+    // Grid navigation mode
+    var cols=getGridCols();
+    if(e.key==='ArrowRight'){e.preventDefault();focusCard(Math.min(focused+1,cards.length-1))}
+    else if(e.key==='ArrowLeft'){e.preventDefault();focusCard(Math.max(focused-1,0))}
+    else if(e.key==='ArrowDown'){e.preventDefault();focusCard(Math.min(focused+cols,cards.length-1))}
+    else if(e.key==='ArrowUp'){e.preventDefault();focusCard(Math.max(focused-cols,0))}
+    else if(e.key==='Enter'&&focused>=0){e.preventDefault();openLB(focused)}
+    else if(e.key==='Home'){e.preventDefault();focusCard(0)}
+    else if(e.key==='End'){e.preventDefault();focusCard(cards.length-1)}
+  });
+
+  // Start with first card focused
+  if(cards.length)focusCard(0);
+})();
+</script>
+</body>
+</html>`;
+
+  fs.writeFileSync(outputPath, html, "utf-8");
+
+  // Print validation summary to console
+  let consoleOut = "";
+  slides.forEach((slide, idx) => {
+    const layout = detectLayout(slide, idx, slides.length);
+    const v = validateSlide(slide, layout);
+    if (v.issues.length || v.warnings.length) {
+      consoleOut += "  Slide " + String(idx + 1).padStart(2, "0") + " [" + layout + "]:";
+      v.issues.forEach(i => { consoleOut += "\n    \u2716 " + i; });
+      v.warnings.forEach(w => { consoleOut += "\n    \u26A0 " + w; });
+      consoleOut += "\n";
+    }
+  });
+  if (consoleOut) {
+    console.log("\nValidation:");
+    console.log(consoleOut);
+  }
+
+  return { slides: slides.length, output: outputPath, theme: themeName };
+}
+
+// ═══════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════
 
@@ -1628,7 +2013,7 @@ if (require.main === module) {
     --theme <name>   Theme: light (default), dark, red, blue
     --ratio <r>      Aspect ratio: 16:9 (default), 4:3
     --font <name>    Default font: "Helvetica Neue" (default)
-    --format <f>     Output format: pptx (default), html
+    --format <f>     Output format: pptx (default), html, review
     --help           Show this help
 
   Markdown format:
@@ -1679,7 +2064,7 @@ if (require.main === module) {
   const formatIdx = args.indexOf("--format");
   const format = formatIdx >= 0 ? args[formatIdx + 1] : "pptx";
 
-  const ext = format === "html" ? ".html" : ".pptx";
+  const ext = format === "review" ? ".review.html" : format === "html" ? ".html" : ".pptx";
   let output = args[1] && !args[1].startsWith("--") ? args[1] : input.replace(/\.md$/, ext);
 
   if (!fs.existsSync(input)) {
@@ -1687,7 +2072,7 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  const gen = format === "html" ? generateHTML : generate;
+  const gen = format === "review" ? generateReview : format === "html" ? generateHTML : generate;
   gen(input, output, { theme, ratio, font })
     .then(result => {
       console.log("\u2713 Generated " + result.slides + " slides \u2192 " + result.output);
@@ -1699,4 +2084,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { generate, generateHTML, parseMarkdown, createGrid, THEMES, LAYOUTS };
+module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS };
