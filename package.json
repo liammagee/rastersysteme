@@ -6,7 +6,8 @@
     "raster": "node raster.js",
     "compose": "node compose.js",
     "test": "node --test raster.test.js",
-    "review": "node raster.js --format review"
+    "review": "node raster.js --format review",
+    "qa": "node qa.js"
   },
   "bin": {
     "raster": "./raster.js",

@@ -1775,12 +1775,13 @@ body{background:#111;color:#ccc;font-family:'Helvetica Neue',Helvetica,Arial,san
 
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:16px}
 
-.card{background:#1a1a1a;border:1px solid #333;border-radius:6px;overflow:hidden;cursor:pointer;transition:border-color 0.15s}
-.card:hover,.card.focused{border-color:#666;outline:2px solid #555;outline-offset:2px}
+.card{background:#1a1a1a;border:2px solid #333;border-radius:6px;overflow:hidden;cursor:pointer;transition:all 0.15s}
+.card:hover{border-color:#666}
+.card.focused{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,0.4);z-index:10;position:relative;transform:scale(1.01)}
 .card.has-issues{border-color:#E63222}
-.card.has-issues.focused{outline-color:#E63222}
+.card.has-issues.focused{border-color:#ff6b6b;box-shadow:0 0 0 3px rgba(230,50,34,0.5)}
 .card.has-warnings{border-color:#F2C12E}
-.card.has-warnings.focused{outline-color:#F2C12E}
+.card.has-warnings.focused{border-color:#ffd966;box-shadow:0 0 0 3px rgba(242,193,46,0.5)}
 
 .card-header{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#222;font-size:12px}
 .card-num{color:#fff;font-weight:700;font-family:'SF Mono',monospace}
@@ -1948,22 +1949,22 @@ ${cards}
   lbInner.addEventListener('click',function(e){e.stopPropagation()});
 
   document.addEventListener('keydown',function(e){
-    // Lightbox mode
+    // Lightbox mode — arrows navigate slides, Escape closes
     if(current>=0){
       if(e.key==='Escape'){closeLB();e.preventDefault()}
       else if(e.key==='ArrowRight'){navLB(1);e.preventDefault()}
       else if(e.key==='ArrowLeft'){navLB(-1);e.preventDefault()}
       return;
     }
-    // Grid navigation mode
+    // Grid mode — arrows move focus, page scrolls naturally to follow
     var cols=getGridCols();
-    if(e.key==='ArrowRight'){e.preventDefault();focusCard(Math.min(focused+1,cards.length-1))}
-    else if(e.key==='ArrowLeft'){e.preventDefault();focusCard(Math.max(focused-1,0))}
-    else if(e.key==='ArrowDown'){e.preventDefault();focusCard(Math.min(focused+cols,cards.length-1))}
-    else if(e.key==='ArrowUp'){e.preventDefault();focusCard(Math.max(focused-cols,0))}
+    if(e.key==='ArrowRight'){focusCard(Math.min(focused+1,cards.length-1))}
+    else if(e.key==='ArrowLeft'){focusCard(Math.max(focused-1,0))}
+    else if(e.key==='ArrowDown'){focusCard(Math.min(focused+cols,cards.length-1))}
+    else if(e.key==='ArrowUp'){focusCard(Math.max(focused-cols,0))}
     else if(e.key==='Enter'&&focused>=0){e.preventDefault();openLB(focused)}
-    else if(e.key==='Home'){e.preventDefault();focusCard(0)}
-    else if(e.key==='End'){e.preventDefault();focusCard(cards.length-1)}
+    else if(e.key==='Home'){focusCard(0)}
+    else if(e.key==='End'){focusCard(cards.length-1)}
   });
 
   // Start with first card focused
