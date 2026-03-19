@@ -56,19 +56,16 @@ function adaptThemeForBg(theme, bgHex) {
   const themeBgDark = isDarkColor(theme.bg);
   if (bgDark === themeBgDark) return theme;
   if (bgDark && !themeBgDark) {
-    // Light theme on dark bg: lighten text AND brighten accents
     return {
       ...theme,
-      text: "F0EBE3", textMid: "B8B0A2", textLight: "8C8478",
-      accent: "E06B5A", accent2: "5AABBF", accent3: "78B87E", accent4: "DDBA5C",
+      text: "F0EBE3", textMid: "B8B0A2", textLight: "A09890",
+      accentLight: "F09080", white: "F0EBE3",
     };
   }
   if (!bgDark && themeBgDark) {
-    // Dark theme on light bg: darken text, use muted accents
     return {
       ...theme,
-      text: "1A1A1A", textMid: "5C5549", textLight: "8C8478",
-      accent: "C44230", accent2: "2C7A92", accent3: "548C5A", accent4: "C79B38",
+      text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
     };
   }
   return theme;
@@ -104,7 +101,7 @@ const THEMES = {
   light: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "1A1A1A",
     text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
-    accent: "B7311A", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
+    accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   dark: {
@@ -116,13 +113,13 @@ const THEMES = {
   red: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "6B1A10",
     text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
-    accent: "B7311A", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
+    accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   blue: {
     bg: "F0F4F8", bgAlt: "F7FAFB", bgDark: "0F2A4A",
-    text: "1A1A1A", textMid: "4A5568", textLight: "7A8598",
-    accent: "1B5E80", accent2: "B7311A", accent3: "2B7038", accent4: "876512",
+    text: "1A1A1A", textMid: "4A5568", textLight: "5E6878",
+    accent: "1B5E80", accentLight: "80C0D8", accent2: "B7311A", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "CBD5E0",
   },
 };
@@ -579,7 +576,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(25), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -672,7 +669,7 @@ const LAYOUTS = {
       const row = startRow + i * step;
       if (row > 36) return;
       const c = colors[i % 4];
-      const textOnDark = c === theme.accent4 ? theme.black : theme.white;
+      const textOnDark = theme.white;
 
       s.addShape(pres.shapes.RECTANGLE, {
         x: g.cx(col), y: g.cy(row), w: g.cw(Math.min(42, 60 - col)), h: g.ch(Math.max(4, step - 1)),
@@ -703,7 +700,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(1), y: g.cy(1), w: g.cw(20), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -859,7 +856,7 @@ const LAYOUTS = {
         x: g.cx(c), y: g.cy(r + 10), w: g.cw(cs), h: g.ch(rs),
         fill: { color: colors[i % 5], transparency: i % 5 === 4 ? 10 : 40 },
       });
-      const textColor = (colors[i % 5] === theme.accent4) ? theme.black : theme.white;
+      const textColor = theme.white;
       s.addText(item, {
         x: g.cx(c) + 0.08, y: g.cy(r + 10) + 0.04,
         w: g.cw(cs - 1), h: g.ch(rs - 1),
@@ -982,7 +979,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(25), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1050,7 +1047,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(30), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1097,7 +1094,7 @@ const LAYOUTS = {
       s.addText(slide.sectionLabel.toUpperCase(), {
         x: g.cx(0), y: g.cy(0), w: g.cw(30), h: g.ch(3),
         fontSize: 8, fontFace: ff,
-        color: theme.accentLight || theme.accent, bold: true, margin: 0, charSpacing: 3,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
       });
     }
 
@@ -1384,7 +1381,8 @@ h1{font-size:clamp(1.8rem,5vmin,3.5rem);font-weight:700;line-height:1.1;letter-s
 h2.subtitle{font-size:clamp(1rem,2.5vmin,1.6rem);font-weight:400;color:var(--text-mid)}
 p{font-size:clamp(0.85rem,1.8vmin,1.2rem);line-height:1.5;color:var(--text-mid)}
 .label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
-  color:var(--accent-light,var(--accent));font-weight:700;display:block;margin-bottom:1vmin}
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
 blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
   background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
   font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}

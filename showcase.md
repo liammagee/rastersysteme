@@ -214,7 +214,7 @@ Flush left, ragged right produces even word spacing and a consistent left edge. 
 ---
 
 <!-- layout: section -->
-<!-- bg: 8B1A10 -->
+<!-- bg: 6B1A10 -->
 
 ## III. Farbe
 
@@ -383,7 +383,7 @@ This table maps each layout to its grid usage and art-historical reference. Note
 ---
 
 <!-- layout: section -->
-<!-- bg: 2A7A4B -->
+<!-- bg: 1B3D22 -->
 
 ## V. Musica Viva
 

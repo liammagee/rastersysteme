@@ -96,14 +96,15 @@ function getSlideColourPairs(slide, layout, theme) {
     ["title", "section"].includes(layout) ? theme.bgDark : theme.bgAlt
   );
 
-  // Adapt text color for bg override
-  let textColor = theme.text;
-  let textMid = theme.textMid;
-  let textLight = theme.textLight;
-  if (slide.bgOverride) {
-    const bgDark = isDarkColor(slide.bgOverride);
-    if (bgDark) { textColor = "F0EBE3"; textMid = "B8B0A2"; textLight = "8C8478"; }
-    else { textColor = "1A1A1A"; textMid = "5C5549"; textLight = "8C8478"; }
+  // Adapt colours: section/title have dark bg by default; bgOverride may change darkness
+  const bgIsDark = isDarkColor(bg);
+  let textColor, textMid, textLight, labelColor;
+  if (bgIsDark) {
+    textColor = "F0EBE3"; textMid = "B8B0A2"; textLight = "A09890";
+    labelColor = theme.accentLight || "F09080";
+  } else {
+    textColor = theme.text; textMid = theme.textMid; textLight = theme.textLight;
+    labelColor = theme.accent;
   }
 
   // Title text
@@ -120,7 +121,7 @@ function getSlideColourPairs(slide, layout, theme) {
 
   // Section label
   if (slide.sectionLabel) {
-    pairs.push({ element: "section-label", fg: theme.accentLight || theme.accent, bg, size: 8, bold: true });
+    pairs.push({ element: "section-label", fg: labelColor, bg, size: 8, bold: true });
   }
 
   // Body text
@@ -134,8 +135,7 @@ function getSlideColourPairs(slide, layout, theme) {
     if (layout === "stagger") {
       // White text on accent bars
       [theme.accent, theme.accent2, theme.accent3, theme.accent4].forEach((c, i) => {
-        const fg = c === theme.accent4 ? theme.black : theme.white;
-        pairs.push({ element: `stagger-bar-${i + 1}`, fg, bg: c, size: 15, bold: true });
+        pairs.push({ element: `stagger-bar-${i + 1}`, fg: theme.white, bg: c, size: 15, bold: true });
       });
     } else if (layout === "title") {
       // White text on accent pills
@@ -170,8 +170,7 @@ function getSlideColourPairs(slide, layout, theme) {
   // Fragment cells
   if (layout === "fragment") {
     [theme.accent, theme.accent2, theme.accent3, theme.accent4, theme.black].forEach((c, i) => {
-      const fg = c === theme.accent4 ? theme.black : theme.white;
-      pairs.push({ element: `fragment-cell-${i + 1}`, fg, bg: c, size: 11, bold: true });
+      pairs.push({ element: `fragment-cell-${i + 1}`, fg: theme.white, bg: c, size: 11, bold: true });
     });
   }
 
@@ -182,7 +181,9 @@ function getSlideColourPairs(slide, layout, theme) {
   }
 
   // Slide number
-  pairs.push({ element: "slide-number", fg: textLight, bg, size: 8, bold: false });
+  // Slide number uses textMid on dark layouts, textLight on light
+  const slideNumColor = bgIsDark ? textMid : textLight;
+  pairs.push({ element: "slide-number", fg: slideNumColor, bg, size: 8, bold: false });
 
   return pairs;
 }

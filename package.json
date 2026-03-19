@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Swiss 60-column grid slide generator. Markdown → PPTX/HTML.",
   "scripts": {
+    "start": "node rastersysteme.js",
     "raster": "node raster.js",
     "compose": "node compose.js",
     "test": "node --test raster.test.js",
@@ -11,6 +12,7 @@
     "batch": "node batch.js"
   },
   "bin": {
+    "rastersysteme": "./rastersysteme.js",
     "raster": "./raster.js",
     "compose": "./compose.js"
   },
