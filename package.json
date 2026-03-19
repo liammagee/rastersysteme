@@ -7,7 +7,8 @@
     "compose": "node compose.js",
     "test": "node --test raster.test.js",
     "review": "node raster.js --format review",
-    "qa": "node qa.js"
+    "qa": "node qa.js",
+    "batch": "node batch.js"
   },
   "bin": {
     "raster": "./raster.js",
