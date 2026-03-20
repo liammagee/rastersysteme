@@ -587,10 +587,14 @@ async function compare(sourcePath, options = {}) {
 
   // 0. Generate design brief from content (unless one was provided)
   if (!options.brief) {
+    // No brief provided at all — generate one from content
     const tBrief = timer();
     const sourceMdForBrief = fs.readFileSync(sourcePath, "utf-8");
     options.brief = generateBrief(sourceMdForBrief, options);
     process.stderr.write(`  ${dim("Brief generated")} ${amber(tBrief())}\n`);
+  } else if (options.brief === "default") {
+    // User explicitly chose "skip" — use the built-in DEFAULT_BRIEF
+    options.brief = "";
   }
 
   // Set themes for explosive mode

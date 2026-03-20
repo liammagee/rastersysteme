@@ -321,7 +321,7 @@ async function interactive(preselectedInput) {
     const compareArgs = [input];
     if (!explosive) compareArgs.push("--theme", themeName);
     if (explosive) compareArgs.push("--explosive");
-    if (brief) compareArgs.push("--brief", brief);
+    compareArgs.push("--brief", brief || "default");
     if (skipEval) compareArgs.push("--skip-eval");
     run("compare.js", compareArgs);
 
