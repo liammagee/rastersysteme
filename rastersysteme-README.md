@@ -14,6 +14,9 @@ Output: `slides.pptx`
 ## npm Scripts
 
 ```bash
+# Interactive mode — asks for preferences, orchestrates full pipeline
+npm start
+
 # Generate PPTX (default)
 npm run raster -- slides.md --theme dark
 
@@ -26,9 +29,84 @@ npm run raster -- slides.md --format review --theme dark
 # Claude-directed art direction → slides
 npm run compose -- slides.md --theme dark --intensity radical
 
-# Run unit tests (78 tests: grid, themes, parser, layout, typography, colour)
+# Multi-style comparison: runs faithful/moderate/radical, evaluates, generates report
+npm run compare -- slides.md --theme light
+
+# Run unit tests
 npm test
 ```
+
+## Pipeline
+
+```
+                ┌─────────────────────────────────────────┐
+                │  rastersysteme.js (interactive entry)    │
+                └──────────────┬──────────────────────────┘
+                               │
+            ┌──────────────────┼──────────────────────┐
+            ▼                  ▼                      ▼
+     compose.js          raster.js              compare.js
+  Claude art-directs    renders to PPTX/HTML    multi-style A/B
+            │                  │                      │
+            ▼                  ▼                      ▼
+     *.composed.md      *.pptx / *.html        *.compare.html
+  (intermediate, editable)                    (evaluation report)
+```
+
+### compose.js — Claude-directed composition
+
+Takes raw markdown, sends it to Claude with a design vocabulary prompt
+rooted in Swiss International / New Wave typography. Claude selects layouts,
+restructures content, builds chromatic arcs, and adds typographic texture.
+
+```bash
+node compose.js <input.md> [output.pptx] [options]
+
+Options:
+  --theme <name>         light (default), dark, red, blue
+  --intensity <level>    faithful | moderate | radical
+  --brief "<direction>"  Creative direction for Claude
+  --dry-run              Output composed markdown only
+  --model <model>        Claude model override
+```
+
+**Intensity levels:**
+
+| Level | Philosophy | Behaviour |
+|-------|-----------|-----------|
+| `faithful` | Müller-Brockmann | Selects layouts, preserves structure |
+| `moderate` | Gerstner | Restructures for impact, adds pacing |
+| `radical` | Weingart | Fragments, reorders — radical design, not deletion |
+
+All levels preserve content completeness and original speaker notes.
+
+### compare.js — Multi-style evaluation
+
+Runs all 3 intensities against the same source, evaluates each against
+an a11y-inclusive rubric, and generates a comparison report.
+
+```bash
+node compare.js <source.md> [options]
+
+Options:
+  --theme <name>        Render theme (default: light)
+  --brief "<direction>" Creative brief for all variants
+  --model <model>       Claude model for evaluation (default: sonnet)
+  --skip-eval           Generate variants only, skip Claude evaluation
+  --no-pptx             HTML only, faster iteration
+```
+
+**Evaluation rubric (100 points):**
+
+| Criterion | Weight | What it measures |
+|-----------|--------|-----------------|
+| Content completeness | 20 | All source info survives (URLs, dates, criteria) |
+| Design quality | 20 | Layout variety, color arc, typographic contrast |
+| Content fidelity | 15 | No hallucinated or invented content |
+| Speaker notes | 15 | Original notes preserved + design rationale |
+| Pacing | 10 | Layout rhythm, blank slide usage, density variation |
+| Accessibility | 10 | WCAG contrast ratios, readability at scale |
+| Narrative coherence | 10 | Story arc, chapter structure, opening/close |
 
 ## Usage
 

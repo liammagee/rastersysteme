@@ -15,7 +15,14 @@
 const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+const chalk = require("chalk");
 const { generate } = require("./raster.js");
+
+const dim = chalk.gray;
+const accent = chalk.hex("#C44230");
+const teal = chalk.hex("#2C7A92");
+const sage = chalk.hex("#548C5A");
+const amber = chalk.hex("#C79B38");
 
 // ═══════════════════════════════════════════════════════
 // DESIGN VOCABULARY — the prompt that teaches Claude
@@ -131,6 +138,13 @@ RULES:
   4. Do NOT invent content. Rephrase, fragment, abbreviate, recompose — but
      the words come from the source. Editorial compression is encouraged;
      editorial invention is not.
+  4b. CONTENT COMPLETENESS: All substantive information from the source must
+     appear in the output. URLs, dates, names, assessment weightings, deadlines,
+     weekly task descriptions, criteria, policies — everything that a student or
+     audience member would need. You may compress phrasing, but you may not
+     drop information. If the source has a Zoom link, include it. If the source
+     has six weekly questions, all six must appear. The composed deck must be
+     usable as a REPLACEMENT for the original, not a teaser for it.
   5. Use ### section labels constantly. They create the typographic texture
      that distinguishes Swiss-informed design from generic slides. Tiny labels
      anchoring large titles is the foundational Swiss scale relationship.
@@ -233,11 +247,23 @@ strong phrases to titles. Demote secondary information to ### labels.
 You are editing for visual impact — but the content's logic still leads.`,
 
   radical: `INTENSITY: RADICAL
-Treat the content as raw material for visual composition. Fragment, juxtapose,
-reorder. A single word can fill a section slide. A paragraph can shatter into a
-stagger cascade. The design IS the interpretation — meaning emerges from
-form, not from faithful transcription. Break expectations, but with the
-competence Weingart demanded: know what you are breaking and why.`,
+Radical means radical DESIGN — not radical deletion. Every piece of substantive
+information in the source must appear somewhere in the output. What is radical
+is how you present it: fragment a paragraph into a stagger cascade, isolate a
+single phrase as a full section slide, reorder sections for dramatic arc,
+juxtapose ideas that were separated, use extreme typographic scale. The design
+IS the interpretation — meaning emerges from form. But form without content
+is decoration.
+
+A course schedule can become a fragment mosaic. Assessment criteria can cascade
+diagonally. A welcome speech can be split across three slides with silences
+between. But the schedule, the criteria, and the speech must all be PRESENT.
+If the source has six weekly task descriptions with specific questions, all six
+must appear with their questions — just composed radically. If the source has
+detailed assessment criteria, every criterion must survive.
+
+Break expectations of how content is presented. Never break the contract that
+all content is represented.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -267,6 +293,64 @@ CRITICAL: Your response must begin with <!-- layout: on the very first line and 
 // ═══════════════════════════════════════════════════════
 // CLAUDE CLI CALLER
 // ═══════════════════════════════════════════════════════
+
+function callClaudeAsync(prompt, options = {}) {
+  const { spawn: spawnAsync } = require("child_process");
+  return new Promise((resolve, reject) => {
+    const args = ["-p", "--output-format", "text"];
+    if (options.model) args.push("--model", options.model);
+
+    const label = options.label || "";
+    const proc = spawnAsync("claude", args, {
+      stdio: ["pipe", "pipe", "pipe"],
+    });
+
+    let stdout = "";
+    let stderr = "";
+    let chars = 0;
+    const startTime = Date.now();
+
+    // Heartbeat: show elapsed time every second so user knows it's alive
+    const heartbeat = setInterval(() => {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
+      const charInfo = chars > 0 ? ` ${chars} chars` : "";
+      process.stderr.write(`\r  ${dim("[")}${accent(label || "claude")}${dim("]")} ${amber(elapsed + "s")}${dim(charInfo)}   `);
+    }, 1000);
+
+    proc.stdout.on("data", (d) => {
+      stdout += d;
+      chars += d.length;
+    });
+    proc.stderr.on("data", (d) => { stderr += d; });
+    proc.stdin.write(prompt);
+    proc.stdin.end();
+
+    const timeout = setTimeout(() => {
+      clearInterval(heartbeat);
+      proc.kill();
+      reject(new Error("Claude timed out after 10 minutes"));
+    }, 600000);
+
+    proc.on("close", (code) => {
+      clearInterval(heartbeat);
+      clearTimeout(timeout);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      process.stderr.write(`\r  ${dim("[")}${accent(label || "claude")}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(elapsed + "s")}       \n`);
+      if (code !== 0) {
+        return reject(new Error(`Claude exited with code ${code}${stderr ? ": " + stderr.trim() : ""}`));
+      }
+      resolve(stdout);
+    });
+
+    proc.on("error", (err) => {
+      clearTimeout(timer);
+      if (err.code === "ENOENT") {
+        return reject(new Error("Claude CLI not found. Install it: npm install -g @anthropic-ai/claude-code"));
+      }
+      reject(err);
+    });
+  });
+}
 
 function callClaude(prompt, options = {}) {
   const args = ["-p", "--output-format", "text"];
@@ -307,6 +391,9 @@ function callClaude(prompt, options = {}) {
       .replace(/\n```\s*$/, "");
   }
 
+  // Skip slide sanitization if caller just wants raw text (e.g. brief generation)
+  if (options.raw) return output;
+
   // Sanitize: extract only slide markdown if Claude added preamble/postscript
   const layoutIdx = output.indexOf("<!-- layout:");
   if (layoutIdx < 0) {
@@ -337,24 +424,80 @@ function callClaude(prompt, options = {}) {
   return output;
 }
 
+function sanitizeClaudeOutput(raw) {
+  let output = (raw || "").trim();
+  if (!output) throw new Error("Claude returned empty output");
+
+  if (/^```(?:markdown)?\s*\n/.test(output) && /\n```\s*$/.test(output)) {
+    output = output.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
+  }
+
+  const layoutIdx = output.indexOf("<!-- layout:");
+  if (layoutIdx < 0) {
+    throw new Error("Claude did not return valid slide markdown (no <!-- layout: --> directives found).");
+  }
+  if (layoutIdx > 0) output = output.substring(layoutIdx);
+
+  const lines = output.split("\n");
+  let lastContentLine = lines.length - 1;
+  while (lastContentLine > 0) {
+    const trimmed = lines[lastContentLine].trim();
+    if (
+      trimmed === "" || trimmed === "---" ||
+      trimmed.startsWith("<!--") || trimmed.startsWith("#") ||
+      trimmed.startsWith("-") || trimmed.startsWith(">") ||
+      trimmed.startsWith("```")
+    ) break;
+    lastContentLine--;
+  }
+  return lines.slice(0, lastContentLine + 1).join("\n").trimEnd();
+}
+
 // ═══════════════════════════════════════════════════════
 // COMPOSE PIPELINE
 // ═══════════════════════════════════════════════════════
+
+async function composeAsync(inputPath, outputPath, options = {}) {
+  const md = fs.readFileSync(inputPath, "utf-8");
+  const intensity = options.intensity || "moderate";
+
+  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("] Composing...")}\n`);
+
+  const prompt = buildPrompt(md, options);
+  const raw = await callClaudeAsync(prompt, { ...options, label: intensity });
+  const composed = sanitizeClaudeOutput(raw);
+
+  const composedPath = outputPath.replace(/\.pptx$/, ".composed.md");
+  fs.writeFileSync(composedPath, composed);
+  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} → ${teal(composedPath)}\n`);
+
+  if (options.dryRun) {
+    return { slides: 0, output: composedPath, dryRun: true };
+  }
+
+  const result = await generate(composedPath, outputPath, {
+    theme: options.theme,
+    ratio: options.ratio,
+  });
+
+  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${chalk.white.bold(result.slides)} slides\n`);
+  return { ...result, composedPath };
+}
 
 async function compose(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
 
-  process.stderr.write(`  Reading ${path.basename(inputPath)}...\n`);
-  process.stderr.write(`  Composing (intensity: ${intensity})...\n`);
+  process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))}${dim("...")}\n`);
 
   const prompt = buildPrompt(md, options);
-  const composed = callClaude(prompt, options);
+  const raw = await callClaudeAsync(prompt, { ...options, label: intensity });
+  const composed = sanitizeClaudeOutput(raw);
 
   // Write intermediate composed markdown for inspection / manual editing
   const composedPath = outputPath.replace(/\.pptx$/, ".composed.md");
   fs.writeFileSync(composedPath, composed);
-  process.stderr.write(`  Composed markdown → ${composedPath}\n`);
+  process.stderr.write(`  ${dim("Composed →")} ${teal(composedPath)}\n`);
 
   if (options.dryRun) {
     process.stdout.write(composed + "\n");
@@ -368,7 +511,7 @@ async function compose(inputPath, outputPath, options = {}) {
   });
 
   process.stderr.write(
-    `  ✓ ${result.slides} slides → ${result.output} (${result.theme}, 60×40 grid)\n`
+    `  ${sage("✓")} ${chalk.white.bold(result.slides)} slides → ${teal(result.output)} ${dim(`(${result.theme}, 60×40)`)}\n`
   );
 
   return { ...result, composedPath };
@@ -443,4 +586,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compose, buildPrompt, callClaude, DESIGN_BRIEF, DEFAULT_BRIEF, INTENSITY };
+module.exports = { compose, composeAsync, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DEFAULT_BRIEF, INTENSITY };

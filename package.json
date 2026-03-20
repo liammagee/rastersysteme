@@ -8,15 +8,18 @@
     "compose": "node compose.js",
     "test": "node --test raster.test.js",
     "review": "node raster.js --format review",
+    "compare": "node compare.js",
     "qa": "node qa.js",
     "batch": "node batch.js"
   },
   "bin": {
     "rastersysteme": "./rastersysteme.js",
     "raster": "./raster.js",
-    "compose": "./compose.js"
+    "compose": "./compose.js",
+    "compare": "./compare.js"
   },
   "dependencies": {
+    "chalk": "^4.1.2",
     "image-size": "^1.1.1",
     "pptxgenjs": "^4.0.1"
   }
