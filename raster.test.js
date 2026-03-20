@@ -631,6 +631,36 @@ describe("Compose module", () => {
       assert.ok(INTENSITY.moderate.includes("30") && INTENSITY.moderate.includes("60%"), "moderate: 30–60%");
       assert.ok(INTENSITY.radical.includes("50") && INTENSITY.radical.includes("80%"), "radical: 50–80%");
     });
+
+    it("font usage escalates: faithful=none, moderate=limited, radical=mandatory", () => {
+      assert.ok(INTENSITY.faithful.includes("No font overrides"), "faithful: no font overrides");
+      assert.ok(INTENSITY.moderate.includes("font: Georgia"), "moderate: Georgia allowed");
+      assert.ok(INTENSITY.radical.includes("FONT MIXING is mandatory"), "radical: font mixing required");
+    });
+
+    it("radical specifies concrete bg hex colours", () => {
+      // Should include actual hex values, not just "deep navy"
+      assert.ok(INTENSITY.radical.includes("0F2A4A"), "radical should specify deep navy hex");
+      assert.ok(INTENSITY.radical.includes("3D0A06"), "radical should specify dark blood hex");
+      assert.ok(INTENSITY.radical.includes("1B3D22"), "radical should specify deep forest hex");
+    });
+
+    it("radical mandates multiple font families", () => {
+      assert.ok(INTENSITY.radical.includes("Georgia"), "radical should use Georgia");
+      assert.ok(INTENSITY.radical.includes("Courier New"), "radical should use Courier New");
+      assert.ok(INTENSITY.radical.includes("Futura"), "radical should use Futura");
+    });
+
+    it("faithful restricts to greyscale bg only", () => {
+      assert.ok(INTENSITY.faithful.includes("greyscale") || INTENSITY.faithful.includes("111111"),
+        "faithful should restrict bg to greyscale");
+    });
+
+    it("colour palettes differ: faithful=grey, moderate=2-3 colours, radical=full arc", () => {
+      assert.ok(INTENSITY.faithful.includes("No coloured backgrounds"), "faithful: no colour");
+      assert.ok(INTENSITY.moderate.includes("chromatic arc"), "moderate: chromatic arc");
+      assert.ok(INTENSITY.radical.includes("FULL chromatic arc"), "radical: FULL chromatic arc");
+    });
   });
 
   it("buildPrompt includes the source markdown", () => {

@@ -121,9 +121,28 @@ MARKDOWN SYNTAX — your output must use exactly this format:
   ## Subtitle      → secondary text (~18–24pt)
   ### LABEL        → small-caps section label (8pt, wide letterspacing — the Kunz texture)
   - bullet         → list item
+    - nested       → indented sub-bullet (2-space indent = 1 level)
   > quote          → blockquote / callout
   <!-- layout: X -->   → REQUIRED on every slide
   <!-- bg: HEX -->     → background color override (6-char hex, no #)
+  <!-- font: Name -->  → per-slide font override (default: Helvetica Neue)
+
+  BACKGROUND COLOUR PALETTE — use these for chromatic arcs:
+    Dark grounds:  111111, 1A1A1A, 0F2A4A, 1B3D22, 3D0A06, 2A1A0A
+    Mid tones:     4A3728, 2C3E50, 1A3C34, 5B2D1E, 3B1F2E
+    Warm accents:  B7311A, 876512, 8B4513, A0522D
+    Cool accents:  1B5E80, 2B7038, 4A6741
+    Near-whites:   F8F5F0, F0F4F8, FFF8E7
+
+  FONT OPTIONS — use <!-- font: Name --> for typographic contrast:
+    Georgia            → serif, editorial warmth (blockquotes, reflective slides)
+    Palatino           → classical serif (formal content, policies)
+    Courier New        → monospace (data, technical content, code-adjacent)
+    Futura             → geometric sans (modernist statements)
+    Helvetica Neue     → default neo-grotesque (the Swiss baseline)
+
+  Using font overrides on 10–30% of slides creates typographic texture.
+  A serif slide after 5 sans slides is a visual event.
 
   For speaker notes, use a fenced code block with the language tag "notes":
   three backticks + notes, then content, then three closing backticks.
@@ -255,6 +274,12 @@ HARD CONSTRAINTS:
 - Preserve ALL speaker notes exactly as they appear in the source.
 - NO blank slides. Faithful mode does not add structural silence.
 
+VISUAL IDENTITY:
+- Font: Helvetica Neue only. No font overrides. The Swiss baseline.
+- Colour: neutral palette. Use bg overrides only in greyscale (111111, 1A1A1A, F8F5F0).
+  No coloured backgrounds. Let the accent colours do the work.
+- Density: content-heavy slides. Fill the grid. This is an information design, not a poster.
+
 The result should look like the source material was poured into a Swiss grid
 and set in Helvetica — recognisably the same content, unmistakably better designed.`,
 
@@ -277,6 +302,15 @@ HARD CONSTRAINTS:
 - Add 1–2 blank slides as structural punctuation at major transitions.
 - Speaker notes: preserve original notes, add brief design rationale on
   slides where you made significant layout choices.
+
+VISUAL IDENTITY:
+- Font: Helvetica Neue as default. Use <!-- font: Georgia --> on 2–3 slides
+  for editorial contrast (quotes, reflective moments). No more than 10%.
+- Colour: build a 2–3 colour chromatic arc using the dark/mid palette.
+  Example arc: 1A1A1A → 0F2A4A → 1A1A1A → 1B3D22 → 111111.
+  Warm accent slides (3D0A06, 4A3728) at emotional peaks.
+- Density: vary deliberately. Dense stagger slides followed by sparse section
+  slides. The contrast in density IS the rhythm.
 
 The result should feel like an experienced designer interpreted the content —
 the same information, but with pacing, emphasis, and visual rhythm that the
@@ -304,9 +338,23 @@ HARD CONSTRAINTS:
   split a quote across a rotated layout, reorder for dramatic arc.
 - bg overrides on 50–80% of slides. Build a FULL chromatic arc across the
   deck — not just accent colors but deep custom backgrounds that create
-  an atmospheric journey (deep navy, forest green, warm ochre, near-black).
+  an atmospheric journey. USE SPECIFIC COLOURS:
+    Opening: 111111 or 0F2A4A (near-black or deep navy)
+    Tension: 3D0A06 or 5B2D1E (dark blood, burnt sienna)
+    Relief: 1B3D22 or 1A3C34 (deep forest)
+    Warmth: 2A1A0A or 4A3728 (espresso, earth)
+    Close: 111111 (return to darkness)
+  NOT every slide needs a bg — some should breathe with the theme default.
 - TYPOGRAPHIC SCALE: vary heading levels aggressively. A ### label over a
   # title is the Swiss scale relationship. Use it on 60%+ of content slides.
+- FONT MIXING is mandatory:
+    Use <!-- font: Georgia --> on 15–25% of slides (quotes, editorial, reflective).
+    Use <!-- font: Courier New --> on data-heavy or technical slides.
+    Use <!-- font: Futura --> on bold statements or manifestos.
+    The default Helvetica Neue is the ground; other fonts are events.
+- VISUAL DENSITY CONTRAST: alternate between dense and sparse.
+    A stagger with 5 bars → blank → single-word section → 8-bullet rotated.
+    The variation in density across adjacent slides IS the design.
 - Speaker notes: preserve all original notes, add design rationale explaining
   WHY each radical choice was made.
 - ALL substantive content must survive. Radical design, not radical deletion.
