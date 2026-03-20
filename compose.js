@@ -148,41 +148,32 @@ MARKDOWN SYNTAX — your output must use exactly this format:
   three backticks + notes, then content, then three closing backticks.
   Use these for brief design rationale on key slides.
 
-RULES:
+RULES — YOUR ROLE IS DESIGN, NOT EDITING:
 
-  1. Output ONLY the composed markdown. No commentary, no preamble, no code fences. Raw slides.
+  1. Output ONLY the markdown. No commentary, no preamble, no code fences. Raw slides.
   2. Every slide MUST have a <!-- layout: name --> directive.
-  3. You may restructure freely: split, merge, reorder, promote body to title,
-     demote titles to labels. Content is material, not scripture.
-  4. Do NOT invent content. Rephrase, fragment, abbreviate, recompose — but
-     the words come from the source. Editorial compression is encouraged;
-     editorial invention is not.
-  4b. CONTENT COMPLETENESS: All substantive information from the source must
-     appear in the output. URLs, dates, names, assessment weightings, deadlines,
-     weekly task descriptions, criteria, policies — everything that a student or
-     audience member would need. You may compress phrasing, but you may not
-     drop information. If the source has a Zoom link, include it. If the source
-     has six weekly questions, all six must appear. The composed deck must be
-     usable as a REPLACEMENT for the original, not a teaser for it.
-  5. Use ### section labels constantly. They create the typographic texture
-     that distinguishes Swiss-informed design from generic slides. Tiny labels
-     anchoring large titles is the foundational Swiss scale relationship.
-  6. Blank slides are structural punctuation. Use them — but earn them.
-  7. A single word or phrase can be a full section slide if the conviction is there.
-  8. Build a narrative arc: opening energy → development → climax → resolution → silence.
-  9. Never repeat the same layout three times consecutively. The rhythm of layout
-     variation IS the visual argument. If you catch yourself defaulting to one layout,
-     the composition has gone wrong.
-  10. Use <!-- bg: HEX --> overrides to build a chromatic arc through the entire deck.
-      Each color should carry semantic meaning, not just visual variety.
-  11. SPEAKER NOTES: The source material contains speaker notes (in \`\`\`notes blocks).
-      These are the presenter's script — they MUST be preserved in the output. When you
-      restructure slides, distribute the original notes to whichever composed slide inherits
-      that content. Paraphrase or compress if needed, but the substance must survive.
-      You may add brief design rationale AFTER the preserved notes, separated by a blank line,
-      but never replace the original notes entirely. If a source slide has no notes, you may
-      add design rationale alone. The notes pane is how the presenter delivers the talk —
-      without them, the deck is unusable.`;
+  3. CONTENT IS SACRED. Do NOT rephrase, abbreviate, reorder, split, merge, or
+     restructure slides. Each source slide becomes EXACTLY one output slide with
+     the SAME text content, in the SAME order. You are a designer, not an editor.
+     The words are fixed. The visual treatment is yours.
+  4. You MUST add <!-- layout: name --> to every slide — this is your primary tool.
+     Choose the layout that best serves each slide's existing content structure.
+  5. You MAY add <!-- bg: HEX --> for background color overrides. Use them to build
+     a chromatic arc through the deck. Each color should carry semantic meaning.
+  6. You MAY add ### SECTION LABEL above existing content for typographic texture.
+     This is a design element — a small-caps label that creates the Swiss scale
+     relationship against the slide's existing title. Derive labels from the
+     content's own themes and structure.
+  7. You MAY add <!-- font: Name --> for per-slide font overrides.
+  8. You MAY add blank slides (<!-- layout: blank -->) BETWEEN existing slides
+     for pacing. These are insertions, not replacements.
+  9. Speaker notes from the source MUST be preserved VERBATIM. You may append
+     design rationale AFTER the original notes, separated by a blank line.
+  10. Never use the same layout three times consecutively. Layout variation
+      IS the visual argument.
+  11. Do NOT invent content. Do NOT add titles, bullets, body text, or blockquotes
+      that are not in the source. The only things you may add are: directives
+      (layout, bg, font), ### labels, blank slides, and design rationale in notes.`;
 
 // ═══════════════════════════════════════════════════════
 // DEFAULT CREATIVE BRIEF — used when no --brief is given
@@ -253,117 +244,56 @@ not ignorance. Austere. Strange. Precise.`;
 // ═══════════════════════════════════════════════════════
 
 const INTENSITY = {
-  faithful: `INTENSITY: FAITHFUL — The Müller-Brockmann position
+  minimal: `INTENSITY: MINIMAL — The Müller-Brockmann position
 
-Philosophy: The content's existing structure IS the design. Your job is to
-dress it in Swiss clothing, not to rewrite the script.
+Content stays exactly as written. You dress it in Swiss clothing.
 
-HARD CONSTRAINTS:
-- Output slide count must be within ±20% of source slide count.
-- Do NOT merge or split slides. One source slide → one output slide.
-  Exception: you may add up to 2 section dividers for chapter structure.
-- Do NOT reorder content. The sequence of the source is the sequence of the output.
-- LAYOUT SELECTION is your primary tool. Choose the best layout for each slide's
-  existing content. A slide with 3 bullets gets "bullets". A slide with a quote
-  gets "rotated". A slide with a title only gets "section".
-- Apply ### section labels to create typographic texture — but derive them from
-  the source's own structure (topic names, headings), don't invent new ones.
-- Use bg overrides SPARINGLY — no more than 30% of slides. Color is reserved
-  for structural emphasis (chapter breaks, key moments), not decoration.
-- Keep "split" to under 25% of total layouts. Prefer bullets, stagger, section.
-- Preserve ALL speaker notes exactly as they appear in the source.
-- NO blank slides. Faithful mode does not add structural silence.
+DESIGN TOOLS:
+- Pick the obvious best layout for each slide's content structure.
+  3 bullets → "bullets". A quote → "rotated". Title only → "section".
+- ### labels: add sparingly, derived from the content's own themes.
+- bg overrides: no more than 30% of slides. Greyscale only (111111, 1A1A1A, F8F5F0).
+- Font: Helvetica Neue only. No font overrides.
+- No blank slides. No layout used more than 25% of the time.
 
-VISUAL IDENTITY:
-- Font: Helvetica Neue only. No font overrides. The Swiss baseline.
-- Colour: neutral palette. Use bg overrides only in greyscale (111111, 1A1A1A, F8F5F0).
-  No coloured backgrounds. Let the accent colours do the work.
-- Density: content-heavy slides. Fill the grid. This is an information design, not a poster.
-
-The result should look like the source material was poured into a Swiss grid
-and set in Helvetica — recognisably the same content, unmistakably better designed.`,
+The result: the same content, poured into a Swiss grid and set in Helvetica.`,
 
   moderate: `INTENSITY: MODERATE — The Gerstner position
 
-Philosophy: The content's logic leads, but you edit for visual impact.
-You are a skilled editor with a grid, not a faithful transcriber.
+Content stays exactly as written. You make bold design choices around it.
 
-HARD CONSTRAINTS:
-- Output slide count may be 1.2–1.8× the source slide count.
-- You MAY split dense source slides into 2–3 output slides.
-- You MAY add section dividers (up to 1 per 5 content slides).
-- You MAY promote a strong phrase from body text to a title slide.
-- You MAY reorder within sections but not across them.
-- LAYOUT VARIETY: use at least 6 different layout types. No layout may
-  exceed 30% of total slides. "split" is not the default — it is one
-  of 13 tools. Reach for stagger, rotated, fragment, overlap, arc.
-- Use bg overrides on 30–60% of slides. Build a 2–3 color chromatic arc
-  (e.g. dark → accent → dark → different accent → close).
-- Add 1–2 blank slides as structural punctuation at major transitions.
-- Speaker notes: preserve original notes, add brief design rationale on
-  slides where you made significant layout choices.
+DESIGN TOOLS:
+- Use at least 5 different layout types. No layout > 30% of slides.
+  Reach for stagger, rotated, fragment, overlap — not just split and bullets.
+- ### labels: add to most slides for typographic scale contrast.
+- bg overrides: 30–60% of slides. Build a 2–3 color chromatic arc.
+- Font: Helvetica Neue default. Use <!-- font: Georgia --> on 2–3 slides.
+- May add 1–2 blank slides at major transitions.
 
-VISUAL IDENTITY:
-- Font: Helvetica Neue as default. Use <!-- font: Georgia --> on 2–3 slides
-  for editorial contrast (quotes, reflective moments). No more than 10%.
-- Colour: build a 2–3 colour chromatic arc using the dark/mid palette.
-  Example arc: 1A1A1A → 0F2A4A → 1A1A1A → 1B3D22 → 111111.
-  Warm accent slides (3D0A06, 4A3728) at emotional peaks.
-- Density: vary deliberately. Dense stagger slides followed by sparse section
-  slides. The contrast in density IS the rhythm.
+The result: the same content, with pacing, emphasis, and visual rhythm.`,
 
-The result should feel like an experienced designer interpreted the content —
-the same information, but with pacing, emphasis, and visual rhythm that the
-raw source lacked.`,
+  maximal: `INTENSITY: MAXIMAL — The Weingart position
 
-  radical: `INTENSITY: RADICAL — The Weingart position
+Content stays exactly as written. You compose a visual argument around it.
 
-Philosophy: The design IS the interpretation. Form and content are inseparable.
-You are not presenting information — you are composing a visual argument.
-
-HARD CONSTRAINTS:
-- Output slide count may be 1.5–2.5× the source slide count.
-- LAYOUT DIVERSITY is mandatory: use at least 8 different layout types.
-  No single layout may exceed 20% of total slides.
-  BANNED from overuse: "split" may appear on no more than 15% of slides.
-  REQUIRED minimum usage:
-    - At least 2 stagger slides (cascading Musica Viva bars)
-    - At least 2 rotated slides (vertical type — Weingart's signature)
-    - At least 1 fragment slide (shattered mosaic)
-    - At least 1 overlap slide (dialectic colour fields)
-    - At least 3 section slides (structural anchors)
-    - At least 2 blank slides (composed silence)
-- RECOMPOSITION is expected: break paragraphs into stagger cascades,
-  isolate single words as section slides, turn lists into fragment mosaics,
-  split a quote across a rotated layout, reorder for dramatic arc.
-- bg overrides on 50–80% of slides. Build a FULL chromatic arc across the
-  deck — not just accent colors but deep custom backgrounds that create
-  an atmospheric journey. USE SPECIFIC COLOURS:
+DESIGN TOOLS:
+- Use at least 8 different layout types. No layout > 20% of slides.
+  "split" may not exceed 15%.
+  REQUIRED minimums: 2× stagger, 2× rotated, 1× fragment, 1× overlap, 3× section.
+- ### labels: on 60%+ of content slides. The 8pt label against a 30pt title
+  IS the primary visual tension.
+- bg overrides: 50–80% of slides. Build a FULL chromatic arc:
     Opening: 111111 or 0F2A4A (near-black or deep navy)
     Tension: 3D0A06 or 5B2D1E (dark blood, burnt sienna)
     Relief: 1B3D22 or 1A3C34 (deep forest)
     Warmth: 2A1A0A or 4A3728 (espresso, earth)
     Close: 111111 (return to darkness)
-  NOT every slide needs a bg — some should breathe with the theme default.
-- TYPOGRAPHIC SCALE: vary heading levels aggressively. A ### label over a
-  # title is the Swiss scale relationship. Use it on 60%+ of content slides.
-- FONT MIXING is mandatory:
-    Use <!-- font: Georgia --> on 15–25% of slides (quotes, editorial, reflective).
-    Use <!-- font: Courier New --> on data-heavy or technical slides.
-    Use <!-- font: Futura --> on bold statements or manifestos.
-    The default Helvetica Neue is the ground; other fonts are events.
-- VISUAL DENSITY CONTRAST: alternate between dense and sparse.
-    A stagger with 5 bars → blank → single-word section → 8-bullet rotated.
-    The variation in density across adjacent slides IS the design.
-- Speaker notes: preserve all original notes, add design rationale explaining
-  WHY each radical choice was made.
-- ALL substantive content must survive. Radical design, not radical deletion.
-  If the source has URLs, dates, criteria, questions — they all appear.
-  Present them radically, but present them.
+- Font mixing: <!-- font: Georgia --> on 15–25% of slides (quotes, reflective),
+  <!-- font: Courier New --> on technical slides, <!-- font: Futura --> on statements.
+- Add 2–4 blank slides as composed silence. Bracket key moments with darkness.
 
-The result should look like it was composed by someone who internalized the
-Swiss tradition so completely that their departures from it are legible as
-informed transgressions. Austere. Strange. Precise. Unmistakably designed.`,
+The result: austere, strange, precise. Every layout choice surprising but earned.
+The same words, made unfamiliar through form.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -391,6 +321,7 @@ const DESIGN_SEEDS = [
 
 function buildPrompt(markdown, options = {}) {
   const { intensity = "moderate", brief = "" } = options;
+  const { parseMarkdown } = require("./raster.js");
 
   const parts = [DESIGN_BRIEF];
 
@@ -404,13 +335,31 @@ function buildPrompt(markdown, options = {}) {
 
 COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
-  parts.push(`--- SOURCE MATERIAL ---
-${markdown}
+  // Pre-split source into numbered slides so Claude can't skip any
+  const sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
+  const numberedSlides = sourceSlides.map((slide, i) => {
+    return `=== SLIDE ${i + 1} of ${sourceSlides.length} ===\n${slide.trim()}`;
+  }).join("\n\n");
+
+  parts.push(`--- SOURCE SLIDES (${sourceSlides.length} total) ---
+
+${numberedSlides}
+
 --- END SOURCE ---
 
-Compose the slide deck now.
+YOUR TASK: Output exactly ${sourceSlides.length} slides, one for each source slide above,
+in the same order. For each slide:
+1. Add <!-- layout: name --> as the FIRST line
+2. Optionally add <!-- bg: HEX --> and/or <!-- font: Name -->
+3. Optionally add a ### SECTION LABEL for typographic texture
+4. Copy the slide's content EXACTLY as written — do not rephrase, abbreviate, or drop anything
+5. Preserve any existing speaker notes verbatim (you may append design rationale)
 
-CRITICAL: Your response must begin with <!-- layout: on the very first line and contain NOTHING but rastersysteme slide markdown. No commentary, no insights, no explanations, no code fences, no preamble, no postscript. The first characters of your output must be <!-- layout: and the output must end with slide content. Begin.`);
+You may also INSERT blank slides (<!-- layout: blank -->) between slides for pacing,
+but every source slide MUST appear in your output, unchanged.
+
+Output the slide deck now. Start with <!-- layout: on the very first line.
+No commentary, no code fences, no preamble.`);
 
   return parts.join("\n\n");
 }
@@ -640,7 +589,25 @@ async function composeAsync(inputPath, outputPath, options = {}) {
   });
 
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${chalk.white.bold(result.slides)} slides\n`);
-  return { ...result, composedPath };
+
+  // Content preservation + intensity compliance checks
+  const { validateIntensity, validateContentPreservation } = require("./qa.js");
+  const composedContent = fs.readFileSync(composedPath, "utf-8");
+  const composedSlides = parseMarkdown(composedContent);
+
+  const contentCheck = validateContentPreservation(md, composedContent);
+  const intensityCheck = validateIntensity(composedSlides, intensity);
+  const allChecks = [...contentCheck, ...intensityCheck];
+
+  if (allChecks.length > 0) {
+    process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} validation:\n`);
+    allChecks.forEach(r => {
+      const icon = r.severity === "error" ? accent("\u2716") : amber("\u26A0");
+      process.stderr.write(`    ${icon} ${r.message}\n`);
+    });
+  }
+
+  return { ...result, composedPath, validation: allChecks };
 }
 
 async function compose(inputPath, outputPath, options = {}) {
@@ -673,7 +640,24 @@ async function compose(inputPath, outputPath, options = {}) {
     `  ${sage("✓")} ${chalk.white.bold(result.slides)} slides → ${teal(result.output)} ${dim(`(${result.theme}, 60×40)`)}\n`
   );
 
-  return { ...result, composedPath };
+  // Content preservation + intensity compliance checks
+  const { validateIntensity, validateContentPreservation } = require("./qa.js");
+  const composedContent = fs.readFileSync(composedPath, "utf-8");
+  const composedSlides = parseMarkdown(composedContent);
+
+  const contentCheck = validateContentPreservation(md, composedContent);
+  const intensityCheck = validateIntensity(composedSlides, intensity);
+  const allChecks = [...contentCheck, ...intensityCheck];
+
+  if (allChecks.length > 0) {
+    process.stderr.write(`\n  Validation:\n`);
+    allChecks.forEach(r => {
+      const icon = r.severity === "error" ? accent("\u2716") : amber("\u26A0");
+      process.stderr.write(`    ${icon} ${r.message}\n`);
+    });
+  }
+
+  return { ...result, composedPath, validation: allChecks };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -696,7 +680,7 @@ if (require.main === module) {
   Options:
     --theme <name>         Render theme: light (default), dark, red, blue
     --ratio <r>            Aspect ratio: 16:9 (default), 4:3
-    --intensity <level>    faithful | moderate (default) | radical
+    --intensity <level>    minimal | moderate (default) | maximal
     --brief "<direction>"  Creative direction (supplements the default brief)
     --dry-run              Output composed markdown to stdout, skip render
     --model <model>        Claude model override
@@ -704,9 +688,9 @@ if (require.main === module) {
 
   Examples:
     node compose.js talk.md
-    node compose.js talk.md deck.pptx --theme dark --intensity radical
+    node compose.js talk.md deck.pptx --theme dark --intensity maximal
     node compose.js notes.md --brief "brutalist, maximum contrast" --dry-run
-    node compose.js pitch.md --intensity faithful --theme blue
+    node compose.js pitch.md --intensity minimal --theme blue
 
   The composed markdown is always saved as *.composed.md alongside the output.
   Edit it and re-render directly with: node raster.js talk.composed.md

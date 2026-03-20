@@ -1,7 +1,7 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS } = require("./raster.js");
-const { runQA, auditA11y, scoreDesign, validateLayouts, contrastRatio, relativeLuminance } = require("./qa.js");
+const { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES } = require("./qa.js");
 const { buildPrompt, sanitizeClaudeOutput, DESIGN_BRIEF, DEFAULT_BRIEF, INTENSITY } = require("./compose.js");
 const { RUBRIC, buildEvalPrompt, parseEvaluation } = require("./compare.js");
 
@@ -548,6 +548,103 @@ describe("QA audit", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// INTENSITY COMPLIANCE
+// ═══════════════════════════════════════════════════════
+
+describe("Intensity compliance checker", () => {
+  it("INTENSITY_RULES has minimal, moderate, and maximal", () => {
+    assert.ok(INTENSITY_RULES.minimal);
+    assert.ok(INTENSITY_RULES.moderate);
+    assert.ok(INTENSITY_RULES.maximal);
+  });
+
+  it("returns empty for unknown intensity", () => {
+    const slides = parseMarkdown("# Title");
+    assert.deepEqual(validateIntensity(slides, "nonexistent"), []);
+  });
+
+  it("minimal: flags font overrides", () => {
+    const md = "# Title\n---\n<!-- font: Georgia -->\n## Slide 2\n- a\n---\n# End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "minimal");
+    assert.ok(results.some(r => r.message.includes("font")), "should flag font override in minimal");
+  });
+
+  it("minimal: flags blank slides", () => {
+    const md = "# Title\n---\n<!-- layout: blank -->\n---\n## End\n- a";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "minimal");
+    assert.ok(results.some(r => r.message.includes("blank")), "should flag blank slide in minimal");
+  });
+
+  it("minimal: flags dominant layout over 25%", () => {
+    // 4 slides, 3 with same detected layout = 75%
+    const md = "# Title\n---\n## A\nBody\n---\n## B\nBody\n---\n## C\nBody";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "minimal");
+    // split will be detected for A, B, C (75%)
+    assert.ok(results.some(r => r.message.includes("%")), "should flag dominant layout");
+  });
+
+  it("maximal: flags too few layout types", () => {
+    // Only 3 layout types
+    const md = "# Title\n---\n## A\n- a\n- b\n---\n## B\n- c\n- d\n---\n## End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "maximal");
+    assert.ok(results.some(r => r.message.includes("layout types")), "should flag insufficient layout variety");
+  });
+
+  it("maximal: flags missing required layouts", () => {
+    const md = "# Title\n---\n## A\n- a\n---\n## B\n- b\n---\n## End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "maximal");
+    assert.ok(results.some(r => r.message.includes("stagger")), "should flag missing stagger");
+    assert.ok(results.some(r => r.message.includes("rotated")), "should flag missing rotated");
+  });
+
+  it("maximal: flags insufficient font overrides", () => {
+    const md = "# Title\n---\n## Slide\n- a\n- b\n---\n# End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "maximal");
+    assert.ok(results.some(r => r.message.includes("font")), "should flag missing font overrides");
+  });
+
+  it("detects 3× consecutive same layout", () => {
+    // 5 slides: title, split, split, split, section → 3× split in a row
+    const md = "# Title\n---\n## A\nBody\n---\n## B\nBody\n---\n## C\nBody\n---\n# End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "moderate");
+    assert.ok(results.some(r => r.message.includes("3× in a row")), "should flag 3× consecutive layout");
+  });
+
+  it("moderate: flags too few bg overrides", () => {
+    // No bg overrides → 0%, moderate needs 30%+
+    const md = "# Title\n---\n## A\n- a\n---\n## B\n- b\n---\n# End";
+    const slides = parseMarkdown(md);
+    const results = validateIntensity(slides, "moderate");
+    assert.ok(results.some(r => r.message.includes("bg overrides")), "should flag missing bg overrides");
+  });
+
+  it("validates actual composed output files if they exist", () => {
+    const fsModule = require("fs");
+    const dir = "./decks/compare-week-1-2026-03-20-19-38-";
+    if (!fsModule.existsSync(dir)) return;
+
+    for (const sub of ["minimal-light", "moderate-light", "maximal-light"]) {
+      const mdPath = `${dir}/${sub}/week-1.${sub}.composed.md`;
+      if (!fsModule.existsSync(mdPath)) continue;
+      const intensity = sub.split("-")[0];
+      const slides = parseMarkdown(fsModule.readFileSync(mdPath, "utf-8"));
+      const results = validateIntensity(slides, intensity);
+      // Just log — don't assert pass (Claude compliance is imperfect)
+      if (results.length > 0) {
+        console.log(`  [${sub}] ${results.length} compliance issues`);
+      }
+    }
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // COMPOSE MODULE
 // ═══════════════════════════════════════════════════════
 
@@ -562,104 +659,84 @@ describe("Compose module", () => {
     assert.ok(DEFAULT_BRIEF.length > 200);
   });
 
-  it("INTENSITY has faithful, moderate, and radical levels", () => {
-    assert.ok(INTENSITY.faithful);
+  it("INTENSITY has minimal, moderate, and maximal levels", () => {
+    assert.ok(INTENSITY.minimal);
     assert.ok(INTENSITY.moderate);
-    assert.ok(INTENSITY.radical);
+    assert.ok(INTENSITY.maximal);
   });
 
-  it("radical intensity mentions content preservation", () => {
-    assert.ok(INTENSITY.radical.includes("content") || INTENSITY.radical.includes("information"));
+  it("maximal intensity mentions content preservation", () => {
+    assert.ok(INTENSITY.maximal.includes("content") || INTENSITY.maximal.includes("Content"));
   });
 
   describe("intensity constraints are distinct", () => {
-    it("faithful forbids blank slides", () => {
-      assert.ok(INTENSITY.faithful.includes("NO blank slides") || INTENSITY.faithful.includes("No blank"),
-        "faithful should prohibit blank slides");
+    it("minimal: Helvetica only, no font overrides", () => {
+      assert.ok(INTENSITY.minimal.includes("Helvetica Neue only") || INTENSITY.minimal.includes("No font"),
+        "minimal should restrict to Helvetica");
     });
 
-    it("faithful forbids reordering", () => {
-      assert.ok(INTENSITY.faithful.includes("Do NOT reorder") || INTENSITY.faithful.includes("not reorder"),
-        "faithful should prohibit reordering");
+    it("minimal: no blank slides", () => {
+      assert.ok(INTENSITY.minimal.includes("No blank") || INTENSITY.minimal.includes("no blank"),
+        "minimal should prohibit blanks");
     });
 
-    it("faithful limits split layout", () => {
-      assert.ok(INTENSITY.faithful.includes("split") && INTENSITY.faithful.includes("25%"),
-        "faithful should cap split usage");
+    it("minimal: greyscale bg only", () => {
+      assert.ok(INTENSITY.minimal.includes("Greyscale") || INTENSITY.minimal.includes("greyscale") ||
+        INTENSITY.minimal.includes("111111"), "minimal should restrict to greyscale");
     });
 
-    it("moderate requires 6+ layout types", () => {
-      assert.ok(INTENSITY.moderate.includes("6 different layout"),
-        "moderate should require at least 6 layout types");
+    it("moderate: layout variety required", () => {
+      assert.ok(INTENSITY.moderate.includes("5 different") || INTENSITY.moderate.includes("at least 5"),
+        "moderate needs 5+ layouts");
     });
 
-    it("moderate caps any single layout at 30%", () => {
-      assert.ok(INTENSITY.moderate.includes("30%") && INTENSITY.moderate.includes("layout"),
-        "moderate should cap single layout at 30%");
+    it("moderate: 30% layout cap", () => {
+      assert.ok(INTENSITY.moderate.includes("30%"), "moderate caps at 30%");
     });
 
-    it("radical requires 8+ layout types", () => {
-      assert.ok(INTENSITY.radical.includes("8 different layout"),
-        "radical should require at least 8 layout types");
+    it("moderate: Georgia allowed", () => {
+      assert.ok(INTENSITY.moderate.includes("Georgia"), "moderate allows Georgia");
     });
 
-    it("radical caps split at 15%", () => {
-      assert.ok(INTENSITY.radical.includes("split") && INTENSITY.radical.includes("15%"),
-        "radical should cap split at 15%");
+    it("moderate: chromatic arc", () => {
+      assert.ok(INTENSITY.moderate.includes("chromatic arc"), "moderate builds chromatic arc");
     });
 
-    it("radical mandates specific layout minimums", () => {
-      assert.ok(INTENSITY.radical.includes("stagger"), "radical should mandate stagger");
-      assert.ok(INTENSITY.radical.includes("rotated"), "radical should mandate rotated");
-      assert.ok(INTENSITY.radical.includes("fragment"), "radical should mandate fragment");
-      assert.ok(INTENSITY.radical.includes("overlap"), "radical should mandate overlap");
+    it("maximal: 8+ layout types", () => {
+      assert.ok(INTENSITY.maximal.includes("8 different") || INTENSITY.maximal.includes("at least 8"),
+        "maximal needs 8+ layouts");
     });
 
-    it("radical mandates blank slides", () => {
-      assert.ok(INTENSITY.radical.includes("blank slides"),
-        "radical should mandate blank slides");
+    it("maximal: split capped at 15%", () => {
+      assert.ok(INTENSITY.maximal.includes("split") && INTENSITY.maximal.includes("15%"));
     });
 
-    it("slide count ranges escalate across intensities", () => {
-      assert.ok(INTENSITY.faithful.includes("±20%"), "faithful: ±20% slide count");
-      assert.ok(INTENSITY.moderate.includes("1.2") && INTENSITY.moderate.includes("1.8"), "moderate: 1.2–1.8×");
-      assert.ok(INTENSITY.radical.includes("1.5") && INTENSITY.radical.includes("2.5"), "radical: 1.5–2.5×");
+    it("maximal: mandates stagger, rotated, fragment, overlap", () => {
+      for (const l of ["stagger", "rotated", "fragment", "overlap"]) {
+        assert.ok(INTENSITY.maximal.includes(l), `maximal should mandate ${l}`);
+      }
     });
 
-    it("bg override usage escalates across intensities", () => {
-      assert.ok(INTENSITY.faithful.includes("30%") && INTENSITY.faithful.includes("SPARINGLY"), "faithful: ≤30%");
-      assert.ok(INTENSITY.moderate.includes("30") && INTENSITY.moderate.includes("60%"), "moderate: 30–60%");
-      assert.ok(INTENSITY.radical.includes("50") && INTENSITY.radical.includes("80%"), "radical: 50–80%");
+    it("maximal: blank slides required", () => {
+      assert.ok(INTENSITY.maximal.includes("blank"), "maximal needs blanks");
     });
 
-    it("font usage escalates: faithful=none, moderate=limited, radical=mandatory", () => {
-      assert.ok(INTENSITY.faithful.includes("No font overrides"), "faithful: no font overrides");
-      assert.ok(INTENSITY.moderate.includes("font: Georgia"), "moderate: Georgia allowed");
-      assert.ok(INTENSITY.radical.includes("FONT MIXING is mandatory"), "radical: font mixing required");
+    it("maximal: concrete bg hex values", () => {
+      assert.ok(INTENSITY.maximal.includes("0F2A4A"), "deep navy");
+      assert.ok(INTENSITY.maximal.includes("3D0A06"), "dark blood");
+      assert.ok(INTENSITY.maximal.includes("1B3D22"), "deep forest");
     });
 
-    it("radical specifies concrete bg hex colours", () => {
-      // Should include actual hex values, not just "deep navy"
-      assert.ok(INTENSITY.radical.includes("0F2A4A"), "radical should specify deep navy hex");
-      assert.ok(INTENSITY.radical.includes("3D0A06"), "radical should specify dark blood hex");
-      assert.ok(INTENSITY.radical.includes("1B3D22"), "radical should specify deep forest hex");
+    it("maximal: multiple font families", () => {
+      assert.ok(INTENSITY.maximal.includes("Georgia"));
+      assert.ok(INTENSITY.maximal.includes("Courier New"));
+      assert.ok(INTENSITY.maximal.includes("Futura"));
     });
 
-    it("radical mandates multiple font families", () => {
-      assert.ok(INTENSITY.radical.includes("Georgia"), "radical should use Georgia");
-      assert.ok(INTENSITY.radical.includes("Courier New"), "radical should use Courier New");
-      assert.ok(INTENSITY.radical.includes("Futura"), "radical should use Futura");
-    });
-
-    it("faithful restricts to greyscale bg only", () => {
-      assert.ok(INTENSITY.faithful.includes("greyscale") || INTENSITY.faithful.includes("111111"),
-        "faithful should restrict bg to greyscale");
-    });
-
-    it("colour palettes differ: faithful=grey, moderate=2-3 colours, radical=full arc", () => {
-      assert.ok(INTENSITY.faithful.includes("No coloured backgrounds"), "faithful: no colour");
-      assert.ok(INTENSITY.moderate.includes("chromatic arc"), "moderate: chromatic arc");
-      assert.ok(INTENSITY.radical.includes("FULL chromatic arc"), "radical: FULL chromatic arc");
+    it("bg % escalates: minimal ≤30, moderate 30-60, maximal 50-80", () => {
+      assert.ok(INTENSITY.minimal.includes("30%"));
+      assert.ok(INTENSITY.moderate.includes("60%"));
+      assert.ok(INTENSITY.maximal.includes("80%"));
     });
   });
 
@@ -670,8 +747,8 @@ describe("Compose module", () => {
   });
 
   it("buildPrompt includes intensity guide", () => {
-    const prompt = buildPrompt("# Title", { intensity: "radical" });
-    assert.ok(prompt.includes("RADICAL"));
+    const prompt = buildPrompt("# Title", { intensity: "maximal" });
+    assert.ok(prompt.includes("MAXIMAL"));
   });
 
   it("buildPrompt defaults to moderate", () => {
@@ -753,7 +830,7 @@ describe("Compare module", () => {
   });
 
   it("buildEvalPrompt includes rubric criteria", () => {
-    const prompt = buildEvalPrompt("src", "composed", {}, "faithful");
+    const prompt = buildEvalPrompt("src", "composed", {}, "minimal");
     for (const key of Object.keys(RUBRIC)) {
       assert.ok(prompt.includes(key), `prompt should reference ${key}`);
     }
@@ -792,6 +869,69 @@ describe("Compare module", () => {
       assert.ok(result.error, "should have error field");
       assert.equal(result.totalScore, null);
     });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// CONTENT PRESERVATION
+// ═══════════════════════════════════════════════════════
+
+describe("Content preservation checker", () => {
+  it("detects dropped URLs", () => {
+    const source = "Visit https://example.com for details";
+    const composed = "<!-- layout: section -->\n# Visit for details";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "urlPreservation"), "should flag missing URL");
+  });
+
+  it("detects dropped emails", () => {
+    const source = "Contact jane@example.com";
+    const composed = "<!-- layout: section -->\n# Contact us";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "emailPreservation"), "should flag missing email");
+  });
+
+  it("passes when all content preserved", () => {
+    const source = "Visit https://example.com\n---\nContact jane@example.com";
+    const composed = "<!-- layout: section -->\nVisit https://example.com\n---\n<!-- layout: bullets -->\nContact jane@example.com";
+    const results = validateContentPreservation(source, composed);
+    const errors = results.filter(r => r.severity === "error");
+    assert.equal(errors.length, 0, "should have no errors when content preserved");
+  });
+
+  it("flags slide count drop", () => {
+    const source = "# A\n---\n# B\n---\n# C";
+    const composed = "<!-- layout: section -->\n# A";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "slideCount"), "should flag slide count drop");
+  });
+
+  it("flags missing layout directives", () => {
+    const source = "# A\n---\n# B";
+    const composed = "# A\n---\n# B"; // no <!-- layout: --> directives
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "layoutDirectives"), "should flag missing layout directives");
+  });
+
+  it("flags invalid layout names", () => {
+    const source = "# A";
+    const composed = "<!-- layout: funky -->\n# A";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "layoutValidity"), "should flag invalid layout name");
+  });
+
+  it("flags 3× consecutive same layout", () => {
+    const source = "# A\n---\n# B\n---\n# C\n---\n# D";
+    const composed = "<!-- layout: section -->\n# A\n---\n<!-- layout: section -->\n# B\n---\n<!-- layout: section -->\n# C\n---\n<!-- layout: section -->\n# D";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "layoutRepetition"), "should flag 3× consecutive layout");
+  });
+
+  it("detects invented URLs", () => {
+    const source = "# Hello";
+    const composed = "<!-- layout: section -->\n# Hello\nhttps://invented.example.com";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "noInvention"), "should flag invented URL");
   });
 });
 

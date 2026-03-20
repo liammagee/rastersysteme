@@ -709,4 +709,253 @@ if (require.main === module) {
   if (totalErrors > 0) process.exit(1);
 }
 
-module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, contrastRatio, relativeLuminance };
+// ═══════════════════════════════════════════════════════
+// INTENSITY COMPLIANCE CHECKER
+// ═══════════════════════════════════════════════════════
+
+const INTENSITY_RULES = {
+  minimal: {
+    maxBgPct: 30,
+    maxFonts: 0,
+    blankSlides: [0, 0],
+    maxSingleLayoutPct: 25,
+    minLayoutTypes: 0,
+    splitMaxPct: 25,
+    requiredLayouts: {},
+  },
+  moderate: {
+    minBgPct: 30, maxBgPct: 60,
+    maxFonts: Infinity, minFonts: 1,
+    blankSlides: [1, 2],
+    maxSingleLayoutPct: 30,
+    minLayoutTypes: 5,
+    splitMaxPct: 30,
+    requiredLayouts: {},
+  },
+  maximal: {
+    minBgPct: 50, maxBgPct: 80,
+    maxFonts: Infinity, minFonts: 3,
+    blankSlides: [2, 4],
+    maxSingleLayoutPct: 20,
+    minLayoutTypes: 8,
+    splitMaxPct: 15,
+    requiredLayouts: { stagger: 2, rotated: 2, fragment: 1, overlap: 1, section: 3 },
+  },
+};
+
+function validateIntensity(slides, intensity) {
+  const rules = INTENSITY_RULES[intensity];
+  if (!rules) return [];
+  const results = [];
+  const total = slides.length;
+  const warn = (msg) => results.push({ severity: "warning", rule: "intensity", message: msg });
+  const fail = (msg) => results.push({ severity: "error", rule: "intensity", message: msg });
+
+  // Layout distribution
+  const layoutCounts = {};
+  slides.forEach((slide, idx) => {
+    const layout = detectLayout(slide, idx, total);
+    layoutCounts[layout] = (layoutCounts[layout] || 0) + 1;
+  });
+
+  // Unique layout types
+  const uniqueLayouts = Object.keys(layoutCounts).length;
+  if (rules.minLayoutTypes && uniqueLayouts < rules.minLayoutTypes) {
+    fail(`${intensity}: ${uniqueLayouts} layout types used, need ≥${rules.minLayoutTypes}`);
+  }
+
+  // Max single layout %
+  for (const [layout, count] of Object.entries(layoutCounts)) {
+    const pct = (count / total) * 100;
+    if (layout === "blank") continue; // blank is structural, not content
+    if (pct > rules.maxSingleLayoutPct) {
+      fail(`${intensity}: "${layout}" used ${count}× (${pct.toFixed(0)}%), max ${rules.maxSingleLayoutPct}%`);
+    }
+  }
+
+  // Split cap
+  if (rules.splitMaxPct) {
+    const splitPct = ((layoutCounts.split || 0) / total) * 100;
+    if (splitPct > rules.splitMaxPct) {
+      warn(`${intensity}: "split" at ${splitPct.toFixed(0)}%, max ${rules.splitMaxPct}%`);
+    }
+  }
+
+  // Required layouts
+  for (const [layout, minCount] of Object.entries(rules.requiredLayouts || {})) {
+    const actual = layoutCounts[layout] || 0;
+    if (actual < minCount) {
+      fail(`${intensity}: "${layout}" used ${actual}×, need ≥${minCount}`);
+    }
+  }
+
+  // Blank slides
+  const blanks = layoutCounts.blank || 0;
+  const [minBlanks, maxBlanks] = rules.blankSlides;
+  if (blanks < minBlanks) {
+    warn(`${intensity}: ${blanks} blank slides, need ≥${minBlanks}`);
+  }
+  if (blanks > maxBlanks) {
+    warn(`${intensity}: ${blanks} blank slides, max ${maxBlanks}`);
+  }
+
+  // Bg overrides
+  const bgCount = slides.filter(s => s.bgOverride).length;
+  const bgPct = (bgCount / total) * 100;
+  if (rules.maxBgPct !== undefined && bgPct > rules.maxBgPct) {
+    warn(`${intensity}: bg overrides on ${bgPct.toFixed(0)}% of slides, max ${rules.maxBgPct}%`);
+  }
+  if (rules.minBgPct !== undefined && bgPct < rules.minBgPct) {
+    warn(`${intensity}: bg overrides on ${bgPct.toFixed(0)}% of slides, need ≥${rules.minBgPct}%`);
+  }
+
+  // Font overrides
+  const fontCount = slides.filter(s => s.fontOverride).length;
+  if (rules.maxFonts !== undefined && fontCount > rules.maxFonts) {
+    fail(`${intensity}: ${fontCount} font overrides, max ${rules.maxFonts}`);
+  }
+  if (rules.minFonts !== undefined && fontCount < rules.minFonts) {
+    warn(`${intensity}: ${fontCount} font overrides, need ≥${rules.minFonts}`);
+  }
+
+  // No 3× consecutive same layout
+  let streak = 1;
+  for (let i = 1; i < total; i++) {
+    const prev = detectLayout(slides[i - 1], i - 1, total);
+    const curr = detectLayout(slides[i], i, total);
+    if (curr === prev) {
+      streak++;
+      if (streak >= 3) {
+        fail(`${intensity}: "${curr}" used 3× in a row at slides ${i - 1}–${i + 1}`);
+        break;
+      }
+    } else {
+      streak = 1;
+    }
+  }
+
+  return results;
+}
+
+// ═══════════════════════════════════════════════════════
+// CONTENT PRESERVATION VALIDATION
+// ═══════════════════════════════════════════════════════
+
+function extractTokens(md) {
+  const urls = [...new Set((md.match(/https?:\/\/[^\s)>\]]+/g) || []))];
+  const emails = [...new Set((md.match(/[\w.+-]+@[\w.-]+\.\w+/g) || []))];
+  const percentages = [...new Set((md.match(/\b\d+%/g) || []))];
+  return { urls, emails, percentages };
+}
+
+function validateContentPreservation(sourceMd, composedMd) {
+  const results = [];
+  const sourceSlides = sourceMd.split(/\n---\n/).filter(s => s.trim());
+  const composedSlides = composedMd.split(/\n---\n/).filter(s => s.trim());
+
+  // Count check (composed may have MORE due to blank insertions, never fewer)
+  const sourceCount = sourceSlides.length;
+  const composedCount = composedSlides.length;
+  if (composedCount < sourceCount) {
+    results.push({
+      severity: "error",
+      check: "slideCount",
+      message: `Slide count dropped: source has ${sourceCount}, composed has ${composedCount} (${sourceCount - composedCount} slides lost)`,
+    });
+  }
+
+  // Token preservation
+  const srcTokens = extractTokens(sourceMd);
+  const compTokens = extractTokens(composedMd);
+
+  for (const url of srcTokens.urls) {
+    if (!composedMd.includes(url)) {
+      results.push({
+        severity: "error",
+        check: "urlPreservation",
+        message: `URL missing from output: ${url.slice(0, 60)}`,
+      });
+    }
+  }
+
+  for (const email of srcTokens.emails) {
+    if (!composedMd.includes(email)) {
+      results.push({
+        severity: "error",
+        check: "emailPreservation",
+        message: `Email missing from output: ${email}`,
+      });
+    }
+  }
+
+  for (const pct of srcTokens.percentages) {
+    if (!composedMd.includes(pct)) {
+      results.push({
+        severity: "warning",
+        check: "percentagePreservation",
+        message: `Percentage missing from output: ${pct}`,
+      });
+    }
+  }
+
+  // Speaker notes preservation
+  const sourceNotes = (sourceMd.match(/```notes\n([\s\S]*?)```/g) || []);
+  const composedNotes = (composedMd.match(/```notes\n([\s\S]*?)```/g) || []);
+  if (sourceNotes.length > composedNotes.length) {
+    results.push({
+      severity: "warning",
+      check: "notesPreservation",
+      message: `Speaker notes blocks: source has ${sourceNotes.length}, composed has ${composedNotes.length}`,
+    });
+  }
+
+  // No invention check — URLs in composed that aren't in source
+  for (const url of compTokens.urls) {
+    if (!srcTokens.urls.includes(url)) {
+      results.push({
+        severity: "warning",
+        check: "noInvention",
+        message: `URL in output not found in source: ${url.slice(0, 60)}`,
+      });
+    }
+  }
+
+  // Layout directive check
+  const layoutDirectives = composedMd.match(/<!-- layout: \w+ -->/g) || [];
+  if (layoutDirectives.length < composedCount) {
+    results.push({
+      severity: "error",
+      check: "layoutDirectives",
+      message: `Only ${layoutDirectives.length} layout directives for ${composedCount} slides`,
+    });
+  }
+
+  // Valid layout names
+  const validLayouts = new Set(["title", "section", "bullets", "stagger", "split", "rotated", "fragment", "overlap", "arc", "image", "table", "code", "blank"]);
+  for (const d of layoutDirectives) {
+    const name = d.match(/<!-- layout: (\w+) -->/)[1];
+    if (!validLayouts.has(name)) {
+      results.push({
+        severity: "error",
+        check: "layoutValidity",
+        message: `Invalid layout name: ${name}`,
+      });
+    }
+  }
+
+  // No 3x consecutive same layout
+  const layouts = layoutDirectives.map(d => d.match(/<!-- layout: (\w+) -->/)[1]);
+  for (let i = 2; i < layouts.length; i++) {
+    if (layouts[i] === layouts[i-1] && layouts[i] === layouts[i-2]) {
+      results.push({
+        severity: "warning",
+        check: "layoutRepetition",
+        message: `Layout "${layouts[i]}" appears 3+ times consecutively at slides ${i-1}-${i+1}`,
+      });
+    }
+  }
+
+  return results;
+}
+
+module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES };
