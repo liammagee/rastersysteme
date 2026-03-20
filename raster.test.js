@@ -726,6 +726,42 @@ describe("Typography", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// INTERACTIVE FLOW (rastersysteme.js) — regression guards
+// ═══════════════════════════════════════════════════════
+
+describe("Interactive flow contracts", () => {
+  const src = require("fs").readFileSync("./rastersysteme.js", "utf-8");
+
+  it("explosive mode skips theme selection", () => {
+    // The theme select must be gated behind mode.key !== 'x'
+    assert.ok(src.includes('mode.key !== "x"'), "theme selection should be skipped for explosive mode");
+  });
+
+  it("creative brief defaults to skip (no Claude call)", () => {
+    // 'skip' should be the first option in the CREATIVE BRIEF menu
+    const briefMenuMatch = src.match(/CREATIVE BRIEF.*?\[([^\]]+)\]/s);
+    assert.ok(briefMenuMatch, "should have CREATIVE BRIEF select menu");
+    const firstItem = briefMenuMatch[1].match(/key:\s*"(\w)"/);
+    assert.ok(firstItem, "should have items in brief menu");
+    assert.equal(firstItem[1], "s", "first brief option should be 'skip' (key 's')");
+  });
+
+  it("skip brief returns empty string (no Claude invocation)", () => {
+    // getBrief should return "" for skip, not generate anything
+    assert.ok(src.includes('briefMode.key === "s") return ""'), "skip should return empty string immediately");
+  });
+
+  it("explosive mode passes --explosive flag to compare.js", () => {
+    assert.ok(src.includes('"--explosive"'), "explosive should pass --explosive to compare");
+  });
+
+  it("explosive mode does not pass --theme to compare.js", () => {
+    // The compare args should only include --theme for non-explosive
+    assert.ok(src.includes('if (!explosive) compareArgs.push("--theme"'), "theme should be conditional on non-explosive");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // INTEGRATION: SHOWCASE
 // ═══════════════════════════════════════════════════════
 

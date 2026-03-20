@@ -193,9 +193,9 @@ ${md.slice(0, 4000)}
 
 async function getBrief(sourcePath) {
   const briefMode = await select("CREATIVE BRIEF", [
+    { key: "s", label: "skip             no custom brief (default)" },
     { key: "a", label: "ask Claude       generate a brief from the content" },
     { key: "w", label: "write my own     enter a brief manually" },
-    { key: "s", label: "skip             use default brief" },
   ], { autoSelect: true });
 
   if (briefMode.key === "s") return "";
@@ -239,14 +239,17 @@ async function interactive(preselectedInput) {
 
   if (mode.key === "q") { process.exit(0); }
 
-  // 3. Theme
-  const theme = await select("THEME", [
-    { key: "l", label: "light" },
-    { key: "d", label: "dark" },
-    { key: "r", label: "red" },
-    { key: "b", label: "blue" },
-  ], { autoSelect: true });
-  const themeName = theme.label;
+  // 3. Theme (skip for explosive — it runs all themes)
+  let themeName = "light";
+  if (mode.key !== "x") {
+    const theme = await select("THEME", [
+      { key: "l", label: "light" },
+      { key: "d", label: "dark" },
+      { key: "r", label: "red" },
+      { key: "b", label: "blue" },
+    ], { autoSelect: true });
+    themeName = theme.label;
+  }
 
   let composedPath, pptxPath, htmlPath;
 
@@ -259,9 +262,7 @@ async function interactive(preselectedInput) {
     ], { autoSelect: true });
     const intensityName = intensity.label.split(/\s+/)[0];
 
-    // Auto-generate brief
-    const autoBrief = generateQuickBrief(input);
-    const brief = await askText("Brief (edit or Enter to accept)", autoBrief);
+    const brief = await getBrief(input);
 
     const outputName = await askText("Output name", inputBase);
 
@@ -308,13 +309,7 @@ async function interactive(preselectedInput) {
     // ── COMPARE / EXPLOSIVE ──────────────────
     const explosive = mode.key === "x";
 
-    // Generate a brief from the content for user review
-    const autoBrief = generateQuickBrief(input);
-    if (autoBrief) {
-      console.log(`\n  ${dim("Generated brief:")}`);
-      console.log(`  ${chalk.italic(autoBrief)}\n`);
-    }
-    const brief = await askText("Brief (edit, Enter to accept, or type new)", autoBrief);
+    const brief = await getBrief(input);
 
     const evalChoice = await select("EVALUATION", [
       { key: "y", label: "yes             Claude evaluates each variant" },
