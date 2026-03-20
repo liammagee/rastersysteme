@@ -572,6 +572,67 @@ describe("Compose module", () => {
     assert.ok(INTENSITY.radical.includes("content") || INTENSITY.radical.includes("information"));
   });
 
+  describe("intensity constraints are distinct", () => {
+    it("faithful forbids blank slides", () => {
+      assert.ok(INTENSITY.faithful.includes("NO blank slides") || INTENSITY.faithful.includes("No blank"),
+        "faithful should prohibit blank slides");
+    });
+
+    it("faithful forbids reordering", () => {
+      assert.ok(INTENSITY.faithful.includes("Do NOT reorder") || INTENSITY.faithful.includes("not reorder"),
+        "faithful should prohibit reordering");
+    });
+
+    it("faithful limits split layout", () => {
+      assert.ok(INTENSITY.faithful.includes("split") && INTENSITY.faithful.includes("25%"),
+        "faithful should cap split usage");
+    });
+
+    it("moderate requires 6+ layout types", () => {
+      assert.ok(INTENSITY.moderate.includes("6 different layout"),
+        "moderate should require at least 6 layout types");
+    });
+
+    it("moderate caps any single layout at 30%", () => {
+      assert.ok(INTENSITY.moderate.includes("30%") && INTENSITY.moderate.includes("layout"),
+        "moderate should cap single layout at 30%");
+    });
+
+    it("radical requires 8+ layout types", () => {
+      assert.ok(INTENSITY.radical.includes("8 different layout"),
+        "radical should require at least 8 layout types");
+    });
+
+    it("radical caps split at 15%", () => {
+      assert.ok(INTENSITY.radical.includes("split") && INTENSITY.radical.includes("15%"),
+        "radical should cap split at 15%");
+    });
+
+    it("radical mandates specific layout minimums", () => {
+      assert.ok(INTENSITY.radical.includes("stagger"), "radical should mandate stagger");
+      assert.ok(INTENSITY.radical.includes("rotated"), "radical should mandate rotated");
+      assert.ok(INTENSITY.radical.includes("fragment"), "radical should mandate fragment");
+      assert.ok(INTENSITY.radical.includes("overlap"), "radical should mandate overlap");
+    });
+
+    it("radical mandates blank slides", () => {
+      assert.ok(INTENSITY.radical.includes("blank slides"),
+        "radical should mandate blank slides");
+    });
+
+    it("slide count ranges escalate across intensities", () => {
+      assert.ok(INTENSITY.faithful.includes("±20%"), "faithful: ±20% slide count");
+      assert.ok(INTENSITY.moderate.includes("1.2") && INTENSITY.moderate.includes("1.8"), "moderate: 1.2–1.8×");
+      assert.ok(INTENSITY.radical.includes("1.5") && INTENSITY.radical.includes("2.5"), "radical: 1.5–2.5×");
+    });
+
+    it("bg override usage escalates across intensities", () => {
+      assert.ok(INTENSITY.faithful.includes("30%") && INTENSITY.faithful.includes("SPARINGLY"), "faithful: ≤30%");
+      assert.ok(INTENSITY.moderate.includes("30") && INTENSITY.moderate.includes("60%"), "moderate: 30–60%");
+      assert.ok(INTENSITY.radical.includes("50") && INTENSITY.radical.includes("80%"), "radical: 50–80%");
+    });
+  });
+
   it("buildPrompt includes the source markdown", () => {
     const prompt = buildPrompt("# My Slide\n- bullet one", { intensity: "moderate" });
     assert.ok(prompt.includes("My Slide"));

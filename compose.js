@@ -234,37 +234,108 @@ not ignorance. Austere. Strange. Precise.`;
 // ═══════════════════════════════════════════════════════
 
 const INTENSITY = {
-  faithful: `INTENSITY: FAITHFUL
-Respect the original slide structure. Pick the best layout for each slide's content.
-Minimal restructuring — your role is layout selection and typographic refinement,
-not editorial recomposition. Even in faithful mode, apply typographic scale contrast
-(### labels against # titles) and chromatic reasoning (bg overrides with purpose).`,
+  faithful: `INTENSITY: FAITHFUL — The Müller-Brockmann position
 
-  moderate: `INTENSITY: MODERATE
-Restructure where it strengthens the narrative. Make bold layout choices.
-Split dense slides. Add pacing with section and blank slides. Promote
-strong phrases to titles. Demote secondary information to ### labels.
-You are editing for visual impact — but the content's logic still leads.`,
+Philosophy: The content's existing structure IS the design. Your job is to
+dress it in Swiss clothing, not to rewrite the script.
 
-  radical: `INTENSITY: RADICAL
-Radical means radical DESIGN — not radical deletion. Every piece of substantive
-information in the source must appear somewhere in the output. What is radical
-is how you present it: fragment a paragraph into a stagger cascade, isolate a
-single phrase as a full section slide, reorder sections for dramatic arc,
-juxtapose ideas that were separated, use extreme typographic scale. The design
-IS the interpretation — meaning emerges from form. But form without content
-is decoration.
+HARD CONSTRAINTS:
+- Output slide count must be within ±20% of source slide count.
+- Do NOT merge or split slides. One source slide → one output slide.
+  Exception: you may add up to 2 section dividers for chapter structure.
+- Do NOT reorder content. The sequence of the source is the sequence of the output.
+- LAYOUT SELECTION is your primary tool. Choose the best layout for each slide's
+  existing content. A slide with 3 bullets gets "bullets". A slide with a quote
+  gets "rotated". A slide with a title only gets "section".
+- Apply ### section labels to create typographic texture — but derive them from
+  the source's own structure (topic names, headings), don't invent new ones.
+- Use bg overrides SPARINGLY — no more than 30% of slides. Color is reserved
+  for structural emphasis (chapter breaks, key moments), not decoration.
+- Keep "split" to under 25% of total layouts. Prefer bullets, stagger, section.
+- Preserve ALL speaker notes exactly as they appear in the source.
+- NO blank slides. Faithful mode does not add structural silence.
 
-A course schedule can become a fragment mosaic. Assessment criteria can cascade
-diagonally. A welcome speech can be split across three slides with silences
-between. But the schedule, the criteria, and the speech must all be PRESENT.
-If the source has six weekly task descriptions with specific questions, all six
-must appear with their questions — just composed radically. If the source has
-detailed assessment criteria, every criterion must survive.
+The result should look like the source material was poured into a Swiss grid
+and set in Helvetica — recognisably the same content, unmistakably better designed.`,
 
-Break expectations of how content is presented. Never break the contract that
-all content is represented.`,
+  moderate: `INTENSITY: MODERATE — The Gerstner position
+
+Philosophy: The content's logic leads, but you edit for visual impact.
+You are a skilled editor with a grid, not a faithful transcriber.
+
+HARD CONSTRAINTS:
+- Output slide count may be 1.2–1.8× the source slide count.
+- You MAY split dense source slides into 2–3 output slides.
+- You MAY add section dividers (up to 1 per 5 content slides).
+- You MAY promote a strong phrase from body text to a title slide.
+- You MAY reorder within sections but not across them.
+- LAYOUT VARIETY: use at least 6 different layout types. No layout may
+  exceed 30% of total slides. "split" is not the default — it is one
+  of 13 tools. Reach for stagger, rotated, fragment, overlap, arc.
+- Use bg overrides on 30–60% of slides. Build a 2–3 color chromatic arc
+  (e.g. dark → accent → dark → different accent → close).
+- Add 1–2 blank slides as structural punctuation at major transitions.
+- Speaker notes: preserve original notes, add brief design rationale on
+  slides where you made significant layout choices.
+
+The result should feel like an experienced designer interpreted the content —
+the same information, but with pacing, emphasis, and visual rhythm that the
+raw source lacked.`,
+
+  radical: `INTENSITY: RADICAL — The Weingart position
+
+Philosophy: The design IS the interpretation. Form and content are inseparable.
+You are not presenting information — you are composing a visual argument.
+
+HARD CONSTRAINTS:
+- Output slide count may be 1.5–2.5× the source slide count.
+- LAYOUT DIVERSITY is mandatory: use at least 8 different layout types.
+  No single layout may exceed 20% of total slides.
+  BANNED from overuse: "split" may appear on no more than 15% of slides.
+  REQUIRED minimum usage:
+    - At least 2 stagger slides (cascading Musica Viva bars)
+    - At least 2 rotated slides (vertical type — Weingart's signature)
+    - At least 1 fragment slide (shattered mosaic)
+    - At least 1 overlap slide (dialectic colour fields)
+    - At least 3 section slides (structural anchors)
+    - At least 2 blank slides (composed silence)
+- RECOMPOSITION is expected: break paragraphs into stagger cascades,
+  isolate single words as section slides, turn lists into fragment mosaics,
+  split a quote across a rotated layout, reorder for dramatic arc.
+- bg overrides on 50–80% of slides. Build a FULL chromatic arc across the
+  deck — not just accent colors but deep custom backgrounds that create
+  an atmospheric journey (deep navy, forest green, warm ochre, near-black).
+- TYPOGRAPHIC SCALE: vary heading levels aggressively. A ### label over a
+  # title is the Swiss scale relationship. Use it on 60%+ of content slides.
+- Speaker notes: preserve all original notes, add design rationale explaining
+  WHY each radical choice was made.
+- ALL substantive content must survive. Radical design, not radical deletion.
+  If the source has URLs, dates, criteria, questions — they all appear.
+  Present them radically, but present them.
+
+The result should look like it was composed by someone who internalized the
+Swiss tradition so completely that their departures from it are legible as
+informed transgressions. Austere. Strange. Precise. Unmistakably designed.`,
 };
+
+// ═══════════════════════════════════════════════════════
+// DESIGN SEEDS — random compositional emphasis per run
+// ═══════════════════════════════════════════════════════
+
+const DESIGN_SEEDS = [
+  "Lead with the rotated layout — vertical type as primary structural intervention. Let horizontal slides feel like the exception.",
+  "Let fragment mosaics dominate the middle section. Shatter content into democratic blocks where hierarchy would be false.",
+  "Push typographic scale to extremes: 8pt labels directly adjacent to 40pt titles. The tension between registers IS the design.",
+  "Build the chromatic arc from near-black to warm white across the deck, with a single vermillion moment at the rhetorical peak.",
+  "Favor overlap layouts for every conceptual tension. Where two ideas coexist, make the overlap visible. Use arc for convergence.",
+  "Deploy blank slides aggressively — silence between every major statement. The deck should breathe like Webern, not Mahler.",
+  "Let the stagger cascade carry the main narrative thread. Section slides are chapter markers; everything else cascades diagonally.",
+  "Use deep navy as the dominant field for 60%+ of slides. Warm off-white is the exception — content that earns lightness.",
+  "Alternate between dense and sparse relentlessly. A 6-bullet stagger followed by a single-word section followed by a blank. Rhythm as argument.",
+  "Treat every ### section label as the real content — the titles are architecture, the labels are where the reader's eye should land first.",
+  "Open with maximum austerity — near-black, minimal text. Let the deck warm gradually, arriving at the richest color only at the close.",
+  "Use the split layout as the backbone — left zone anchors identity, right zone delivers content. Disrupt with rotated or fragment only twice.",
+];
 
 // ═══════════════════════════════════════════════════════
 // PROMPT BUILDER
@@ -277,7 +348,13 @@ function buildPrompt(markdown, options = {}) {
 
   parts.push(INTENSITY[intensity] || INTENSITY.moderate);
 
-  parts.push(`CREATIVE DIRECTION: ${brief || DEFAULT_BRIEF}`);
+  // Pick a random design seed for variation across runs
+  const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
+  process.stderr.write(`  ${dim("Seed:")} ${chalk.italic(seed.slice(0, 70))}${dim("...")}\n`);
+  const direction = brief || DEFAULT_BRIEF;
+  parts.push(`CREATIVE DIRECTION: ${direction}
+
+COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
   parts.push(`--- SOURCE MATERIAL ---
 ${markdown}
@@ -297,31 +374,64 @@ CRITICAL: Your response must begin with <!-- layout: on the very first line and 
 function callClaudeAsync(prompt, options = {}) {
   const { spawn: spawnAsync } = require("child_process");
   return new Promise((resolve, reject) => {
-    const args = ["-p", "--output-format", "text"];
+    const label = options.label || "claude";
+    const args = ["-p", "--output-format", "stream-json", "--verbose"];
     if (options.model) args.push("--model", options.model);
 
-    const label = options.label || "";
     const proc = spawnAsync("claude", args, {
       stdio: ["pipe", "pipe", "pipe"],
     });
 
-    let stdout = "";
-    let stderr = "";
+    let resultText = "";
+    let buffer = "";
     let chars = 0;
+    let phase = "starting";
+    let model = "";
     const startTime = Date.now();
+    const spin = ["\u2801", "\u2809", "\u2819", "\u2838", "\u2830", "\u2826", "\u2807", "\u2803"];
+    let si = 0;
 
-    // Heartbeat: show elapsed time every second so user knows it's alive
+    function el() { return ((Date.now() - startTime) / 1000).toFixed(0); }
+
     const heartbeat = setInterval(() => {
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(0);
-      const charInfo = chars > 0 ? ` ${chars} chars` : "";
-      process.stderr.write(`\r  ${dim("[")}${accent(label || "claude")}${dim("]")} ${amber(elapsed + "s")}${dim(charInfo)}   `);
-    }, 1000);
+      si = (si + 1) % spin.length;
+      const charInfo = chars > 0 ? ` ${amber(chars + " chars")}` : "";
+      const modelInfo = model ? ` ${dim(model)}` : "";
+      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${teal(spin[si])} ${dim(phase)} ${amber(el() + "s")}${charInfo}${modelInfo}   `);
+    }, 250);
 
     proc.stdout.on("data", (d) => {
-      stdout += d;
-      chars += d.length;
+      buffer += d.toString();
+      const lines = buffer.split("\n");
+      buffer = lines.pop();
+      for (const line of lines) {
+        if (!line.trim()) continue;
+        try {
+          const ev = JSON.parse(line);
+          if (ev.type === "system" && ev.subtype === "init") {
+            phase = "generating";
+            model = (ev.model || "").split("[")[0];
+            process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${teal(model)} ${amber(el() + "s")}       \n`);
+          } else if (ev.type === "assistant" && ev.message && ev.message.content) {
+            phase = "streaming";
+            for (const block of ev.message.content) {
+              if (block.type === "text" && block.text) chars += block.text.length;
+            }
+          } else if (ev.type === "result") {
+            phase = "done";
+            resultText = ev.result || "";
+            if (ev.usage) {
+              const inp = ev.usage.input_tokens || 0;
+              const out = ev.usage.output_tokens || 0;
+              const cached = ev.usage.cache_read_input_tokens || 0;
+              const cost = ev.total_cost_usd ? "$" + ev.total_cost_usd.toFixed(3) : "";
+              process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${dim("tokens:")} ${amber(inp + "in " + out + "out")}${cached ? dim(" (" + cached + " cached)") : ""} ${cost ? dim(cost) : ""}       \n`);
+            }
+          }
+        } catch { /* skip */ }
+      }
     });
-    proc.stderr.on("data", (d) => { stderr += d; });
+    proc.stderr.on("data", () => {});
     proc.stdin.write(prompt);
     proc.stdin.end();
 
@@ -334,16 +444,17 @@ function callClaudeAsync(prompt, options = {}) {
     proc.on("close", (code) => {
       clearInterval(heartbeat);
       clearTimeout(timeout);
-      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
-      process.stderr.write(`\r  ${dim("[")}${accent(label || "claude")}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(elapsed + "s")}       \n`);
-      if (code !== 0) {
-        return reject(new Error(`Claude exited with code ${code}${stderr ? ": " + stderr.trim() : ""}`));
+      const totalEl = ((Date.now() - startTime) / 1000).toFixed(1);
+      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}       \n`);
+      if (code !== 0 && !resultText) {
+        return reject(new Error("Claude exited with code " + code));
       }
-      resolve(stdout);
+      resolve(resultText);
     });
 
     proc.on("error", (err) => {
-      clearTimeout(timer);
+      clearInterval(heartbeat);
+      clearTimeout(timeout);
       if (err.code === "ENOENT") {
         return reject(new Error("Claude CLI not found. Install it: npm install -g @anthropic-ai/claude-code"));
       }
