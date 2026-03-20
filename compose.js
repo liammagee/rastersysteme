@@ -428,7 +428,7 @@ if (require.main === module) {
     ratio: getFlag("--ratio"),
     intensity: getFlag("--intensity"),
     brief: getFlag("--brief"),
-    model: getFlag("--model"),
+    model: getFlag("--model") || "sonnet",
     dryRun: args.includes("--dry-run"),
   };
 
