@@ -654,13 +654,16 @@ describe("Compose module", () => {
     assert.ok(DESIGN_BRIEF.length > 500);
   });
 
-  it("DESIGN_MOODS provides 8 distinct moods", () => {
+  it("DESIGN_MOODS provides distinct mood seeds (not hardcoded palettes)", () => {
     assert.ok(Array.isArray(DESIGN_MOODS));
     assert.ok(DESIGN_MOODS.length >= 8);
     const names = DESIGN_MOODS.map(m => m.name);
     assert.equal(new Set(names).size, names.length, "mood names must be unique");
     DESIGN_MOODS.forEach(m => {
-      assert.ok(m.brief.length > 100, `mood "${m.name}" brief is too short`);
+      assert.ok(m.seed && m.seed.length > 20, `mood "${m.name}" needs a seed`);
+      // Seeds should be short conceptual prompts, NOT hardcoded hex values
+      const hexCount = (m.seed.match(/[0-9A-F]{6}/g) || []).length;
+      assert.ok(hexCount === 0, `mood "${m.name}" seed should not hardcode hex colours (found ${hexCount})`);
     });
   });
 
@@ -686,9 +689,9 @@ describe("Compose module", () => {
         "minimal should prohibit blanks");
     });
 
-    it("minimal: greyscale bg only", () => {
-      assert.ok(INTENSITY.minimal.includes("Greyscale") || INTENSITY.minimal.includes("greyscale") ||
-        INTENSITY.minimal.includes("111111"), "minimal should restrict to greyscale");
+    it("minimal: restrained bg palette", () => {
+      assert.ok(INTENSITY.minimal.includes("Restrained") || INTENSITY.minimal.includes("restrained") ||
+        INTENSITY.minimal.includes("2-3 colour"), "minimal should have restrained palette");
     });
 
     it("moderate: layout variety required", () => {
@@ -727,10 +730,10 @@ describe("Compose module", () => {
       assert.ok(INTENSITY.maximal.includes("blank"), "maximal needs blanks");
     });
 
-    it("maximal: concrete bg hex values", () => {
-      assert.ok(INTENSITY.maximal.includes("0F2A4A"), "deep navy");
-      assert.ok(INTENSITY.maximal.includes("3D0A06"), "dark blood");
-      assert.ok(INTENSITY.maximal.includes("1B3D22"), "deep forest");
+    it("maximal: requires Claude to INVENT a palette", () => {
+      assert.ok(INTENSITY.maximal.includes("INVENT") || INTENSITY.maximal.includes("invent") ||
+        INTENSITY.maximal.includes("Choose your own") || INTENSITY.maximal.includes("choose your own"),
+        "maximal should require original palette creation");
     });
 
     it("maximal: multiple font families", () => {
@@ -765,6 +768,51 @@ describe("Compose module", () => {
   it("buildPrompt includes custom brief when provided", () => {
     const prompt = buildPrompt("# Title", { brief: "brutalist maximalism" });
     assert.ok(prompt.includes("brutalist maximalism"));
+  });
+
+  describe("generative design approach", () => {
+    it("DESIGN PLAN asks Claude to invent a palette", () => {
+      const prompt = buildPrompt("# Title\n- a\n- b", { intensity: "maximal" });
+      assert.ok(prompt.includes("Palette:") && prompt.includes("hex colours YOU chose"),
+        "design plan should ask Claude to choose its own hex colours");
+    });
+
+    it("DESIGN PLAN asks for font strategy tied to meaning", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate" });
+      assert.ok(prompt.includes("Font strategy:") && prompt.includes("WHY"),
+        "design plan should ask for font strategy with rationale");
+    });
+
+    it("DESIGN PLAN asks for density plan", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal" });
+      assert.ok(prompt.includes("Density plan:"),
+        "design plan should ask for density variation plan");
+    });
+
+    it("mood seeds are conceptual, not hex-coded recipes", () => {
+      DESIGN_MOODS.forEach(m => {
+        const hexMatches = m.seed.match(/[0-9A-Fa-f]{6}/g) || [];
+        assert.equal(hexMatches.length, 0,
+          `mood "${m.name}" seed contains hardcoded hex: ${hexMatches.join(", ")}`);
+      });
+    });
+
+    it("intensity prompts instruct Claude to DESIGN, not follow a recipe", () => {
+      // Maximal should say "invent" or "choose your own" for palette
+      assert.ok(INTENSITY.maximal.includes("INVENT") || INTENSITY.maximal.includes("invent"),
+        "maximal should tell Claude to invent palette");
+      // Moderate should say "invent" or "design" for palette
+      assert.ok(INTENSITY.moderate.includes("invent") || INTENSITY.moderate.includes("DESIGN") ||
+        INTENSITY.moderate.includes("original"),
+        "moderate should tell Claude to design palette");
+    });
+
+    it("maximal intensity does NOT hardcode specific hex values", () => {
+      // Count 6-char hex patterns in maximal prompt — should be minimal
+      const hexMatches = INTENSITY.maximal.match(/\b[0-9A-F]{6}\b/g) || [];
+      assert.ok(hexMatches.length <= 3,
+        `maximal has ${hexMatches.length} hardcoded hex values — should be ≤3 (found: ${hexMatches.join(", ")})`);
+    });
   });
 
   describe("sanitizeClaudeOutput", () => {

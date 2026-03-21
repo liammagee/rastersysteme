@@ -127,12 +127,12 @@ MARKDOWN SYNTAX — your output must use exactly this format:
   <!-- bg: HEX -->     → background color override (6-char hex, no #)
   <!-- font: Name -->  → per-slide font override (default: Helvetica Neue)
 
-  BACKGROUND COLOUR PALETTE — use these for chromatic arcs:
-    Dark grounds:  111111, 1A1A1A, 0F2A4A, 1B3D22, 3D0A06, 2A1A0A
-    Mid tones:     4A3728, 2C3E50, 1A3C34, 5B2D1E, 3B1F2E
-    Warm accents:  B7311A, 876512, 8B4513, A0522D
-    Cool accents:  1B5E80, 2B7038, 4A6741
-    Near-whites:   F8F5F0, F0F4F8, FFF8E7
+  BACKGROUND COLOURS — you can use ANY valid 6-digit hex colour.
+    Invent your own palette for each deck. Some starting points if needed:
+    Dark:  0A1628, 1C1C1C, 0D2137, 1A2E1A, 2B0E0E
+    Mid:   3E2723, 2A4858, 4A3728, 5B3A29
+    Light: F5E6D0, EAF0E8, F0F4F8, FFF8E7
+    But PREFER to choose your own colours that match the mood you're creating.
 
   FONT OPTIONS — use <!-- font: Name --> for typographic contrast:
     Georgia            → serif, editorial warmth (blockquotes, reflective slides)
@@ -172,90 +172,27 @@ RULES (apply to all intensity levels):
 // ═══════════════════════════════════════════════════════
 
 const DESIGN_MOODS = [
-  { name: "nocturne",
-    brief: `MOOD: NOCTURNE — dark fields, signals in darkness.
-Dominant backgrounds: near-black (111111), deep navy (0F2A4A), charcoal (2A2A2A).
-Light slides (F8F5F0) are the exception — at most 20% of slides.
-Accent color: a single vermillion (B7311A) moment at the rhetorical peak.
-Secondary: forest green (1B3D22) for one reflective slide. Ochre (876512) for warmth.
-Layouts: favor section (dark, monumental) and rotated (architectural disruption).
-Typography: ### labels on 50%+ slides. Extreme scale contrast.` },
-
-  { name: "editorial",
-    brief: `MOOD: EDITORIAL — warm white fields, serif accents, magazine pacing.
-Dominant backgrounds: warm off-white (F8F5F0, FFF8E7), paper tones.
-Dark slides (1A1A1A, 0F2A4A) used for chapter breaks only — at most 25%.
-Accent color: steel blue (1B5E80) and burnt sienna (8B4513) as editorial markers.
-Font mixing: use <!-- font: Georgia --> on 30% of slides for editorial warmth.
-Layouts: favor split (two-column editorial), stagger (visual lists), arc (contemplative).
-Typography: refined, not violent. Generous whitespace. Readable density.` },
-
-  { name: "brutalist",
-    brief: `MOOD: BRUTALIST — raw concrete, exposed structure, no decoration.
-Dominant backgrounds: alternate sharply between pure black (111111) and stark white (FFFFFF).
-No gradients, no mid-tones, no warm colors. Binary: black or white.
-Accent color: a single red (B7311A) used exactly once. Everything else is greyscale.
-Font: <!-- font: Courier New --> on 20% of slides for raw, industrial texture.
-Layouts: fragment (shattered), section (monumental), blank (structural void).
-Typography: extreme. ### labels as large as titles in some places. No comfort.` },
-
-  { name: "botanical",
-    brief: `MOOD: BOTANICAL — deep greens, earth tones, organic warmth.
-Dominant backgrounds: forest green (1B3D22, 1A3C34), warm earth (4A3728, 2A1A0A).
-Light slides: warm cream (FFF8E7, F8F5F0) for content breathing room.
-Accent: ochre (876512) for highlights, deep red (3D0A06) for emphasis.
-Font mixing: <!-- font: Georgia --> on quotes and reflective slides.
-Layouts: arc (cycles, growth), overlap (organic layering), split (rooted structure).
-Typography: warm but precise. ### labels as gentle anchors, not confrontational.` },
-
-  { name: "signal",
-    brief: `MOOD: SIGNAL — high contrast, alert, urgent.
-Dominant backgrounds: deep navy (0F2A4A, 2C3E50) — the control room.
-Punctuation: vermillion (B7311A) on 3-4 slides as alarm signals.
-Content slides: cool grey-white (F0F4F8) for readability.
-Accent: steel blue (1B5E80) as the calm technical register.
-Font: <!-- font: Futura --> on 2-3 statement slides for modernist punch.
-Layouts: stagger (cascading alerts), fragment (information mosaic), section (sirens).
-Typography: clean, functional, slightly military. ### labels as status indicators.` },
-
-  { name: "archive",
-    brief: `MOOD: ARCHIVE — aged paper, scholarly, layered time.
-Dominant backgrounds: parchment (FFF8E7), aged cream (F8F5F0), coffee (4A3728).
-Dark slides: deep brown (2A1A0A) for chapter dividers — library darkness.
-Accent: muted red (5B2D1E, 3D0A06) — ink and binding.
-Font mixing: <!-- font: Palatino --> on 25% of slides for classical authority.
-<!-- font: Georgia --> on quotes and citations.
-Layouts: split (marginalia structure), rotated (vertical spine), overlap (palimpsest).
-Typography: scholarly precision. ### labels as catalogue entries.` },
-
-  { name: "bauhaus",
-    brief: `MOOD: BAUHAUS — primary geometry, functional clarity, Dessau precision.
-Dominant backgrounds: pure white (FFFFFF) — the universal ground.
-Dark slides: pure black (111111) for structural punctuation.
-Accents: use ALL four theme accent colors boldly and evenly — each on ~15% of slides.
-No muted tones. Full saturation. Democratic color distribution.
-Font: <!-- font: Futura --> on 30% of slides — the Bauhaus typeface.
-Layouts: fragment (grid as ideology), stagger (diagonal Kandinsky energy), arc (compass).
-Typography: geometric. Clean. No ornament. Function is beauty.` },
-
-  { name: "cinema",
-    brief: `MOOD: CINEMA — widescreen, dramatic lighting, Kubrickian precision.
-Dominant backgrounds: near-black (0A0A0A, 111111) — the darkened theatre.
-Accent: a single warm pool of light — ochre (876512) or amber (A0522D) on 3 slides.
-Cool: steel blue (1B5E80) for technical exposition — the clinical scene.
-Content slides: dark grey (2A2A2A) — never white. This deck never leaves the dark.
-Font: default Helvetica only — cinema is sans-serif.
-Layouts: section (title cards), blank (black frames), split (shot/reverse-shot).
-Typography: spare, cinematic. Large titles, small labels. Long pauses between scenes.` },
+  { name: "nocturne",    seed: "Dark fields with rare signals of light. Near-black dominates; colour is an event, not a habit." },
+  { name: "editorial",   seed: "Warm paper tones, serif typography, magazine pacing. Light is the ground; darkness punctuates." },
+  { name: "brutalist",   seed: "Raw concrete. Binary black/white. One accent colour used once. No comfort, no warmth." },
+  { name: "botanical",   seed: "Deep greens, earth tones, organic warmth. Growth as metaphor. Serif for reflection." },
+  { name: "signal",      seed: "Control room aesthetic. Navy fields, alert accents. Clean, functional, slightly military." },
+  { name: "archive",     seed: "Aged paper, scholarly layering. Serif authority. Dark brown chapter dividers." },
+  { name: "bauhaus",     seed: "Primary geometry, Dessau precision. White ground, bold primaries. Futura. Democratic colour." },
+  { name: "cinema",      seed: "Widescreen darkness. One warm pool of light. Sans-serif only. Spare. Cinematic pauses." },
+  { name: "industrial",  seed: "Steel grey, exposed grid. Monospace dominates. Data as texture. No decoration." },
+  { name: "solstice",    seed: "Warm-to-cool gradient across the deck. Golden opening fading to deep blue close." },
+  { name: "manuscript",  seed: "Calligraphic warmth. Palatino and cream. Marginalia structure. The book as interface." },
+  { name: "protest",     seed: "High contrast, urgent. Red and black only. Bold statements. Typography as weapon." },
 ];
 
 function getDefaultBrief() {
   const mood = DESIGN_MOODS[Math.floor(Math.random() * DESIGN_MOODS.length)];
   process.stderr.write(`  ${dim("Mood:")} ${chalk.italic(mood.name)}\n`);
-  return mood.brief;
+  return mood.seed;
 }
 
-const DEFAULT_BRIEF = ""; // Replaced by getDefaultBrief() in buildPrompt
+const DEFAULT_BRIEF = "";
 
 // ═══════════════════════════════════════════════════════
 // INTENSITY GUIDES
@@ -274,11 +211,11 @@ VISUAL TREATMENT:
 - Pick the best layout for each slide's existing content.
   3 bullets → "bullets". A quote → "rotated". Title only → "section".
   Dense bullets (4+) → "stagger". Title + body → "split".
-- bg overrides: no more than 30% of slides. Greyscale only (111111, 1A1A1A, F8F5F0).
+- bg overrides: no more than 30% of slides. Restrained palette — 2-3 colours max.
 - Font: Helvetica Neue only. No font overrides.
 - No layout used more than 25% of the time.
 
-The result: the same content, poured into a Swiss grid and set in Helvetica.`,
+The result: the same content, poured into a Swiss grid. Clean and restrained.`,
 
   moderate: `INTENSITY: MODERATE — The Gerstner position
 
@@ -291,16 +228,17 @@ CONTENT HANDLING:
 - Do NOT drop any substantive content. Every URL, date, name, criterion survives.
 - May add 1–2 blank slides at major transitions.
 
-VISUAL TREATMENT:
+VISUAL TREATMENT — you must DESIGN an original palette for this deck:
 - Use at least 5 different layout types. No layout > 30% of slides.
   Reach for stagger, rotated, fragment, overlap — not just split and bullets.
 - ### labels: add to most slides for typographic scale contrast.
-- bg overrides: 30–60% of slides. Build a 2–3 color chromatic arc.
-  Example arc: 1A1A1A → F8F5F0 → 0F2A4A → F8F5F0 → 1B3D22 → 1A1A1A
-- Font: Helvetica Neue default. Use <!-- font: Georgia --> on 2–3 slides
-  for editorial contrast (quotes, reflective moments).
+- COLOUR: invent a 3–5 colour palette that fits the mood/brief. Choose your own
+  hex values — dark grounds, mid-tones, accent flashes. Use bg overrides on
+  30–60% of slides to build a chromatic arc through the deck.
+- FONT: choose 1 secondary typeface that fits the mood. Use it on 2–3 slides
+  for contrast. Options: Georgia, Palatino, Courier New, Futura.
 
-The result: recognisably the same content, but with pacing, emphasis, and rhythm.`,
+The result: recognisably the same content, but with an original visual identity.`,
 
   maximal: `INTENSITY: MAXIMAL — The Weingart position
 
@@ -322,22 +260,21 @@ VISUAL TREATMENT:
   REQUIRED minimums: 2× stagger, 2× rotated, 1× fragment, 1× overlap, 3× section.
 - ### labels: on 60%+ of content slides. The 8pt label against a 30pt title
   IS the primary visual tension.
-- bg overrides: 50–80% of slides. Build a FULL chromatic arc:
-    Opening: 111111 or 0F2A4A (near-black or deep navy)
-    Tension: 3D0A06 or 5B2D1E (dark blood, burnt sienna)
-    Relief: 1B3D22 or 1A3C34 (deep forest)
-    Warmth: 2A1A0A or 4A3728 (espresso, earth)
-    Close: 111111 (return to darkness)
-- Font mixing mandatory:
-    <!-- font: Georgia --> on 15–25% of slides (quotes, reflective)
-    <!-- font: Courier New --> on technical/data slides
-    <!-- font: Futura --> on bold statements
+- COLOUR — you must INVENT an original 5–8 colour palette for this deck:
+    Choose your own hex values. Do NOT reuse the examples from the syntax guide.
+    Your palette should have: 2-3 dark grounds, 1-2 mid-tones, 1-2 accent flashes,
+    1 near-white. Use bg overrides on 50–80% of slides.
+    The chromatic arc must have a beginning, a climax, and a resolution.
+- FONT — choose 2-3 typefaces and assign each a role:
+    One for body/default, one for editorial/reflective, one for statements/data.
+    Use font overrides on 15–25% of slides.
+    Options: Georgia, Palatino, Courier New, Futura (plus default Helvetica Neue).
 - DENSITY CONTRAST: alternate between dense and sparse slides.
   A 5-bullet stagger → blank → single-word section → fragment mosaic.
   The variation in density IS the design.
 
-The result: austere, strange, precise. The same information, made unfamiliar
-through radical form. Every layout choice surprising but earned.`,
+The result: an original design system — not a template, a composition.
+Austere, strange, precise. Every run should look different from the last.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -397,12 +334,13 @@ First, output a design plan as a comment block. This forces you to think about
 the deck holistically BEFORE making per-slide decisions:
 
 <!-- DESIGN PLAN
-Mood: [name the mood/aesthetic you're applying]
-Chromatic arc: [list the bg colors in sequence, e.g. "111111 → F8F5F0 → 0F2A4A → F8F5F0 → 1B3D22 → 111111"]
-Layout rhythm: [list the layout sequence, e.g. "title section split stagger rotated split fragment section blank"]
-Font strategy: [which slides get font overrides and why]
-Key moments: [which 2-3 slides are the visual peaks — where color/layout is most dramatic]
-Pacing: [where blank slides go and why]
+Mood: [name the aesthetic — invent it, don't pick from a list]
+Palette: [5-8 hex colours YOU chose for this deck, e.g. "0A1628 (ink night), D4A574 (sand), 8B2500 (rust), F5E6D0 (linen), 2D4A3E (moss)"]
+Chromatic arc: [which palette colours appear on which slides, in sequence]
+Layout rhythm: [the full layout sequence — aim for maximum variety]
+Font strategy: [which typeface on which slides and WHY — tied to content meaning]
+Key moments: [2-3 slides that are the visual climax — different layout, different colour, different font]
+Density plan: [which slides are dense, which are sparse, where the contrast hits]
 -->
 
 ═══ PHASE 2: SLIDE OUTPUT ═══
