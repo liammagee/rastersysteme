@@ -256,6 +256,7 @@ async function interactive(preselectedInput) {
     { key: "r", label: "render          markdown → PPTX/HTML" },
     { key: "v", label: "compare         3-way A/B evaluation" },
     { key: "x", label: "explosive       12-way: all themes × intensities" },
+    { key: "i", label: "imagine         generate image prompts per slide" },
     { key: "q", label: "quit" },
   ], { autoSelect: true });
 
@@ -281,6 +282,13 @@ async function interactive(preselectedInput) {
   ], { autoSelect: true });
   const modelName = modelChoice.label.split(/\s+/)[0];
 
+  // 5. Slide range (optional — for fast iteration on a subset)
+  const srcSlideCount = fs.readFileSync(input, "utf-8").split(/\n---\n/).filter(s => s.trim()).length;
+  const slideRange = await askText(`Slide range (1-${srcSlideCount}, or Enter for all)`, "");
+  if (slideRange) {
+    process.stderr.write(`  ${dim("Slides:")} ${slideRange} of ${srcSlideCount}\n`);
+  }
+
   let composedPath, pptxPath, htmlPath;
 
   if (mode.key === "c") {
@@ -303,6 +311,7 @@ async function interactive(preselectedInput) {
     console.log(`\n  ${rule}`);
     const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName];
     if (brief) composeArgs.push("--brief", brief);
+    if (slideRange) composeArgs.push("--slides", slideRange);
     const ok = run("compose.js", composeArgs);
 
     if (!ok) {
@@ -353,11 +362,39 @@ async function interactive(preselectedInput) {
     if (explosive) compareArgs.push("--explosive");
     compareArgs.push("--brief", brief || "default");
     if (skipEval) compareArgs.push("--skip-eval");
+    if (slideRange) compareArgs.push("--slides", slideRange);
     run("compare.js", compareArgs);
 
     const reportPath = path.join(path.dirname(path.resolve(input)), `${inputBase}.compare.html`);
     if (fs.existsSync(reportPath)) {
       openFile(reportPath);
+    }
+    process.exit(0);
+
+  } else if (mode.key === "i") {
+    // ── IMAGINE ──────────────────────────────
+    const { IMAGE_STYLES } = require("./imagine.js");
+    const styleItems = Object.entries(IMAGE_STYLES).map(([key, s]) => ({
+      key: key[0], label: `${key.padEnd(16)} ${s.description.slice(0, 50)}`,
+      value: key,
+    }));
+    const styleChoice = await select("IMAGE STYLE", styleItems);
+    const styleName = styleChoice.value;
+
+    const genChoice = await select("GENERATE IMAGES?", [
+      { key: "p", label: "prompts only    generate text prompts (no API needed)" },
+      { key: "g", label: "generate        call image API (needs key in .env)" },
+    ], { autoSelect: true });
+
+    console.log(`\n  ${rule}`);
+    const imagineArgs = [input, "--style", styleName, "--model", modelName];
+    if (genChoice.key === "g") imagineArgs.push("--generate");
+    run("imagine.js", imagineArgs);
+
+    const imgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
+    const galleryPath = path.join(imgDir, "gallery.md");
+    if (fs.existsSync(galleryPath)) {
+      console.log(`\n  ${sage("✓")} Gallery: ${teal(galleryPath)}`);
     }
     process.exit(0);
   }
@@ -408,6 +445,7 @@ async function interactive(preselectedInput) {
         const skipEval = (await askText("Run Claude evaluation? (y/n)", "y")).toLowerCase() !== "y";
         const compareArgs = [input, "--theme", themeName, "--model", modelName];
         if (skipEval) compareArgs.push("--skip-eval");
+        if (slideRange) compareArgs.push("--slides", slideRange);
         run("compare.js", compareArgs);
         const reportPath = path.join(path.dirname(path.resolve(input)), `${inputBase}.compare.html`);
         if (fs.existsSync(reportPath)) openFile(reportPath);
@@ -436,6 +474,7 @@ async function interactive(preselectedInput) {
         console.log(`\n  ${rule}`);
         const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", newIntensity.label, "--model", modelName];
         if (newBrief) composeArgs.push("--brief", newBrief);
+        if (slideRange) composeArgs.push("--slides", slideRange);
         const ok = run("compose.js", composeArgs);
         if (ok) run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html"]);
         break;
