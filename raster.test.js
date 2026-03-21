@@ -719,55 +719,43 @@ describe("Compose module", () => {
     assert.ok(INTENSITY.maximal);
   });
 
-  it("maximal intensity mentions content preservation", () => {
-    assert.ok(INTENSITY.maximal.includes("content") || INTENSITY.maximal.includes("Content"));
-  });
-
   describe("intensity constraints are distinct", () => {
-    it("minimal: Helvetica only, no font overrides", () => {
-      assert.ok(INTENSITY.minimal.includes("Helvetica Neue only") || INTENSITY.minimal.includes("No font"),
-        "minimal should restrict to Helvetica");
-    });
-
-    it("all intensities: same slide count as source", () => {
+    it("all intensities: exact slide count", () => {
       for (const [name, text] of Object.entries(INTENSITY)) {
-        assert.ok(text.includes("EXACTLY") && text.includes("source"),
-          `${name} must require exact slide count match`);
+        assert.ok(text.includes("EXACTLY"), `${name} must require EXACTLY N slides`);
       }
     });
 
     it("all intensities: no blank slides, no splitting", () => {
       for (const [name, text] of Object.entries(INTENSITY)) {
         assert.ok(text.includes("NOT add blank") || text.includes("Do NOT add blank") ||
-          text.includes("not add blank") || text.includes("No blank"),
+          text.includes("not add blank"),
           `${name} should prohibit blank slides`);
       }
     });
 
-    it("minimal: restrained bg palette", () => {
-      assert.ok(INTENSITY.minimal.includes("Restrained") || INTENSITY.minimal.includes("restrained") ||
-        INTENSITY.minimal.includes("2-3 colour"), "minimal should have restrained palette");
+    it("minimal: Helvetica only", () => {
+      assert.ok(INTENSITY.minimal.includes("Helvetica Neue only"),
+        "minimal should restrict to Helvetica");
     });
 
-    it("moderate: layout variety required", () => {
-      assert.ok(INTENSITY.moderate.includes("5 different") || INTENSITY.moderate.includes("at least 5"),
+    it("minimal: light/bright design", () => {
+      assert.ok(INTENSITY.minimal.includes("LIGHT") || INTENSITY.minimal.includes("bright") ||
+        INTENSITY.minimal.includes("70%"), "minimal should be light");
+    });
+
+    it("moderate: 5+ layout types", () => {
+      assert.ok(INTENSITY.moderate.includes("5+") || INTENSITY.moderate.includes("5 "),
         "moderate needs 5+ layouts");
     });
 
-    it("moderate: 30% layout cap", () => {
-      assert.ok(INTENSITY.moderate.includes("30%"), "moderate caps at 30%");
-    });
-
-    it("moderate: Georgia allowed", () => {
-      assert.ok(INTENSITY.moderate.includes("Georgia"), "moderate allows Georgia");
-    });
-
-    it("moderate: chromatic arc", () => {
-      assert.ok(INTENSITY.moderate.includes("chromatic arc"), "moderate builds chromatic arc");
+    it("moderate: mixed light/dark journey", () => {
+      assert.ok(INTENSITY.moderate.includes("light") && INTENSITY.moderate.includes("dark"),
+        "moderate should cross light/dark boundaries");
     });
 
     it("maximal: 8+ layout types", () => {
-      assert.ok(INTENSITY.maximal.includes("8 different") || INTENSITY.maximal.includes("at least 8"),
+      assert.ok(INTENSITY.maximal.includes("8+") || INTENSITY.maximal.includes("8 "),
         "maximal needs 8+ layouts");
     });
 
@@ -781,28 +769,22 @@ describe("Compose module", () => {
       }
     });
 
-    it("all intensities: content is fixed, design varies", () => {
-      for (const [name, text] of Object.entries(INTENSITY)) {
-        assert.ok(text.includes("content") && (text.includes("fixed") || text.includes("FIXED") || text.includes("EXACT")),
-          `${name} should state content is fixed`);
-      }
+    it("maximal: HIGH CONTRAST brightness", () => {
+      assert.ok(INTENSITY.maximal.includes("HIGH CONTRAST") || INTENSITY.maximal.includes("Alternate"),
+        "maximal should demand high contrast");
     });
 
-    it("maximal: requires Claude to INVENT a palette", () => {
-      assert.ok(INTENSITY.maximal.includes("INVENT") || INTENSITY.maximal.includes("invent") ||
-        INTENSITY.maximal.includes("Choose your own") || INTENSITY.maximal.includes("choose your own"),
-        "maximal should require original palette creation");
+    it("maximal: vivid saturated colours required", () => {
+      assert.ok(INTENSITY.maximal.includes("vivid") || INTENSITY.maximal.includes("VIVID") ||
+        INTENSITY.maximal.includes("saturated"),
+        "maximal should require vivid colours, not just dark");
     });
 
-    it("maximal: requires multiple typefaces", () => {
-      assert.ok(INTENSITY.maximal.includes("2-3 typefaces") || INTENSITY.maximal.includes("font overrides"),
-        "maximal should require multiple typefaces");
-    });
-
-    it("bg % escalates: minimal ≤30, moderate 30-60, maximal 50-80", () => {
-      assert.ok(INTENSITY.minimal.includes("30%"));
-      assert.ok(INTENSITY.moderate.includes("60%"));
-      assert.ok(INTENSITY.maximal.includes("80%"));
+    it("brightness escalates: minimal=light, moderate=mixed, maximal=contrast", () => {
+      assert.ok(INTENSITY.minimal.includes("LIGHT") || INTENSITY.minimal.includes("light"));
+      assert.ok(INTENSITY.moderate.includes("journey") || INTENSITY.moderate.includes("JOURNEY") ||
+        INTENSITY.moderate.includes("mixed") || INTENSITY.moderate.includes("Mixed"));
+      assert.ok(INTENSITY.maximal.includes("CONTRAST") || INTENSITY.maximal.includes("contrast"));
     });
   });
 

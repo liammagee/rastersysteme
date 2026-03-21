@@ -214,62 +214,72 @@ const DEFAULT_BRIEF = "";
 // ═══════════════════════════════════════════════════════
 
 const INTENSITY = {
-  minimal: `INTENSITY: MINIMAL — The Müller-Brockmann position
+  minimal: `INTENSITY: MINIMAL — Clean, bright, institutional
 
-SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
-Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
+══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
+NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
+Do NOT add blank slides. Do NOT split or merge.
+══════════════════════════════════════════════════════
 
-WHAT YOU CONTROL:
-- Layout selection: pick the best layout per slide's content structure.
-  3 bullets → "bullets". A quote → "rotated". Title only → "section".
-  Dense bullets (4+) → "stagger". Title + body → "split".
-- ### section labels: add sparingly, derived from the content's themes.
-- bg overrides: no more than 30% of slides. Restrained palette — 2-3 colours max.
-- Font: Helvetica Neue only. No font overrides. No style overrides.
-- No layout used more than 25% of the time.
+BRIGHTNESS: This is a LIGHT design. 70%+ of slides should have NO bg override
+(letting the theme's light default show). Use bg overrides ONLY on 3-5 slides
+for chapter breaks — and even those should be mid-tones, not dark.
 
-The result: the same content, poured into a Swiss grid. Clean and restrained.`,
+DESIGN:
+- Layout: best-fit per slide. No layout > 25%.
+- ### labels: sparingly.
+- Colour: 2 colours max. Warm whites and one mid-tone for accents.
+- Font: Helvetica Neue only. No font or style overrides.
 
-  moderate: `INTENSITY: MODERATE — The Gerstner position
+The result: clean, bright, professional. Paper-white fields. Readable.`,
 
-SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
-Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
+  moderate: `INTENSITY: MODERATE — Warm, editorial, layered
 
-WHAT YOU CONTROL — you must DESIGN an original visual system:
-- Layout selection: use at least 5 different layout types. No layout > 30%.
-  Reach for stagger, rotated, fragment, overlap — not just split and bullets.
-- ### section labels: add to most slides for typographic scale contrast.
-- COLOUR: INVENT a 3–5 colour palette. Choose your own hex values.
-  Use bg overrides on 30–60% of slides to build a chromatic arc.
-- FONT: choose 1 secondary typeface for contrast on 2–3 slides.
-  Options: Georgia, Palatino, Courier New, Futura.
-- <!-- style: ... --> overrides on 3–5 slides for typographic variety.
+══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
+NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
+Do NOT add blank slides. Do NOT split or merge.
+══════════════════════════════════════════════════════
 
-The result: the same slides, with a designed visual identity.`,
+BRIGHTNESS: Mixed — a JOURNEY from light to dark and back. 40% light backgrounds,
+30% mid-tones, 30% dark. The arc should cross light/dark boundaries 3-4 times.
 
-  maximal: `INTENSITY: MAXIMAL — The Weingart position
+DESIGN — create an ORIGINAL visual identity:
+- Layout: 5+ types. No layout > 30%. Favour stagger, rotated, fragment.
+- ### labels: on most slides.
+- COLOUR: INVENT 4-5 colours spanning light-to-dark. Include warm tones
+  (cream, sand, terracotta) AND cool moments (slate, teal). NOT all dark.
+- FONT: 1 secondary typeface on 3-4 slides.
+- STYLE: overrides on 3-5 slides.
 
-SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
-Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
-The design is radical. The structure is not.
+The result: editorial warmth. Colour shifts mark chapters. Typography breathes.`,
 
-WHAT YOU CONTROL — you must create an ORIGINAL design system:
-- Layout selection: use at least 8 different types. No layout > 20%.
-  "split" may not exceed 15%.
+  maximal: `INTENSITY: MAXIMAL — Dramatic, vivid, confrontational
+
+══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
+NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
+Do NOT add blank slides. Do NOT split or merge.
+══════════════════════════════════════════════════════
+
+BRIGHTNESS: HIGH CONTRAST. Alternate sharply between extremes.
+30% near-black, 20% vivid saturated colour, 20% near-white, 30% mid-tone.
+Adjacent slides should NEVER have similar brightness — force contrast.
+
+DESIGN — ORIGINAL system, every slide individually crafted:
+- Layout: 8+ types. No layout > 20%. split ≤ 15%.
   REQUIRED: 2× stagger, 2× rotated, 1× fragment, 1× overlap.
-- ### section labels: on 60%+ of slides. The 8pt label vs 30pt title
-  IS the primary tension.
-- COLOUR: INVENT a 5–8 colour palette. Choose your own hex values.
-  Do NOT reuse examples. Use bg overrides on 50–80% of slides.
-  Build a full chromatic arc with beginning, climax, and resolution.
-- FONT: choose 2-3 typefaces, each with a specific role.
-  Use font overrides on 15–25% of slides.
-- STYLE OVERRIDES: use <!-- style: ... --> on 30%+ of slides.
-  title-size=72 on statements. spacing=tight on dense slides.
-  letter-spacing=0.15em on labels. text-transform=uppercase on declarations.
-  Each slide should feel individually designed.
+- ### labels: on 60%+ of slides.
+- COLOUR: INVENT 6-8 colours. MUST include BOTH vivid saturated colours
+  (bright red, electric blue, acid green, golden yellow — not just dark)
+  AND deep grounds. The palette should feel ALIVE, not nocturnal.
+  Build a chromatic arc that MOVES — light→vivid→dark→vivid→light.
+- FONT: 2-3 typefaces. 15-25% of slides.
+- STYLE: on 30%+ of slides. Extreme typographic variety.
+  title-size=72 next to title-size=24. spacing=tight next to spacing=loose.
 
-The result: the same content, made unrecognisable through radical form.`,
+The result: every slide a designed event. Vivid. Confrontational. Unforgettable.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -277,18 +287,18 @@ The result: the same content, made unrecognisable through radical form.`,
 // ═══════════════════════════════════════════════════════
 
 const DESIGN_SEEDS = [
-  "Lead with the rotated layout — vertical type as primary structural intervention. Let horizontal slides feel like the exception.",
-  "Let fragment mosaics dominate the middle section. Shatter content into democratic blocks where hierarchy would be false.",
-  "Push typographic scale to extremes: 8pt labels directly adjacent to 40pt titles. The tension between registers IS the design.",
-  "Build the chromatic arc from near-black to warm white across the deck, with a single vermillion moment at the rhetorical peak.",
-  "Favor overlap layouts for every conceptual tension. Where two ideas coexist, make the overlap visible. Use arc for convergence.",
-  "Deploy blank slides aggressively — silence between every major statement. The deck should breathe like Webern, not Mahler.",
-  "Let the stagger cascade carry the main narrative thread. Section slides are chapter markers; everything else cascades diagonally.",
-  "Use deep navy as the dominant field for 60%+ of slides. Warm off-white is the exception — content that earns lightness.",
-  "Alternate between dense and sparse relentlessly. A 6-bullet stagger followed by a single-word section followed by a blank. Rhythm as argument.",
-  "Treat every ### section label as the real content — the titles are architecture, the labels are where the reader's eye should land first.",
-  "Open with maximum austerity — near-black, minimal text. Let the deck warm gradually, arriving at the richest color only at the close.",
-  "Use the split layout as the backbone — left zone anchors identity, right zone delivers content. Disrupt with rotated or fragment only twice.",
+  "Rotated layouts as structural intervention — vertical type disrupts every 4th slide.",
+  "Fragment mosaics for information-dense slides. Shatter bullet lists into coloured tiles.",
+  "Extreme typographic scale: tiny ### labels anchoring enormous # titles.",
+  "Start warm (cream, sand), cross through vivid colour at the midpoint, end cool.",
+  "Overlap layouts for every conceptual tension. Arc for synthesis. Section for declarations.",
+  "Stagger cascades carry the narrative. Section slides are chapter titles.",
+  "Alternate bright white and vivid colour — avoid darkness. This is a daylight deck.",
+  "Build from silence to noise: near-empty opening, progressively denser toward the climax.",
+  "Warm earth tones (terracotta, ochre, sand) with cool accents (teal, slate).",
+  "Primary colours only — red, blue, yellow on white. Bauhaus purity.",
+  "One colour dominates (70%). All others are accents that earn their moment.",
+  "Every 5th slide gets a dramatic layout change and colour shift — rhythmic punctuation.",
 ];
 
 // ═══════════════════════════════════════════════════════
