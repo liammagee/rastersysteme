@@ -274,7 +274,7 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
 }
 
 async function runVariants(sourcePath, outputDir, options = {}) {
-  const intensities = options.intensities || ["faithful", "moderate", "radical"];
+  const intensities = options.intensities || ["minimal", "moderate", "maximal"];
   const themes = options.themes || [options.theme || "light"];
   const maxParallel = options.maxParallel || 3;
 
@@ -486,7 +486,7 @@ body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#1a1a1a;
 .preview-card{position:relative}
 .preview-num{position:absolute;top:4px;left:6px;font-size:.6rem;color:#8C8478;z-index:1;font-weight:600}
 .preview-slide{aspect-ratio:16/9;overflow:hidden;border-radius:3px;border:1px solid #333;position:relative}
-.slide-inner{position:absolute;width:960px;height:540px;transform-origin:top left;transform:scale(var(--preview-scale,0.3))}
+.slide-inner{position:absolute;width:960px;height:540px;transform-origin:top left;transform:scale(var(--preview-scale,0.3));display:flex !important}
 .preview-error{color:#C44230;font-size:.85rem;padding:1rem}
 </style>
 <style>
@@ -544,18 +544,46 @@ ${generateHTMLCSS()}
   ${variantColumns.map((vc) => `<p><code>${vc.composedPath}</code></p>`).join("")}
 </div>
 <script>
-document.querySelectorAll('.preview-slide').forEach(el => {
-  const w = el.offsetWidth;
-  el.style.setProperty('--preview-scale', (w / 960).toFixed(4));
-  el.style.height = (w * 9 / 16) + 'px';
-});
-window.addEventListener('resize', () => {
+// Scale slide previews to fit columns
+function scaleSlides(){
   document.querySelectorAll('.preview-slide').forEach(el => {
     const w = el.offsetWidth;
     el.style.setProperty('--preview-scale', (w / 960).toFixed(4));
     el.style.height = (w * 9 / 16) + 'px';
   });
+}
+scaleSlides();
+window.addEventListener('resize', scaleSlides);
+
+// Synced scrolling — toggle with button
+const scrollers = document.querySelectorAll('.preview-scroll');
+let syncEnabled = true;
+let scrolling = false;
+
+scrollers.forEach(scroller => {
+  scroller.addEventListener('scroll', () => {
+    if (!syncEnabled || scrolling) return;
+    scrolling = true;
+    const pct = scroller.scrollTop / (scroller.scrollHeight - scroller.clientHeight || 1);
+    scrollers.forEach(other => {
+      if (other !== scroller) {
+        other.scrollTop = pct * (other.scrollHeight - other.clientHeight);
+      }
+    });
+    requestAnimationFrame(() => { scrolling = false; });
+  });
 });
+
+// Toggle button
+const btn = document.createElement('button');
+btn.textContent = 'Sync scroll: ON';
+btn.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:99;padding:.4rem 1rem;background:#242424;color:#f0ebe3;border:1px solid #555;border-radius:4px;font-family:inherit;font-size:.75rem;cursor:pointer;letter-spacing:0.05em';
+btn.addEventListener('click', () => {
+  syncEnabled = !syncEnabled;
+  btn.textContent = 'Sync scroll: ' + (syncEnabled ? 'ON' : 'OFF');
+  btn.style.borderColor = syncEnabled ? '#548C5A' : '#555';
+});
+document.body.appendChild(btn);
 </script>
 </body>
 </html>`;
@@ -571,7 +599,8 @@ window.addEventListener('resize', () => {
 async function compare(sourcePath, options = {}) {
   const base = path.basename(sourcePath, ".md");
   const sourceDir = path.dirname(path.resolve(sourcePath));
-  const timestamp = new Date().toISOString().replace(/[T:]/g, "-").slice(0, 17);
+  const now = new Date();
+  const timestamp = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}-${String(now.getHours()).padStart(2,"0")}-${String(now.getMinutes()).padStart(2,"0")}`;
   const outputDir = path.join(sourceDir, `compare-${base}-${timestamp}`);
   fs.mkdirSync(outputDir, { recursive: true });
 
@@ -703,4 +732,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, RUBRIC };
+module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, generateCompareReport, RUBRIC };

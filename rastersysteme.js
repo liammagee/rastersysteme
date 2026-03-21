@@ -163,12 +163,34 @@ function run(script, args) {
 }
 
 function openFile(filePath) {
-  const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
-  try {
-    execSync(`${cmd} "${filePath}"`, { stdio: "ignore" });
-    console.log(`  ${sage("✓")} Opened ${teal(path.basename(filePath))}`);
-  } catch {
-    console.log(`  ${accent("✗")} Could not open ${filePath}`);
+  if (filePath.endsWith(".html")) {
+    // Serve via localhost to avoid file:// security restrictions
+    const dir = path.dirname(filePath);
+    const file = path.basename(filePath);
+    const port = 8700 + Math.floor(Math.random() * 100);
+    const { spawn: spawnBg } = require("child_process");
+    const server = spawnBg("python3", ["-m", "http.server", String(port)], {
+      cwd: dir, stdio: "ignore", detached: true,
+    });
+    server.unref();
+    const url = `http://localhost:${port}/${file}`;
+    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+    setTimeout(() => {
+      try {
+        execSync(`${cmd} "${url}"`, { stdio: "ignore" });
+        console.log(`  ${sage("✓")} ${teal(url)}`);
+      } catch {
+        console.log(`  ${accent("✗")} Could not open browser`);
+      }
+    }, 300);
+  } else {
+    const cmd = process.platform === "darwin" ? "open" : process.platform === "win32" ? "start" : "xdg-open";
+    try {
+      execSync(`${cmd} "${filePath}"`, { stdio: "ignore" });
+      console.log(`  ${sage("✓")} Opened ${teal(path.basename(filePath))}`);
+    } catch {
+      console.log(`  ${accent("✗")} Could not open ${filePath}`);
+    }
   }
 }
 
@@ -251,14 +273,22 @@ async function interactive(preselectedInput) {
     themeName = theme.label;
   }
 
+  // 4. Model (shared across modes that call Claude)
+  const modelChoice = await select("MODEL", [
+    { key: "s", label: "sonnet          balanced quality + speed" },
+    { key: "h", label: "haiku           fast + cheap" },
+    { key: "o", label: "opus            maximum quality" },
+  ], { autoSelect: true });
+  const modelName = modelChoice.label.split(/\s+/)[0];
+
   let composedPath, pptxPath, htmlPath;
 
   if (mode.key === "c") {
     // ── COMPOSE ──────────────────────────────
     const intensity = await select("INTENSITY", [
-      { key: "f", label: "faithful        Müller-Brockmann: preserve structure" },
+      { key: "n", label: "minimal         Müller-Brockmann: clean grid, no rewrites" },
       { key: "m", label: "moderate        Gerstner: restructure for impact" },
-      { key: "r", label: "radical         Weingart: radical design, full content" },
+      { key: "x", label: "maximal         Weingart: full chromatic arc, font mixing" },
     ], { autoSelect: true });
     const intensityName = intensity.label.split(/\s+/)[0];
 
@@ -271,7 +301,7 @@ async function interactive(preselectedInput) {
     composedPath = path.join(SCRIPT_DIR, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
-    const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", intensityName];
+    const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName];
     if (brief) composeArgs.push("--brief", brief);
     const ok = run("compose.js", composeArgs);
 
@@ -318,7 +348,7 @@ async function interactive(preselectedInput) {
     const skipEval = evalChoice.key === "n";
 
     console.log(`\n  ${rule}`);
-    const compareArgs = [input];
+    const compareArgs = [input, "--model", modelName];
     if (!explosive) compareArgs.push("--theme", themeName);
     if (explosive) compareArgs.push("--explosive");
     compareArgs.push("--brief", brief || "default");
@@ -376,7 +406,7 @@ async function interactive(preselectedInput) {
 
       case "v": {
         const skipEval = (await askText("Run Claude evaluation? (y/n)", "y")).toLowerCase() !== "y";
-        const compareArgs = [input, "--theme", themeName];
+        const compareArgs = [input, "--theme", themeName, "--model", modelName];
         if (skipEval) compareArgs.push("--skip-eval");
         run("compare.js", compareArgs);
         const reportPath = path.join(path.dirname(path.resolve(input)), `${inputBase}.compare.html`);
@@ -398,13 +428,13 @@ async function interactive(preselectedInput) {
 
       case "c": {
         const newIntensity = await select("INTENSITY", [
-          { key: "f", label: "faithful" },
+          { key: "n", label: "minimal" },
           { key: "m", label: "moderate" },
-          { key: "r", label: "radical" },
+          { key: "x", label: "maximal" },
         ], { autoSelect: true });
         const newBrief = await askText("Brief (optional)", "");
         console.log(`\n  ${rule}`);
-        const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", newIntensity.label];
+        const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", newIntensity.label, "--model", modelName];
         if (newBrief) composeArgs.push("--brief", newBrief);
         const ok = run("compose.js", composeArgs);
         if (ok) run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html"]);

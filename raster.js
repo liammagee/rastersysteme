@@ -660,11 +660,14 @@ const LAYOUTS = {
     }
 
     const colors = [theme.accent, theme.accent2, theme.accent3, theme.accent4];
+    const items = slide.bullets.length > 0
+      ? slide.bullets.map(b => b.text)
+      : slide.body;
     const startRow = slide.title ? 10 : 2;
-    const step = Math.min(7, Math.floor(30 / slide.bullets.length));
-    const colStep = Math.min(8, Math.floor(30 / slide.bullets.length));
+    const step = Math.min(7, Math.floor(30 / (items.length || 1)));
+    const colStep = Math.min(8, Math.floor(30 / (items.length || 1)));
 
-    slide.bullets.forEach((b, i) => {
+    items.forEach((text, i) => {
       const col = i * colStep;
       const row = startRow + i * step;
       if (row > 36) return;
@@ -675,7 +678,7 @@ const LAYOUTS = {
         x: g.cx(col), y: g.cy(row), w: g.cw(Math.min(42, 60 - col)), h: g.ch(Math.max(4, step - 1)),
         fill: { color: c, transparency: c === theme.accent4 ? 25 : 15 },
       });
-      s.addText(b.text, {
+      s.addText(text, {
         x: g.cx(col) + 0.12, y: g.cy(row), w: g.cw(Math.min(40, 58 - col)), h: g.ch(Math.max(4, step - 1)),
         fontSize: 15, fontFace: ff,
         color: textOnDark, bold: true, margin: 0, valign: "middle",
@@ -839,7 +842,7 @@ const LAYOUTS = {
     const ff = opts.fontFace;
     s.background = { color: theme.bgAlt };
 
-    const items = [...slide.bullets.map(b => b.text), ...slide.links.map(l => l.text)];
+    const items = [...slide.bullets.map(b => b.text), ...slide.body, ...slide.links.map(l => l.text)];
     const colors = [theme.accent, theme.accent2, theme.accent3, theme.accent4, theme.black];
 
     // Auto-generate fragment positions
@@ -1309,10 +1312,13 @@ const HTML_LAYOUTS = {
 
   stagger(slide) {
     const colors = ["accent", "accent2", "accent3", "accent4"];
-    const bars = slide.bullets.map((b, i) => {
+    const items = slide.bullets.length > 0
+      ? slide.bullets.map(b => b.text)
+      : slide.body;
+    const bars = items.map((text, i) => {
       const c = colors[i % 4];
       const ml = i * 8;
-      return `<div class="stagger-bar" style="background:var(--${c});margin-left:${ml}%">${esc(b.text)}</div>`;
+      return `<div class="stagger-bar" style="background:var(--${c});margin-left:${ml}%">${esc(text)}</div>`;
     }).join("\n");
     return `${slideTitle(slide, "h1")}<div class="stagger-bars">${bars}</div>`;
   },
@@ -1331,7 +1337,11 @@ const HTML_LAYOUTS = {
   },
 
   fragment(slide) {
-    const items = [...slide.bullets.map(b => b.text), ...slide.links.map(l => l.text)];
+    const items = [
+      ...slide.bullets.map(b => b.text),
+      ...slide.body,
+      ...slide.links.map(l => l.text),
+    ];
     const colors = ["accent", "accent2", "accent3", "accent4", "black"];
     const cells = items.map((item, i) => {
       const c = colors[i % 5];

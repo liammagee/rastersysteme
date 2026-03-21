@@ -2,7 +2,7 @@ const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
 const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS } = require("./raster.js");
 const { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES } = require("./qa.js");
-const { buildPrompt, sanitizeClaudeOutput, DESIGN_BRIEF, DEFAULT_BRIEF, INTENSITY } = require("./compose.js");
+const { buildPrompt, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY } = require("./compose.js");
 const { RUBRIC, buildEvalPrompt, parseEvaluation } = require("./compare.js");
 
 // ═══════════════════════════════════════════════════════
@@ -654,9 +654,14 @@ describe("Compose module", () => {
     assert.ok(DESIGN_BRIEF.length > 500);
   });
 
-  it("DEFAULT_BRIEF is a non-empty string", () => {
-    assert.ok(typeof DEFAULT_BRIEF === "string");
-    assert.ok(DEFAULT_BRIEF.length > 200);
+  it("DESIGN_MOODS provides 8 distinct moods", () => {
+    assert.ok(Array.isArray(DESIGN_MOODS));
+    assert.ok(DESIGN_MOODS.length >= 8);
+    const names = DESIGN_MOODS.map(m => m.name);
+    assert.equal(new Set(names).size, names.length, "mood names must be unique");
+    DESIGN_MOODS.forEach(m => {
+      assert.ok(m.brief.length > 100, `mood "${m.name}" brief is too short`);
+    });
   });
 
   it("INTENSITY has minimal, moderate, and maximal levels", () => {
