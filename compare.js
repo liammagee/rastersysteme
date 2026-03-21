@@ -348,6 +348,11 @@ function renderSlidePreviewsHTML(composedPath, theme) {
 
       const effectiveTheme = adaptThemeForBg(theme, slide.bgOverride);
       const styleParts = [];
+      // Font override
+      if (slide.fontOverride) {
+        styleParts.push(`font-family:'${slide.fontOverride}',var(--font)`);
+      }
+      // Background override + theme adaptation
       if (slide.bgOverride) {
         styleParts.push(`background:#${slide.bgOverride}`);
         if (effectiveTheme !== theme) {
@@ -358,6 +363,29 @@ function renderSlidePreviewsHTML(composedPath, theme) {
           styleParts.push(`--accent2:#${effectiveTheme.accent2}`);
           styleParts.push(`--accent3:#${effectiveTheme.accent3}`);
           styleParts.push(`--accent4:#${effectiveTheme.accent4}`);
+        }
+      }
+      // Style overrides (title-size, body-size, spacing, etc.)
+      if (slide.style) {
+        const styleMap = {
+          "title-size": (v) => `--title-size:${v}px`,
+          "body-size": (v) => `--body-size:${v}px`,
+          "spacing": (v) => `--slide-gap:${v === "tight" ? "0.5vmin" : v === "loose" ? "4vmin" : v === "none" ? "0" : v}`,
+          "padding": (v) => `padding:${v === "none" ? "0" : v === "tight" ? "2vmin" : v === "loose" ? "8vmin" : v}`,
+          "opacity": (v) => `opacity:${v}`,
+          "align": (v) => `text-align:${v}`,
+          "letter-spacing": (v) => `letter-spacing:${v}`,
+          "text-transform": (v) => `text-transform:${v}`,
+          "color": (v) => `color:#${v.replace(/^#/, "")}`,
+          "invert": (v) => v === "true" ? `filter:invert(1)` : "",
+        };
+        for (const [k, v] of Object.entries(slide.style)) {
+          const fn = styleMap[k];
+          if (fn) { const r = fn(v); if (r) styleParts.push(r); }
+          else {
+            const val = /^[0-9A-Fa-f]{6}$/.test(v) ? `#${v}` : v;
+            styleParts.push(`${k}:${val}`);
+          }
         }
       }
       const style = styleParts.length ? ` style="${styleParts.join(";")}"` : "";
