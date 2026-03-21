@@ -409,12 +409,16 @@ function callClaudeAsync(prompt, options = {}) {
 
     function el() { return ((Date.now() - startTime) / 1000).toFixed(0); }
 
+    let lastHeartbeat = 0;
     const heartbeat = setInterval(() => {
-      si = (si + 1) % spin.length;
-      const charInfo = chars > 0 ? ` ${amber(chars + " chars")}` : "";
-      const modelInfo = model ? ` ${dim(model)}` : "";
-      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${teal(spin[si])} ${dim(phase)} ${amber(el() + "s")}${charInfo}${modelInfo}   `);
-    }, 250);
+      const now = Math.floor((Date.now() - startTime) / 1000);
+      if (now > 0 && now % 10 === 0 && now !== lastHeartbeat) {
+        lastHeartbeat = now;
+        const charInfo = chars > 0 ? ` ${amber(chars + " chars")}` : "";
+        const modelInfo = model ? ` ${dim(model)}` : "";
+        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${dim(phase)} ${amber(now + "s")}${charInfo}${modelInfo}\n`);
+      }
+    }, 1000);
 
     proc.stdout.on("data", (d) => {
       buffer += d.toString();
@@ -427,7 +431,7 @@ function callClaudeAsync(prompt, options = {}) {
           if (ev.type === "system" && ev.subtype === "init") {
             phase = "generating";
             model = (ev.model || "").split("[")[0];
-            process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${teal(model)} ${amber(el() + "s")}       \n`);
+            process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${teal(model)} ${amber(el() + "s")}       \n`);
           } else if (ev.type === "assistant" && ev.message && ev.message.content) {
             phase = "streaming";
             for (const block of ev.message.content) {
@@ -441,7 +445,7 @@ function callClaudeAsync(prompt, options = {}) {
               const out = ev.usage.output_tokens || 0;
               const cached = ev.usage.cache_read_input_tokens || 0;
               const cost = ev.total_cost_usd ? "$" + ev.total_cost_usd.toFixed(3) : "";
-              process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${dim("tokens:")} ${amber(inp + "in " + out + "out")}${cached ? dim(" (" + cached + " cached)") : ""} ${cost ? dim(cost) : ""}       \n`);
+              process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${dim("tokens:")} ${amber(inp + "in " + out + "out")}${cached ? dim(" (" + cached + " cached)") : ""} ${cost ? dim(cost) : ""}       \n`);
             }
           }
         } catch { /* skip */ }
@@ -484,18 +488,18 @@ function callClaudeAsync(prompt, options = {}) {
 
       if (code !== 0) {
         const errMsg = stderrBuf.trim() || `exit code ${code}`;
-        process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} ${errMsg.split("\n")[0].slice(0, 100)} ${amber(totalEl + "s")}       \n`);
+        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} ${errMsg.split("\n")[0].slice(0, 100)} ${amber(totalEl + "s")}\n`);
         process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
         return reject(new Error(`Claude [${label}] failed (code ${code}): ${errMsg.split("\n")[0]}`));
       }
 
       if (!resultText) {
-        process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} empty response ${amber(totalEl + "s")}       \n`);
+        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} empty response ${amber(totalEl + "s")}\n`);
         process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
         return reject(new Error(`Claude [${label}] returned empty response after ${totalEl}s`));
       }
 
-      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}       \n`);
+      process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}\n`);
       resolve(resultText);
     });
 
