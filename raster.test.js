@@ -681,7 +681,8 @@ describe("Compose module", () => {
     });
 
     it("minimal: no blank slides", () => {
-      assert.ok(INTENSITY.minimal.includes("No blank") || INTENSITY.minimal.includes("no blank"),
+      assert.ok(INTENSITY.minimal.includes("NOT add blank") || INTENSITY.minimal.includes("Do NOT add blank") ||
+        INTENSITY.minimal.includes("No blank") || INTENSITY.minimal.toLowerCase().includes("not add blank"),
         "minimal should prohibit blanks");
     });
 

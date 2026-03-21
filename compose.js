@@ -148,32 +148,19 @@ MARKDOWN SYNTAX — your output must use exactly this format:
   three backticks + notes, then content, then three closing backticks.
   Use these for brief design rationale on key slides.
 
-RULES — YOUR ROLE IS DESIGN, NOT EDITING:
+RULES (apply to all intensity levels):
 
   1. Output ONLY the markdown. No commentary, no preamble, no code fences. Raw slides.
-  2. Every slide MUST have a <!-- layout: name --> directive.
-  3. CONTENT IS SACRED. Do NOT rephrase, abbreviate, reorder, split, merge, or
-     restructure slides. Each source slide becomes EXACTLY one output slide with
-     the SAME text content, in the SAME order. You are a designer, not an editor.
-     The words are fixed. The visual treatment is yours.
-  4. You MUST add <!-- layout: name --> to every slide — this is your primary tool.
-     Choose the layout that best serves each slide's existing content structure.
-  5. You MAY add <!-- bg: HEX --> for background color overrides. Use them to build
-     a chromatic arc through the deck. Each color should carry semantic meaning.
-  6. You MAY add ### SECTION LABEL above existing content for typographic texture.
-     This is a design element — a small-caps label that creates the Swiss scale
-     relationship against the slide's existing title. Derive labels from the
-     content's own themes and structure.
-  7. You MAY add <!-- font: Name --> for per-slide font overrides.
-  8. You MAY add blank slides (<!-- layout: blank -->) BETWEEN existing slides
-     for pacing. These are insertions, not replacements.
-  9. Speaker notes from the source MUST be preserved VERBATIM. You may append
-     design rationale AFTER the original notes, separated by a blank line.
-  10. Never use the same layout three times consecutively. Layout variation
-      IS the visual argument.
-  11. Do NOT invent content. Do NOT add titles, bullets, body text, or blockquotes
-      that are not in the source. The only things you may add are: directives
-      (layout, bg, font), ### labels, blank slides, and design rationale in notes.`;
+  2. Every slide MUST have a <!-- layout: name --> directive as its first line.
+  3. Do NOT invent facts, URLs, dates, or data. Content comes from the source only.
+     You MAY rephrase and restructure as the intensity level permits.
+  4. Speaker notes from the source MUST be preserved. You may redistribute them
+     across slides and append design rationale.
+  5. Never use the same layout three times consecutively.
+  6. ALL substantive information must survive: URLs, emails, dates, percentages,
+     names, criteria, policies. Nothing dropped — only restructured.
+
+  Content handling varies by intensity level — see INTENSITY section below.`;
 
 // ═══════════════════════════════════════════════════════
 // DEFAULT CREATIVE BRIEF — used when no --brief is given
@@ -277,37 +264,59 @@ const DEFAULT_BRIEF = ""; // Replaced by getDefaultBrief() in buildPrompt
 const INTENSITY = {
   minimal: `INTENSITY: MINIMAL — The Müller-Brockmann position
 
-Content stays exactly as written. You dress it in Swiss clothing.
+CONTENT HANDLING:
+- Each source slide becomes EXACTLY one output slide, in the same order.
+- Do NOT rephrase, split, merge, or restructure slide content.
+- Do NOT add blank slides.
+- You MAY add ### section labels derived from the content's themes.
 
-DESIGN TOOLS:
-- Pick the obvious best layout for each slide's content structure.
+VISUAL TREATMENT:
+- Pick the best layout for each slide's existing content.
   3 bullets → "bullets". A quote → "rotated". Title only → "section".
-- ### labels: add sparingly, derived from the content's own themes.
+  Dense bullets (4+) → "stagger". Title + body → "split".
 - bg overrides: no more than 30% of slides. Greyscale only (111111, 1A1A1A, F8F5F0).
 - Font: Helvetica Neue only. No font overrides.
-- No blank slides. No layout used more than 25% of the time.
+- No layout used more than 25% of the time.
 
 The result: the same content, poured into a Swiss grid and set in Helvetica.`,
 
   moderate: `INTENSITY: MODERATE — The Gerstner position
 
-Content stays exactly as written. You make bold design choices around it.
+CONTENT HANDLING:
+- You MAY split dense slides into 2–3 shorter slides. A slide with 8 bullets
+  can become two slides of 4. A slide with title + long body can split into
+  a title section slide + a content slide.
+- You MAY promote a strong phrase from body text to become a # title.
+- You MAY reorder bullets within a slide for impact.
+- Do NOT drop any substantive content. Every URL, date, name, criterion survives.
+- May add 1–2 blank slides at major transitions.
 
-DESIGN TOOLS:
+VISUAL TREATMENT:
 - Use at least 5 different layout types. No layout > 30% of slides.
   Reach for stagger, rotated, fragment, overlap — not just split and bullets.
 - ### labels: add to most slides for typographic scale contrast.
 - bg overrides: 30–60% of slides. Build a 2–3 color chromatic arc.
-- Font: Helvetica Neue default. Use <!-- font: Georgia --> on 2–3 slides.
-- May add 1–2 blank slides at major transitions.
+  Example arc: 1A1A1A → F8F5F0 → 0F2A4A → F8F5F0 → 1B3D22 → 1A1A1A
+- Font: Helvetica Neue default. Use <!-- font: Georgia --> on 2–3 slides
+  for editorial contrast (quotes, reflective moments).
 
-The result: the same content, with pacing, emphasis, and visual rhythm.`,
+The result: recognisably the same content, but with pacing, emphasis, and rhythm.`,
 
   maximal: `INTENSITY: MAXIMAL — The Weingart position
 
-Content stays exactly as written. You compose a visual argument around it.
+CONTENT HANDLING:
+- You MUST split dense slides. Any slide with more than 5 bullets or more than
+  3 lines of body text MUST be broken into multiple slides.
+- You MAY isolate a single phrase or word as a full section slide.
+- You MAY reorder content for dramatic arc — group related ideas, build tension.
+- You MAY turn a bullet list into a stagger cascade, a fragment mosaic, or
+  distribute items across an overlap dialectic.
+- You MAY promote body text phrases to # titles or > blockquotes.
+- Do NOT drop substantive content. Every URL, date, name, criterion survives.
+  Present them radically, but present them.
+- Add 2–4 blank slides as composed silence between major sections.
 
-DESIGN TOOLS:
+VISUAL TREATMENT:
 - Use at least 8 different layout types. No layout > 20% of slides.
   "split" may not exceed 15%.
   REQUIRED minimums: 2× stagger, 2× rotated, 1× fragment, 1× overlap, 3× section.
@@ -319,12 +328,16 @@ DESIGN TOOLS:
     Relief: 1B3D22 or 1A3C34 (deep forest)
     Warmth: 2A1A0A or 4A3728 (espresso, earth)
     Close: 111111 (return to darkness)
-- Font mixing: <!-- font: Georgia --> on 15–25% of slides (quotes, reflective),
-  <!-- font: Courier New --> on technical slides, <!-- font: Futura --> on statements.
-- Add 2–4 blank slides as composed silence. Bracket key moments with darkness.
+- Font mixing mandatory:
+    <!-- font: Georgia --> on 15–25% of slides (quotes, reflective)
+    <!-- font: Courier New --> on technical/data slides
+    <!-- font: Futura --> on bold statements
+- DENSITY CONTRAST: alternate between dense and sparse slides.
+  A 5-bullet stagger → blank → single-word section → fragment mosaic.
+  The variation in density IS the design.
 
-The result: austere, strange, precise. Every layout choice surprising but earned.
-The same words, made unfamiliar through form.`,
+The result: austere, strange, precise. The same information, made unfamiliar
+through radical form. Every layout choice surprising but earned.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -392,16 +405,27 @@ Key moments: [which 2-3 slides are the visual peaks — where color/layout is mo
 Pacing: [where blank slides go and why]
 -->
 
-═══ PHASE 2: PER-SLIDE MICRO-DESIGN ═══
-Now output exactly ${sourceSlides.length} slides, one for each source slide, in order.
-Your macro plan above commits you — follow it. For each slide:
+═══ PHASE 2: SLIDE OUTPUT ═══
+Output the composed slides following your macro plan above.
+${intensity === "minimal" ?
+`Output exactly ${sourceSlides.length} slides, one per source slide, in the same order.
+Each slide keeps its content exactly as written — your role is layout, bg, font, and labels only.` :
+intensity === "moderate" ?
+`Start from the ${sourceSlides.length} source slides but you MAY split dense slides (5+ bullets
+or 3+ body lines) into 2-3 shorter slides. Aim for ${Math.round(sourceSlides.length * 1.5)} slides total.
+Restructure for visual impact: promote phrases to titles, split dense lists, add section dividers.` :
+`Start from the ${sourceSlides.length} source slides and RECOMPOSE them. Split every dense slide.
+Isolate key phrases as section slides. Turn lists into staggers and fragments.
+Aim for ${Math.round(sourceSlides.length * 2)} slides total with dramatic density variation.
+No slide should have more than 5 bullets or 3 body lines — split aggressively.`}
 
-1. Add <!-- layout: name --> as the FIRST line (from your layout rhythm above)
-2. Add <!-- bg: HEX --> if your chromatic arc calls for it on this slide
-3. Add <!-- font: Name --> if your font strategy calls for it
-4. Add a ### SECTION LABEL for typographic texture where appropriate
-5. Copy the slide's content EXACTLY as written — no rephrasing, no dropping
-6. Preserve speaker notes verbatim (you may append design rationale)
+For each slide:
+1. <!-- layout: name --> as the FIRST line
+2. <!-- bg: HEX --> from your chromatic arc
+3. <!-- font: Name --> from your font strategy
+4. ### SECTION LABEL for typographic texture
+5. All substantive content preserved (URLs, dates, names, criteria)
+6. Speaker notes preserved (append design rationale if needed)
 
 You may INSERT blank slides (<!-- layout: blank -->) between slides for pacing,
 but every source slide MUST appear in your output, unchanged.
