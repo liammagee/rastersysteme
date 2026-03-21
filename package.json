@@ -8,7 +8,9 @@
     "compose": "node compose.js",
     "test": "node --test raster.test.js",
     "review": "node raster.js --format review",
+    "studio": "node studio.js",
     "compare": "node compare.js",
+    "imagine": "node imagine.js",
     "qa": "node qa.js",
     "batch": "node batch.js"
   },
@@ -16,11 +18,14 @@
     "rastersysteme": "./rastersysteme.js",
     "raster": "./raster.js",
     "compose": "./compose.js",
-    "compare": "./compare.js"
+    "compare": "./compare.js",
+    "imagine": "./imagine.js"
   },
   "dependencies": {
     "chalk": "^4.1.2",
+    "dotenv": "^17.3.1",
     "image-size": "^1.1.1",
+    "midjourney": "^4.3.18",
     "pptxgenjs": "^4.0.1"
   }
 }
