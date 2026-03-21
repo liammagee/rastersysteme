@@ -37,7 +37,13 @@ The Swiss International Typographic Style emerged from two distinct schools in t
 
 In Basel, Emil Ruder and Armin Hofmann taught typography as spatial architecture. Every letterform occupies and activates the space around it. Every interval between letters, every line break, every margin is an active decision. Ruder's "Typographie" demonstrated that a single word, set in the right weight at the right scale on the right field, is a complete composition.
 
-The 60-column modular grid is this tradition's primary instrument. 60 divides by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30 — one system accommodating any rhythmic subdivision. Grid lines are not walls but thresholds.
+THE 60-COLUMN HORIZONTAL GRID:
+
+The slide is divided into 60 HORIZONTAL columns across the width, plus 40 rows down the height. This is NOT a 10×6 cell grid — it is 60 fine vertical divisions spanning the full slide width. Think of it like a typesetter's em-grid: elements snap to column positions (0–59), spanning any number of columns.
+
+Key subdivisions: ÷12 gives 5 equal zones (the primary rhythm). ÷5 gives 12 narrow columns. ÷2 splits the slide in half at column 30. The 13 layouts use these subdivisions differently — "split" uses a 22/33 column asymmetric pair, "rotated" uses 13/40, "stagger" cascades diagonally across columns.
+
+60 divides by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30 — one system for any subdivision.
 
 THE EVOLUTION:
 
@@ -654,8 +660,9 @@ async function composeAsync(inputPath, outputPath, options = {}) {
   const composedContent = fs.readFileSync(composedPath, "utf-8");
   const composedSlides = parseMarkdown(composedContent);
 
+  const sourceSlideCount = md.split(/\n---\n/).filter(s => s.trim()).length;
   const contentCheck = validateContentPreservation(md, composedContent);
-  const intensityCheck = validateIntensity(composedSlides, intensity);
+  const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlideCount);
   const allChecks = [...contentCheck, ...intensityCheck];
 
   if (allChecks.length > 0) {
@@ -704,8 +711,9 @@ async function compose(inputPath, outputPath, options = {}) {
   const composedContent = fs.readFileSync(composedPath, "utf-8");
   const composedSlides = parseMarkdown(composedContent);
 
+  const sourceSlideCount = md.split(/\n---\n/).filter(s => s.trim()).length;
   const contentCheck = validateContentPreservation(md, composedContent);
-  const intensityCheck = validateIntensity(composedSlides, intensity);
+  const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlideCount);
   const allChecks = [...contentCheck, ...intensityCheck];
 
   if (allChecks.length > 0) {

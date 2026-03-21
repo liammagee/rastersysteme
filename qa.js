@@ -858,17 +858,19 @@ function extractTokens(md) {
 
 function validateContentPreservation(sourceMd, composedMd) {
   const results = [];
-  const sourceSlides = sourceMd.split(/\n---\n/).filter(s => s.trim());
-  const composedSlides = composedMd.split(/\n---\n/).filter(s => s.trim());
+  // Strip HTML comments (DESIGN PLAN etc) before counting slides
+  const stripComments = (md) => md.replace(/<!--[\s\S]*?-->/g, "");
+  const sourceSlides = stripComments(sourceMd).split(/\n---\n/).filter(s => s.trim());
+  const composedSlides = stripComments(composedMd).split(/\n---\n/).filter(s => s.trim());
 
-  // Count check (composed may have MORE due to blank insertions, never fewer)
+  // Slide count must match exactly
   const sourceCount = sourceSlides.length;
   const composedCount = composedSlides.length;
-  if (composedCount < sourceCount) {
+  if (composedCount !== sourceCount) {
     results.push({
       severity: "error",
       check: "slideCount",
-      message: `Slide count dropped: source has ${sourceCount}, composed has ${composedCount} (${sourceCount - composedCount} slides lost)`,
+      message: `Slide count mismatch: source has ${sourceCount}, composed has ${composedCount}`,
     });
   }
 

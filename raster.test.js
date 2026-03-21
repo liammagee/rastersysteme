@@ -691,6 +691,15 @@ describe("Compose module", () => {
     assert.ok(DESIGN_BRIEF.length > 500);
   });
 
+  it("DESIGN_BRIEF describes 60 HORIZONTAL columns, not a cell grid", () => {
+    assert.ok(DESIGN_BRIEF.includes("HORIZONTAL") || DESIGN_BRIEF.includes("horizontal"),
+      "should explicitly say horizontal columns");
+    assert.ok(DESIGN_BRIEF.includes("NOT") && DESIGN_BRIEF.includes("10"),
+      "should clarify it is NOT a 10×6 cell grid");
+    assert.ok(DESIGN_BRIEF.includes("60") && DESIGN_BRIEF.includes("column"),
+      "should reference 60 columns");
+  });
+
   it("DESIGN_MOODS provides distinct mood seeds (not hardcoded palettes)", () => {
     assert.ok(Array.isArray(DESIGN_MOODS));
     assert.ok(DESIGN_MOODS.length >= 8);
@@ -1009,11 +1018,26 @@ describe("Content preservation checker", () => {
     assert.equal(errors.length, 0, "should have no errors when content preserved");
   });
 
-  it("flags slide count drop", () => {
+  it("flags slide count mismatch (fewer)", () => {
     const source = "# A\n---\n# B\n---\n# C";
     const composed = "<!-- layout: section -->\n# A";
     const results = validateContentPreservation(source, composed);
-    assert.ok(results.some(r => r.check === "slideCount"), "should flag slide count drop");
+    assert.ok(results.some(r => r.check === "slideCount"), "should flag slide count mismatch");
+  });
+
+  it("flags slide count mismatch (more)", () => {
+    const source = "# A\n---\n# B";
+    const composed = "<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B\n---\n<!-- layout: section -->\n# C extra";
+    const results = validateContentPreservation(source, composed);
+    assert.ok(results.some(r => r.check === "slideCount"), "should flag extra slides");
+  });
+
+  it("ignores HTML comments when counting slides", () => {
+    const source = "# A\n---\n# B";
+    const composed = "<!-- DESIGN PLAN\nMood: test\n-->\n\n<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B";
+    const results = validateContentPreservation(source, composed);
+    const countErrors = results.filter(r => r.check === "slideCount");
+    assert.equal(countErrors.length, 0, "DESIGN PLAN comment should not inflate slide count");
   });
 
   it("flags missing layout directives", () => {
