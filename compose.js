@@ -16,7 +16,7 @@ const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
-const { generate } = require("./raster.js");
+const { generate, parseMarkdown } = require("./raster.js");
 
 const dim = chalk.gray;
 const accent = chalk.hex("#C44230");
@@ -53,7 +53,7 @@ Restraint. Not every slide should be loud. A quiet split layout after an aggress
 
 Typographic scale. The relationship between a 40pt title, an 8pt small-caps section label, and 13pt body text IS the information hierarchy. Extreme size contrast — Weingart's signature — works because the disparity is deliberate and structurally motivated, not decorative. When everything is set large, nothing is emphasized. Use ### section labels (8pt, letterspaced) against # titles (30–40pt) constantly — this is the Swiss typographic texture that separates serious design from PowerPoint defaults.
 
-Color as argument. A palette has a logic — it builds a chromatic arc through the deck, not random variety. Use <!-- bg: HEX --> overrides to give each thematic section its own tonal identity. Deep navy (0F2A4A, 16213E) for intellectual weight and structural framing. Vermillion and burnt sienna (C0392B, B7410E) for rhetorical emphasis — questions, provocations, pivots. Ochre and warm brown (B7860B, 6B2D0F) for grounding and human warmth. Forest green (1B4332) for social, dialogic, or reflective moments. Near-black (0A0A0A, 111111) for silence and punctuation. Warm off-white (F5F0EB) for content-heavy working slides. A single accent color deployed once is a signal; the same color on every slide is wallpaper.
+Color as argument. A palette has a logic — it builds a chromatic arc through the deck, not random variety. Use <!-- bg: HEX --> overrides to give each thematic section its own tonal identity. The CREATIVE DIRECTION below specifies which colors to use for this particular run. Follow it — the mood determines the palette.
 
 Rhythm and pacing. The sequence of layouts is a musical score. Dense-sparse-dense. Loud-quiet-loud. Fragment-breath-section. Stagger-blank-rotated. The audience feels this rhythm before they read the content. Three section slides in succession is monotonous. Two blank slides back-to-back is dead air. A stagger followed by a blank followed by a quiet split is a phrase.
 
@@ -179,65 +179,96 @@ RULES — YOUR ROLE IS DESIGN, NOT EDITING:
 // DEFAULT CREATIVE BRIEF — used when no --brief is given
 // ═══════════════════════════════════════════════════════
 
-const DEFAULT_BRIEF = `Your default posture is radical experimental within austere modernist constraints.
-Not expressionism — not warmth, not comfort, not invitation. Cold structure made strange.
+// ═══════════════════════════════════════════════════════
+// DESIGN MOODS — one is randomly selected per run
+// Each defines a distinct aesthetic direction
+// ═══════════════════════════════════════════════════════
 
-ESTRANGEMENT AS METHOD:
-Treat the audience's expectations as material to work against. When content is familiar —
-a syllabus, a schedule, an assessment rubric — your job is to make it unfamiliar again.
-Defamiliarize. Viktor Shklovsky's ostranenie applied to visual composition: the purpose
-of design is not to make information easy but to make perception *difficult enough* to be
-conscious. A course schedule rendered as a stagger cascade forces the reader to re-encounter
-what they thought they already understood. A single policy statement filling a dark field
-at 40pt makes it impossible to skim.
+const DESIGN_MOODS = [
+  { name: "nocturne",
+    brief: `MOOD: NOCTURNE — dark fields, signals in darkness.
+Dominant backgrounds: near-black (111111), deep navy (0F2A4A), charcoal (2A2A2A).
+Light slides (F8F5F0) are the exception — at most 20% of slides.
+Accent color: a single vermillion (B7311A) moment at the rhetorical peak.
+Secondary: forest green (1B3D22) for one reflective slide. Ochre (876512) for warmth.
+Layouts: favor section (dark, monumental) and rotated (architectural disruption).
+Typography: ### labels on 50%+ slides. Extreme scale contrast.` },
 
-The audience should feel that something has happened to the content — that it has been
-processed through a formal intelligence that sees structure where they see prose. This is
-not hostility. It is respect: the assumption that the audience can meet the design halfway.
+  { name: "editorial",
+    brief: `MOOD: EDITORIAL — warm white fields, serif accents, magazine pacing.
+Dominant backgrounds: warm off-white (F8F5F0, FFF8E7), paper tones.
+Dark slides (1A1A1A, 0F2A4A) used for chapter breaks only — at most 25%.
+Accent color: steel blue (1B5E80) and burnt sienna (8B4513) as editorial markers.
+Font mixing: use <!-- font: Georgia --> on 30% of slides for editorial warmth.
+Layouts: favor split (two-column editorial), stagger (visual lists), arc (contemplative).
+Typography: refined, not violent. Generous whitespace. Readable density.` },
 
-AUSTERITY:
-Prefer severity to warmth. Near-black (0A0A0A, 111111) and deep navy (0F2A4A, 16213E) as
-dominant fields — not accents but the prevailing condition. Warm off-white (F5F0EB) used
-sparingly for contrast, not as a default. Color should feel *withheld*, so when vermillion
-(C0392B) or burnt sienna (B7410E) appears, it registers as an event. Think Hofmann's
-teaching: remove until what remains is only what is structurally necessary.
+  { name: "brutalist",
+    brief: `MOOD: BRUTALIST — raw concrete, exposed structure, no decoration.
+Dominant backgrounds: alternate sharply between pure black (111111) and stark white (FFFFFF).
+No gradients, no mid-tones, no warm colors. Binary: black or white.
+Accent color: a single red (B7311A) used exactly once. Everything else is greyscale.
+Font: <!-- font: Courier New --> on 20% of slides for raw, industrial texture.
+Layouts: fragment (shattered), section (monumental), blank (structural void).
+Typography: extreme. ### labels as large as titles in some places. No comfort.` },
 
-TYPOGRAPHIC VIOLENCE:
-Extreme scale contrast is mandatory, not optional. Set ### section labels (8pt, letterspaced,
-small-caps) directly against # titles (30-40pt) on nearly every slide — this 5:1 ratio is
-the primary visual tension. The small text is not subordinate; it is a different register
-operating simultaneously. Weingart's stepped type, Kunz's information layering — the eye
-must navigate competing scales and decide for itself what to read first.
+  { name: "botanical",
+    brief: `MOOD: BOTANICAL — deep greens, earth tones, organic warmth.
+Dominant backgrounds: forest green (1B3D22, 1A3C34), warm earth (4A3728, 2A1A0A).
+Light slides: warm cream (FFF8E7, F8F5F0) for content breathing room.
+Accent: ochre (876512) for highlights, deep red (3D0A06) for emphasis.
+Font mixing: <!-- font: Georgia --> on quotes and reflective slides.
+Layouts: arc (cycles, growth), overlap (organic layering), split (rooted structure).
+Typography: warm but precise. ### labels as gentle anchors, not confrontational.` },
 
-SPATIAL DISRUPTION:
-Deploy rotated layouts aggressively. The vertical title bar is not a decorative option —
-it is a spatial argument. When text rotates 270°, it breaks the horizontal contract between
-presenter and audience. Use this where the content itself performs a disruption: a paradox,
-a provocation, a policy that cuts against expectation.
+  { name: "signal",
+    brief: `MOOD: SIGNAL — high contrast, alert, urgent.
+Dominant backgrounds: deep navy (0F2A4A, 2C3E50) — the control room.
+Punctuation: vermillion (B7311A) on 3-4 slides as alarm signals.
+Content slides: cool grey-white (F0F4F8) for readability.
+Accent: steel blue (1B5E80) as the calm technical register.
+Font: <!-- font: Futura --> on 2-3 statement slides for modernist punch.
+Layouts: stagger (cascading alerts), fragment (information mosaic), section (sirens).
+Typography: clean, functional, slightly military. ### labels as status indicators.` },
 
-Favor fragment and overlap over bullets — always. Bullets are the default language of
-presentations; they are precisely what this system exists to overcome. If content can be
-shattered into a fragment mosaic or split across overlapping fields, do that. Bullets are
-a last resort for genuinely sequential processes.
+  { name: "archive",
+    brief: `MOOD: ARCHIVE — aged paper, scholarly, layered time.
+Dominant backgrounds: parchment (FFF8E7), aged cream (F8F5F0), coffee (4A3728).
+Dark slides: deep brown (2A1A0A) for chapter dividers — library darkness.
+Accent: muted red (5B2D1E, 3D0A06) — ink and binding.
+Font mixing: <!-- font: Palatino --> on 25% of slides for classical authority.
+<!-- font: Georgia --> on quotes and citations.
+Layouts: split (marginalia structure), rotated (vertical spine), overlap (palimpsest).
+Typography: scholarly precision. ### labels as catalogue entries.` },
 
-RHYTHM AS ARGUMENT:
-Blank slides are not pauses — they are structural silences. Near-black blanks between
-loud slides create the equivalent of Webern's rests: the silence is composed, not empty.
-The sequence blank → section → blank is a three-part phrase where the statement exists
-in isolation, bracketed by darkness.
+  { name: "bauhaus",
+    brief: `MOOD: BAUHAUS — primary geometry, functional clarity, Dessau precision.
+Dominant backgrounds: pure white (FFFFFF) — the universal ground.
+Dark slides: pure black (111111) for structural punctuation.
+Accents: use ALL four theme accent colors boldly and evenly — each on ~15% of slides.
+No muted tones. Full saturation. Democratic color distribution.
+Font: <!-- font: Futura --> on 30% of slides — the Bauhaus typeface.
+Layouts: fragment (grid as ideology), stagger (diagonal Kandinsky energy), arc (compass).
+Typography: geometric. Clean. No ornament. Function is beauty.` },
 
-Vary density with conviction. A stagger cascade (dense, diagonal, kinetic) followed by
-a near-black blank (nothing) followed by a single-word section slide (everything compressed
-to one gesture) — this is a designed experience, not a slideshow.
+  { name: "cinema",
+    brief: `MOOD: CINEMA — widescreen, dramatic lighting, Kubrickian precision.
+Dominant backgrounds: near-black (0A0A0A, 111111) — the darkened theatre.
+Accent: a single warm pool of light — ochre (876512) or amber (A0522D) on 3 slides.
+Cool: steel blue (1B5E80) for technical exposition — the clinical scene.
+Content slides: dark grey (2A2A2A) — never white. This deck never leaves the dark.
+Font: default Helvetica only — cinema is sans-serif.
+Layouts: section (title cards), blank (black frames), split (shot/reverse-shot).
+Typography: spare, cinematic. Large titles, small labels. Long pauses between scenes.` },
+];
 
-The overall chromatic arc should feel nocturnal and industrial: dark fields predominating,
-occasional flares of vermillion or ochre (B7860B) that feel like signals in darkness,
-not decoration. Forest green (1B4332) only where something genuinely human — dialogue,
-exchange, ethical weight — demands a shift in register.
+function getDefaultBrief() {
+  const mood = DESIGN_MOODS[Math.floor(Math.random() * DESIGN_MOODS.length)];
+  process.stderr.write(`  ${dim("Mood:")} ${chalk.italic(mood.name)}\n`);
+  return mood.brief;
+}
 
-The result should look like it was composed by someone who has internalized the Swiss
-tradition so completely that their departures from it are legible as informed transgressions,
-not ignorance. Austere. Strange. Precise.`;
+const DEFAULT_BRIEF = ""; // Replaced by getDefaultBrief() in buildPrompt
 
 // ═══════════════════════════════════════════════════════
 // INTENSITY GUIDES
@@ -321,21 +352,20 @@ const DESIGN_SEEDS = [
 
 function buildPrompt(markdown, options = {}) {
   const { intensity = "moderate", brief = "" } = options;
-  const { parseMarkdown } = require("./raster.js");
 
   const parts = [DESIGN_BRIEF];
 
   parts.push(INTENSITY[intensity] || INTENSITY.moderate);
 
-  // Pick a random design seed for variation across runs
+  // Pick a random mood and seed for variation across runs
   const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
   process.stderr.write(`  ${dim("Seed:")} ${chalk.italic(seed.slice(0, 70))}${dim("...")}\n`);
-  const direction = brief || DEFAULT_BRIEF;
+  const direction = brief || getDefaultBrief();
   parts.push(`CREATIVE DIRECTION: ${direction}
 
 COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
-  // Pre-split source into numbered slides so Claude can't skip any
+  // Pre-split source into numbered slides
   const sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
   const numberedSlides = sourceSlides.map((slide, i) => {
     return `=== SLIDE ${i + 1} of ${sourceSlides.length} ===\n${slide.trim()}`;
@@ -347,21 +377,52 @@ ${numberedSlides}
 
 --- END SOURCE ---
 
-YOUR TASK: Output exactly ${sourceSlides.length} slides, one for each source slide above,
-in the same order. For each slide:
-1. Add <!-- layout: name --> as the FIRST line
-2. Optionally add <!-- bg: HEX --> and/or <!-- font: Name -->
-3. Optionally add a ### SECTION LABEL for typographic texture
-4. Copy the slide's content EXACTLY as written — do not rephrase, abbreviate, or drop anything
-5. Preserve any existing speaker notes verbatim (you may append design rationale)
+YOUR TASK HAS TWO PHASES:
 
-You may also INSERT blank slides (<!-- layout: blank -->) between slides for pacing,
+═══ PHASE 1: MACRO DESIGN PLAN ═══
+First, output a design plan as a comment block. This forces you to think about
+the deck holistically BEFORE making per-slide decisions:
+
+<!-- DESIGN PLAN
+Mood: [name the mood/aesthetic you're applying]
+Chromatic arc: [list the bg colors in sequence, e.g. "111111 → F8F5F0 → 0F2A4A → F8F5F0 → 1B3D22 → 111111"]
+Layout rhythm: [list the layout sequence, e.g. "title section split stagger rotated split fragment section blank"]
+Font strategy: [which slides get font overrides and why]
+Key moments: [which 2-3 slides are the visual peaks — where color/layout is most dramatic]
+Pacing: [where blank slides go and why]
+-->
+
+═══ PHASE 2: PER-SLIDE MICRO-DESIGN ═══
+Now output exactly ${sourceSlides.length} slides, one for each source slide, in order.
+Your macro plan above commits you — follow it. For each slide:
+
+1. Add <!-- layout: name --> as the FIRST line (from your layout rhythm above)
+2. Add <!-- bg: HEX --> if your chromatic arc calls for it on this slide
+3. Add <!-- font: Name --> if your font strategy calls for it
+4. Add a ### SECTION LABEL for typographic texture where appropriate
+5. Copy the slide's content EXACTLY as written — no rephrasing, no dropping
+6. Preserve speaker notes verbatim (you may append design rationale)
+
+You may INSERT blank slides (<!-- layout: blank -->) between slides for pacing,
 but every source slide MUST appear in your output, unchanged.
 
-Output the slide deck now. Start with <!-- layout: on the very first line.
-No commentary, no code fences, no preamble.`);
+CRITICAL: Your first output line must be <!-- DESIGN PLAN.
+After the plan comment, output the slides starting with <!-- layout:.
+No other commentary, no code fences.`);
 
   return parts.join("\n\n");
+}
+
+function extractDesignPlan(raw) {
+  const planMatch = raw.match(/<!-- DESIGN PLAN\n([\s\S]*?)-->/);
+  if (planMatch) {
+    const plan = planMatch[1].trim();
+    process.stderr.write(`  ${dim("Design plan:")}\n`);
+    plan.split("\n").slice(0, 5).forEach(l =>
+      process.stderr.write(`    ${dim(l.trim())}\n`)
+    );
+  }
+  return raw;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -428,7 +489,8 @@ function callClaudeAsync(prompt, options = {}) {
         } catch { /* skip */ }
       }
     });
-    proc.stderr.on("data", () => {});
+    let stderrBuf = "";
+    proc.stderr.on("data", (d) => { stderrBuf += d.toString(); });
     proc.stdin.write(prompt);
     proc.stdin.end();
 
@@ -442,10 +504,40 @@ function callClaudeAsync(prompt, options = {}) {
       clearInterval(heartbeat);
       clearTimeout(timeout);
       const totalEl = ((Date.now() - startTime) / 1000).toFixed(1);
-      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}       \n`);
-      if (code !== 0 && !resultText) {
-        return reject(new Error("Claude exited with code " + code));
+
+      // Log to persistent file
+      const logDir = path.join(__dirname, "logs");
+      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      const logFile = path.join(logDir, `claude-${label}-${ts}.log`);
+      const logData = [
+        `timestamp: ${new Date().toISOString()}`,
+        `label: ${label}`,
+        `model: ${model || options.model || "default"}`,
+        `exit_code: ${code}`,
+        `chars: ${chars}`,
+        `elapsed: ${totalEl}s`,
+        `result_length: ${resultText.length}`,
+        stderrBuf ? `stderr:\n${stderrBuf}` : "stderr: (empty)",
+        `---`,
+        resultText ? `result (first 500 chars):\n${resultText.slice(0, 500)}` : "result: (empty)",
+      ].join("\n");
+      try { fs.writeFileSync(logFile, logData); } catch { /* best effort */ }
+
+      if (code !== 0) {
+        const errMsg = stderrBuf.trim() || `exit code ${code}`;
+        process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} ${errMsg.split("\n")[0].slice(0, 100)} ${amber(totalEl + "s")}       \n`);
+        process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
+        return reject(new Error(`Claude [${label}] failed (code ${code}): ${errMsg.split("\n")[0]}`));
       }
+
+      if (!resultText) {
+        process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} empty response ${amber(totalEl + "s")}       \n`);
+        process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
+        return reject(new Error(`Claude [${label}] returned empty response after ${totalEl}s`));
+      }
+
+      process.stderr.write(`\r  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}       \n`);
       resolve(resultText);
     });
 
@@ -481,14 +573,31 @@ function callClaude(prompt, options = {}) {
     throw result.error;
   }
 
+  // Log every call for debugging
+  const logDir = path.join(__dirname, "logs");
+  if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+  const ts = new Date().toISOString().replace(/[:.]/g, "-");
+  const logLabel = options.label || "sync";
+  const logFile = path.join(logDir, `claude-${logLabel}-${ts}.log`);
+  const logData = [
+    `timestamp: ${new Date().toISOString()}`,
+    `model: ${options.model || "default"}`,
+    `exit_code: ${result.status}`,
+    `stdout_length: ${(result.stdout || "").length}`,
+    `stderr: ${(result.stderr || "").trim() || "(empty)"}`,
+  ].join("\n");
+  try { fs.writeFileSync(logFile, logData); } catch { /* best effort */ }
+
   if (result.status !== 0) {
     const stderr = (result.stderr || "").trim();
-    throw new Error(`Claude exited with code ${result.status}${stderr ? ": " + stderr : ""}`);
+    process.stderr.write(`  ${accent("✗")} Claude failed (code ${result.status}) — log: ${logFile}\n`);
+    throw new Error(`Claude exited with code ${result.status}${stderr ? ": " + stderr.split("\n")[0] : ""}`);
   }
 
   let output = (result.stdout || "").trim();
 
   if (!output) {
+    process.stderr.write(`  ${accent("✗")} Claude returned empty — log: ${logFile}\n`);
     throw new Error("Claude returned empty output");
   }
 
@@ -539,6 +648,10 @@ function sanitizeClaudeOutput(raw) {
   if (/^```(?:markdown)?\s*\n/.test(output) && /\n```\s*$/.test(output)) {
     output = output.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
   }
+
+  // Extract and log the design plan if present, then strip it
+  extractDesignPlan(output);
+  output = output.replace(/<!-- DESIGN PLAN[\s\S]*?-->\s*/, "");
 
   const layoutIdx = output.indexOf("<!-- layout:");
   if (layoutIdx < 0) {
@@ -729,4 +842,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compose, composeAsync, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DEFAULT_BRIEF, INTENSITY };
+module.exports = { compose, composeAsync, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
