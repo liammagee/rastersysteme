@@ -166,6 +166,7 @@ function parseMarkdown(md) {
       tables: [],
       codeBlocks: [],
       fontOverride: null,
+      style: null,
       raw: slideText.trim(),
     };
 
@@ -178,6 +179,16 @@ function parseMarkdown(md) {
 
     const fontMatch = slideText.match(/<!--\s*font:\s*([^->]+?)\s*-->/);
     if (fontMatch) slide.fontOverride = fontMatch[1].trim();
+
+    // Style overrides: <!-- style: title-size=48; spacing=tight; opacity=0.8 -->
+    const styleMatch = slideText.match(/<!--\s*style:\s*(.+?)\s*-->/);
+    if (styleMatch) {
+      slide.style = {};
+      styleMatch[1].split(";").forEach(pair => {
+        const [k, v] = pair.split("=").map(s => s.trim());
+        if (k && v) slide.style[k] = v;
+      });
+    }
 
     // Extract notes
     const notesMatch = slideText.match(/```notes\n([\s\S]*?)```/);
@@ -1390,10 +1401,11 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
   font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
 .slide.active{display:flex}
 
-/* Typography */
-h1{font-size:clamp(1.8rem,5vmin,3.5rem);font-weight:700;line-height:1.1;letter-spacing:-0.02em}
-h2.subtitle{font-size:clamp(1rem,2.5vmin,1.6rem);font-weight:400;color:var(--text-mid)}
-p{font-size:clamp(0.85rem,1.8vmin,1.2rem);line-height:1.5;color:var(--text-mid)}
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
 .label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
   color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
 .layout-section .label{color:var(--accent-light,var(--accent))}
@@ -1683,6 +1695,26 @@ async function generateHTML(inputPath, outputPath, options = {}) {
         styleParts.push(`--accent4:#${adapted.accent4}`);
       }
     }
+    // Apply style overrides from <!-- style: key=value; ... -->
+    if (slide.style) {
+      const styleMap = {
+        "title-size": (v) => `--title-size:${v}px`,
+        "body-size": (v) => `--body-size:${v}px`,
+        "spacing": (v) => `--slide-gap:${v === "tight" ? "0.5vmin" : v === "loose" ? "4vmin" : v === "none" ? "0" : v}`,
+        "padding": (v) => `padding:${v === "none" ? "0" : v === "tight" ? "2vmin" : v === "loose" ? "8vmin" : v}`,
+        "opacity": (v) => `opacity:${v}`,
+        "align": (v) => `text-align:${v}`,
+        "letter-spacing": (v) => `letter-spacing:${v}`,
+        "text-transform": (v) => `text-transform:${v}`,
+        "invert": (v) => v === "true" ? `filter:invert(1)` : "",
+      };
+      for (const [k, v] of Object.entries(slide.style)) {
+        const fn = styleMap[k];
+        if (fn) { const r = fn(v); if (r) styleParts.push(r); }
+        else styleParts.push(`${k}:${v}`); // pass through raw CSS
+      }
+    }
+
     const style = styleParts.length ? ` style="${styleParts.join(";")}"` : "";
     return `<section class="slide layout-${layout}"${style}>${renderer(slide)}${slideNotes(slide)}</section>`;
   }).join("\n");

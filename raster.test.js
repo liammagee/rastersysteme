@@ -333,6 +333,19 @@ describe("Markdown parser", () => {
       assert.equal(s.fontOverride, "Georgia");
     });
 
+    it("parses style directive", () => {
+      const [s] = parseMarkdown("<!-- style: title-size=48; spacing=tight; opacity=0.8 -->\n# Title");
+      assert.ok(s.style);
+      assert.equal(s.style["title-size"], "48");
+      assert.equal(s.style["spacing"], "tight");
+      assert.equal(s.style["opacity"], "0.8");
+    });
+
+    it("style is null when no style directive", () => {
+      const [s] = parseMarkdown("# Title");
+      assert.equal(s.style, null);
+    });
+
     it("directives do not appear in body text", () => {
       const [s] = parseMarkdown("<!-- layout: split -->\nBody text");
       assert.ok(!s.body.some(b => b.includes("layout")));
@@ -822,10 +835,18 @@ describe("Compose module", () => {
       assert.ok(result.startsWith("<!-- layout:"));
     });
 
-    it("strips preamble before first layout directive", () => {
+    it("strips text preamble but preserves comment blocks", () => {
       const raw = "Here is your deck:\n\n<!-- layout: title -->\n# Hello";
       const result = sanitizeClaudeOutput(raw);
-      assert.ok(result.startsWith("<!-- layout:"));
+      assert.ok(result.includes("<!-- layout:"));
+      assert.ok(!result.includes("Here is your deck"));
+    });
+
+    it("preserves design plan comments in output", () => {
+      const raw = "<!-- DESIGN PLAN\nMood: nocturne\nPalette: 111111\n-->\n\n<!-- layout: title -->\n# Hello";
+      const result = sanitizeClaudeOutput(raw);
+      assert.ok(result.includes("DESIGN PLAN"), "design plan should be preserved");
+      assert.ok(result.includes("<!-- layout:"), "layout directives should be preserved");
     });
 
     it("throws on empty output", () => {

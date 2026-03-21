@@ -126,6 +126,15 @@ MARKDOWN SYNTAX — your output must use exactly this format:
   <!-- layout: X -->   → REQUIRED on every slide
   <!-- bg: HEX -->     → background color override (6-char hex, no #)
   <!-- font: Name -->  → per-slide font override (default: Helvetica Neue)
+  <!-- style: k=v; k=v -->  → per-slide visual overrides:
+      title-size=48          → title font size in px (default: dynamic)
+      body-size=14           → body/subtitle font size in px
+      spacing=tight|loose|none → gap between elements
+      padding=tight|loose|none → slide padding
+      letter-spacing=0.1em   → tracking override
+      text-transform=uppercase → force uppercase
+      opacity=0.9            → slide opacity
+      Any CSS property=value → passed through directly
 
   BACKGROUND COLOURS — you can use ANY valid 6-digit hex colour.
     Invent your own palette for each deck. Some starting points if needed:
@@ -272,6 +281,12 @@ VISUAL TREATMENT:
 - DENSITY CONTRAST: alternate between dense and sparse slides.
   A 5-bullet stagger → blank → single-word section → fragment mosaic.
   The variation in density IS the design.
+
+- STYLE OVERRIDES: use <!-- style: ... --> to vary typography per slide.
+  title-size=48 on key moments, title-size=72 on section statements.
+  spacing=tight on dense slides, spacing=loose on breathing slides.
+  letter-spacing=0.15em on labels, text-transform=uppercase on declarations.
+  Each slide should feel individually designed, not template-stamped.
 
 The result: an original design system — not a template, a composition.
 Austere, strange, precise. Every run should look different from the last.`,
@@ -611,15 +626,19 @@ function sanitizeClaudeOutput(raw) {
     output = output.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
   }
 
-  // Extract and log the design plan if present, then strip it
+  // Extract and log the design plan — but KEEP it in the output for reference
   extractDesignPlan(output);
-  output = output.replace(/<!-- DESIGN PLAN[\s\S]*?-->\s*/, "");
 
   const layoutIdx = output.indexOf("<!-- layout:");
   if (layoutIdx < 0) {
     throw new Error("Claude did not return valid slide markdown (no <!-- layout: --> directives found).");
   }
-  if (layoutIdx > 0) output = output.substring(layoutIdx);
+  // Strip preamble text but keep HTML comments (design plans, etc.)
+  if (layoutIdx > 0) {
+    const beforeLayout = output.substring(0, layoutIdx);
+    const comments = beforeLayout.match(/<!--[\s\S]*?-->/g) || [];
+    output = comments.join("\n\n") + "\n\n" + output.substring(layoutIdx);
+  }
 
   const lines = output.split("\n");
   let lastContentLine = lines.length - 1;
