@@ -722,34 +722,42 @@ const INTENSITY_RULES = {
     minLayoutTypes: 0,
     splitMaxPct: 25,
     requiredLayouts: {},
+    slideCountMatch: true, // must equal source slide count
   },
   moderate: {
     minBgPct: 30, maxBgPct: 60,
     maxFonts: Infinity, minFonts: 1,
-    blankSlides: [1, 2],
+    blankSlides: [0, 0],
     maxSingleLayoutPct: 30,
     minLayoutTypes: 5,
     splitMaxPct: 30,
     requiredLayouts: {},
+    slideCountMatch: true,
   },
   maximal: {
     minBgPct: 50, maxBgPct: 80,
     maxFonts: Infinity, minFonts: 3,
-    blankSlides: [2, 4],
+    blankSlides: [0, 0],
     maxSingleLayoutPct: 20,
     minLayoutTypes: 8,
     splitMaxPct: 15,
-    requiredLayouts: { stagger: 2, rotated: 2, fragment: 1, overlap: 1, section: 3 },
+    requiredLayouts: { stagger: 2, rotated: 2, fragment: 1, overlap: 1 },
+    slideCountMatch: true,
   },
 };
 
-function validateIntensity(slides, intensity) {
+function validateIntensity(slides, intensity, sourceSlideCount) {
   const rules = INTENSITY_RULES[intensity];
   if (!rules) return [];
   const results = [];
   const total = slides.length;
   const warn = (msg) => results.push({ severity: "warning", rule: "intensity", message: msg });
   const fail = (msg) => results.push({ severity: "error", rule: "intensity", message: msg });
+
+  // Slide count must match source
+  if (rules.slideCountMatch && sourceSlideCount && total !== sourceSlideCount) {
+    fail(`${intensity}: output has ${total} slides, source has ${sourceSlideCount} — must be equal`);
+  }
 
   // Layout distribution
   const layoutCounts = {};

@@ -638,6 +638,30 @@ describe("Intensity compliance checker", () => {
     assert.ok(results.some(r => r.message.includes("bg overrides")), "should flag missing bg overrides");
   });
 
+  it("flags slide count mismatch when source count provided", () => {
+    const slides = parseMarkdown("# Title\n---\n## A\n- a\n---\n## B\n- b");
+    // Source had 3 slides, composed has 3 — should pass
+    const passResults = validateIntensity(slides, "minimal", 3);
+    assert.ok(!passResults.some(r => r.message.includes("slides")),
+      "same count should not flag");
+    // Source had 5, composed has 3 — should fail
+    const failResults = validateIntensity(slides, "minimal", 5);
+    assert.ok(failResults.some(r => r.message.includes("slides") && r.message.includes("must be equal")),
+      "different count should flag");
+  });
+
+  it("INTENSITY_RULES: all levels require slideCountMatch", () => {
+    for (const [name, rules] of Object.entries(INTENSITY_RULES)) {
+      assert.equal(rules.slideCountMatch, true, `${name} should require slideCountMatch`);
+    }
+  });
+
+  it("INTENSITY_RULES: all levels have zero blank slides allowed", () => {
+    for (const [name, rules] of Object.entries(INTENSITY_RULES)) {
+      assert.deepEqual(rules.blankSlides, [0, 0], `${name} should have [0,0] blank slides`);
+    }
+  });
+
   it("validates actual composed output files if they exist", () => {
     const fsModule = require("fs");
     const dir = "./decks/compare-week-1-2026-03-20-19-38-";
@@ -696,10 +720,19 @@ describe("Compose module", () => {
         "minimal should restrict to Helvetica");
     });
 
-    it("minimal: no blank slides", () => {
-      assert.ok(INTENSITY.minimal.includes("NOT add blank") || INTENSITY.minimal.includes("Do NOT add blank") ||
-        INTENSITY.minimal.includes("No blank") || INTENSITY.minimal.toLowerCase().includes("not add blank"),
-        "minimal should prohibit blanks");
+    it("all intensities: same slide count as source", () => {
+      for (const [name, text] of Object.entries(INTENSITY)) {
+        assert.ok(text.includes("EXACTLY") && text.includes("source"),
+          `${name} must require exact slide count match`);
+      }
+    });
+
+    it("all intensities: no blank slides, no splitting", () => {
+      for (const [name, text] of Object.entries(INTENSITY)) {
+        assert.ok(text.includes("NOT add blank") || text.includes("Do NOT add blank") ||
+          text.includes("not add blank") || text.includes("No blank"),
+          `${name} should prohibit blank slides`);
+      }
     });
 
     it("minimal: restrained bg palette", () => {
@@ -739,8 +772,11 @@ describe("Compose module", () => {
       }
     });
 
-    it("maximal: blank slides required", () => {
-      assert.ok(INTENSITY.maximal.includes("blank"), "maximal needs blanks");
+    it("all intensities: content is fixed, design varies", () => {
+      for (const [name, text] of Object.entries(INTENSITY)) {
+        assert.ok(text.includes("content") && (text.includes("fixed") || text.includes("FIXED") || text.includes("EXACT")),
+          `${name} should state content is fixed`);
+      }
     });
 
     it("maximal: requires Claude to INVENT a palette", () => {
@@ -749,10 +785,9 @@ describe("Compose module", () => {
         "maximal should require original palette creation");
     });
 
-    it("maximal: multiple font families", () => {
-      assert.ok(INTENSITY.maximal.includes("Georgia"));
-      assert.ok(INTENSITY.maximal.includes("Courier New"));
-      assert.ok(INTENSITY.maximal.includes("Futura"));
+    it("maximal: requires multiple typefaces", () => {
+      assert.ok(INTENSITY.maximal.includes("2-3 typefaces") || INTENSITY.maximal.includes("font overrides"),
+        "maximal should require multiple typefaces");
     });
 
     it("bg % escalates: minimal ≤30, moderate 30-60, maximal 50-80", () => {

@@ -210,86 +210,60 @@ const DEFAULT_BRIEF = "";
 const INTENSITY = {
   minimal: `INTENSITY: MINIMAL — The Müller-Brockmann position
 
-CONTENT HANDLING:
-- Each source slide becomes EXACTLY one output slide, in the same order.
-- Do NOT rephrase, split, merge, or restructure slide content.
-- Do NOT add blank slides.
-- You MAY add ### section labels derived from the content's themes.
+SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
+Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
 
-VISUAL TREATMENT:
-- Pick the best layout for each slide's existing content.
+WHAT YOU CONTROL:
+- Layout selection: pick the best layout per slide's content structure.
   3 bullets → "bullets". A quote → "rotated". Title only → "section".
   Dense bullets (4+) → "stagger". Title + body → "split".
+- ### section labels: add sparingly, derived from the content's themes.
 - bg overrides: no more than 30% of slides. Restrained palette — 2-3 colours max.
-- Font: Helvetica Neue only. No font overrides.
+- Font: Helvetica Neue only. No font overrides. No style overrides.
 - No layout used more than 25% of the time.
 
 The result: the same content, poured into a Swiss grid. Clean and restrained.`,
 
   moderate: `INTENSITY: MODERATE — The Gerstner position
 
-CONTENT HANDLING:
-- You MAY split dense slides into 2–3 shorter slides. A slide with 8 bullets
-  can become two slides of 4. A slide with title + long body can split into
-  a title section slide + a content slide.
-- You MAY promote a strong phrase from body text to become a # title.
-- You MAY reorder bullets within a slide for impact.
-- Do NOT drop any substantive content. Every URL, date, name, criterion survives.
-- May add 1–2 blank slides at major transitions.
+SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
+Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
 
-VISUAL TREATMENT — you must DESIGN an original palette for this deck:
-- Use at least 5 different layout types. No layout > 30% of slides.
+WHAT YOU CONTROL — you must DESIGN an original visual system:
+- Layout selection: use at least 5 different layout types. No layout > 30%.
   Reach for stagger, rotated, fragment, overlap — not just split and bullets.
-- ### labels: add to most slides for typographic scale contrast.
-- COLOUR: invent a 3–5 colour palette that fits the mood/brief. Choose your own
-  hex values — dark grounds, mid-tones, accent flashes. Use bg overrides on
-  30–60% of slides to build a chromatic arc through the deck.
-- FONT: choose 1 secondary typeface that fits the mood. Use it on 2–3 slides
-  for contrast. Options: Georgia, Palatino, Courier New, Futura.
+- ### section labels: add to most slides for typographic scale contrast.
+- COLOUR: INVENT a 3–5 colour palette. Choose your own hex values.
+  Use bg overrides on 30–60% of slides to build a chromatic arc.
+- FONT: choose 1 secondary typeface for contrast on 2–3 slides.
+  Options: Georgia, Palatino, Courier New, Futura.
+- <!-- style: ... --> overrides on 3–5 slides for typographic variety.
 
-The result: recognisably the same content, but with an original visual identity.`,
+The result: the same slides, with a designed visual identity.`,
 
   maximal: `INTENSITY: MAXIMAL — The Weingart position
 
-CONTENT HANDLING:
-- You MUST split dense slides. Any slide with more than 5 bullets or more than
-  3 lines of body text MUST be broken into multiple slides.
-- You MAY isolate a single phrase or word as a full section slide.
-- You MAY reorder content for dramatic arc — group related ideas, build tension.
-- You MAY turn a bullet list into a stagger cascade, a fragment mosaic, or
-  distribute items across an overlap dialectic.
-- You MAY promote body text phrases to # titles or > blockquotes.
-- Do NOT drop substantive content. Every URL, date, name, criterion survives.
-  Present them radically, but present them.
-- Add 2–4 blank slides as composed silence between major sections.
+SLIDE COUNT: Output EXACTLY as many slides as the source. One source slide = one output slide.
+Do NOT add blank slides. Do NOT split, merge, or restructure. The content is fixed.
+The design is radical. The structure is not.
 
-VISUAL TREATMENT:
-- Use at least 8 different layout types. No layout > 20% of slides.
+WHAT YOU CONTROL — you must create an ORIGINAL design system:
+- Layout selection: use at least 8 different types. No layout > 20%.
   "split" may not exceed 15%.
-  REQUIRED minimums: 2× stagger, 2× rotated, 1× fragment, 1× overlap, 3× section.
-- ### labels: on 60%+ of content slides. The 8pt label against a 30pt title
-  IS the primary visual tension.
-- COLOUR — you must INVENT an original 5–8 colour palette for this deck:
-    Choose your own hex values. Do NOT reuse the examples from the syntax guide.
-    Your palette should have: 2-3 dark grounds, 1-2 mid-tones, 1-2 accent flashes,
-    1 near-white. Use bg overrides on 50–80% of slides.
-    The chromatic arc must have a beginning, a climax, and a resolution.
-- FONT — choose 2-3 typefaces and assign each a role:
-    One for body/default, one for editorial/reflective, one for statements/data.
-    Use font overrides on 15–25% of slides.
-    Options: Georgia, Palatino, Courier New, Futura (plus default Helvetica Neue).
-- DENSITY CONTRAST: alternate between dense and sparse slides.
-  A 5-bullet stagger → blank → single-word section → fragment mosaic.
-  The variation in density IS the design.
+  REQUIRED: 2× stagger, 2× rotated, 1× fragment, 1× overlap.
+- ### section labels: on 60%+ of slides. The 8pt label vs 30pt title
+  IS the primary tension.
+- COLOUR: INVENT a 5–8 colour palette. Choose your own hex values.
+  Do NOT reuse examples. Use bg overrides on 50–80% of slides.
+  Build a full chromatic arc with beginning, climax, and resolution.
+- FONT: choose 2-3 typefaces, each with a specific role.
+  Use font overrides on 15–25% of slides.
+- STYLE OVERRIDES: use <!-- style: ... --> on 30%+ of slides.
+  title-size=72 on statements. spacing=tight on dense slides.
+  letter-spacing=0.15em on labels. text-transform=uppercase on declarations.
+  Each slide should feel individually designed.
 
-- STYLE OVERRIDES: use <!-- style: ... --> to vary typography per slide.
-  title-size=48 on key moments, title-size=72 on section statements.
-  spacing=tight on dense slides, spacing=loose on breathing slides.
-  letter-spacing=0.15em on labels, text-transform=uppercase on declarations.
-  Each slide should feel individually designed, not template-stamped.
-
-The result: an original design system — not a template, a composition.
-Austere, strange, precise. Every run should look different from the last.`,
+The result: the same content, made unrecognisable through radical form.`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -359,32 +333,23 @@ Density plan: [which slides are dense, which are sparse, where the contrast hits
 -->
 
 ═══ PHASE 2: SLIDE OUTPUT ═══
-Output the composed slides following your macro plan above.
-${intensity === "minimal" ?
-`Output exactly ${sourceSlides.length} slides, one per source slide, in the same order.
-Each slide keeps its content exactly as written — your role is layout, bg, font, and labels only.` :
-intensity === "moderate" ?
-`Start from the ${sourceSlides.length} source slides but you MAY split dense slides (5+ bullets
-or 3+ body lines) into 2-3 shorter slides. Aim for ${Math.round(sourceSlides.length * 1.5)} slides total.
-Restructure for visual impact: promote phrases to titles, split dense lists, add section dividers.` :
-`Start from the ${sourceSlides.length} source slides and RECOMPOSE them. Split every dense slide.
-Isolate key phrases as section slides. Turn lists into staggers and fragments.
-Aim for ${Math.round(sourceSlides.length * 2)} slides total with dramatic density variation.
-No slide should have more than 5 bullets or 3 body lines — split aggressively.`}
+Output EXACTLY ${sourceSlides.length} slides — one for each source slide, in the same order.
+The content of each slide is FIXED. Your design plan above determines the visual treatment.
 
-For each slide:
-1. <!-- layout: name --> as the FIRST line
-2. <!-- bg: HEX --> from your chromatic arc
-3. <!-- font: Name --> from your font strategy
-4. ### SECTION LABEL for typographic texture
-5. All substantive content preserved (URLs, dates, names, criteria)
-6. Speaker notes preserved (append design rationale if needed)
+For each of the ${sourceSlides.length} slides:
+1. <!-- layout: name --> as the FIRST line (from your layout rhythm above)
+2. <!-- bg: HEX --> if your chromatic arc calls for it
+3. <!-- font: Name --> if your font strategy calls for it
+4. <!-- style: key=value --> for typographic overrides (if intensity permits)
+5. ### SECTION LABEL for typographic texture where appropriate
+6. The slide's EXACT content from the source — unchanged, no rephrasing
+7. Speaker notes preserved verbatim (you may append design rationale)
 
-You may INSERT blank slides (<!-- layout: blank -->) between slides for pacing,
-but every source slide MUST appear in your output, unchanged.
+Do NOT add extra slides. Do NOT remove slides. Do NOT add blank slides.
+The output must have EXACTLY ${sourceSlides.length} slides separated by ---.
 
 CRITICAL: Your first output line must be <!-- DESIGN PLAN.
-After the plan comment, output the slides starting with <!-- layout:.
+After the plan comment, output exactly ${sourceSlides.length} slides starting with <!-- layout:.
 No other commentary, no code fences.`);
 
   return parts.join("\n\n");
