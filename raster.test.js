@@ -341,6 +341,12 @@ describe("Markdown parser", () => {
       assert.equal(s.style["opacity"], "0.8");
     });
 
+    it("parses color in style directive", () => {
+      const [s] = parseMarkdown("<!-- style: color=FF0000 -->\n# Title");
+      assert.ok(s.style);
+      assert.equal(s.style["color"], "FF0000");
+    });
+
     it("style is null when no style directive", () => {
       const [s] = parseMarkdown("# Title");
       assert.equal(s.style, null);
@@ -807,6 +813,23 @@ describe("Compose module", () => {
   it("buildPrompt includes custom brief when provided", () => {
     const prompt = buildPrompt("# Title", { brief: "brutalist maximalism" });
     assert.ok(prompt.includes("brutalist maximalism"));
+  });
+
+  it("buildPrompt --slides filters source slides", () => {
+    const md = "# Slide 1\n---\n# Slide 2\n---\n# Slide 3\n---\n# Slide 4";
+    const prompt = buildPrompt(md, { slides: "2-3", intensity: "minimal" });
+    assert.ok(prompt.includes("Slide 2"), "should include slide 2");
+    assert.ok(prompt.includes("Slide 3"), "should include slide 3");
+    assert.ok(!prompt.includes("Slide 4"), "should not include slide 4");
+    assert.ok(prompt.includes("EXACTLY 2 slides"), "should request 2 slides");
+  });
+
+  it("buildPrompt --slides single slide", () => {
+    const md = "# Slide 1\n---\n# Slide 2\n---\n# Slide 3";
+    const prompt = buildPrompt(md, { slides: "2", intensity: "minimal" });
+    assert.ok(prompt.includes("Slide 2"));
+    assert.ok(!prompt.includes("Slide 1"));
+    assert.ok(prompt.includes("EXACTLY 1 slides"));
   });
 
   describe("generative design approach", () => {

@@ -1,5 +1,8 @@
 node_modules/
 *.pptx
 *.html
+*.composed.md
 .DS_Store
 logs/
+decks/
+.env

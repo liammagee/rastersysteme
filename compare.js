@@ -247,6 +247,7 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
       intensity,
       brief: options.brief,
       model: options.model,
+      slides: options.slides,
     });
     process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} compose ${amber(t())}\n`);
   } catch (err) {
@@ -717,6 +718,7 @@ if (require.main === module) {
     brief: getFlag("--brief"),
     model: getFlag("--model") || "sonnet",
     evalModel: getFlag("--eval-model") || "sonnet",
+    slides: getFlag("--slides"),
     skipEval: args.includes("--skip-eval"),
     explosive: args.includes("--explosive"),
   };

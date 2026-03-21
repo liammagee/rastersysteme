@@ -320,8 +320,18 @@ function buildPrompt(markdown, options = {}) {
 
 COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
-  // Pre-split source into numbered slides
-  const sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
+  // Pre-split source into numbered slides, optionally filtered by --slides range
+  let sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
+  const slideRange = options.slides;
+  if (slideRange) {
+    const match = String(slideRange).match(/^(\d+)(?:-(\d+))?$/);
+    if (match) {
+      const start = parseInt(match[1], 10) - 1; // 1-indexed to 0-indexed
+      const end = match[2] ? parseInt(match[2], 10) : start + 1;
+      sourceSlides = sourceSlides.slice(start, end);
+      process.stderr.write(`  ${dim("Slides:")} ${start + 1}-${end} of ${markdown.split(/\n---\n/).filter(s => s.trim()).length}\n`);
+    }
+  }
   const numberedSlides = sourceSlides.map((slide, i) => {
     return `=== SLIDE ${i + 1} of ${sourceSlides.length} ===\n${slide.trim()}`;
   }).join("\n\n");
@@ -763,14 +773,16 @@ if (require.main === module) {
     --ratio <r>            Aspect ratio: 16:9 (default), 4:3
     --intensity <level>    minimal | moderate (default) | maximal
     --brief "<direction>"  Creative direction (supplements the default brief)
+    --slides <range>       Slide range: "1" or "2-6" (subset for fast iteration)
     --dry-run              Output composed markdown to stdout, skip render
-    --model <model>        Claude model override
+    --model <model>        Claude model override (default: sonnet)
     --help                 Show this help
 
   Examples:
     node compose.js talk.md
     node compose.js talk.md deck.pptx --theme dark --intensity maximal
-    node compose.js notes.md --brief "brutalist, maximum contrast" --dry-run
+    node compose.js talk.md --slides 1-3 --model opus    # quick test, 3 slides
+    node compose.js notes.md --brief "brutalist" --dry-run
     node compose.js pitch.md --intensity minimal --theme blue
 
   The composed markdown is always saved as *.composed.md alongside the output.
@@ -796,6 +808,7 @@ if (require.main === module) {
     intensity: getFlag("--intensity"),
     brief: getFlag("--brief"),
     model: getFlag("--model") || "sonnet",
+    slides: getFlag("--slides"),
     dryRun: args.includes("--dry-run"),
   };
 
