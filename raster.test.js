@@ -998,7 +998,7 @@ describe("Compose module", () => {
     assert.ok(prompt.includes("Slide 2"), "should include slide 2");
     assert.ok(prompt.includes("Slide 3"), "should include slide 3");
     assert.ok(!prompt.includes("Slide 4"), "should not include slide 4");
-    assert.ok(prompt.includes("EXACTLY 2 slides"), "should request 2 slides");
+    assert.ok(prompt.includes("2 objects"), "should request 2 directives");
   });
 
   it("buildPrompt --slides single slide", () => {
@@ -1006,20 +1006,20 @@ describe("Compose module", () => {
     const prompt = buildPrompt(md, { slides: "2", intensity: "minimal" });
     assert.ok(prompt.includes("Slide 2"));
     assert.ok(!prompt.includes("Slide 1"));
-    assert.ok(prompt.includes("EXACTLY 1 slides"));
+    assert.ok(prompt.includes("1 objects"), "should request 1 directive");
   });
 
-  describe("design directive approach", () => {
-    it("DESIGN PLAN asks for palette", () => {
+  describe("JSON directives approach", () => {
+    it("prompt asks for JSON array of directives", () => {
       const prompt = buildPrompt("# Title\n- a\n- b", { intensity: "maximal" });
-      assert.ok(prompt.includes("Palette:"),
-        "design plan should ask for palette");
+      assert.ok(prompt.includes("JSON array"),
+        "should ask for JSON array");
     });
 
-    it("DESIGN PLAN asks for grid strategy", () => {
+    it("prompt specifies layout, bg, font, label fields", () => {
       const prompt = buildPrompt("# Title", { intensity: "moderate" });
-      assert.ok(prompt.includes("Grid strategy:") || prompt.includes("grid strategy"),
-        "design plan should ask for grid strategy");
+      assert.ok(prompt.includes('"layout"') && prompt.includes('"bg"') && prompt.includes('"font"'),
+        "should specify directive fields");
     });
 
     it("DESIGN PLAN asks for accent strategy", () => {
@@ -1028,16 +1028,16 @@ describe("Compose module", () => {
         "design plan should ask for accent strategy");
     });
 
-    it("prompt teaches the <!-- design: --> directive format", () => {
+    it("prompt includes layout options", () => {
       const prompt = buildPrompt("# Title", { intensity: "moderate" });
-      assert.ok(prompt.includes("<!-- design:") && prompt.includes("zones"),
-        "prompt should teach the design directive with zones");
+      assert.ok(prompt.includes("split") || prompt.includes("stagger") || prompt.includes("layout"),
+        "prompt should reference layout types");
     });
 
-    it("Phase 2 asks for design directives, not layout directives", () => {
-      const prompt = buildPrompt("# Title", { intensity: "maximal" });
-      assert.ok(prompt.includes("<!-- design: {") || prompt.includes("design directive"),
-        "Phase 2 should request design directives");
+    it("prompt requests exact slide count", () => {
+      const prompt = buildPrompt("# Title\n---\n# Slide 2", { intensity: "maximal" });
+      assert.ok(prompt.includes("EXACTLY 2") || prompt.includes("exactly 2"),
+        "prompt should request exact slide count");
     });
 
     it("mood seeds are conceptual, not hex-coded recipes", () => {
