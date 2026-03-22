@@ -957,7 +957,11 @@ COMPOSITIONAL EMPHASIS: ${seed}
 
 The source deck has ${total} slides. Design a COMPLETE visual system for it.
 IMPORTANT: Your palette MUST match the ${themeName.toUpperCase()} theme.
-${themeName === "light" ? "Include warm whites (F8F5F0, FAFAF8) as the DOMINANT ground colour. Every slide needs an explicit bg." : themeName === "dark" ? "Include near-blacks (1A1A1A, 111111) as the DOMINANT ground. Every slide needs an explicit bg." : "Include theme-appropriate ground colours. Every slide needs an explicit bg."}
+${themeName === "light" ? `LIGHT THEME RULES:
+- The ground/dominant colour MUST be a warm white or cream (luminance > 200). Examples: F8F5F0, FAFAF8, FFF8E7, EDE8E0.
+- NO dark colours (luminance < 100) in the "ground" or "dominant" role.
+- Dark colours are ONLY allowed in the "signal" or "accent" role, used on at most 1-2 slides.
+- 80%+ of slides must use the light ground colour as bg.` : themeName === "dark" ? "Include near-blacks (1A1A1A, 111111) as the DOMINANT ground. Every slide needs an explicit bg." : "Include theme-appropriate ground colours. Every slide needs an explicit bg."}
 
 Output ONLY valid JSON (no code fences, no commentary):
 {
@@ -990,6 +994,30 @@ Output ONLY valid JSON (no code fences, no commentary):
       const lastBrace = json.lastIndexOf("}");
       if (firstBrace >= 0 && lastBrace > firstBrace) json = json.slice(firstBrace, lastBrace + 1);
       designSystem = JSON.parse(json);
+
+      // Validate palette against theme — fix dark grounds in light themes
+      const themeName = options.theme || "light";
+      if (themeName === "light" && designSystem.palette) {
+        designSystem.palette = designSystem.palette.map(c => {
+          const hex = c.hex.replace(/^#/, "");
+          const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+          const lum = r * 0.299 + g * 0.587 + b * 0.114;
+          if ((c.role === "ground" || c.role === "dominant") && lum < 150) {
+            process.stderr.write(`  ${amber("⚠")} Fixing dark ${c.role} colour #${hex} (lum ${Math.round(lum)}) → demoted to accent\n`);
+            return { ...c, role: "accent" };
+          }
+          return c;
+        });
+        // Ensure at least one light ground exists
+        const hasLightGround = designSystem.palette.some(c =>
+          (c.role === "ground" || c.role === "dominant") &&
+          parseInt(c.hex.slice(0, 2), 16) * 0.299 + parseInt(c.hex.slice(2, 4), 16) * 0.587 + parseInt(c.hex.slice(4, 6), 16) * 0.114 > 200);
+        if (!hasLightGround) {
+          designSystem.palette.unshift({ hex: "F8F5F0", name: "Warm White", role: "ground" });
+          process.stderr.write(`  ${amber("⚠")} Added Warm White ground to palette\n`);
+        }
+      }
+
       fs.writeFileSync(designSystemPath, JSON.stringify(designSystem, null, 2));
       process.stderr.write(`  ${sage("✓")} Stage 1: ${chalk.white(designSystem.aesthetic || "Design system generated")}\n`);
     } catch (err) {
