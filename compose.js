@@ -790,14 +790,21 @@ async function composeAsync(inputPath, outputPath, options = {}) {
 
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${chalk.white.bold(result.slides)} slides rendered\n`);
 
-  // Validation
-  const { validateIntensity, validateContentPreservation } = require("./qa.js");
+  // Validation: content preservation + intensity compliance + directive adoption
+  const { validateIntensity, validateContentPreservation, validateDirectiveAdoption } = require("./qa.js");
   const composedContent = fs.readFileSync(composedPath, "utf-8");
   const composedSlides = parseMarkdown(composedContent);
 
   const contentCheck = validateContentPreservation(md, composedContent);
   const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlides.length);
-  const allChecks = [...contentCheck, ...intensityCheck];
+  const directiveCheck = validateDirectiveAdoption(composedContent, intensity);
+  const allChecks = [...contentCheck, ...intensityCheck, ...directiveCheck.filter(r => r.severity !== "info")];
+
+  // Show directive adoption summary (info level)
+  const infoMsg = directiveCheck.find(r => r.severity === "info");
+  if (infoMsg) {
+    process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage(infoMsg.message)}\n`);
+  }
 
   if (allChecks.length > 0) {
     process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} validation:\n`);
@@ -856,15 +863,21 @@ async function compose(inputPath, outputPath, options = {}) {
     `  ${sage("✓")} ${chalk.white.bold(result.slides)} slides → ${teal(result.output)} ${dim(`(${result.theme}, 60×40)`)}\n`
   );
 
-  // Content preservation + intensity compliance checks
-  const { validateIntensity, validateContentPreservation } = require("./qa.js");
+  // Validation: content preservation + intensity compliance + directive adoption
+  const { validateIntensity, validateContentPreservation, validateDirectiveAdoption } = require("./qa.js");
   const composedContent = fs.readFileSync(composedPath, "utf-8");
   const composedSlides = parseMarkdown(composedContent);
 
   const sourceSlideCount = md.split(/\n---\n/).filter(s => s.trim()).length;
   const contentCheck = validateContentPreservation(md, composedContent);
   const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlideCount);
-  const allChecks = [...contentCheck, ...intensityCheck];
+  const directiveCheck = validateDirectiveAdoption(composedContent, intensity);
+  const allChecks = [...contentCheck, ...intensityCheck, ...directiveCheck.filter(r => r.severity !== "info")];
+
+  const infoMsg = directiveCheck.find(r => r.severity === "info");
+  if (infoMsg) {
+    process.stderr.write(`  ${sage(infoMsg.message)}\n`);
+  }
 
   if (allChecks.length > 0) {
     process.stderr.write(`\n  Validation:\n`);
@@ -1079,7 +1092,11 @@ I'll send slide summaries. For each, return ONE JSON object:
 Layouts: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank.
 bg = 6-char hex or null. font = name or null. label = ### text or null.
 ${imgRules}
-Rules: vary layouts (5+ types), build chromatic arc with bg, no 3× consecutive same layout.
+Rules:
+- Vary layouts (5+ types), no 3× consecutive same layout
+- bg: use null for 50%+ of slides (shows theme default). When set, use dark/muted tones.
+- NEVER use red/warm bg on "title" layout — the red accent block becomes invisible.
+- For light themes: prefer null bg (clean white default) over coloured overrides.
 
 ${slideSummaries}
 

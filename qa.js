@@ -394,6 +394,19 @@ function validateLayouts(slides) {
         message: "Empty slide — no content detected" });
     }
 
+    // Background-accent colour clash (e.g. red bg on title layout with red accent block)
+    if (slide.bgOverride && (layout === "title" || layout === "stagger" || layout === "fragment")) {
+      const bg = slide.bgOverride.replace(/^#/, "").toUpperCase();
+      const acc = theme.accent.toUpperCase();
+      const bgR = parseInt(bg.slice(0, 2), 16), bgG = parseInt(bg.slice(2, 4), 16), bgB = parseInt(bg.slice(4, 6), 16);
+      const accR = parseInt(acc.slice(0, 2), 16), accG = parseInt(acc.slice(2, 4), 16), accB = parseInt(acc.slice(4, 6), 16);
+      const dist = Math.sqrt(Math.pow(bgR - accR, 2) + Math.pow(bgG - accG, 2) + Math.pow(bgB - accB, 2));
+      if (dist < 80) {
+        results.push({ slide: slideNum, layout, severity: "warning",
+          message: `bg #${bg} too close to accent #${acc} — accent elements invisible` });
+      }
+    }
+
     // Overflow risks
     if (slide.bullets.length > 8 && layout === "stagger") {
       results.push({ slide: slideNum, layout, severity: "warning",
@@ -970,4 +983,151 @@ function validateContentPreservation(sourceMd, composedMd) {
   return results;
 }
 
-module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES };
+// ═══════════════════════════════════════════════════════
+// DESIGN DIRECTIVE ADOPTION VALIDATION
+// ═══════════════════════════════════════════════════════
+
+function validateDirectiveAdoption(composedMd, intensity) {
+  const results = [];
+  const slides = composedMd.split(/\n---\n/).filter(s => s.trim());
+  const total = slides.length;
+  if (total === 0) return results;
+
+  const warn = (msg) => results.push({ severity: "warning", check: "directive", message: msg });
+  const fail = (msg) => results.push({ severity: "error", check: "directive", message: msg });
+
+  // Count directive types per slide
+  let withLayout = 0;
+  let withBg = 0;
+  let withFont = 0;
+  let withLabel = 0;
+  let withDesign = 0;
+  let withNone = 0;
+
+  const layouts = [];
+  const bgs = [];
+  const fonts = new Set();
+
+  slides.forEach((slide, i) => {
+    const hasLayout = /<!-- layout: \w+ -->/.test(slide);
+    const hasDesign = /<!-- design:/.test(slide);
+    const hasBg = /<!-- bg: [A-Fa-f0-9]+ -->/.test(slide);
+    const hasFont = /<!-- font: .+ -->/.test(slide);
+    const hasLabel = /^### .+/m.test(slide);
+
+    if (hasLayout) withLayout++;
+    if (hasDesign) withDesign++;
+    if (hasBg) withBg++;
+    if (hasFont) withFont++;
+    if (hasLabel) withLabel++;
+    if (!hasLayout && !hasDesign) withNone++;
+
+    const layoutMatch = slide.match(/<!-- layout: (\w+) -->/);
+    if (layoutMatch) layouts.push(layoutMatch[1]);
+
+    const bgMatch = slide.match(/<!-- bg: ([A-Fa-f0-9]+) -->/);
+    if (bgMatch) bgs.push(bgMatch[1]);
+
+    const fontMatch = slide.match(/<!-- font: ([^->]+?) -->/);
+    if (fontMatch) fonts.add(fontMatch[1].trim());
+  });
+
+  // 1. Every slide must have a layout or design directive
+  if (withNone > 0) {
+    fail(`${withNone}/${total} slides have NO layout or design directive`);
+  }
+
+  // 2. Layout variety
+  const uniqueLayouts = new Set(layouts);
+  const layoutCounts = {};
+  layouts.forEach(l => layoutCounts[l] = (layoutCounts[l] || 0) + 1);
+
+  const rules = {
+    minimal: { minTypes: 3, maxPct: 35, minBgPct: 0, maxBgPct: 30 },
+    moderate: { minTypes: 5, maxPct: 30, minBgPct: 25, maxBgPct: 70 },
+    maximal: { minTypes: 7, maxPct: 25, minBgPct: 40, maxBgPct: 85 },
+  };
+  const rule = rules[intensity] || rules.moderate;
+
+  if (uniqueLayouts.size < rule.minTypes) {
+    warn(`Layout variety: ${uniqueLayouts.size} types used (${intensity} needs ${rule.minTypes}+). Used: ${[...uniqueLayouts].join(", ")}`);
+  }
+
+  // 3. No layout dominates
+  for (const [layout, count] of Object.entries(layoutCounts)) {
+    const pct = (count / total * 100).toFixed(0);
+    if (count / total > rule.maxPct / 100) {
+      warn(`Layout "${layout}" used ${count}× (${pct}%) — ${intensity} caps at ${rule.maxPct}%`);
+    }
+  }
+
+  // 4. No 3× consecutive same layout
+  for (let i = 2; i < layouts.length; i++) {
+    if (layouts[i] === layouts[i-1] && layouts[i] === layouts[i-2]) {
+      warn(`Layout "${layouts[i]}" appears 3× consecutively at slides ${i-1}–${i+1}`);
+    }
+  }
+
+  // 5. Background override usage
+  const bgPct = (withBg / total * 100).toFixed(0);
+  if (withBg / total < rule.minBgPct / 100 && rule.minBgPct > 0) {
+    warn(`Bg overrides: ${bgPct}% (${intensity} wants ${rule.minBgPct}–${rule.maxBgPct}%)`);
+  }
+  if (withBg / total > rule.maxBgPct / 100) {
+    warn(`Bg overrides: ${bgPct}% exceeds ${intensity} max of ${rule.maxBgPct}%`);
+  }
+
+  // 6. Palette diversity
+  const uniqueBgs = new Set(bgs);
+  if (uniqueBgs.size > 0 && uniqueBgs.size < 3 && intensity !== "minimal") {
+    warn(`Palette: only ${uniqueBgs.size} unique bg colors. Consider more variety.`);
+  }
+
+  // 7. Chromatic arc — check for monotony (same bg repeated)
+  let maxConsecutiveBg = 1;
+  let currentStreak = 1;
+  for (let i = 1; i < bgs.length; i++) {
+    if (bgs[i] === bgs[i-1]) {
+      currentStreak++;
+      maxConsecutiveBg = Math.max(maxConsecutiveBg, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+  if (maxConsecutiveBg >= 4) {
+    warn(`Same bg color used ${maxConsecutiveBg}× consecutively — breaks the chromatic arc`);
+  }
+
+  // 8. Label adoption
+  const labelPct = (withLabel / total * 100).toFixed(0);
+  const labelExpected = { minimal: 10, moderate: 40, maximal: 55 };
+  if (withLabel / total < (labelExpected[intensity] || 30) / 100) {
+    warn(`### labels on ${labelPct}% of slides (${intensity} expects ${labelExpected[intensity]}%+)`);
+  }
+
+  // 9. Font variety (moderate+ should use at least 1 override)
+  if (intensity !== "minimal" && fonts.size === 0) {
+    warn(`No font overrides — ${intensity} expects typographic contrast`);
+  }
+
+  // 10. "split" overuse — the most common generic layout
+  const splitCount = layoutCounts["split"] || 0;
+  const splitPct = (splitCount / total * 100).toFixed(0);
+  const splitMax = { minimal: 40, moderate: 30, maximal: 20 };
+  if (splitCount / total > (splitMax[intensity] || 30) / 100) {
+    warn(`"split" used ${splitCount}× (${splitPct}%) — ${intensity} caps at ${splitMax[intensity]}%. Try stagger, rotated, fragment, overlap.`);
+  }
+
+  // Summary
+  if (results.length === 0) {
+    results.push({
+      severity: "info",
+      check: "directive",
+      message: `✓ All checks pass: ${uniqueLayouts.size} layout types, ${bgPct}% bg overrides, ${labelPct}% labels, ${fonts.size} font overrides`,
+    });
+  }
+
+  return results;
+}
+
+module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, validateDirectiveAdoption, contrastRatio, relativeLuminance, INTENSITY_RULES };
