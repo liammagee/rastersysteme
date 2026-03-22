@@ -256,6 +256,7 @@ function parseMarkdown(md) {
       tables: [],
       codeBlocks: [],
       fontOverride: null,
+      transition: null,
       style: null,
       design: null,
       raw: slideText.trim(),
@@ -270,6 +271,9 @@ function parseMarkdown(md) {
 
     const fontMatch = slideText.match(/<!--\s*font:\s*([^->]+?)\s*-->/);
     if (fontMatch) slide.fontOverride = fontMatch[1].trim();
+
+    const transMatch = slideText.match(/<!--\s*transition:\s*(\w[\w-]*)\s*-->/);
+    if (transMatch) slide.transition = transMatch[1].trim();
 
     // Style overrides: <!-- style: title-size=48; spacing=tight; opacity=0.8 -->
     const styleMatch = slideText.match(/<!--\s*style:\s*(.+?)\s*-->/);
@@ -1330,7 +1334,11 @@ function esc(str) {
     .replace(/\\n/g, "<br>")
     .replace(/\n/g, "<br>")
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*(.+?)\*/g, "<em>$1</em>");
+    .replace(/\*(.+?)\*/g, "<em>$1</em>")
+    // Linkify markdown [text](url) first
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" class="auto-link">$1</a>')
+    // Then auto-link remaining bare URLs (not already inside an href)
+    .replace(/(?<!href=")(https?:\/\/[^\s<>"')\]]+)/g, '<a href="$1" target="_blank" class="auto-link">$1</a>');
 }
 
 function bulletsToHTML(bullets) {
@@ -1738,7 +1746,7 @@ tbody tr:nth-child(even){background:var(--bg)}
 tbody tr:nth-child(odd){background:var(--bg-alt)}
 
 /* Code */
-.code-block{position:relative;background:#2D2D2D;border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block{position:relative;background:var(--code-bg,#2D2D2D);border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
 .code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
 .code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
   font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
@@ -1757,6 +1765,9 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .links{display:flex;flex-direction:column;gap:0.8vmin}
 .links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
 .links a:hover{text-decoration:underline}
+a.auto-link{color:var(--accent2);text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:2px;word-break:break-all;font-size:inherit}
+a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
 
 /* === LAYOUT: title === */
 .layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
@@ -1773,7 +1784,6 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
 .layout-section h1,.layout-section .section-title{color:#fff;font-size:clamp(2rem,6vmin,4rem)}
 .layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
-.layout-section .label{color:var(--accent)}
 .accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
 .layout-section .links a{color:var(--accent2)}
 
@@ -1848,9 +1858,54 @@ h1{font-family:'DM Serif Display',var(--font),serif;letter-spacing:-0.03em;text-
 blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
 
 /* ═══ SLIDE TRANSITIONS ═══ */
-.slide{opacity:0;transform:translateY(2vh);
-  transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1)}
-.slide.active{opacity:1;transform:translateY(0)}
+:root{--t-duration:0.5s;--t-ease:cubic-bezier(0.16,1,0.3,1)}
+
+/* Default: fade */
+.slide{opacity:0;transition:opacity var(--t-duration) var(--t-ease),transform var(--t-duration) var(--t-ease)}
+.slide.active{opacity:1}
+
+/* fade (default) */
+.slide[data-transition="fade"]{transform:none}
+
+/* slide-up */
+.slide[data-transition="slide-up"]{transform:translateY(4vh)}
+.slide[data-transition="slide-up"].active{transform:translateY(0)}
+.slide[data-transition="slide-up"].exit-down{transform:translateY(-4vh);opacity:0}
+
+/* slide-down */
+.slide[data-transition="slide-down"]{transform:translateY(-4vh)}
+.slide[data-transition="slide-down"].active{transform:translateY(0)}
+
+/* slide-left */
+.slide[data-transition="slide-left"]{transform:translateX(5vw)}
+.slide[data-transition="slide-left"].active{transform:translateX(0)}
+.slide[data-transition="slide-left"].exit-left{transform:translateX(-5vw);opacity:0}
+
+/* slide-right */
+.slide[data-transition="slide-right"]{transform:translateX(-5vw)}
+.slide[data-transition="slide-right"].active{transform:translateX(0)}
+
+/* zoom */
+.slide[data-transition="zoom"]{transform:scale(0.92);opacity:0}
+.slide[data-transition="zoom"].active{transform:scale(1);opacity:1}
+
+/* zoom-out */
+.slide[data-transition="zoom-out"]{transform:scale(1.08);opacity:0}
+.slide[data-transition="zoom-out"].active{transform:scale(1);opacity:1}
+
+/* cut (instant, no animation) */
+.slide[data-transition="cut"]{transition:none}
+.slide[data-transition="cut"].active{opacity:1}
+
+/* none (same as cut) */
+.slide[data-transition="none"]{transition:none}
+.slide[data-transition="none"].active{opacity:1}
+
+/* Respect reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .slide{transition:none !important;transform:none !important}
+  .slide.active{opacity:1}
+}
 
 /* ═══ MICRO-INTERACTIONS ═══ */
 .stagger-bar{border-radius:2px;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
@@ -1951,8 +2006,8 @@ function generateHTMLJS() {
       type:'slide',
       index:cur,
       total:slides.length,
-      notes:noteEl?noteEl.textContent:'(no notes)',
-      nextNotes:nextNoteEl?nextNoteEl.textContent:'',
+      notes:noteEl?noteEl.innerHTML:'<span class="empty">(no notes)</span>',
+      nextNotes:nextNoteEl?nextNoteEl.innerHTML:'',
       title:document.title
     });
   }
@@ -1963,40 +2018,118 @@ function generateHTMLJS() {
 
   function openPresenter(){
     if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
-    presenterWin=window.open('','rastersysteme_notes','width=700,height=500');
+    presenterWin=window.open('','rastersysteme_notes','width=800,height=600');
     if(!presenterWin)return;
     presenterWin.document.write(\`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Helvetica Neue',sans-serif;background:#111;color:#f0ebe3;padding:2rem}
-.slide-num{font-size:.8rem;color:#8C8478;margin-bottom:.5rem;letter-spacing:0.1em}
-h2{font-size:1rem;color:#8C8478;margin-bottom:1rem;font-weight:400}
-.notes{font-size:1.3rem;line-height:1.7;margin-bottom:2rem;white-space:pre-wrap}
-.next-label{font-size:.7rem;color:#555;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:.5rem}
-.next-notes{font-size:.9rem;color:#666;line-height:1.5;white-space:pre-wrap;border-top:1px solid #333;padding-top:1rem}
-.timer{position:fixed;bottom:1rem;right:2rem;font-size:2rem;color:#333;font-variant-numeric:tabular-nums}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow-y:auto}
+
+/* Header bar */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;border-bottom:1px solid #222;position:sticky;top:0;background:#0a0a0a;z-index:10}
+.slide-num{font-family:'Space Mono',monospace;font-size:.75rem;color:#8C8478;letter-spacing:0.15em}
+.elapsed{font-family:'Space Mono',monospace;font-size:1.8rem;color:#333;font-variant-numeric:tabular-nums}
+.progress-row{display:flex;gap:2px;align-items:center}
+.progress-dot{width:6px;height:6px;border-radius:50%;background:#333}
+.progress-dot.past{background:#548C5A}
+.progress-dot.current{background:#B7311A;width:8px;height:8px}
+
+/* Timing cue */
+.timing{display:flex;align-items:center;gap:1rem;padding:0.8rem 2rem;
+  background:#111;border-bottom:1px solid #1a1a1a;font-family:'Space Mono',monospace}
+.timing-icon{font-size:1rem}
+.timing-range{font-size:.85rem;color:#C79B38}
+.timing-duration{font-size:.85rem;color:#548C5A;margin-left:auto}
+
+/* Main notes */
+.notes-body{padding:2rem;min-height:40vh}
+.notes{font-size:1.25rem;line-height:1.8;color:#e8e0d4}
+.notes br{display:block;content:"";margin:0.3em 0}
+.notes em{color:#C79B38;font-style:italic}
+.notes strong{color:#fff;font-weight:700}
+.notes .empty{color:#555;font-style:italic}
+
+/* Next slide preview */
+.next-section{border-top:1px solid #222;padding:1.5rem 2rem}
+.next-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;
+  text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.8rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.6;max-height:15vh;overflow:hidden}
+.next-notes em{color:#876512}
+
+/* Keyboard hints */
+.hints{padding:0.8rem 2rem;border-top:1px solid #1a1a1a;
+  font-family:'Space Mono',monospace;font-size:.6rem;color:#333;letter-spacing:0.1em}
 </style></head><body>
-<div class="slide-num" id="pn-num"></div>
-<h2 id="pn-title"></h2>
-<div class="notes" id="pn-notes">Press P in the slide window to sync.</div>
-<div class="next-label">NEXT</div>
-<div class="next-notes" id="pn-next"></div>
-<div class="timer" id="pn-timer">00:00</div>
+<div class="header">
+  <div>
+    <div class="slide-num" id="pn-num">SLIDE 1</div>
+    <div class="progress-row" id="pn-progress"></div>
+  </div>
+  <div class="elapsed" id="pn-timer">00:00</div>
+</div>
+<div class="timing" id="pn-timing" style="display:none">
+  <span class="timing-icon">\\u23F1</span>
+  <span class="timing-range" id="pn-timing-range"></span>
+  <span class="timing-duration" id="pn-timing-dur"></span>
+</div>
+<div class="notes-body">
+  <div class="notes" id="pn-notes">Press <strong>P</strong> in the slide window to sync.</div>
+</div>
+<div class="next-section">
+  <div class="next-label">NEXT</div>
+  <div class="next-notes" id="pn-next"></div>
+</div>
+<div class="hints">\\u2190 \\u2192 navigate &nbsp;&nbsp; N notes panel &nbsp;&nbsp; F fullscreen</div>
 <script>
 const bc2=new BroadcastChannel('rastersysteme-presenter');
 const startTime=Date.now();
+let totalSlides=1;
+
 bc2.onmessage=function(e){
   if(e.data.type==='slide'){
-    document.getElementById('pn-num').textContent='Slide '+(e.data.index+1)+' / '+e.data.total;
-    document.getElementById('pn-title').textContent=e.data.title;
-    document.getElementById('pn-notes').textContent=e.data.notes;
-    document.getElementById('pn-next').textContent=e.data.nextNotes||'(end)';
+    const idx=e.data.index;
+    totalSlides=e.data.total;
+    document.getElementById('pn-num').textContent='SLIDE '+(idx+1)+' / '+totalSlides;
+    document.getElementById('pn-notes').innerHTML=e.data.notes;
+    document.getElementById('pn-next').innerHTML=e.data.nextNotes||'<span class="empty">(end of deck)</span>';
+
+    // Progress dots
+    const dots=document.getElementById('pn-progress');
+    dots.innerHTML='';
+    for(let i=0;i<totalSlides;i++){
+      const d=document.createElement('div');
+      d.className='progress-dot'+(i<idx?' past':i===idx?' current':'');
+      dots.appendChild(d);
+    }
+
+    // Extract timing cue if present (format: \\u23F1 Xm \\u2192 Ym (Z:ZZ))
+    const notesText=e.data.notes||'';
+    const timingMatch=notesText.match(/\\u23F1\\s*(\\S+)\\s*\\u2192\\s*(\\S+)\\s*\\(([^)]+)\\)/);
+    const timingEl=document.getElementById('pn-timing');
+    if(timingMatch){
+      timingEl.style.display='flex';
+      document.getElementById('pn-timing-range').textContent=timingMatch[1]+' \\u2192 '+timingMatch[2];
+      document.getElementById('pn-timing-dur').textContent=timingMatch[3];
+    } else {
+      timingEl.style.display='none';
+    }
+
+    // Scroll to top
+    window.scrollTo(0,0);
   }
 };
+
 setInterval(function(){
   const s=Math.floor((Date.now()-startTime)/1000);
-  const m=Math.floor(s/60);
-  document.getElementById('pn-timer').textContent=String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  const h=Math.floor(s/3600);
+  const m=Math.floor((s%3600)/60);
+  const sec=s%60;
+  const t=h>0
+    ? h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')
+    : String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+  document.getElementById('pn-timer').textContent=t;
 },1000);
 <\\/script></body></html>\`);
     presenterWin.document.close();
@@ -2016,6 +2149,7 @@ async function generateHTML(inputPath, outputPath, options = {}) {
   const themeName = options.theme || "light";
   const theme = THEMES[themeName] || THEMES.light;
   const globalFont = options.font || "Helvetica Neue";
+  const globalTransition = options.transition || "fade";
 
   const md = fs.readFileSync(inputPath, "utf-8");
   const slides = parseMarkdown(md);
@@ -2077,6 +2211,8 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 
     const style = styleParts.length ? ` style="${styleParts.join(";")}"` : "";
 
+    const trans = ` data-transition="${slide.transition || globalTransition}"`;
+
     // Use designed renderer for slides with a design directive
     if (slide.design) {
       const designStyle = [];
@@ -2084,10 +2220,10 @@ async function generateHTML(inputPath, outputPath, options = {}) {
       if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
-      return `<section class="slide designed"${ds}>${renderDesigned(slide)}${slideNotes(slide)}</section>`;
+      return `<section class="slide designed"${ds}${trans}>${renderDesigned(slide)}${slideNotes(slide)}</section>`;
     }
 
-    return `<section class="slide layout-${layout}"${style}>${renderer(slide)}${slideNotes(slide)}</section>`;
+    return `<section class="slide layout-${layout}"${style}${trans}>${renderer(slide)}${slideNotes(slide)}</section>`;
   }).join("\n");
 
   const title = esc(path.basename(inputPath, ".md"));
@@ -2572,6 +2708,9 @@ if (require.main === module) {
   const fontIdx = args.indexOf("--font");
   const font = fontIdx >= 0 ? args[fontIdx + 1] : undefined;
 
+  const transIdx = args.indexOf("--transition");
+  const transition = transIdx >= 0 ? args[transIdx + 1] : undefined;
+
   const formatIdx = args.indexOf("--format");
   const format = formatIdx >= 0 ? args[formatIdx + 1] : "pptx";
 
@@ -2584,7 +2723,7 @@ if (require.main === module) {
   }
 
   const gen = format === "review" ? generateReview : format === "html" ? generateHTML : generate;
-  gen(input, output, { theme, ratio, font })
+  gen(input, output, { theme, ratio, font, transition })
     .then(result => {
       console.log("\u2713 Generated " + result.slides + " slides \u2192 " + result.output);
       console.log("  Theme: " + result.theme + " | Format: " + format + " | Ratio: " + ratio);
