@@ -320,7 +320,8 @@ function callClaudeAsync(prompt, options = {}) {
   return new Promise((resolve, reject) => {
     const label = options.label || "claude";
     const args = ["-p", "--output-format", "stream-json", "--verbose",
-      "--append-system-prompt", "Output ONLY what was requested. No Insight blocks, no backtick-delimited commentary, no educational annotations. Raw output only."];
+      "--setting-sources", "user",
+      "--append-system-prompt", "Output ONLY what was requested. No commentary, no annotations. Raw output only."];
     if (options.model) args.push("--model", options.model);
 
     const proc = spawnAsync("claude", args, {
@@ -480,7 +481,8 @@ function callClaudeAsync(prompt, options = {}) {
 
 function callClaude(prompt, options = {}) {
   const args = ["-p", "--output-format", "text",
-    "--append-system-prompt", "Output ONLY what was requested. No Insight blocks, no backtick-delimited commentary, no educational annotations. Raw output only."];
+    "--setting-sources", "user",
+    "--append-system-prompt", "Output ONLY what was requested. No commentary, no annotations. Raw output only."];
   if (options.model) args.push("--model", options.model);
 
   const result = spawnSync("claude", args, {
