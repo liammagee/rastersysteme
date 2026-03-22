@@ -912,72 +912,62 @@ describe("Compose module", () => {
     assert.ok(INTENSITY.maximal);
   });
 
-  describe("intensity constraints are distinct", () => {
+  describe("intensity levels define different grid philosophies", () => {
     it("all intensities: exact slide count", () => {
       for (const [name, text] of Object.entries(INTENSITY)) {
         assert.ok(text.includes("EXACTLY"), `${name} must require EXACTLY N slides`);
       }
     });
 
-    it("all intensities: no blank slides, no splitting", () => {
-      for (const [name, text] of Object.entries(INTENSITY)) {
-        assert.ok(text.includes("NOT add blank") || text.includes("Do NOT add blank") ||
-          text.includes("not add blank"),
-          `${name} should prohibit blank slides`);
-      }
-    });
-
-    it("minimal: Helvetica only", () => {
-      assert.ok(INTENSITY.minimal.includes("Helvetica Neue only"),
+    it("minimal: Helvetica only, no font overrides", () => {
+      assert.ok(INTENSITY.minimal.includes("Helvetica Neue ONLY") || INTENSITY.minimal.includes("Helvetica Neue only"),
         "minimal should restrict to Helvetica");
     });
 
-    it("minimal: light/bright design", () => {
-      assert.ok(INTENSITY.minimal.includes("LIGHT") || INTENSITY.minimal.includes("bright") ||
-        INTENSITY.minimal.includes("70%"), "minimal should be light");
+    it("minimal: light backgrounds, wide margins", () => {
+      assert.ok(INTENSITY.minimal.includes("light") || INTENSITY.minimal.includes("80%"),
+        "minimal should emphasise light backgrounds");
+      assert.ok(INTENSITY.minimal.includes("margin") || INTENSITY.minimal.includes("whitespace"),
+        "minimal should emphasise wide margins");
     });
 
-    it("moderate: 5+ layout types", () => {
-      assert.ok(INTENSITY.moderate.includes("5+") || INTENSITY.moderate.includes("5 "),
-        "moderate needs 5+ layouts");
+    it("minimal: restrained type scale", () => {
+      assert.ok(INTENSITY.minimal.includes("28") || INTENSITY.minimal.includes("36"),
+        "minimal should specify moderate title sizes");
     });
 
-    it("moderate: mixed light/dark journey", () => {
-      assert.ok(INTENSITY.moderate.includes("light") && INTENSITY.moderate.includes("dark"),
-        "moderate should cross light/dark boundaries");
+    it("moderate: asymmetric zones, editorial confidence", () => {
+      assert.ok(INTENSITY.moderate.includes("asymmetric") || INTENSITY.moderate.includes("vary position"),
+        "moderate should encourage asymmetric zone placement");
     });
 
-    it("maximal: 8+ layout types", () => {
-      assert.ok(INTENSITY.maximal.includes("8+") || INTENSITY.maximal.includes("8 "),
-        "maximal needs 8+ layouts");
+    it("moderate: accent elements", () => {
+      assert.ok(INTENSITY.moderate.includes("accent") || INTENSITY.moderate.includes("bar") || INTENSITY.moderate.includes("line"),
+        "moderate should introduce accent elements");
     });
 
-    it("maximal: split capped at 15%", () => {
-      assert.ok(INTENSITY.maximal.includes("split") && INTENSITY.maximal.includes("15%"));
+    it("maximal: UNIQUE composition per slide", () => {
+      assert.ok(INTENSITY.maximal.includes("UNIQUE") || INTENSITY.maximal.includes("unique"),
+        "maximal should require unique compositions");
     });
 
-    it("maximal: mandates stagger, rotated, fragment, overlap", () => {
-      for (const l of ["stagger", "rotated", "fragment", "overlap"]) {
-        assert.ok(INTENSITY.maximal.includes(l), `maximal should mandate ${l}`);
-      }
+    it("maximal: extreme type scale range", () => {
+      assert.ok(INTENSITY.maximal.includes("96") || INTENSITY.maximal.includes("18"),
+        "maximal should specify extreme type size range");
     });
 
-    it("maximal: HIGH CONTRAST brightness", () => {
-      assert.ok(INTENSITY.maximal.includes("HIGH CONTRAST") || INTENSITY.maximal.includes("Alternate"),
-        "maximal should demand high contrast");
+    it("maximal: bold accent elements on 50%+ slides", () => {
+      assert.ok(INTENSITY.maximal.includes("50%") && INTENSITY.maximal.includes("accent"),
+        "maximal should mandate accents on majority of slides");
     });
 
-    it("maximal: vivid saturated colours required", () => {
-      assert.ok(INTENSITY.maximal.includes("vivid") || INTENSITY.maximal.includes("VIVID") ||
-        INTENSITY.maximal.includes("saturated"),
-        "maximal should require vivid colours, not just dark");
-    });
-
-    it("brightness escalates: minimal=light, moderate=mixed, maximal=contrast", () => {
-      assert.ok(INTENSITY.minimal.includes("LIGHT") || INTENSITY.minimal.includes("light"));
-      assert.ok(INTENSITY.moderate.includes("journey") || INTENSITY.moderate.includes("JOURNEY") ||
-        INTENSITY.moderate.includes("mixed") || INTENSITY.moderate.includes("Mixed"));
-      assert.ok(INTENSITY.maximal.includes("CONTRAST") || INTENSITY.maximal.includes("contrast"));
+    it("grid composition varies across levels", () => {
+      // Minimal: narrow zones, wide margins
+      assert.ok(INTENSITY.minimal.includes("span") && INTENSITY.minimal.includes("col"),
+        "minimal should reference grid columns");
+      // Maximal: full-bleed and extreme positions
+      assert.ok(INTENSITY.maximal.includes("full-bleed") || INTENSITY.maximal.includes("span:58"),
+        "maximal should reference full-bleed compositions");
     });
   });
 
@@ -1019,23 +1009,35 @@ describe("Compose module", () => {
     assert.ok(prompt.includes("EXACTLY 1 slides"));
   });
 
-  describe("generative design approach", () => {
-    it("DESIGN PLAN asks Claude to invent a palette", () => {
+  describe("design directive approach", () => {
+    it("DESIGN PLAN asks for palette", () => {
       const prompt = buildPrompt("# Title\n- a\n- b", { intensity: "maximal" });
-      assert.ok(prompt.includes("Palette:") && prompt.includes("hex colours YOU chose"),
-        "design plan should ask Claude to choose its own hex colours");
+      assert.ok(prompt.includes("Palette:"),
+        "design plan should ask for palette");
     });
 
-    it("DESIGN PLAN asks for font strategy tied to meaning", () => {
+    it("DESIGN PLAN asks for grid strategy", () => {
       const prompt = buildPrompt("# Title", { intensity: "moderate" });
-      assert.ok(prompt.includes("Font strategy:") && prompt.includes("WHY"),
-        "design plan should ask for font strategy with rationale");
+      assert.ok(prompt.includes("Grid strategy:") || prompt.includes("grid strategy"),
+        "design plan should ask for grid strategy");
     });
 
-    it("DESIGN PLAN asks for density plan", () => {
+    it("DESIGN PLAN asks for accent strategy", () => {
       const prompt = buildPrompt("# Title", { intensity: "maximal" });
-      assert.ok(prompt.includes("Density plan:"),
-        "design plan should ask for density variation plan");
+      assert.ok(prompt.includes("Accent strategy:") || prompt.includes("accent"),
+        "design plan should ask for accent strategy");
+    });
+
+    it("prompt teaches the <!-- design: --> directive format", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate" });
+      assert.ok(prompt.includes("<!-- design:") && prompt.includes("zones"),
+        "prompt should teach the design directive with zones");
+    });
+
+    it("Phase 2 asks for design directives, not layout directives", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal" });
+      assert.ok(prompt.includes("<!-- design: {") || prompt.includes("design directive"),
+        "Phase 2 should request design directives");
     });
 
     it("mood seeds are conceptual, not hex-coded recipes", () => {
@@ -1046,21 +1048,17 @@ describe("Compose module", () => {
       });
     });
 
-    it("intensity prompts instruct Claude to DESIGN, not follow a recipe", () => {
-      // Maximal should say "invent" or "choose your own" for palette
-      assert.ok(INTENSITY.maximal.includes("INVENT") || INTENSITY.maximal.includes("invent"),
-        "maximal should tell Claude to invent palette");
-      // Moderate should say "invent" or "design" for palette
-      assert.ok(INTENSITY.moderate.includes("invent") || INTENSITY.moderate.includes("DESIGN") ||
-        INTENSITY.moderate.includes("original"),
-        "moderate should tell Claude to design palette");
+    it("intensity prompts reference grid columns and zones", () => {
+      for (const [name, text] of Object.entries(INTENSITY)) {
+        assert.ok(text.includes("col") && text.includes("span"),
+          `${name} should reference grid columns and spans`);
+      }
     });
 
-    it("maximal intensity does NOT hardcode specific hex values", () => {
-      // Count 6-char hex patterns in maximal prompt — should be minimal
-      const hexMatches = INTENSITY.maximal.match(/\b[0-9A-F]{6}\b/g) || [];
-      assert.ok(hexMatches.length <= 3,
-        `maximal has ${hexMatches.length} hardcoded hex values — should be ≤3 (found: ${hexMatches.join(", ")})`);
+    it("intensities specify different type scale ranges", () => {
+      // Minimal: restrained (28-36px), Maximal: extreme (18-96px)
+      assert.ok(INTENSITY.minimal.includes("28") || INTENSITY.minimal.includes("32"));
+      assert.ok(INTENSITY.maximal.includes("96") || INTENSITY.maximal.includes("72"));
     });
   });
 

@@ -29,153 +29,65 @@ const amber = chalk.hex("#C79B38");
 // to think like a Swiss / New Wave art director
 // ═══════════════════════════════════════════════════════
 
-const DESIGN_BRIEF = `You are an art director with deep knowledge of 20th-century Swiss graphic design and its New Wave evolution. You compose slides on a 60-column modular grid.
+const DESIGN_BRIEF = `You are a Swiss-trained art director who DESIGNS slides on a 60-column × 40-row grid. You do not select from templates — you compose each slide as a unique grid arrangement.
 
-THE TRADITION:
+THE GRID:
+- 60 horizontal columns (0–59) across the slide width
+- 40 rows (0–39) down the height
+- Elements are placed at specific column/row positions with specific spans
+- Column 30 = centre. ÷12 = five 12-col zones. ÷5 = twelve 5-col zones.
 
-The Swiss International Typographic Style emerged from two distinct schools in the 1950s. In Zurich, Josef Müller-Brockmann, Carlo Vivarelli, and Richard Paul Lohse developed mathematical proportioning systems — the grid as democratic structure, objectivity as ethical position, visual noise eliminated in favor of pure communication. Müller-Brockmann's Musica Viva concert posters proved that within rigid grid constraints, enormous visual tension and energy are possible: a circle cropped by the frame edge, a diagonal bisecting the field, color applied with surgical precision.
+YOUR TOOL: the <!-- design: {...} --> directive. This gives you FULL CONTROL over every slide's layout. You specify WHERE each element sits on the grid, HOW LARGE the typography is, WHAT COLOUR the background is, and WHAT ACCENTS are placed.
 
-In Basel, Emil Ruder and Armin Hofmann taught typography as spatial architecture. Every letterform occupies and activates the space around it. Every interval between letters, every line break, every margin is an active decision. Ruder's "Typographie" demonstrated that a single word, set in the right weight at the right scale on the right field, is a complete composition.
+FORMAT — every slide gets a design directive as its FIRST line:
 
-THE 60-COLUMN HORIZONTAL GRID:
+<!-- design: {
+  "zones": [
+    { "role": "title", "col": 0, "span": 24, "row": 2, "rowSpan": 15 },
+    { "role": "body", "col": 30, "span": 26, "row": 5, "rowSpan": 30 }
+  ],
+  "accents": [
+    { "type": "bar", "col": 26, "span": 2, "row": 0, "rowSpan": 40, "color": "E63946" }
+  ],
+  "typography": {
+    "title": { "size": 48, "weight": 900, "transform": "uppercase", "tracking": "0.15em" },
+    "body": { "size": 14, "leading": 1.6 }
+  },
+  "bg": "0A1628",
+  "font": "Georgia"
+} -->
 
-The slide is divided into 60 HORIZONTAL columns across the width, plus 40 rows down the height. This is NOT a 10×6 cell grid — it is 60 fine vertical divisions spanning the full slide width. Think of it like a typesetter's em-grid: elements snap to column positions (0–59), spanning any number of columns.
+ZONE ROLES: title, body, bullets, label, quote
+ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
+TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
+FONTS: Helvetica Neue (default), Georgia (serif), Palatino (classical), Courier New (mono), Futura (geometric)
 
-Key subdivisions: ÷12 gives 5 equal zones (the primary rhythm). ÷5 gives 12 narrow columns. ÷2 splits the slide in half at column 30. The 13 layouts use these subdivisions differently — "split" uses a 22/33 column asymmetric pair, "rotated" uses 13/40, "stagger" cascades diagonally across columns.
+CONTENT SYNTAX (after the design directive):
+  # Title text
+  ## Subtitle
+  ### LABEL (small-caps, wide tracking)
+  - Bullet item
+  > Blockquote
+  Bare text = body
 
-60 divides by 2, 3, 4, 5, 6, 10, 12, 15, 20, and 30 — one system for any subdivision.
+RULES:
+  1. Output ONLY slides separated by ---. No commentary, no code fences.
+  2. Every slide MUST have a <!-- design: {...} --> directive as its FIRST line.
+  3. Do NOT invent facts, URLs, dates. Content comes from the source only.
+  4. Speaker notes from the source MUST be preserved (append design rationale).
+  5. ALL substantive information must survive: URLs, emails, dates, names, criteria.
 
-THE EVOLUTION:
-
-Wolfgang Weingart, trained by Ruder and Hofmann at Basel, internalized the Swiss rules completely before transgressing them. His experiments in the 1970s were never random — stepped letterpress type where each line shifts horizontally, reversed-out blocks nested inside blocks, letterspacing blown to extremes then collapsed back, halftone screens layered at conflicting angles. He called it "doing things that were not allowed" but insisted that transgression without competence is noise. His Basel posters layer typographic elements at conflicting angles, deploy scale jumps from 8pt to 72pt within a single composition, and treat the rectangular field as an arena of opposing forces rather than a neutral container.
-
-Dan Friedman extended this into "radical modernism" — deconstructing Swiss clarity while retaining its structural ambition. April Greiman brought it to Los Angeles with early digital layering: transparency, collage, type treated as texture and image simultaneously, the screen as landscape rather than page. Willi Kunz applied deconstructed Swiss principles to complex information hierarchies, proving that fragmented layouts could communicate *more* clearly than conventional ones when the fragmentation follows the content's own internal logic.
-
-What connects the entire lineage: the grid is always present, even — especially — when violated. Structure is acknowledged in the act of breaking it. The cultivated accident is never accidental.
-
-WHAT DISTINGUISHES SOPHISTICATED COMPOSITION FROM NAIVE:
-
-Restraint. Not every slide should be loud. A quiet split layout after an aggressive stagger creates meaning through contrast. The loudest moment in a presentation is the silence after noise. If you have thirty slides, perhaps five should be visually intense — the rest should be precisely controlled.
-
-Typographic scale. The relationship between a 40pt title, an 8pt small-caps section label, and 13pt body text IS the information hierarchy. Extreme size contrast — Weingart's signature — works because the disparity is deliberate and structurally motivated, not decorative. When everything is set large, nothing is emphasized. Use ### section labels (8pt, letterspaced) against # titles (30–40pt) constantly — this is the Swiss typographic texture that separates serious design from PowerPoint defaults.
-
-Color as argument. A palette has a logic — it builds a chromatic arc through the deck, not random variety. Use <!-- bg: HEX --> overrides to give each thematic section its own tonal identity. The CREATIVE DIRECTION below specifies which colors to use for this particular run. Follow it — the mood determines the palette.
-
-Rhythm and pacing. The sequence of layouts is a musical score. Dense-sparse-dense. Loud-quiet-loud. Fragment-breath-section. Stagger-blank-rotated. The audience feels this rhythm before they read the content. Three section slides in succession is monotonous. Two blank slides back-to-back is dead air. A stagger followed by a blank followed by a quiet split is a phrase.
-
-Productive tension. The best Swiss and post-Swiss design lives in controlled opposition: order vs. disruption, large vs. small, dark field vs. light field, horizontal reading axis vs. diagonal energy, dense information vs. empty space. Weingart's posters work because they hold opposing formal forces in equilibrium. A rotated title bar fighting against horizontal body text. A vermillion section slide interrupting a sequence of warm whites. An arc layout's geometric calm after a fragmented mosaic.
-
-LAYOUTS — assign one to every slide via <!-- layout: name -->
-
-  title    — Red accent block (24 cols) anchoring the top-left quadrant. Topic pills cascade at right.
-             The declaration slide. Use once, at most twice. Its authority comes from scarcity.
-             Effective when: opening a deck, establishing the central thesis.
-
-  section  — Full dark background, large centered white type. One idea fills the frame.
-             Ruder's principle: a single phrase at the right scale IS a complete composition.
-             Effective when: transitions, chapter headings, rhetorical questions, provocations.
-             Pair with: blank slides before or after, to give the statement room to resonate.
-
-  bullets  — Numbered list with colored accent dots. Clean, orderly, rational.
-             The most conventional layout — use sparingly and only when true enumeration
-             is needed. If the items could be a stagger or fragment, prefer those.
-             Effective when: ordered sequences, ranked priorities, stepwise processes.
-
-  stagger  — Cascading colored bars, each stepping right and down on the diagonal.
-             Musica Viva energy — each item enters the composition like an instrument
-             joining an ensemble. The diagonal creates kinetic force against the horizontal grid.
-             Effective when: parallel ideas building toward a point, escalation, accumulation.
-             Poor when: items have no progressive or additive relationship.
-
-  split    — Left zone (22 cols) for title/label. Right zone for body content.
-             The classic Swiss two-column structure. Tension lives in the gutter between zones.
-             Effective when: definition, argument + evidence, concept + elaboration.
-             Use ### labels in the left zone for Kunz-style typographic texture.
-
-  rotated  — 13-col vertical bar at left with title rotated 270°. Content floats at right.
-             Direct Weingart influence. The rotated type becomes architecture — it activates
-             the slide plane differently than horizontal text, forcing a perceptual shift.
-             Effective when: the title is a statement worth spatializing, when you need
-             to disrupt a sequence of horizontal layouts. The rotation should feel earned.
-             Pairs well after: split or bullets (the sudden angle jolts the eye).
-
-  fragment — Mosaic of colored blocks, non-hierarchical, shattered, democratic.
-             Greiman's digital collage principle applied to information: many elements of
-             equal visual weight. The fragmentation is not chaos — it follows the content's
-             internal structure.
-             Effective when: taxonomies, inventories, options, many parallel items.
-
-  overlap  — Two translucent color fields intersecting at mid-slide, creating a third zone.
-             Dialectic made visible. Content split across the fields should mirror a real
-             conceptual opposition or complementarity.
-             Effective when: comparing, contrasting, thesis vs. antithesis, two forces in tension.
-
-  arc      — Concentric circles at right, text anchored at left.
-             Müller-Brockmann's geometric vocabulary — circles cropped by the frame edge.
-             A contemplative, meditative layout that slows the deck's tempo.
-             Effective when: process, convergence, synthesis, a core idea radiating outward.
-
-  blank    — Empty slide. Silence. Visual fermata. Always structural, never decorative.
-             Effective when: after dense or loud slides, before major transitions, when the
-             audience needs a beat to absorb. A blank slide between two section slides
-             creates a three-part phrase: statement — breath — statement.
-
-MARKDOWN SYNTAX — your output must use exactly this format:
-
-  Slides separated by ---
-  # Title          → main title text (this renders at 28–40pt — use for maximum scale)
-  ## Subtitle      → secondary text (~18–24pt)
-  ### LABEL        → small-caps section label (8pt, wide letterspacing — the Kunz texture)
-  - bullet         → list item
-    - nested       → indented sub-bullet (2-space indent = 1 level)
-  > quote          → blockquote / callout
-  <!-- layout: X -->   → REQUIRED on every slide
-  <!-- bg: HEX -->     → background color override (6-char hex, no #)
-  <!-- font: Name -->  → per-slide font override (default: Helvetica Neue)
-  <!-- style: k=v; k=v -->  → per-slide visual overrides:
-      title-size=48          → title font size in px (default: dynamic)
-      body-size=14           → body/subtitle font size in px
-      spacing=tight|loose|none → gap between elements
-      padding=tight|loose|none → slide padding
-      letter-spacing=0.1em   → tracking override
-      text-transform=uppercase → force uppercase
-      opacity=0.9            → slide opacity
-      Any CSS property=value → passed through directly
-
-  BACKGROUND COLOURS — you can use ANY valid 6-digit hex colour.
-    Invent your own palette for each deck. Some starting points if needed:
-    Dark:  0A1628, 1C1C1C, 0D2137, 1A2E1A, 2B0E0E
-    Mid:   3E2723, 2A4858, 4A3728, 5B3A29
-    Light: F5E6D0, EAF0E8, F0F4F8, FFF8E7
-    But PREFER to choose your own colours that match the mood you're creating.
-
-  FONT OPTIONS — use <!-- font: Name --> for typographic contrast:
-    Georgia            → serif, editorial warmth (blockquotes, reflective slides)
-    Palatino           → classical serif (formal content, policies)
-    Courier New        → monospace (data, technical content, code-adjacent)
-    Futura             → geometric sans (modernist statements)
-    Helvetica Neue     → default neo-grotesque (the Swiss baseline)
-
-  Using font overrides on 10–30% of slides creates typographic texture.
-  A serif slide after 5 sans slides is a visual event.
-
-  For speaker notes, use a fenced code block with the language tag "notes":
-  three backticks + notes, then content, then three closing backticks.
-  Use these for brief design rationale on key slides.
-
-RULES (apply to all intensity levels):
-
-  1. Output ONLY the markdown. No commentary, no preamble, no code fences. Raw slides.
-  2. Every slide MUST have a <!-- layout: name --> directive as its first line.
-  3. Do NOT invent facts, URLs, dates, or data. Content comes from the source only.
-     You MAY rephrase and restructure as the intensity level permits.
-  4. Speaker notes from the source MUST be preserved. You may redistribute them
-     across slides and append design rationale.
-  5. Never use the same layout three times consecutively.
-  6. ALL substantive information must survive: URLs, emails, dates, percentages,
-     names, criteria, policies. Nothing dropped — only restructured.
-
-  Content handling varies by intensity level — see INTENSITY section below.`;
+DESIGN PRINCIPLES (Swiss/New Wave):
+- Typographic scale: the RATIO between title size and body size IS the hierarchy.
+  48px title + 9px label = Weingart tension. 32px title + 14px body = Ruder clarity.
+- Grid as argument: WHERE you place a title (col 0 vs col 20) changes its meaning.
+  Left-anchored = declarative. Centred = monumental. Right-pushed = unconventional.
+- Colour as structure: backgrounds create chapters. A chromatic arc across the deck
+  gives the audience a felt sense of progression even before reading.
+- Accents as punctuation: a single red bar at col 26 spanning the full height
+  divides the slide like a caesura in a line of poetry.
+- Whitespace as design: leaving cols 30-59 EMPTY is a stronger statement than
+  filling them. The grid is as present in its absence as in its use.`;
 
 // ═══════════════════════════════════════════════════════
 // DEFAULT CREATIVE BRIEF — used when no --brief is given
@@ -214,72 +126,88 @@ const DEFAULT_BRIEF = "";
 // ═══════════════════════════════════════════════════════
 
 const INTENSITY = {
-  minimal: `INTENSITY: MINIMAL — Clean, bright, institutional
+  minimal: `INTENSITY: MINIMAL — Müller-Brockmann restraint
 
-══════════════════════════════════════════════════════
-SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
-NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
-Do NOT add blank slides. Do NOT split or merge.
-══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY N slides (N = source count). No extras.
 
-BRIGHTNESS: This is a LIGHT design. 70%+ of slides should have NO bg override
-(letting the theme's light default show). Use bg overrides ONLY on 3-5 slides
-for chapter breaks — and even those should be mid-tones, not dark.
+GRID PHILOSOPHY: wide margins, generous whitespace, quiet precision.
+- Title zones: start at col 4–8, never span more than 30 cols. Leave right half empty.
+- Body zones: start at col 4–8, span 30–40 cols. Narrow measure = elegant reading.
+- Title sizes: 28–36px. Body: 13–16px. Weight: 400 (regular). No extremes.
+- NO accent elements. The grid speaks through alignment and whitespace alone.
+- Backgrounds: 80%+ slides use light/no-bg (F8F5F0, FAFAF8, FFFFFF). Max 3 slides
+  with a mid-tone bg for chapter breaks. NO dark backgrounds.
+- Font: Helvetica Neue ONLY. No font overrides.
+- Tracking: 0–0.04em on body, 0.1–0.15em on ### labels.
 
-DESIGN:
-- Layout: best-fit per slide. No layout > 25%.
-- ### labels: sparingly.
-- Colour: 2 colours max. Warm whites and one mid-tone for accents.
-- Font: Helvetica Neue only. No font or style overrides.
+EVERY SLIDE should look like a well-typeset page from a Swiss design annual.
+Wide left margins. Clean type. Paper-white ground. Nothing decorative.
 
-The result: clean, bright, professional. Paper-white fields. Readable.`,
+Example zone patterns:
+  Title-only: { "role": "title", "col": 6, "span": 30, "row": 12, "rowSpan": 16 }
+  Title+body: title at col:4 span:26, body at col:4 span:36 row:18
+  Bullets: single zone col:6 span:34 — clean left-aligned list`,
 
-  moderate: `INTENSITY: MODERATE — Warm, editorial, layered
+  moderate: `INTENSITY: MODERATE — Gerstner editorial
 
-══════════════════════════════════════════════════════
-SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
-NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
-Do NOT add blank slides. Do NOT split or merge.
-══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY N slides (N = source count). No extras.
 
-BRIGHTNESS: Mixed — a JOURNEY from light to dark and back. 40% light backgrounds,
-30% mid-tones, 30% dark. The arc should cross light/dark boundaries 3-4 times.
+GRID PHILOSOPHY: asymmetric 2-zone layouts with editorial confidence.
+- Use the FULL grid vocabulary: 2-column splits, offset zones, accent bars.
+- Title zones: vary position — sometimes col 0, sometimes col 20, sometimes col 35.
+  Each slide should feel deliberately placed, not defaulting to top-left.
+- Body zones: vary width — narrow (span 20) for emphasis, wide (span 40) for detail.
+- Title sizes: 32–52px. Body: 12–16px. Weight: mix 400 and 700.
+- Accent elements: use thin lines (type: "line") to divide zones, or small bars
+  (span 1–3) as visual punctuation. 30–50% of slides should have an accent.
+- Backgrounds: INVENT a 4-colour palette. 40% light, 30% mid-tone, 30% dark.
+  The chromatic arc should cross light/dark at least 3 times across the deck.
+- Font: Helvetica Neue default. Use Georgia on 15% of slides for editorial warmth.
+- Tracking: vary between 0 and 0.12em to create typographic texture.
 
-DESIGN — create an ORIGINAL visual identity:
-- Layout: 5+ types. No layout > 30%. Favour stagger, rotated, fragment.
-- ### labels: on most slides.
-- COLOUR: INVENT 4-5 colours spanning light-to-dark. Include warm tones
-  (cream, sand, terracotta) AND cool moments (slate, teal). NOT all dark.
-- FONT: 1 secondary typeface on 3-4 slides.
-- STYLE: overrides on 3-5 slides.
+EVERY SLIDE should feel like a different page from the same magazine —
+unified by palette and font choices but varied in grid composition.
 
-The result: editorial warmth. Colour shifts mark chapters. Typography breathes.`,
+Example zone patterns:
+  Wide title: title col:0 span:58 row:8 rowSpan:10 (full-width statement)
+  Sidebar: title col:0 span:18, body col:22 span:36 (narrow sidebar, wide content)
+  Centred: title col:12 span:36 row:5 (centred column, generous margins both sides)
+  Offset: title col:30 span:28 (right-aligned, left half empty = dramatic)`,
 
-  maximal: `INTENSITY: MAXIMAL — Dramatic, vivid, confrontational
+  maximal: `INTENSITY: MAXIMAL — Weingart confrontation
 
-══════════════════════════════════════════════════════
-SLIDE COUNT: EXACTLY ${"`"}N${"`"} slides where N = source count.
-NOT N+1. NOT N-1. NOT N+2. EXACTLY N. Count them.
-Do NOT add blank slides. Do NOT split or merge.
-══════════════════════════════════════════════════════
+SLIDE COUNT: EXACTLY N slides (N = source count). No extras.
 
-BRIGHTNESS: HIGH CONTRAST. Alternate sharply between extremes.
-30% near-black, 20% vivid saturated colour, 20% near-white, 30% mid-tone.
-Adjacent slides should NEVER have similar brightness — force contrast.
+GRID PHILOSOPHY: every slide is a UNIQUE composition. No two slides should have
+the same zone arrangement. The grid is an arena of opposing forces.
 
-DESIGN — ORIGINAL system, every slide individually crafted:
-- Layout: 8+ types. No layout > 20%. split ≤ 15%.
-  REQUIRED: 2× stagger, 2× rotated, 1× fragment, 1× overlap.
-- ### labels: on 60%+ of slides.
-- COLOUR: INVENT 6-8 colours. MUST include BOTH vivid saturated colours
-  (bright red, electric blue, acid green, golden yellow — not just dark)
-  AND deep grounds. The palette should feel ALIVE, not nocturnal.
-  Build a chromatic arc that MOVES — light→vivid→dark→vivid→light.
-- FONT: 2-3 typefaces. 15-25% of slides.
-- STYLE: on 30%+ of slides. Extreme typographic variety.
-  title-size=72 next to title-size=24. spacing=tight next to spacing=loose.
+- Title zones: EXTREME positions. col:0 span:58 (full-bleed) on one slide,
+  col:40 span:18 (small, right-pushed) on the next. Size: 18–96px.
+  Weight: alternate between 100 (ultra-light) and 900 (black).
+- Body zones: vary radically. Narrow cols (span 15) next to wide (span 50).
+  Sometimes body ABOVE title. Sometimes body at col:0, title at col:40 (inverted).
+- Accent elements: BOLD. Thick bars (span 4–8), colour blocks (type: "block"),
+  dots as visual anchors. Use on 50%+ of slides.
+- ### labels: on 70%+ of slides. Size 8–9px, tracking 0.2–0.4em, transform uppercase.
+  The tiny label against the huge title IS the Weingart scale relationship.
+- Backgrounds: INVENT 6-8 colours. HIGH CONTRAST: alternate near-black, vivid
+  saturated (bright red, electric blue, golden yellow), and near-white.
+  Adjacent slides must NEVER have similar brightness.
+- Fonts: 2-3 typefaces. Futura for declarations, Georgia for reflection,
+  Courier New for data. 20–30% of slides get font overrides.
+- Tracking: extreme range. 0 on body text, 0.3em on labels, 0.15em on titles.
 
-The result: every slide a designed event. Vivid. Confrontational. Unforgettable.`,
+EVERY SLIDE should surprise. Different zone positions, different type scales,
+different accent placements. The audience should feel that each slide was
+individually composed, not generated from a template.
+
+Example zone patterns (use these as STARTING POINTS then invent your own):
+  Full-bleed title: title col:0 span:58 row:0 rowSpan:40, size 96px
+  Split with bar: title col:0 span:24, accent bar col:26 span:2, body col:30 span:28
+  Centred narrow: title col:18 span:24 row:4, body col:18 span:24 row:18 (column layout)
+  Bottom-heavy: label col:4 span:20 row:2, title col:4 span:50 row:28 (title at bottom)
+  Right-anchor: title col:32 span:26 row:4 (everything pushed right, left half breathes)
+  Stacked: label row:2, title row:8 rowSpan:10, body row:22 (vertical rhythm)`,
 };
 
 // ═══════════════════════════════════════════════════════
@@ -287,18 +215,18 @@ The result: every slide a designed event. Vivid. Confrontational. Unforgettable.
 // ═══════════════════════════════════════════════════════
 
 const DESIGN_SEEDS = [
-  "Rotated layouts as structural intervention — vertical type disrupts every 4th slide.",
-  "Fragment mosaics for information-dense slides. Shatter bullet lists into coloured tiles.",
-  "Extreme typographic scale: tiny ### labels anchoring enormous # titles.",
-  "Start warm (cream, sand), cross through vivid colour at the midpoint, end cool.",
-  "Overlap layouts for every conceptual tension. Arc for synthesis. Section for declarations.",
-  "Stagger cascades carry the narrative. Section slides are chapter titles.",
-  "Alternate bright white and vivid colour — avoid darkness. This is a daylight deck.",
-  "Build from silence to noise: near-empty opening, progressively denser toward the climax.",
-  "Warm earth tones (terracotta, ochre, sand) with cool accents (teal, slate).",
-  "Primary colours only — red, blue, yellow on white. Bauhaus purity.",
-  "One colour dominates (70%). All others are accents that earn their moment.",
-  "Every 5th slide gets a dramatic layout change and colour shift — rhythmic punctuation.",
+  "Left-margin discipline: all titles start at col 6. Body never wider than span 36. The right third of every slide is whitespace.",
+  "Full-bleed titles alternating with narrow centred columns. Scale jumps from 72px to 14px between slides.",
+  "Accent bars as architecture: every slide has a coloured bar at a DIFFERENT column position, creating a visual rhythm across the deck.",
+  "Right-anchored design: push titles to col 30+. The left half breathes. Unconventional, disorienting, deliberate.",
+  "Vertical stacking: title at row 2, label at row 15, body at row 22. Vertical rhythm replaces horizontal composition.",
+  "Narrow measure: body text never exceeds span 24. Maximum readability. Wide margins on both sides. Scholarly restraint.",
+  "Extreme asymmetry: title zone span 15 (narrow) vs body zone span 40 (wide). The imbalance IS the design.",
+  "Centred axis: everything on cols 12-48. Generous margins both sides. Title and body in one column. Monumental simplicity.",
+  "Grid syncopation: alternate between cols 0-28 and cols 32-58 for title placement. The eye jumps left-right across slides.",
+  "Dot accents as a visual motif: small dot (span 2) accents at different grid positions create a constellation across the deck.",
+  "Primary colours on white ground. Bold bar accents. Geometric Futura. Bauhaus purity through grid discipline.",
+  "Progressive reveal: slides start with title-only (one zone), add zones slide by slide, reaching maximum complexity at the climax.",
 ];
 
 // ═══════════════════════════════════════════════════════
@@ -349,34 +277,38 @@ First, output a design plan as a comment block. This forces you to think about
 the deck holistically BEFORE making per-slide decisions:
 
 <!-- DESIGN PLAN
-Mood: [name the aesthetic — invent it, don't pick from a list]
-Palette: [5-8 hex colours YOU chose for this deck, e.g. "0A1628 (ink night), D4A574 (sand), 8B2500 (rust), F5E6D0 (linen), 2D4A3E (moss)"]
-Chromatic arc: [which palette colours appear on which slides, in sequence]
-Layout rhythm: [the full layout sequence — aim for maximum variety]
-Font strategy: [which typeface on which slides and WHY — tied to content meaning]
-Key moments: [2-3 slides that are the visual climax — different layout, different colour, different font]
-Density plan: [which slides are dense, which are sparse, where the contrast hits]
+Aesthetic: [name it — invent a unique visual concept for this deck]
+Palette: [4-8 hex colours with names, e.g. "0A1628 (ink night), D4A574 (sand)"]
+Chromatic arc: [which bg colours on which slides — the colour journey]
+Grid strategy: [how you'll vary zone positions across slides — e.g. "wide margins opening,
+  tightening to full-bleed at climax, returning to wide for close"]
+Type scale: [title size range, body size, label size — and how they vary]
+Font strategy: [which typefaces on which slides and WHY]
+Accent strategy: [where bars/lines/dots appear and what they mean]
+Key moments: [2-3 slides with the most dramatic grid compositions]
 -->
 
 ═══ PHASE 2: SLIDE OUTPUT ═══
 Output EXACTLY ${sourceSlides.length} slides — one for each source slide, in the same order.
-The content of each slide is FIXED. Your design plan above determines the visual treatment.
+The content of each slide is FIXED. Your design plan determines the visual treatment.
 
 For each of the ${sourceSlides.length} slides:
-1. <!-- layout: name --> as the FIRST line (from your layout rhythm above)
-2. <!-- bg: HEX --> if your chromatic arc calls for it
-3. <!-- font: Name --> if your font strategy calls for it
-4. <!-- style: key=value --> for typographic overrides (if intensity permits)
-5. ### SECTION LABEL for typographic texture where appropriate
-6. The slide's EXACT content from the source — unchanged, no rephrasing
-7. Speaker notes preserved verbatim (you may append design rationale)
+1. <!-- design: {...} --> as the FIRST line — a complete JSON design directive
+   specifying zones (with col/span/row/rowSpan), accents, typography, bg, font.
+   This is NOT optional. Every slide must have a unique design directive.
+2. ### SECTION LABEL for typographic texture (optional, per intensity)
+3. The slide's EXACT content from the source — unchanged, no rephrasing
+4. Speaker notes preserved verbatim (you may append design rationale)
 
-Do NOT add extra slides. Do NOT remove slides. Do NOT add blank slides.
+IMPORTANT: Each slide's design directive should be DIFFERENT from the others.
+Vary zone positions, type sizes, accent placements, and backgrounds across slides.
+
+Do NOT add extra slides. Do NOT remove slides.
 The output must have EXACTLY ${sourceSlides.length} slides separated by ---.
 
 CRITICAL: Your first output line must be <!-- DESIGN PLAN.
-After the plan comment, output exactly ${sourceSlides.length} slides starting with <!-- layout:.
-No other commentary, no code fences.`);
+After the plan comment, output exactly ${sourceSlides.length} slides,
+each starting with <!-- design: {. No other commentary, no code fences.`);
 
   return parts.join("\n\n");
 }
@@ -624,15 +556,18 @@ function sanitizeClaudeOutput(raw) {
   // Extract and log the design plan — but KEEP it in the output for reference
   extractDesignPlan(output);
 
+  // Find first slide directive — either <!-- design: or <!-- layout:
+  const designIdx = output.indexOf("<!-- design:");
   const layoutIdx = output.indexOf("<!-- layout:");
-  if (layoutIdx < 0) {
-    throw new Error("Claude did not return valid slide markdown (no <!-- layout: --> directives found).");
+  const firstDirective = designIdx >= 0 && (layoutIdx < 0 || designIdx < layoutIdx) ? designIdx : layoutIdx;
+  if (firstDirective < 0) {
+    throw new Error("Claude did not return valid slide markdown (no <!-- design: --> or <!-- layout: --> directives found).");
   }
   // Strip preamble text but keep HTML comments (design plans, etc.)
-  if (layoutIdx > 0) {
-    const beforeLayout = output.substring(0, layoutIdx);
-    const comments = beforeLayout.match(/<!--[\s\S]*?-->/g) || [];
-    output = comments.join("\n\n") + "\n\n" + output.substring(layoutIdx);
+  if (firstDirective > 0) {
+    const beforeDirective = output.substring(0, firstDirective);
+    const comments = beforeDirective.match(/<!--[\s\S]*?-->/g) || [];
+    output = comments.join("\n\n") + "\n\n" + output.substring(firstDirective);
   }
 
   const lines = output.split("\n");

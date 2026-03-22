@@ -930,17 +930,19 @@ function validateContentPreservation(sourceMd, composedMd) {
     }
   }
 
-  // Layout directive check
+  // Slide directive check — each slide needs either <!-- design: or <!-- layout:
   const layoutDirectives = composedMd.match(/<!-- layout: \w+ -->/g) || [];
-  if (layoutDirectives.length < composedCount) {
+  const designDirectives = composedMd.match(/<!-- design:/g) || [];
+  const totalDirectives = layoutDirectives.length + designDirectives.length;
+  if (totalDirectives < composedCount) {
     results.push({
       severity: "error",
       check: "layoutDirectives",
-      message: `Only ${layoutDirectives.length} layout directives for ${composedCount} slides`,
+      message: `Only ${totalDirectives} slide directives (layout+design) for ${composedCount} slides`,
     });
   }
 
-  // Valid layout names
+  // Valid layout names (only for layout directives, design directives are freeform)
   const validLayouts = new Set(["title", "section", "bullets", "stagger", "split", "rotated", "fragment", "overlap", "arc", "image", "table", "code", "blank"]);
   for (const d of layoutDirectives) {
     const name = d.match(/<!-- layout: (\w+) -->/)[1];
@@ -953,7 +955,7 @@ function validateContentPreservation(sourceMd, composedMd) {
     }
   }
 
-  // No 3x consecutive same layout
+  // No 3x consecutive same layout (only applies to layout directives, not design)
   const layouts = layoutDirectives.map(d => d.match(/<!-- layout: (\w+) -->/)[1]);
   for (let i = 2; i < layouts.length; i++) {
     if (layouts[i] === layouts[i-1] && layouts[i] === layouts[i-2]) {
