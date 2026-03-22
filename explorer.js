@@ -1,0 +1,1459 @@
+#!/usr/bin/env node
+/**
+ * explorer.js — design system explorer for rastersysteme
+ *
+ * Scans a directory for design-system.json files (produced by compose),
+ * and generates a self-contained HTML page for browsing, previewing,
+ * comparing, and applying design systems to sample slides.
+ *
+ * Aesthetic: "Type Specimen Book" — typographer's specimen catalogue
+ * with physical colour swatches, font samples in use, and grid diagrams.
+ *
+ * Usage:
+ *   node explorer.js [dir] [--output explorer.html]
+ *
+ * API:
+ *   const { generateExplorer } = require("./explorer.js");
+ *   await generateExplorer(dir, outputPath);
+ */
+
+const fs = require("fs");
+const path = require("path");
+
+// ═══════════════════════════════════════════════════════
+// FILE DISCOVERY — recursively find design-system.json
+// ═══════════════════════════════════════════════════════
+
+function findDesignSystems(dir) {
+  const results = [];
+  function walk(d) {
+    let entries;
+    try {
+      entries = fs.readdirSync(d, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const ent of entries) {
+      const full = path.join(d, ent.name);
+      if (ent.isDirectory()) {
+        if (ent.name === "node_modules" || ent.name === ".git") continue;
+        walk(full);
+      } else if (ent.name === "design-system.json") {
+        try {
+          const raw = fs.readFileSync(full, "utf-8");
+          const data = JSON.parse(raw);
+          const rel = path.relative(dir, full);
+          const parentDir = path.basename(path.dirname(full));
+          results.push({
+            path: rel,
+            dir: parentDir,
+            data,
+          });
+        } catch (e) {
+          console.error(`  Skipping ${full}: ${e.message}`);
+        }
+      }
+    }
+  }
+  walk(dir);
+  return results;
+}
+
+// ═══════════════════════════════════════════════════════
+// HTML ESCAPING
+// ═══════════════════════════════════════════════════════
+
+function esc(str) {
+  return String(str || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+// ═══════════════════════════════════════════════════════
+// HTML GENERATION
+// ═══════════════════════════════════════════════════════
+
+function generateHTML(systems) {
+  const systemsJSON = JSON.stringify(systems.map(s => s.data));
+  const systemsMeta = JSON.stringify(systems.map(s => ({ path: s.path, dir: s.dir })));
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design System Explorer — rastersysteme</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=Work+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════════
+   DESIGN SYSTEM EXPLORER — Type Specimen Book
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --paper: #FAFAF7;
+  --paper-warm: #F5F3EE;
+  --ink: #2A2A2A;
+  --ink-light: #5A5A5A;
+  --ink-muted: #8A8A87;
+  --red: #B7311A;
+  --red-light: #D4513A;
+  --red-bg: rgba(183, 49, 26, 0.06);
+  --card-bg: #FFFFFF;
+  --card-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --card-shadow-hover: 0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  --card-shadow-active: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.06);
+  --border: #E8E6E1;
+  --border-light: #F0EDE8;
+  --sidebar-w: 320px;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--paper);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Work Sans', 'Helvetica Neue', sans-serif;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ─── LAYOUT ─── */
+
+.explorer {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+}
+
+/* ─── SIDEBAR ─── */
+
+.sidebar {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100vh;
+  background: var(--card-bg);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.sidebar-header {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.sidebar-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.sidebar-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+.sidebar-toolbar {
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sidebar-toolbar .btn {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--card-bg);
+  color: var(--ink-light);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  letter-spacing: 0.02em;
+}
+
+.sidebar-toolbar .btn:hover {
+  border-color: var(--ink-muted);
+  color: var(--ink);
+}
+
+.sidebar-toolbar .btn.active {
+  background: var(--red);
+  border-color: var(--red);
+  color: #fff;
+}
+
+.sidebar-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-left: auto;
+}
+
+.sidebar-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+}
+
+.sidebar-list::-webkit-scrollbar { width: 4px; }
+.sidebar-list::-webkit-scrollbar-track { background: transparent; }
+.sidebar-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ─── SYSTEM CARD (sidebar) ─── */
+
+.system-card {
+  padding: 14px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1.5px solid transparent;
+  margin-bottom: 2px;
+  position: relative;
+}
+
+.system-card:hover {
+  background: var(--paper);
+}
+
+.system-card.selected {
+  background: var(--red-bg);
+  border-color: var(--red);
+}
+
+.system-card.compare-a {
+  border-color: var(--red);
+  background: var(--red-bg);
+}
+
+.system-card.compare-b {
+  border-color: #2A6CB7;
+  background: rgba(42, 108, 183, 0.06);
+}
+
+.system-card .card-aesthetic {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--ink);
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.system-card .card-path {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--ink-muted);
+  letter-spacing: 0.03em;
+  margin-bottom: 8px;
+}
+
+.system-card .card-palette {
+  display: flex;
+  gap: 3px;
+  height: 14px;
+}
+
+.system-card .card-swatch {
+  flex: 1;
+  border-radius: 2px;
+  min-width: 14px;
+}
+
+.system-card .card-fonts {
+  font-size: 10px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+.system-card .compare-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 600;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.system-card .compare-badge.badge-a { background: var(--red); }
+.system-card .compare-badge.badge-b { background: #2A6CB7; }
+
+/* ─── MAIN CONTENT ─── */
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 40px 48px;
+  scroll-behavior: smooth;
+}
+
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-track { background: transparent; }
+.main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+/* ─── EMPTY STATE ─── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 48px;
+}
+
+.empty-state h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px;
+  font-weight: 400;
+  color: var(--ink-light);
+  margin-bottom: 12px;
+}
+
+.empty-state p {
+  color: var(--ink-muted);
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.empty-state .key-hint {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  background: var(--paper-warm);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin: 0 2px;
+}
+
+/* ─── SECTION HEADINGS ─── */
+
+.section-rule {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 24px;
+}
+
+.section-rule:first-child { margin-top: 0; }
+
+.section-rule h3 {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-muted);
+  white-space: nowrap;
+}
+
+.section-rule::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── SYSTEM HEADER ─── */
+
+.system-header {
+  margin-bottom: 8px;
+}
+
+.system-header h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 36px;
+  font-weight: 400;
+  line-height: 1.25;
+  color: var(--ink);
+  max-width: 720px;
+}
+
+.system-header .header-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 8px;
+  letter-spacing: 0.03em;
+}
+
+/* ─── PALETTE ─── */
+
+.palette-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.palette-swatch {
+  width: 140px;
+  flex-shrink: 0;
+  cursor: default;
+  position: relative;
+}
+
+.palette-swatch .swatch-block {
+  width: 100%;
+  height: 100px;
+  border-radius: 6px;
+  position: relative;
+  transition: transform 0.2s var(--ease);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+
+.palette-swatch:hover .swatch-block {
+  transform: scale(1.03);
+}
+
+.palette-swatch .swatch-contrast {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 5px;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
+  line-height: 1.3;
+}
+
+.palette-swatch:hover .swatch-contrast {
+  opacity: 1;
+}
+
+.palette-swatch .swatch-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 14px;
+  font-weight: 500;
+  margin-top: 8px;
+  color: var(--ink);
+}
+
+.palette-swatch .swatch-hex {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-muted);
+  letter-spacing: 0.03em;
+}
+
+.palette-swatch .swatch-role {
+  font-family: 'Work Sans', sans-serif;
+  font-size: 10px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-top: 2px;
+}
+
+/* ─── CHROMATIC ARC ─── */
+
+.chromatic-arc {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-light);
+  max-width: 680px;
+  font-style: italic;
+}
+
+/* ─── TYPOGRAPHY SPECIMEN ─── */
+
+.type-specimen {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.type-sample {
+  position: relative;
+  padding-left: 20px;
+  border-left: 2px solid var(--border);
+}
+
+.type-sample-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--ink-muted);
+  margin-bottom: 6px;
+}
+
+.type-sample-text {
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.type-scale-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.type-scale-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.type-scale-item .ts-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink-muted);
+}
+
+.type-scale-item .ts-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--ink);
+}
+
+.font-strategy-note {
+  font-size: 13px;
+  color: var(--ink-light);
+  line-height: 1.6;
+  max-width: 600px;
+  margin-top: 8px;
+}
+
+/* ─── GRID STRATEGY ─── */
+
+.grid-diagram {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 24px;
+  max-width: 720px;
+}
+
+.grid-visual {
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: var(--paper-warm);
+  border: 1px solid var(--border-light);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.grid-visual .grid-lines {
+  position: absolute;
+  inset: 0;
+}
+
+.grid-description {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink-light);
+  font-style: italic;
+}
+
+/* ─── ACCENT STRATEGY ─── */
+
+.accent-description {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink-light);
+  max-width: 680px;
+}
+
+/* ─── SAMPLE SLIDES ─── */
+
+.slides-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.sample-slide {
+  width: 300px;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: var(--card-shadow);
+  transition: box-shadow 0.2s ease, transform 0.2s var(--ease);
+  flex-shrink: 0;
+}
+
+.sample-slide:hover {
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.sample-slide .slide-inner {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  display: grid;
+  overflow: hidden;
+}
+
+.sample-slide .slide-label {
+  position: absolute;
+  bottom: 6px;
+  right: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+
+/* ─── COMPARE MODE ─── */
+
+.compare-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+}
+
+.compare-column {
+  min-width: 0;
+}
+
+.compare-column .compare-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  margin-bottom: 16px;
+  padding: 4px 10px;
+  border-radius: 3px;
+  display: inline-block;
+  color: #fff;
+}
+
+.compare-column .compare-label.label-a { background: var(--red); }
+.compare-column .compare-label.label-b { background: #2A6CB7; }
+
+.compare-column .system-header h1 {
+  font-size: 24px;
+}
+
+.compare-column .palette-swatch { width: 100px; }
+.compare-column .palette-swatch .swatch-block { height: 70px; }
+.compare-column .sample-slide { width: 100%; }
+
+/* ─── JSON VIEWER ─── */
+
+.json-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+  background: var(--paper-warm);
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 20px;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre;
+  color: var(--ink-light);
+  tab-size: 2;
+}
+
+.json-block .json-key { color: var(--red); }
+.json-block .json-string { color: #2A6CB7; }
+.json-block .json-number { color: #548C5A; }
+
+/* ─── KEYBOARD SHORTCUTS OVERLAY ─── */
+
+.shortcuts-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(42, 42, 42, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.shortcuts-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.shortcuts-panel {
+  background: var(--card-bg);
+  border-radius: 10px;
+  padding: 32px 40px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  max-width: 400px;
+  width: 90%;
+}
+
+.shortcuts-panel h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.shortcut-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+}
+
+.shortcut-row .sc-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  background: var(--paper-warm);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 3px 8px;
+  min-width: 28px;
+  text-align: center;
+}
+
+.shortcut-row .sc-desc {
+  font-size: 13px;
+  color: var(--ink-light);
+}
+
+/* ─── RESPONSIVE ─── */
+
+@media (max-width: 900px) {
+  :root { --sidebar-w: 260px; }
+  .main { padding: 24px; }
+  .compare-layout { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 640px) {
+  .sidebar { display: none; }
+  .main { padding: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="explorer" id="app">
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Design Systems</div>
+      <div class="sidebar-subtitle">rastersysteme explorer</div>
+    </div>
+    <div class="sidebar-toolbar">
+      <button class="btn" id="btn-browse" onclick="setMode('browse')" title="Browse mode">Browse</button>
+      <button class="btn" id="btn-compare" onclick="setMode('compare')" title="Compare two systems">Compare</button>
+      <span class="sidebar-count" id="sidebar-count"></span>
+    </div>
+    <div class="sidebar-list" id="sidebar-list"></div>
+  </aside>
+  <main class="main" id="main-content">
+    <div class="empty-state" id="empty-state">
+      <h2>Select a Design System</h2>
+      <p>
+        Choose a system from the sidebar, or use
+        <span class="key-hint">&uarr;</span>
+        <span class="key-hint">&darr;</span> to navigate and
+        <span class="key-hint">Enter</span> to select.
+        Press <span class="key-hint">?</span> for all shortcuts.
+      </p>
+    </div>
+    <div id="detail-view" style="display:none;"></div>
+    <div id="compare-view" style="display:none;"></div>
+  </main>
+</div>
+
+<div class="shortcuts-overlay" id="shortcuts-overlay">
+  <div class="shortcuts-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="shortcut-row"><span class="sc-desc">Navigate systems</span><span class="sc-key">&uarr; &darr;</span></div>
+    <div class="shortcut-row"><span class="sc-desc">Select system</span><span class="sc-key">Enter</span></div>
+    <div class="shortcut-row"><span class="sc-desc">Toggle compare mode</span><span class="sc-key">C</span></div>
+    <div class="shortcut-row"><span class="sc-desc">View raw JSON</span><span class="sc-key">J</span></div>
+    <div class="shortcut-row"><span class="sc-desc">Show shortcuts</span><span class="sc-key">?</span></div>
+    <div class="shortcut-row"><span class="sc-desc">Close overlay</span><span class="sc-key">Esc</span></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const SYSTEMS = ${systemsJSON};
+const META = ${systemsMeta};
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+
+let mode = 'browse';          // 'browse' | 'compare'
+let selectedIndex = -1;
+let focusedIndex = 0;
+let compareA = -1;
+let compareB = -1;
+let showJSON = false;
+
+// ═══════════════════════════════════════════════════════
+// UTILITY
+// ═══════════════════════════════════════════════════════
+
+function escHTML(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+/** Compute relative luminance of a hex colour (without #) */
+function luminance(hex) {
+  hex = hex.replace(/^#/, '');
+  if (hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+  const r = parseInt(hex.substr(0,2),16)/255;
+  const g = parseInt(hex.substr(2,2),16)/255;
+  const b = parseInt(hex.substr(4,2),16)/255;
+  const toLinear = c => c <= 0.03928 ? c/12.92 : Math.pow((c+0.055)/1.055, 2.4);
+  return 0.2126*toLinear(r) + 0.7152*toLinear(g) + 0.0722*toLinear(b);
+}
+
+/** WCAG contrast ratio between two hex colours */
+function contrastRatio(hex1, hex2) {
+  const l1 = luminance(hex1);
+  const l2 = luminance(hex2);
+  const lighter = Math.max(l1, l2);
+  const darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+
+function contrastLabel(ratio) {
+  if (ratio >= 7) return 'AAA';
+  if (ratio >= 4.5) return 'AA';
+  if (ratio >= 3) return 'AA-lg';
+  return 'Fail';
+}
+
+/** Truncate aesthetic string at em-dash or after N chars */
+function shortName(aesthetic) {
+  if (!aesthetic) return 'Untitled';
+  const dash = aesthetic.indexOf('\\u2014');
+  const dash2 = aesthetic.indexOf(' \\u2014 ');
+  const em = aesthetic.indexOf(' — ');
+  const cutAt = [dash2, em].filter(i => i > 0);
+  if (cutAt.length) return aesthetic.substring(0, Math.min(...cutAt));
+  if (aesthetic.length > 50) return aesthetic.substring(0, 47) + '...';
+  return aesthetic;
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDEBAR RENDERING
+// ═══════════════════════════════════════════════════════
+
+function renderSidebar() {
+  const list = document.getElementById('sidebar-list');
+  const count = document.getElementById('sidebar-count');
+  count.textContent = SYSTEMS.length + ' system' + (SYSTEMS.length !== 1 ? 's' : '');
+
+  let html = '';
+  for (let i = 0; i < SYSTEMS.length; i++) {
+    const sys = SYSTEMS[i];
+    const meta = META[i];
+    const palette = (sys.palette || []);
+
+    let cls = 'system-card';
+    if (mode === 'browse' && i === selectedIndex) cls += ' selected';
+    if (mode === 'compare' && i === compareA) cls += ' compare-a';
+    if (mode === 'compare' && i === compareB) cls += ' compare-b';
+    if (i === focusedIndex) cls += ' focused';
+
+    let badge = '';
+    if (mode === 'compare' && i === compareA) badge = '<span class="compare-badge badge-a">A</span>';
+    if (mode === 'compare' && i === compareB) badge = '<span class="compare-badge badge-b">B</span>';
+
+    const swatches = palette.map(c =>
+      '<div class="card-swatch" style="background:#' + escHTML(c.hex) + ';"></div>'
+    ).join('');
+
+    const fonts = sys.fontStrategy
+      ? escHTML((sys.fontStrategy.default || '') + (sys.fontStrategy.secondary ? ' / ' + sys.fontStrategy.secondary : ''))
+      : '';
+
+    html += '<div class="' + cls + '" data-index="' + i + '" onclick="selectSystem(' + i + ')">'
+      + badge
+      + '<div class="card-aesthetic">' + escHTML(shortName(sys.aesthetic)) + '</div>'
+      + '<div class="card-path">' + escHTML(meta.path) + '</div>'
+      + '<div class="card-palette">' + swatches + '</div>'
+      + (fonts ? '<div class="card-fonts">' + fonts + '</div>' : '')
+      + '</div>';
+  }
+  list.innerHTML = html;
+
+  // Update toolbar buttons
+  document.getElementById('btn-browse').className = 'btn' + (mode === 'browse' ? ' active' : '');
+  document.getElementById('btn-compare').className = 'btn' + (mode === 'compare' ? ' active' : '');
+}
+
+// ═══════════════════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════════════════
+
+function renderSystem(sys, meta, opts) {
+  opts = opts || {};
+  const palette = sys.palette || [];
+  const ts = sys.typeScale || {};
+  const fs = sys.fontStrategy || {};
+
+  let html = '';
+
+  // ─── Header ───
+  html += '<div class="system-header">'
+    + '<h1>' + escHTML(sys.aesthetic || 'Untitled System') + '</h1>'
+    + '<div class="header-meta">' + escHTML(meta.path) + '</div>'
+    + '</div>';
+
+  // ─── Palette ───
+  html += '<div class="section-rule"><h3>Palette</h3></div>';
+  html += '<div class="palette-grid">';
+  for (const c of palette) {
+    const hex = (c.hex || '000000').replace(/^#/, '');
+    const lum = luminance(hex);
+    const onWhite = contrastRatio(hex, 'FFFFFF');
+    const onBlack = contrastRatio(hex, '000000');
+    const contrastText = (lum > 0.5)
+      ? '<span style="color:#000;background:rgba(255,255,255,0.85);">vs white ' + onWhite.toFixed(1) + ':1 ' + contrastLabel(onWhite) + '</span><br>'
+        + '<span style="color:#000;background:rgba(255,255,255,0.85);">vs black ' + onBlack.toFixed(1) + ':1 ' + contrastLabel(onBlack) + '</span>'
+      : '<span style="color:#fff;background:rgba(0,0,0,0.7);">vs white ' + onWhite.toFixed(1) + ':1 ' + contrastLabel(onWhite) + '</span><br>'
+        + '<span style="color:#fff;background:rgba(0,0,0,0.7);">vs black ' + onBlack.toFixed(1) + ':1 ' + contrastLabel(onBlack) + '</span>';
+
+    html += '<div class="palette-swatch">'
+      + '<div class="swatch-block" style="background:#' + escHTML(hex) + ';">'
+      + '<div class="swatch-contrast">' + contrastText + '</div>'
+      + '</div>'
+      + '<div class="swatch-name">' + escHTML(c.name || '') + '</div>'
+      + '<div class="swatch-hex">#' + escHTML(hex.toUpperCase()) + '</div>'
+      + '<div class="swatch-role">' + escHTML(c.role || '') + '</div>'
+      + '</div>';
+  }
+  html += '</div>';
+
+  // ─── Chromatic Arc ───
+  if (sys.chromaticArc) {
+    html += '<div class="section-rule"><h3>Chromatic Arc</h3></div>';
+    html += '<div class="chromatic-arc">' + escHTML(sys.chromaticArc) + '</div>';
+  }
+
+  // ─── Typography ───
+  html += '<div class="section-rule"><h3>Typography</h3></div>';
+  html += '<div class="type-specimen">';
+
+  // Title range sample
+  const titleMin = (ts.titleRange || [28, 72])[0];
+  const titleMax = (ts.titleRange || [28, 72])[1];
+  const titleWeightMin = (ts.titleWeightRange || [400, 900])[0];
+  const titleWeightMax = (ts.titleWeightRange || [400, 900])[1];
+  const primaryFont = fs.default || 'Helvetica Neue';
+  const secondaryFont = fs.secondary || 'Georgia';
+
+  // Large title sample
+  html += '<div class="type-sample">'
+    + '<div class="type-sample-label">' + escHTML(primaryFont) + ' / Title max ' + titleMax + 'px / Weight ' + titleWeightMax + '</div>'
+    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + Math.min(titleMax, 64) + 'px;font-weight:' + titleWeightMax + ';">Aa Bb Cc Dd</div>'
+    + '</div>';
+
+  // Small title sample
+  html += '<div class="type-sample">'
+    + '<div class="type-sample-label">' + escHTML(primaryFont) + ' / Title min ' + titleMin + 'px / Weight ' + titleWeightMin + '</div>'
+    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + titleMin + 'px;font-weight:' + titleWeightMin + ';">The quick brown fox jumps over the lazy dog</div>'
+    + '</div>';
+
+  // Secondary font sample
+  if (secondaryFont && secondaryFont !== primaryFont) {
+    html += '<div class="type-sample">'
+      + '<div class="type-sample-label">' + escHTML(secondaryFont) + ' / Secondary</div>'
+      + '<div class="type-sample-text" style="font-family:\'' + escHTML(secondaryFont) + '\',serif;font-size:20px;font-style:italic;">The quick brown fox jumps over the lazy dog</div>'
+      + '</div>';
+  }
+
+  // Body sample
+  const bodySize = ts.bodySize || 14;
+  html += '<div class="type-sample">'
+    + '<div class="type-sample-label">Body / ' + bodySize + 'px</div>'
+    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + bodySize + 'px;line-height:1.6;max-width:520px;">Typography is the craft of endowing human language with a durable visual form, and thus with an independent existence. Its heartbeat is the contrast between thick and thin, dark and light, motion and stillness.</div>'
+    + '</div>';
+
+  // Label sample
+  if (ts.labelSize) {
+    html += '<div class="type-sample">'
+      + '<div class="type-sample-label">Label / ' + ts.labelSize + 'px</div>'
+      + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + ts.labelSize + 'px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-muted);">Section label / Module heading / Category name</div>'
+      + '</div>';
+  }
+
+  html += '</div>'; // end type-specimen
+
+  // Scale metadata
+  html += '<div class="type-scale-meta">';
+  html += '<div class="type-scale-item"><span class="ts-label">Title range</span><span class="ts-value">' + titleMin + '–' + titleMax + '</span></div>';
+  html += '<div class="type-scale-item"><span class="ts-label">Body</span><span class="ts-value">' + bodySize + '</span></div>';
+  if (ts.labelSize) html += '<div class="type-scale-item"><span class="ts-label">Label</span><span class="ts-value">' + ts.labelSize + '</span></div>';
+  html += '<div class="type-scale-item"><span class="ts-label">Weight range</span><span class="ts-value">' + titleWeightMin + '–' + titleWeightMax + '</span></div>';
+  html += '</div>';
+
+  // Font strategy note
+  if (fs.secondarySlides) {
+    html += '<div class="font-strategy-note">' + escHTML(fs.secondarySlides) + '</div>';
+  }
+
+  // ─── Grid Strategy ───
+  if (sys.gridStrategy) {
+    html += '<div class="section-rule"><h3>Grid Strategy</h3></div>';
+    html += '<div class="grid-diagram">';
+    html += renderGridVisual(sys);
+    html += '<div class="grid-description">' + escHTML(sys.gridStrategy) + '</div>';
+    html += '</div>';
+  }
+
+  // ─── Accent Strategy ───
+  if (sys.accentStrategy) {
+    html += '<div class="section-rule"><h3>Accent Strategy</h3></div>';
+    html += '<div class="accent-description">' + escHTML(sys.accentStrategy) + '</div>';
+  }
+
+  // ─── Sample Slides ───
+  html += '<div class="section-rule"><h3>Sample Slides</h3></div>';
+  html += '<div class="slides-row">';
+  html += renderSampleSlide(sys, 'title', 'Title Slide');
+  html += renderSampleSlide(sys, 'content', 'Content Slide');
+  html += renderSampleSlide(sys, 'quote', 'Quote Slide');
+  html += '</div>';
+
+  // ─── Raw JSON ───
+  if (showJSON) {
+    html += '<div class="section-rule"><h3>Raw JSON</h3></div>';
+    html += '<div class="json-block">' + syntaxHighlight(JSON.stringify(sys, null, 2)) + '</div>';
+  }
+
+  return html;
+}
+
+function syntaxHighlight(json) {
+  return escHTML(json).replace(
+    /("(\\\\u[a-zA-Z0-9]{4}|\\\\[^u]|[^\\\\"])*")(\\s*:)?/g,
+    function(match, str, _, colon) {
+      if (colon) {
+        return '<span class="json-key">' + match + '</span>';
+      }
+      return '<span class="json-string">' + str + '</span>' + (colon || '');
+    }
+  ).replace(
+    /\\b(-?\\d+\\.?\\d*([eE][+-]?\\d+)?)\\b/g,
+    '<span class="json-number">$1</span>'
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// GRID VISUAL
+// ═══════════════════════════════════════════════════════
+
+function renderGridVisual(sys) {
+  const palette = sys.palette || [];
+  const dominant = palette.find(c => c.role === 'dominant') || palette[0] || { hex: '333333' };
+  const ground = palette.find(c => c.role === 'ground') || palette[1] || { hex: 'EEEEEE' };
+  const accent = palette.find(c => c.role === 'accent') || palette.find(c => c.role === 'signal') || palette[2] || { hex: 'CC0000' };
+
+  const domHex = (dominant.hex || '333333').replace(/^#/, '');
+  const gndHex = (ground.hex || 'EEEEEE').replace(/^#/, '');
+  const accHex = (accent.hex || 'CC0000').replace(/^#/, '');
+
+  // Draw a simplified grid as SVG
+  let svg = '<svg viewBox="0 0 600 375" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">';
+
+  // Background
+  svg += '<rect width="600" height="375" fill="#' + escHTML(gndHex) + '" rx="2"/>';
+
+  // Grid lines (60 cols = 10px each, 40 rows = 9.375px each)
+  const colW = 10;
+  const rowH = 9.375;
+  for (let c = 0; c <= 60; c++) {
+    const x = c * colW;
+    svg += '<line x1="' + x + '" y1="0" x2="' + x + '" y2="375" stroke="#' + escHTML(domHex) + '" stroke-opacity="0.06" stroke-width="0.5"/>';
+  }
+  for (let r = 0; r <= 40; r++) {
+    const y = r * rowH;
+    svg += '<line x1="0" y1="' + y + '" x2="600" y2="' + y + '" stroke="#' + escHTML(domHex) + '" stroke-opacity="0.06" stroke-width="0.5"/>';
+  }
+
+  // Title zone placeholder (left narrow column)
+  svg += '<rect x="' + (0 * colW) + '" y="' + (2 * rowH) + '" width="' + (20 * colW) + '" height="' + (15 * rowH) + '" fill="#' + escHTML(domHex) + '" fill-opacity="0.12" rx="2"/>';
+  svg += '<text x="' + (10 * colW) + '" y="' + (10 * rowH) + '" text-anchor="middle" fill="#' + escHTML(domHex) + '" font-family="Work Sans,sans-serif" font-size="11" opacity="0.5">title zone</text>';
+
+  // Body zone placeholder (right wider column)
+  svg += '<rect x="' + (24 * colW) + '" y="' + (4 * rowH) + '" width="' + (34 * colW) + '" height="' + (32 * rowH) + '" fill="#' + escHTML(domHex) + '" fill-opacity="0.08" rx="2"/>';
+  svg += '<text x="' + (41 * colW) + '" y="' + (20 * rowH) + '" text-anchor="middle" fill="#' + escHTML(domHex) + '" font-family="Work Sans,sans-serif" font-size="11" opacity="0.5">body zone</text>';
+
+  // Accent bar
+  svg += '<rect x="' + (21 * colW) + '" y="0" width="' + (2 * colW) + '" height="375" fill="#' + escHTML(accHex) + '" fill-opacity="0.6" rx="1"/>';
+
+  // Column numbers at bottom
+  for (let c = 0; c <= 60; c += 10) {
+    svg += '<text x="' + (c * colW + 2) + '" y="372" fill="#' + escHTML(domHex) + '" font-family="JetBrains Mono,monospace" font-size="7" opacity="0.35">' + c + '</text>';
+  }
+
+  svg += '</svg>';
+  return '<div class="grid-visual">' + svg + '</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// SAMPLE SLIDE RENDERING
+// ═══════════════════════════════════════════════════════
+
+function renderSampleSlide(sys, type, label) {
+  const palette = sys.palette || [];
+  const ts = sys.typeScale || {};
+  const fs = sys.fontStrategy || {};
+
+  const dominant = palette.find(c => c.role === 'dominant') || palette[0] || { hex: '2A2A2A' };
+  const ground = palette.find(c => c.role === 'ground') || palette[1] || { hex: 'F0F0F0' };
+  const accent = palette.find(c => c.role === 'accent') || palette.find(c => c.role === 'signal') || palette[2] || { hex: 'CC0000' };
+
+  const domHex = '#' + (dominant.hex || '2A2A2A').replace(/^#/, '');
+  const gndHex = '#' + (ground.hex || 'F0F0F0').replace(/^#/, '');
+  const accHex = '#' + (accent.hex || 'CC0000').replace(/^#/, '');
+
+  const primaryFont = fs.default || 'Helvetica Neue';
+  const secondaryFont = fs.secondary || 'Georgia';
+  const titleMax = (ts.titleRange || [28, 72])[1];
+  const bodySize = ts.bodySize || 14;
+  const titleWeight = (ts.titleWeightRange || [400, 900])[1];
+
+  // Determine bg and text colours based on luminance
+  const gndLum = luminance(ground.hex || 'F0F0F0');
+  const domLum = luminance(dominant.hex || '2A2A2A');
+
+  let bgColor, textColor;
+  if (type === 'title') {
+    bgColor = domHex;
+    textColor = gndHex;
+  } else if (type === 'quote') {
+    bgColor = gndHex;
+    textColor = domHex;
+  } else {
+    bgColor = gndHex;
+    textColor = domHex;
+  }
+
+  // Scale factors for mini-slide (300px wide ~ 0.31 of 960)
+  const scale = 0.31;
+
+  let inner = '';
+
+  if (type === 'title') {
+    // Title slide: big heading, accent line, subtitle
+    inner += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:12% 10%;">'
+      + '<div style="width:24px;height:3px;background:' + accHex + ';margin-bottom:12px;border-radius:1px;"></div>'
+      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(titleMax * scale) + 'px;font-weight:' + titleWeight + ';line-height:1.1;letter-spacing:-0.02em;color:' + textColor + ';">Design<br>System</div>'
+      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(bodySize * scale * 0.8) + 'px;color:' + textColor + ';opacity:0.6;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;">Specimen Preview</div>'
+      + '</div>';
+  } else if (type === 'content') {
+    // Content slide: title + body text + accent bar
+    inner += '<div style="position:absolute;left:0;top:0;width:3px;height:100%;background:' + accHex + ';"></div>'
+      + '<div style="position:absolute;inset:0;display:grid;grid-template-columns:38% 1fr;gap:6%;padding:8% 8% 8% 5%;">'
+      + '<div style="display:flex;flex-direction:column;justify-content:center;">'
+      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(titleMax * scale * 0.6) + 'px;font-weight:' + titleWeight + ';line-height:1.15;color:' + textColor + ';">Section<br>Heading</div>'
+      + '</div>'
+      + '<div style="display:flex;flex-direction:column;justify-content:center;">'
+      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale), 5) + 'px;line-height:1.55;color:' + textColor + ';opacity:0.8;">Typography is the detail and the presentation of a story. It represents the voice of an atmosphere, or a historical setting of some kind.</div>'
+      + '</div>'
+      + '</div>';
+  } else {
+    // Quote slide: centered italic quote with secondary font
+    inner += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10% 12%;text-align:center;">'
+      + '<div style="font-size:' + Math.round(titleMax * scale * 0.5) + 'px;color:' + accHex + ';line-height:1;margin-bottom:6px;font-family:\\'' + escHTML(secondaryFont) + '\\',serif;">&ldquo;</div>'
+      + '<div style="font-family:\\'' + escHTML(secondaryFont) + '\\',serif;font-size:' + Math.round(bodySize * scale * 1.1) + 'px;line-height:1.6;font-style:italic;color:' + textColor + ';max-width:90%;">The grid system is an aid, not a guarantee. It permits a number of possible uses and each designer can look for a solution appropriate to his personal style.</div>'
+      + '<div style="width:20px;height:1px;background:' + accHex + ';margin:8px 0;"></div>'
+      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale * 0.7), 4) + 'px;text-transform:uppercase;letter-spacing:0.1em;color:' + textColor + ';opacity:0.5;">Josef Muller-Brockmann</div>'
+      + '</div>';
+  }
+
+  return '<div class="sample-slide">'
+    + '<div class="slide-inner" style="background:' + bgColor + ';">' + inner + '</div>'
+    + '<div class="slide-label" style="color:' + textColor + ';">' + escHTML(label) + '</div>'
+    + '</div>';
+}
+
+// ═══════════════════════════════════════════════════════
+// VIEW MANAGEMENT
+// ═══════════════════════════════════════════════════════
+
+function showDetail(index) {
+  const sys = SYSTEMS[index];
+  const meta = META[index];
+  if (!sys) return;
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('compare-view').style.display = 'none';
+  const el = document.getElementById('detail-view');
+  el.style.display = 'block';
+  el.innerHTML = renderSystem(sys, meta);
+
+  // Scroll to top
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+function showCompare() {
+  if (compareA < 0 || compareB < 0) {
+    document.getElementById('empty-state').style.display = 'flex';
+    document.getElementById('empty-state').querySelector('h2').textContent = 'Select Two Systems';
+    document.getElementById('empty-state').querySelector('p').innerHTML =
+      'Click systems in the sidebar to assign them as <span class="key-hint">A</span> and <span class="key-hint">B</span> for comparison.';
+    document.getElementById('detail-view').style.display = 'none';
+    document.getElementById('compare-view').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'none';
+  const el = document.getElementById('compare-view');
+  el.style.display = 'block';
+
+  el.innerHTML = '<div class="compare-layout">'
+    + '<div class="compare-column"><span class="compare-label label-a">A</span>' + renderSystem(SYSTEMS[compareA], META[compareA], { compact: true }) + '</div>'
+    + '<div class="compare-column"><span class="compare-label label-b">B</span>' + renderSystem(SYSTEMS[compareB], META[compareB], { compact: true }) + '</div>'
+    + '</div>';
+
+  document.getElementById('main-content').scrollTop = 0;
+}
+
+// ═══════════════════════════════════════════════════════
+// MODE + SELECTION
+// ═══════════════════════════════════════════════════════
+
+function setMode(m) {
+  mode = m;
+  if (mode === 'browse') {
+    compareA = -1;
+    compareB = -1;
+    if (selectedIndex >= 0) showDetail(selectedIndex);
+    else {
+      document.getElementById('empty-state').style.display = 'flex';
+      document.getElementById('empty-state').querySelector('h2').textContent = 'Select a Design System';
+      document.getElementById('detail-view').style.display = 'none';
+      document.getElementById('compare-view').style.display = 'none';
+    }
+  } else {
+    compareA = -1;
+    compareB = -1;
+    showCompare();
+  }
+  renderSidebar();
+}
+
+function selectSystem(index) {
+  if (mode === 'browse') {
+    selectedIndex = index;
+    focusedIndex = index;
+    showDetail(index);
+    renderSidebar();
+  } else {
+    // Compare mode: assign A, then B
+    if (compareA < 0) {
+      compareA = index;
+    } else if (compareB < 0) {
+      if (index === compareA) return; // same system
+      compareB = index;
+    } else {
+      // Reset: start over with this as A
+      compareA = index;
+      compareB = -1;
+    }
+    focusedIndex = index;
+    showCompare();
+    renderSidebar();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// KEYBOARD NAVIGATION
+// ═══════════════════════════════════════════════════════
+
+document.addEventListener('keydown', function(e) {
+  const overlay = document.getElementById('shortcuts-overlay');
+  const overlayVisible = overlay.classList.contains('visible');
+
+  // Close overlay on Escape
+  if (e.key === 'Escape') {
+    if (overlayVisible) {
+      overlay.classList.remove('visible');
+      e.preventDefault();
+      return;
+    }
+  }
+
+  // Show shortcuts on ?
+  if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+    overlay.classList.toggle('visible');
+    e.preventDefault();
+    return;
+  }
+
+  // Don't handle keys when overlay is open
+  if (overlayVisible) return;
+
+  // Up/Down to navigate
+  if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    const dir = e.key === 'ArrowUp' ? -1 : 1;
+    focusedIndex = Math.max(0, Math.min(SYSTEMS.length - 1, focusedIndex + dir));
+    // Scroll the focused card into view
+    const cards = document.querySelectorAll('.system-card');
+    if (cards[focusedIndex]) {
+      cards[focusedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+    renderSidebar();
+    return;
+  }
+
+  // Enter to select
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    selectSystem(focusedIndex);
+    return;
+  }
+
+  // C to toggle compare mode
+  if (e.key === 'c' || e.key === 'C') {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    e.preventDefault();
+    setMode(mode === 'compare' ? 'browse' : 'compare');
+    return;
+  }
+
+  // J to toggle JSON
+  if (e.key === 'j' || e.key === 'J') {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    e.preventDefault();
+    showJSON = !showJSON;
+    if (mode === 'browse' && selectedIndex >= 0) showDetail(selectedIndex);
+    else if (mode === 'compare') showCompare();
+    return;
+  }
+});
+
+// Close shortcuts overlay on background click
+document.getElementById('shortcuts-overlay').addEventListener('click', function(e) {
+  if (e.target === this) this.classList.remove('visible');
+});
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+
+renderSidebar();
+
+if (SYSTEMS.length === 1) {
+  selectedIndex = 0;
+  focusedIndex = 0;
+  showDetail(0);
+  renderSidebar();
+}
+
+</script>
+</body>
+</html>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN — generateExplorer
+// ═══════════════════════════════════════════════════════
+
+async function generateExplorer(dir, outputPath) {
+  dir = dir || process.cwd();
+  outputPath = outputPath || path.join(dir, "explorer.html");
+
+  const systems = findDesignSystems(path.resolve(dir));
+
+  if (systems.length === 0) {
+    console.error("No design-system.json files found in " + dir);
+    process.exit(1);
+  }
+
+  console.log("Found " + systems.length + " design system(s):");
+  for (const s of systems) {
+    const name = s.data.aesthetic
+      ? s.data.aesthetic.substring(0, 60)
+      : "Untitled";
+    console.log("  " + s.path + "  —  " + name);
+  }
+
+  const html = generateHTML(systems);
+  fs.writeFileSync(outputPath, html, "utf-8");
+  console.log("\nWrote " + outputPath + " (" + (html.length / 1024).toFixed(0) + " KB)");
+
+  return outputPath;
+}
+
+// ═══════════════════════════════════════════════════════
+// CLI
+// ═══════════════════════════════════════════════════════
+
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  let dir = ".";
+  let output = null;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--output" && args[i + 1]) {
+      output = args[++i];
+    } else if (!args[i].startsWith("--")) {
+      dir = args[i];
+    }
+  }
+
+  generateExplorer(dir, output);
+}
+
+module.exports = { generateExplorer };
