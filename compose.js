@@ -1230,6 +1230,25 @@ JSON objects, one per line:`;
         }
       }
 
+      // Enforce theme-appropriate bg colours
+      const themeName = options.theme || "light";
+      const groundColour = (designSystem.palette || []).find(c => c.role === "ground")?.hex || "F8F5F0";
+      directives.forEach(d => {
+        if (!d.bg) return;
+        const hex = d.bg.replace(/^#/, "");
+        if (hex.length !== 6) return;
+        const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+        const lum = r * 0.299 + g * 0.587 + b * 0.114;
+        if (themeName === "light" && lum < 100) {
+          process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too dark (lum=${Math.round(lum)}) → replaced with #${groundColour}\n`);
+          d.bg = groundColour;
+        } else if (themeName === "dark" && lum > 200) {
+          const darkGround = (designSystem.palette || []).find(c => c.role === "ground" || c.role === "dominant")?.hex || "1A1A1A";
+          process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too light (lum=${Math.round(lum)}) → replaced with #${darkGround}\n`);
+          d.bg = darkGround;
+        }
+      });
+
       // Merge directives with original source slides
       const mergedSlides = batchSlides.map((src, j) => {
         const d = directives[j] || {};
