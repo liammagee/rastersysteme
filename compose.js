@@ -1115,6 +1115,9 @@ Output ONLY valid JSON — one object per line. No commentary.`;
         if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
         if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
         if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+        if (d.image && d.image !== "none") {
+          parts.push(`<!-- image: ${d.image}${d.imageSize ? " " + d.imageSize : ""} -->`);
+        }
         if (d.label) parts.push(`### ${d.label}`);
         parts.push(src.trim());
         return parts.join("\n");
@@ -1186,12 +1189,13 @@ Output ONLY valid JSON — one object per line. No commentary.`;
 
   // ── STAGE 5: Images (optional) ──────────────────
   if (options.withImages && outputPath.endsWith(".html")) {
-    process.stderr.write(`\n  ${amber("○")} Stage 5: Generating images...\n`);
+    process.stderr.write(`\n  ${amber("○")} Stage 5: Generating + splicing images...\n`);
 
     const imagesDir = path.join(workDir, "images");
     if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
 
     try {
+      // 5a: Generate images via imagine.js
       const { imagine } = require("./imagine.js");
       const imageStyle = options.imageStyle || "swiss-poster";
       const imageResult = await imagine(composedPath, {
@@ -1199,16 +1203,34 @@ Output ONLY valid JSON — one object per line. No commentary.`;
         generate: true,
         model: options.model,
         outputDir: imagesDir,
-        slides: options.imageSlides, // optional: "1,5,10" — key slides only
+        slides: options.imageSlides,
       });
 
-      process.stderr.write(`  ${sage("✓")} Stage 5: ${imageResult.generated || 0} images generated\n`);
+      process.stderr.write(`  ${sage("✓")} Stage 5a: ${imageResult.generated || 0} images generated\n`);
 
-      // Splice images into the rendered HTML
+      // 5b: Extract placement plan from <!-- image: --> directives in composed.md
       if (imageResult.generated > 0) {
+        const composedContent = fs.readFileSync(composedPath, "utf-8");
+        const imageDirectives = [];
+        const slideChunks = composedContent.split(/\n---\n/).filter(s => s.trim());
+        slideChunks.forEach((chunk, idx) => {
+          const imgMatch = chunk.match(/<!--\s*image:\s*(\S+)(?:\s+(\d+))?\s*-->/);
+          if (imgMatch) {
+            imageDirectives.push({ slide: idx + 1, mode: imgMatch[1], size: parseInt(imgMatch[2] || "40", 10) });
+          } else {
+            imageDirectives.push({ slide: idx + 1, mode: "none" });
+          }
+        });
+
+        const hasPlacement = imageDirectives.some(d => d.mode !== "none");
+
         process.stderr.write(`  ${amber("○")} Stage 5b: Splicing images into HTML...\n`);
         const { spliceImages } = require("./splice-images.js");
-        await spliceImages(outputPath, imagesDir, { model: options.model });
+        // Pass pre-computed plan if available, otherwise let Claude decide
+        await spliceImages(outputPath, imagesDir, {
+          model: options.model,
+          plan: hasPlacement ? imageDirectives : undefined,
+        });
         process.stderr.write(`  ${sage("✓")} Stage 5b: Images spliced into ${teal(outputPath)}\n`);
       }
     } catch (err) {

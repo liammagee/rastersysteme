@@ -185,10 +185,12 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
   const imageCount = Object.keys(imageFiles).length;
   process.stderr.write(`  ${dim("Images:")} ${imageCount}\n`);
 
-  // Get placement plan
+  // Get placement plan — use pre-computed plan if provided, else ask Claude
   let plan;
-  if (options.smart) {
-    // Claude picks varied placement per slide
+  if (options.plan) {
+    plan = options.plan;
+    process.stderr.write(`  ${sage("✓")} Using pre-computed placement plan (${plan.filter(p => p.mode !== "none").length} placed)\n`);
+  } else if (options.smart) {
     plan = getPlacementPlan(html, imageCount, options);
   }
   if (!plan) {
