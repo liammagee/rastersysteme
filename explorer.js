@@ -783,6 +783,7 @@ body {
 <div class="explorer" id="app">
   <aside class="sidebar">
     <div class="sidebar-header">
+      <a href="../index.html" style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#999;text-decoration:none;display:block;margin-bottom:6px">← rastersysteme</a>
       <div class="sidebar-title">Design Systems</div>
       <div class="sidebar-subtitle">rastersysteme explorer</div>
     </div>

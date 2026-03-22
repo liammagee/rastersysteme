@@ -212,6 +212,22 @@ nav .nav-links a:hover {
   opacity: 1;
   color: var(--accent);
 }
+nav .nav-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(26,23,20,0.2);
+  margin: 0 4px;
+}
+nav .nav-tool {
+  background: rgba(199,49,26,0.08);
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+nav .nav-tool:hover {
+  background: rgba(199,49,26,0.15);
+}
 
 @media (max-width: 768px) {
   nav .nav-links { display: none; }
@@ -1667,6 +1683,8 @@ footer {
       <li><a href="#compose">Compose</a></li>
       <li><a href="#compare">Compare</a></li>
       <li><a href="#quickstart">Start</a></li>
+      <li class="nav-divider"></li>
+      <li><a href="decks/explorer.html" class="nav-tool">Explorer</a></li>
     </ul>
   </div>
 </nav>
