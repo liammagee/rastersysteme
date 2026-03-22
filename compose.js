@@ -820,6 +820,7 @@ Output ONLY valid JSON (no code fences, no commentary):
   process.stderr.write(`\n  ${amber("○")} Stage 2: Designing ${total} slides${perSlide ? " (1 per call)" : ` in batches of ${batchSize}`}...\n`);
 
   const designSystemContext = JSON.stringify(designSystem, null, 2);
+  const designPlanComment = `<!-- DESIGN PLAN\n${designSystemContext}\n-->`;
   const slideDesigns = [];
   let completed = 0;
   let failed = 0;
@@ -883,6 +884,18 @@ No --- separators, no commentary, no code fences.`;
       completed += 1;
       process.stderr.write(` ${sage("✓")}\n`);
 
+      // Progressive render: assemble + render every 5 slides so user can preview
+      if (completed % 5 === 0 && completed < total && !options.dryRun) {
+        const partialComposed = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
+        const partialPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
+        fs.writeFileSync(partialPath, partialComposed);
+        try {
+          const partialRenderer = outputPath.endsWith(".html") ? generateHTML : generate;
+          await partialRenderer(partialPath, outputPath, { theme: options.theme, ratio: options.ratio });
+          process.stderr.write(`  ${dim("  → preview:")} ${teal(outputPath)} ${dim(`(${completed}/${total} slides)`)}\n`);
+        } catch { /* non-fatal */ }
+      }
+
       // Brief pause between calls to avoid rate limiting
       if (i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
     } catch (err) {
@@ -917,20 +930,25 @@ No --- separators, no commentary, no code fences.`;
 
   process.stderr.write(`  ${completed === total ? sage("✓") : amber("⚠")} Stage 2: ${completed}/${total} slides designed (${failed} batch failures)\n`);
 
-  // ── STAGE 3: Assembly ───────────────────────────
-  process.stderr.write(`\n  ${amber("○")} Stage 3: Assembling composed markdown...\n`);
-
-  const designPlanComment = `<!-- DESIGN PLAN\n${JSON.stringify(designSystem, null, 2)}\n-->`;
-  const assembled = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
+  // ── STAGE 3+4: Assembly + Render (progressive) ──
   const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
-  fs.writeFileSync(composedPath, assembled);
-  process.stderr.write(`  ${sage("✓")} Stage 3: ${teal(composedPath)}\n`);
 
-  // ── STAGE 4: Render ─────────────────────────────
+  function assembleAndRender() {
+    const assembled = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
+    fs.writeFileSync(composedPath, assembled);
+    return assembled;
+  }
+
+  // Write assembled markdown
+  process.stderr.write(`\n  ${amber("○")} Stage 3: Assembling ${teal(composedPath)}...\n`);
+  assembleAndRender();
+  process.stderr.write(`  ${sage("✓")} Stage 3: ${completed} slides assembled\n`);
+
   if (options.dryRun) {
     return { slides: total, output: composedPath, dryRun: true, designSystem, workDir };
   }
 
+  // Render HTML/PPTX
   process.stderr.write(`  ${amber("○")} Stage 4: Rendering...\n`);
   const renderer = outputPath.endsWith(".html") ? generateHTML : generate;
   const result = await renderer(composedPath, outputPath, {
