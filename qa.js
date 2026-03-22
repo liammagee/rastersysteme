@@ -1098,6 +1098,27 @@ function validateDirectiveAdoption(composedMd, intensity) {
     warn(`Same bg color used ${maxConsecutiveBg}× consecutively — breaks the chromatic arc`);
   }
 
+  // 7b. Chromatic arc — detect batch boundary jumps
+  // A "jump" is where the bg color changes abruptly with no transitional slides
+  // This typically happens at batch boundaries in incremental compose
+  const allBgs = slides.map(slide => {
+    const m = slide.match(/<!-- bg: ([A-Fa-f0-9]+) -->/);
+    return m ? m[1] : null;
+  });
+  for (let i = 1; i < allBgs.length; i++) {
+    if (allBgs[i] && allBgs[i-1] && allBgs[i] !== allBgs[i-1]) {
+      // Calculate color distance
+      const a = allBgs[i-1], b = allBgs[i];
+      const dr = parseInt(a.slice(0,2),16) - parseInt(b.slice(0,2),16);
+      const dg = parseInt(a.slice(2,4),16) - parseInt(b.slice(2,4),16);
+      const db = parseInt(a.slice(4,6),16) - parseInt(b.slice(4,6),16);
+      const dist = Math.sqrt(dr*dr + dg*dg + db*db);
+      if (dist > 300) {
+        warn(`Abrupt color jump at slide ${i+1}: #${a} → #${b} (distance ${Math.round(dist)}) — possible batch boundary`);
+      }
+    }
+  }
+
   // 8. Label adoption
   const labelPct = (withLabel / total * 100).toFixed(0);
   const labelExpected = { minimal: 10, moderate: 40, maximal: 55 };

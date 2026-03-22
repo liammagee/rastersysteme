@@ -1080,6 +1080,48 @@ Also specify image placement per slide:
   "image": "right|left|top|bottom|inset-tr|inset-bl|background|overlay|none"
   "imageSize": 30-50 (% for sidebar/inset). Use "none" for blank slides. Vary placements.` : "";
 
+    // Build context summary from previous batches for coherence
+    let batchContext = "";
+    if (slideDesigns.length > 0) {
+      // Parse directives from previously completed slides
+      const prevDirectives = [];
+      slideDesigns.forEach(sd => {
+        try {
+          const lines = sd.split("\n").filter(l => l.trim());
+          lines.forEach(l => {
+            const layoutM = l.match(/<!-- layout: (\w+) -->/);
+            const bgM = l.match(/<!-- bg: ([A-Fa-f0-9]+) -->/);
+            const fontM = l.match(/<!-- font: ([^->]+?) -->/);
+            if (layoutM) prevDirectives.push({ layout: layoutM[1], bg: bgM ? bgM[1] : null, font: fontM ? fontM[1].trim() : null });
+          });
+          // Also try JSON format
+          lines.filter(l => l.startsWith("{")).forEach(l => {
+            try { prevDirectives.push(JSON.parse(l)); } catch {}
+          });
+        } catch {}
+      });
+
+      if (prevDirectives.length > 0) {
+        const prevLayouts = prevDirectives.map(d => d.layout).filter(Boolean);
+        const prevBgs = [...new Set(prevDirectives.map(d => d.bg).filter(Boolean))];
+        const prevFonts = [...new Set(prevDirectives.map(d => d.font).filter(Boolean))];
+        const lastFew = prevDirectives.slice(-3);
+        const layoutCounts = {};
+        prevLayouts.forEach(l => layoutCounts[l] = (layoutCounts[l] || 0) + 1);
+
+        batchContext = `
+PREVIOUS SLIDES CONTEXT (maintain coherence):
+- Slides completed: ${prevDirectives.length}
+- Last 3 layouts: ${lastFew.map(d => d.layout).join(" → ")}
+- Last 3 bgs: ${lastFew.map(d => d.bg || "null").join(" → ")}
+- Layout distribution so far: ${Object.entries(layoutCounts).map(([k,v]) => `${k}:${v}`).join(", ")}
+- Palette used: ${prevBgs.join(", ") || "none"}
+- Fonts used: ${prevFonts.join(", ") || "default only"}
+IMPORTANT: Continue the chromatic arc — don't repeat the last bg colour.
+Don't use the same layout as the last slide. Maintain variety.`;
+      }
+    }
+
     if (!sessionId) {
       batchPrompt = `You are a Swiss art director. Design system:
 
@@ -1097,12 +1139,18 @@ Rules:
 - bg: use null for 50%+ of slides (shows theme default). When set, use dark/muted tones.
 - NEVER use red/warm bg on "title" layout — the red accent block becomes invisible.
 - For light themes: prefer null bg (clean white default) over coloured overrides.
+${batchContext}
 
 ${slideSummaries}
 
 Output ONLY valid JSON — one object per line. No commentary.`;
     } else {
-      batchPrompt = `Next slides:\n${slideSummaries}\n\nJSON objects, one per line:`;
+      batchPrompt = `Next slides:
+${batchContext}
+
+${slideSummaries}
+
+JSON objects, one per line:`;
     }
 
     if (perSlide) {
