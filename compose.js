@@ -1406,11 +1406,16 @@ JSON objects, one per line:`;
         process.stderr.write(`  ${amber("○")} Stage 5b: Splicing images into HTML...\n`);
         const { spliceImages } = require("./splice-images.js");
         // Pass pre-computed plan if available, otherwise let Claude decide
-        await spliceImages(outputPath, imagesDir, {
+        const splicedHTML = spliceImages(outputPath, imagesDir, {
           model: options.model,
           plan: hasPlacement ? imageDirectives : undefined,
         });
-        process.stderr.write(`  ${sage("✓")} Stage 5b: Images spliced into ${teal(outputPath)}\n`);
+        if (splicedHTML) {
+          fs.writeFileSync(outputPath, splicedHTML);
+          process.stderr.write(`  ${sage("✓")} Stage 5b: Images spliced into ${teal(outputPath)}\n`);
+        } else {
+          process.stderr.write(`  ${amber("⚠")} Stage 5b: Splice returned no output\n`);
+        }
       }
     } catch (err) {
       process.stderr.write(`  ${amber("⚠")} Stage 5: Image generation failed (non-fatal): ${err.message.split("\n")[0].slice(0, 80)}\n`);
