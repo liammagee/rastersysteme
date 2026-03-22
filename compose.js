@@ -270,45 +270,31 @@ ${numberedSlides}
 
 --- END SOURCE ---
 
-YOUR TASK HAS TWO PHASES:
+YOUR TASK: Output ONLY a JSON array with exactly ${sourceSlides.length} objects —
+one directive per source slide. Do NOT reproduce the slide content.
+We will inject your directives into the original slides programmatically.
 
-═══ PHASE 1: MACRO DESIGN PLAN ═══
-First, output a design plan as a comment block. This forces you to think about
-the deck holistically BEFORE making per-slide decisions:
+Each object specifies the visual treatment for that slide:
+{
+  "slide": 1,
+  "layout": "split",          // one of: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank
+  "bg": "0F2A4A",             // background hex (6 chars, no #) — or null for theme default
+  "font": "Georgia",          // font override — or null for default Helvetica Neue
+  "label": "INTRODUCTION",    // ### section label to add — or null for none
+  "notes": "Design rationale" // append to speaker notes — or null
+}
 
-<!-- DESIGN PLAN
-Aesthetic: [name it — invent a unique visual concept for this deck]
-Palette: [4-8 hex colours with names, e.g. "0A1628 (ink night), D4A574 (sand)"]
-Chromatic arc: [which bg colours on which slides — the colour journey]
-Grid strategy: [how you'll vary zone positions across slides — e.g. "wide margins opening,
-  tightening to full-bleed at climax, returning to wide for close"]
-Type scale: [title size range, body size, label size — and how they vary]
-Font strategy: [which typefaces on which slides and WHY]
-Accent strategy: [where bars/lines/dots appear and what they mean]
-Key moments: [2-3 slides with the most dramatic grid compositions]
--->
+RULES:
+- Return EXACTLY ${sourceSlides.length} objects in a JSON array
+- Every slide MUST have a layout
+- Vary layouts: use at least 5 different types, no 3× consecutive repeats
+- Build a chromatic arc with bg overrides (vary darkness, use the palette from your mood)
+- Use font overrides sparingly (10-25% of slides) for typographic contrast
+- Labels should create Swiss-scale texture (tiny caps against large titles)
+- The JSON array must be valid JSON — no trailing commas, no comments
 
-═══ PHASE 2: SLIDE OUTPUT ═══
-Output EXACTLY ${sourceSlides.length} slides — one for each source slide, in the same order.
-The content of each slide is FIXED. Your design plan determines the visual treatment.
-
-For each of the ${sourceSlides.length} slides:
-1. <!-- design: {...} --> as the FIRST line — a complete JSON design directive
-   specifying zones (with col/span/row/rowSpan), accents, typography, bg, font.
-   This is NOT optional. Every slide must have a unique design directive.
-2. ### SECTION LABEL for typographic texture (optional, per intensity)
-3. The slide's EXACT content from the source — unchanged, no rephrasing
-4. Speaker notes preserved verbatim (you may append design rationale)
-
-IMPORTANT: Each slide's design directive should be DIFFERENT from the others.
-Vary zone positions, type sizes, accent placements, and backgrounds across slides.
-
-Do NOT add extra slides. Do NOT remove slides.
-The output must have EXACTLY ${sourceSlides.length} slides separated by ---.
-
-CRITICAL: Your first output line must be <!-- DESIGN PLAN.
-After the plan comment, output exactly ${sourceSlides.length} slides,
-each starting with <!-- design: {. No other commentary, no code fences.`);
+Output ONLY the JSON array. No commentary, no code fences, no preamble.
+Start with [ and end with ].`);
 
   return parts.join("\n\n");
 }
@@ -421,10 +407,11 @@ function callClaudeAsync(prompt, options = {}) {
 
     let killed = false; // Prevents close handler from re-logging after stall/timeout
 
-    // Stall detection: if no chars after 90s, connection is dead — kill early
+    // Stall detection: only kill if we never connected (phase stuck at "starting")
+    // Once connected ("generating"), Claude is thinking — don't kill, let the timeout handle it
     const stallCheck = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
-      if (elapsed > 90 && chars === 0) {
+      if (elapsed > 90 && phase === "starting") {
         killed = true;
         clearInterval(stallCheck);
         clearInterval(heartbeat);
@@ -620,19 +607,104 @@ function sanitizeClaudeOutput(raw) {
 }
 
 // ═══════════════════════════════════════════════════════
+// DIRECTIVE ASSEMBLER — Claude outputs JSON, we inject into source markdown
+// ═══════════════════════════════════════════════════════
+
+function parseDirectives(raw) {
+  let text = (raw || "").trim();
+
+  // Strip code fences
+  if (/^```/.test(text)) text = text.replace(/^```\w*\n/, "").replace(/\n```$/, "");
+
+  // Find the JSON array
+  const first = text.indexOf("[");
+  const last = text.lastIndexOf("]");
+  if (first < 0 || last <= first) {
+    throw new Error("Claude did not return a valid JSON array of directives");
+  }
+  text = text.slice(first, last + 1);
+
+  return JSON.parse(text);
+}
+
+function assembleComposed(sourceMd, directives) {
+  const sourceSlides = sourceMd.split(/\n---\n/).filter(s => s.trim());
+
+  const assembled = sourceSlides.map((slide, i) => {
+    const d = directives.find(x => x.slide === i + 1) || directives[i] || {};
+
+    const parts = [];
+
+    // Layout directive
+    if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
+
+    // Background override
+    if (d.bg) parts.push(`<!-- bg: ${d.bg} -->`);
+
+    // Font override
+    if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+
+    // Section label
+    if (d.label) parts.push(`### ${d.label}`);
+
+    // Original slide content — VERBATIM
+    parts.push(slide.trim());
+
+    // Append design rationale to notes if present
+    if (d.notes) {
+      const notesMatch = slide.match(/```notes\n([\s\S]*?)```/);
+      if (notesMatch) {
+        // Already has notes — append rationale
+        const existingNotes = notesMatch[0];
+        const withRationale = existingNotes.replace(/\n```$/, `\n\nDesign: ${d.notes}\n\`\`\``);
+        parts[parts.length - 1] = parts[parts.length - 1].replace(existingNotes, withRationale);
+      } else {
+        // No notes — add a notes block
+        parts.push(`\n\`\`\`notes\nDesign: ${d.notes}\n\`\`\``);
+      }
+    }
+
+    return parts.join("\n");
+  });
+
+  return assembled.join("\n\n---\n\n");
+}
+
+// ═══════════════════════════════════════════════════════
 // COMPOSE PIPELINE
 // ═══════════════════════════════════════════════════════
 
 async function composeAsync(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
+  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
 
-  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("] Composing...")}\n`);
+  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sourceSlides.length} slides → Claude for directives...\n`);
 
   const prompt = buildPrompt(md, options);
-  const raw = await callClaudeAsync(prompt, { ...options, label: intensity });
-  const composed = sanitizeClaudeOutput(raw);
+  const raw = await callClaudeAsync(prompt, { ...options, label: intensity, raw: true });
 
+  // Parse JSON directives
+  let directives;
+  try {
+    directives = parseDirectives(raw);
+    process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${directives.length} directives received\n`);
+  } catch (e) {
+    process.stderr.write(`  ${accent("✗")} Failed to parse directives: ${e.message}\n`);
+    const logPath = path.join(__dirname, "logs", `directives-fail-${Date.now()}.txt`);
+    fs.mkdirSync(path.join(__dirname, "logs"), { recursive: true });
+    fs.writeFileSync(logPath, raw);
+    process.stderr.write(`  ${dim("Raw saved:")} ${teal(logPath)}\n`);
+    throw e;
+  }
+
+  // Check directive count matches source
+  if (directives.length !== sourceSlides.length) {
+    process.stderr.write(`  ${amber("⚠")} Got ${directives.length} directives for ${sourceSlides.length} slides\n`);
+  }
+
+  // Assemble: inject directives into original slides (content untouched)
+  const composed = assembleComposed(md, directives);
   const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
   fs.writeFileSync(composedPath, composed);
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} → ${teal(composedPath)}\n`);
@@ -647,16 +719,15 @@ async function composeAsync(inputPath, outputPath, options = {}) {
     ratio: options.ratio,
   });
 
-  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${chalk.white.bold(result.slides)} slides\n`);
+  process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sage("✓")} ${chalk.white.bold(result.slides)} slides rendered\n`);
 
-  // Content preservation + intensity compliance checks
+  // Validation
   const { validateIntensity, validateContentPreservation } = require("./qa.js");
   const composedContent = fs.readFileSync(composedPath, "utf-8");
   const composedSlides = parseMarkdown(composedContent);
 
-  const sourceSlideCount = md.split(/\n---\n/).filter(s => s.trim()).length;
   const contentCheck = validateContentPreservation(md, composedContent);
-  const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlideCount);
+  const intensityCheck = validateIntensity(composedSlides, intensity, sourceSlides.length);
   const allChecks = [...contentCheck, ...intensityCheck];
 
   if (allChecks.length > 0) {
@@ -673,12 +744,27 @@ async function composeAsync(inputPath, outputPath, options = {}) {
 async function compose(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
+  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
 
-  process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))}${dim("...")}\n`);
+  process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))} ${dim(`(${sourceSlides.length} slides)`)}\n`);
 
   const prompt = buildPrompt(md, options);
-  const raw = await callClaudeAsync(prompt, { ...options, label: intensity });
-  const composed = sanitizeClaudeOutput(raw);
+  const raw = await callClaudeAsync(prompt, { ...options, label: intensity, raw: true });
+
+  // Parse JSON directives and assemble
+  let directives;
+  try {
+    directives = parseDirectives(raw);
+  } catch (e) {
+    process.stderr.write(`  ${accent("✗")} Failed to parse directives: ${e.message}\n`);
+    throw e;
+  }
+
+  if (directives.length !== sourceSlides.length) {
+    process.stderr.write(`  ${amber("⚠")} Got ${directives.length} directives for ${sourceSlides.length} slides\n`);
+  }
+
+  const composed = assembleComposed(md, directives);
 
   // Write intermediate composed markdown for inspection / manual editing
   const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
@@ -885,8 +971,9 @@ The content is FIXED — copy it exactly. You may add a ### label for typographi
 
 ${numberedBatch}
 
-Output EXACTLY ONE slide starting with <!-- design: {.
-No --- separators, no commentary, no code fences.`;
+CRITICAL: Output ONLY the slide. The FIRST characters must be <!-- design: {
+No commentary, no explanations, no "Insight" blocks, no backtick blocks, no preamble.
+Just the <!-- design: {...} --> directive followed by the slide content. Nothing else.`;
 
     if (perSlide) {
       process.stderr.write(`  ${amber("⟐")} Slide ${batchNum}/${total}...`);
@@ -897,7 +984,13 @@ No --- separators, no commentary, no code fences.`;
     try {
       const raw = await callClaudeAsync(batchPrompt, { model, label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}` });
       let cleaned = raw.trim();
+      // Strip code fences
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
+      // Strip any preamble before the design directive (Insight blocks, commentary)
+      const designStart = cleaned.indexOf("<!-- design:");
+      const layoutStart = cleaned.indexOf("<!-- layout:");
+      const firstDir = designStart >= 0 ? designStart : layoutStart;
+      if (firstDir > 0) cleaned = cleaned.substring(firstDir);
 
       fs.writeFileSync(batchPath, cleaned);
       slideDesigns.push(cleaned);
@@ -1077,4 +1170,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compose, composeAsync, composeIncremental, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
+module.exports = { compose, composeAsync, composeIncremental, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, parseDirectives, assembleComposed, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
