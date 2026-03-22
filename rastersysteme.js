@@ -346,12 +346,11 @@ async function interactive(preselectedInput) {
     const existingCount = hasExistingImages
       ? fs.readdirSync(existingImgDir).filter(f => /^slide-\d+\.png$/.test(f)).length : 0;
 
-    const imgItems = [
-      { key: "n", label: "none            no images" },
-    ];
+    const imgItems = [];
     if (hasExistingImages) {
-      imgItems.splice(0, 0, { key: "e", label: `existing        use ${existingCount} images in ${inputBase}-images/` });
+      imgItems.push({ key: "e", label: `existing        use ${existingCount} images in ${inputBase}-images/` });
     }
+    imgItems.push({ key: "n", label: "none            no images" });
     imgItems.push({ key: "s", label: "strategic       generate for key slides (Midjourney)" });
     imgItems.push({ key: "a", label: "all             generate for every slide (Midjourney)" });
 
