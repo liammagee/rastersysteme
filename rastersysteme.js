@@ -374,9 +374,10 @@ async function interactive(preselectedInput) {
 
     const outputName = await askText("Output name", inputBase);
 
-    htmlPath = path.join(SCRIPT_DIR, `${outputName}.html`);
-    pptxPath = path.join(SCRIPT_DIR, `${outputName}.pptx`);
-    composedPath = path.join(SCRIPT_DIR, `${outputName}.composed.md`);
+    const outputDir = path.dirname(path.resolve(input));
+    htmlPath = path.join(outputDir, `${outputName}.html`);
+    pptxPath = path.join(outputDir, `${outputName}.pptx`);
+    composedPath = path.join(outputDir, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
     const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--transition", transitionName];
@@ -401,8 +402,9 @@ async function interactive(preselectedInput) {
     // ── RENDER ───────────────────────────────
     composedPath = path.resolve(input);
     const outputName = await askText("Output name", inputBase);
-    pptxPath = path.join(SCRIPT_DIR, `${outputName}.pptx`);
-    htmlPath = path.join(SCRIPT_DIR, `${outputName}.html`);
+    const renderDir = path.dirname(path.resolve(input));
+    pptxPath = path.join(renderDir, `${outputName}.pptx`);
+    htmlPath = path.join(renderDir, `${outputName}.html`);
 
     const fmt = await select("FORMAT", [
       { key: "b", label: "both            PPTX + HTML" },
