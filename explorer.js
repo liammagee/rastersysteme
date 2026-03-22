@@ -1084,20 +1084,20 @@ function renderSystem(sys, meta, opts) {
   // Large title sample
   html += '<div class="type-sample">'
     + '<div class="type-sample-label">' + escHTML(primaryFont) + ' / Title max ' + titleMax + 'px / Weight ' + titleWeightMax + '</div>'
-    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + Math.min(titleMax, 64) + 'px;font-weight:' + titleWeightMax + ';">Aa Bb Cc Dd</div>'
+    + '<div class="type-sample-text" style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.min(titleMax, 64) + 'px;font-weight:' + titleWeightMax + ';">Aa Bb Cc Dd</div>'
     + '</div>';
 
   // Small title sample
   html += '<div class="type-sample">'
     + '<div class="type-sample-label">' + escHTML(primaryFont) + ' / Title min ' + titleMin + 'px / Weight ' + titleWeightMin + '</div>'
-    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + titleMin + 'px;font-weight:' + titleWeightMin + ';">The quick brown fox jumps over the lazy dog</div>'
+    + '<div class="type-sample-text" style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + titleMin + 'px;font-weight:' + titleWeightMin + ';">The quick brown fox jumps over the lazy dog</div>'
     + '</div>';
 
   // Secondary font sample
   if (secondaryFont && secondaryFont !== primaryFont) {
     html += '<div class="type-sample">'
       + '<div class="type-sample-label">' + escHTML(secondaryFont) + ' / Secondary</div>'
-      + '<div class="type-sample-text" style="font-family:\'' + escHTML(secondaryFont) + '\',serif;font-size:20px;font-style:italic;">The quick brown fox jumps over the lazy dog</div>'
+      + '<div class="type-sample-text" style="font-family:' + escHTML(secondaryFont) + ',serif;font-size:20px;font-style:italic;">The quick brown fox jumps over the lazy dog</div>'
       + '</div>';
   }
 
@@ -1105,14 +1105,14 @@ function renderSystem(sys, meta, opts) {
   const bodySize = ts.bodySize || 14;
   html += '<div class="type-sample">'
     + '<div class="type-sample-label">Body / ' + bodySize + 'px</div>'
-    + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + bodySize + 'px;line-height:1.6;max-width:520px;">Typography is the craft of endowing human language with a durable visual form, and thus with an independent existence. Its heartbeat is the contrast between thick and thin, dark and light, motion and stillness.</div>'
+    + '<div class="type-sample-text" style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + bodySize + 'px;line-height:1.6;max-width:520px;">Typography is the craft of endowing human language with a durable visual form, and thus with an independent existence. Its heartbeat is the contrast between thick and thin, dark and light, motion and stillness.</div>'
     + '</div>';
 
   // Label sample
   if (ts.labelSize) {
     html += '<div class="type-sample">'
       + '<div class="type-sample-label">Label / ' + ts.labelSize + 'px</div>'
-      + '<div class="type-sample-text" style="font-family:\'' + escHTML(primaryFont) + '\',sans-serif;font-size:' + ts.labelSize + 'px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-muted);">Section label / Module heading / Category name</div>'
+      + '<div class="type-sample-text" style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + ts.labelSize + 'px;text-transform:uppercase;letter-spacing:0.12em;color:var(--ink-muted);">Section label / Module heading / Category name</div>'
       + '</div>';
   }
 
@@ -1278,27 +1278,27 @@ function renderSampleSlide(sys, type, label) {
     // Title slide: big heading, accent line, subtitle
     inner += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:12% 10%;">'
       + '<div style="width:24px;height:3px;background:' + accHex + ';margin-bottom:12px;border-radius:1px;"></div>'
-      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(titleMax * scale) + 'px;font-weight:' + titleWeight + ';line-height:1.1;letter-spacing:-0.02em;color:' + textColor + ';">Design<br>System</div>'
-      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(bodySize * scale * 0.8) + 'px;color:' + textColor + ';opacity:0.6;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;">Specimen Preview</div>'
+      + '<div style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.round(titleMax * scale) + 'px;font-weight:' + titleWeight + ';line-height:1.1;letter-spacing:-0.02em;color:' + textColor + ';">Design<br>System</div>'
+      + '<div style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.round(bodySize * scale * 0.8) + 'px;color:' + textColor + ';opacity:0.6;margin-top:8px;text-transform:uppercase;letter-spacing:0.1em;">Specimen Preview</div>'
       + '</div>';
   } else if (type === 'content') {
     // Content slide: title + body text + accent bar
     inner += '<div style="position:absolute;left:0;top:0;width:3px;height:100%;background:' + accHex + ';"></div>'
       + '<div style="position:absolute;inset:0;display:grid;grid-template-columns:38% 1fr;gap:6%;padding:8% 8% 8% 5%;">'
       + '<div style="display:flex;flex-direction:column;justify-content:center;">'
-      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.round(titleMax * scale * 0.6) + 'px;font-weight:' + titleWeight + ';line-height:1.15;color:' + textColor + ';">Section<br>Heading</div>'
+      + '<div style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.round(titleMax * scale * 0.6) + 'px;font-weight:' + titleWeight + ';line-height:1.15;color:' + textColor + ';">Section<br>Heading</div>'
       + '</div>'
       + '<div style="display:flex;flex-direction:column;justify-content:center;">'
-      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale), 5) + 'px;line-height:1.55;color:' + textColor + ';opacity:0.8;">Typography is the detail and the presentation of a story. It represents the voice of an atmosphere, or a historical setting of some kind.</div>'
+      + '<div style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale), 5) + 'px;line-height:1.55;color:' + textColor + ';opacity:0.8;">Typography is the detail and the presentation of a story. It represents the voice of an atmosphere, or a historical setting of some kind.</div>'
       + '</div>'
       + '</div>';
   } else {
     // Quote slide: centered italic quote with secondary font
     inner += '<div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10% 12%;text-align:center;">'
-      + '<div style="font-size:' + Math.round(titleMax * scale * 0.5) + 'px;color:' + accHex + ';line-height:1;margin-bottom:6px;font-family:\\'' + escHTML(secondaryFont) + '\\',serif;">&ldquo;</div>'
-      + '<div style="font-family:\\'' + escHTML(secondaryFont) + '\\',serif;font-size:' + Math.round(bodySize * scale * 1.1) + 'px;line-height:1.6;font-style:italic;color:' + textColor + ';max-width:90%;">The grid system is an aid, not a guarantee. It permits a number of possible uses and each designer can look for a solution appropriate to his personal style.</div>'
+      + '<div style="font-size:' + Math.round(titleMax * scale * 0.5) + 'px;color:' + accHex + ';line-height:1;margin-bottom:6px;font-family:' + escHTML(secondaryFont) + ',serif;">&ldquo;</div>'
+      + '<div style="font-family:' + escHTML(secondaryFont) + ',serif;font-size:' + Math.round(bodySize * scale * 1.1) + 'px;line-height:1.6;font-style:italic;color:' + textColor + ';max-width:90%;">The grid system is an aid, not a guarantee. It permits a number of possible uses and each designer can look for a solution appropriate to his personal style.</div>'
       + '<div style="width:20px;height:1px;background:' + accHex + ';margin:8px 0;"></div>'
-      + '<div style="font-family:\\'' + escHTML(primaryFont) + '\\',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale * 0.7), 4) + 'px;text-transform:uppercase;letter-spacing:0.1em;color:' + textColor + ';opacity:0.5;">Josef Muller-Brockmann</div>'
+      + '<div style="font-family:' + escHTML(primaryFont) + ',sans-serif;font-size:' + Math.max(Math.round(bodySize * scale * 0.7), 4) + 'px;text-transform:uppercase;letter-spacing:0.1em;color:' + textColor + ';opacity:0.5;">Josef Muller-Brockmann</div>'
       + '</div>';
   }
 
