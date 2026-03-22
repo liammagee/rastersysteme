@@ -312,14 +312,29 @@ async function interactive(preselectedInput) {
     const brief = await getBrief(input);
 
     // Image generation option
-    const imgChoice = await select("IMAGES", [
-      { key: "n", label: "none            no image generation" },
-      { key: "s", label: "strategic       images on key slides only" },
-      { key: "a", label: "all             image for every slide" },
-    ], { autoSelect: true });
+    // Check for existing images
+    const existingImgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
+    const hasExistingImages = fs.existsSync(existingImgDir) &&
+      fs.readdirSync(existingImgDir).some(f => /^slide-\d+\.png$/.test(f));
+    const existingCount = hasExistingImages
+      ? fs.readdirSync(existingImgDir).filter(f => /^slide-\d+\.png$/.test(f)).length : 0;
+
+    const imgItems = [
+      { key: "n", label: "none            no images" },
+    ];
+    if (hasExistingImages) {
+      imgItems.splice(0, 0, { key: "e", label: `existing        use ${existingCount} images in ${inputBase}-images/` });
+    }
+    imgItems.push({ key: "s", label: "strategic       generate for key slides (Midjourney)" });
+    imgItems.push({ key: "a", label: "all             generate for every slide (Midjourney)" });
+
+    const imgChoice = await select("IMAGES", imgItems, { autoSelect: true });
 
     let imageStyle = null;
-    if (imgChoice.key !== "n") {
+    let imagesDir = null;
+    if (imgChoice.key === "e") {
+      imagesDir = existingImgDir;
+    } else if (imgChoice.key !== "n") {
       const { IMAGE_STYLES } = require("./imagine.js");
       const styleNames = Object.keys(IMAGE_STYLES);
       const styleItems = styleNames.map((s, i) => ({
@@ -340,7 +355,9 @@ async function interactive(preselectedInput) {
     const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental"];
     if (brief) composeArgs.push("--brief", brief);
     if (slideRange) composeArgs.push("--slides", slideRange);
-    if (imgChoice.key !== "n") {
+    if (imgChoice.key === "e" && imagesDir) {
+      composeArgs.push("--images-dir", imagesDir);
+    } else if (imgChoice.key !== "n") {
       composeArgs.push("--with-images");
       if (imageStyle) composeArgs.push("--image-style", imageStyle);
       if (imgChoice.key === "s") composeArgs.push("--image-slides", "1,5,10,15,20");

@@ -1189,27 +1189,40 @@ Output ONLY valid JSON — one object per line. No commentary.`;
 
   // ── STAGE 5: Images (optional) ──────────────────
   if (options.withImages && outputPath.endsWith(".html")) {
-    process.stderr.write(`\n  ${amber("○")} Stage 5: Generating + splicing images...\n`);
+    // Use existing images directory if provided, otherwise generate
+    const imagesDir = options.imagesDir || path.join(workDir, "images");
+    const hasExistingImages = fs.existsSync(imagesDir) &&
+      fs.readdirSync(imagesDir).some(f => /^slide-\d+\.png$/.test(f));
 
-    const imagesDir = path.join(workDir, "images");
-    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+    if (hasExistingImages && !options.imagesDir) {
+      const existing = fs.readdirSync(imagesDir).filter(f => /^slide-\d+\.png$/.test(f)).length;
+      process.stderr.write(`\n  ${sage("✓")} Stage 5a: ${existing} existing images in ${teal(path.basename(imagesDir))}\n`);
+    } else if (options.imagesDir) {
+      const existing = hasExistingImages ? fs.readdirSync(imagesDir).filter(f => /^slide-\d+\.png$/.test(f)).length : 0;
+      process.stderr.write(`\n  ${sage("✓")} Stage 5a: Using ${existing} images from ${teal(options.imagesDir)}\n`);
+    } else {
+      process.stderr.write(`\n  ${amber("○")} Stage 5a: Generating images...\n`);
+      if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+    }
 
     try {
-      // 5a: Generate images via imagine.js
-      const { imagine } = require("./imagine.js");
-      const imageStyle = options.imageStyle || "swiss-poster";
-      const imageResult = await imagine(composedPath, {
-        style: imageStyle,
-        generate: true,
-        model: options.model,
-        outputDir: imagesDir,
-        slides: options.imageSlides,
-      });
+      // 5a: Generate images via imagine.js (skips existing, uses Midjourney by default)
+      if (!options.imagesDir) {
+        const { imagine } = require("./imagine.js");
+        const imageStyle = options.imageStyle || "swiss-poster";
+        const imageResult = await imagine(composedPath, {
+          style: imageStyle,
+          generate: true,
+          model: options.model,
+          outputDir: imagesDir,
+          slides: options.imageSlides,
+        });
+        process.stderr.write(`  ${sage("✓")} Stage 5a: ${imageResult.generated || 0} images generated\n`);
+      }
 
-      process.stderr.write(`  ${sage("✓")} Stage 5a: ${imageResult.generated || 0} images generated\n`);
-
-      // 5b: Extract placement plan from <!-- image: --> directives in composed.md
-      if (imageResult.generated > 0) {
+      // 5b: Splice images into HTML
+      const imgCount = fs.readdirSync(imagesDir).filter(f => /^slide-\d+\.png$/.test(f)).length;
+      if (imgCount > 0) {
         const composedContent = fs.readFileSync(composedPath, "utf-8");
         const imageDirectives = [];
         const slideChunks = composedContent.split(/\n---\n/).filter(s => s.trim());
@@ -1304,7 +1317,8 @@ if (require.main === module) {
     dryRun: args.includes("--dry-run"),
     incremental: args.includes("--incremental"),
     batchSize: parseInt(getFlag("--batch-size") || "1", 10),
-    withImages: args.includes("--with-images"),
+    withImages: args.includes("--with-images") || !!getFlag("--images-dir"),
+    imagesDir: getFlag("--images-dir"),
     imageStyle: getFlag("--image-style"),
     imageSlides: getFlag("--image-slides"),
   };
