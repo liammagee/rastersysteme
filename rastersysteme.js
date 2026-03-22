@@ -437,12 +437,14 @@ async function interactive(preselectedInput) {
     const action = await select("", [
       { key: "o", label: "open HTML" },
       { key: "p", label: "open PPTX" },
+      { key: "s", label: "studio viewer (present + grid + QA)" },
       { key: "n", label: "presenter notes (press P in browser)" },
       { key: "w", label: "review (QA validation)" },
       { key: "v", label: "compare variants (3-way)" },
       { key: "r", label: "re-render (change theme)" },
       { key: "i", label: "add images (generate + splice)" },
       { key: "c", label: "recompose (call Claude again)" },
+      { key: "f", label: "fresh start (clear cache, recompose)" },
       { key: "e", label: "edit composed.md" },
       { key: "q", label: "quit" },
     ], { autoSelect: true });
@@ -452,6 +454,18 @@ async function interactive(preselectedInput) {
         if (fs.existsSync(htmlPath)) openFile(htmlPath);
         else console.log(dim("  No HTML file found."));
         break;
+
+      case "s": {
+        const studioPath = htmlPath.replace(/\.html$/, ".studio.html");
+        const studioSrc = composedPath || htmlPath.replace(/\.html$/, ".composed.md");
+        if (fs.existsSync(studioSrc)) {
+          run("studio.js", [studioSrc, studioPath, "--theme", themeName]);
+          if (fs.existsSync(studioPath)) openFile(studioPath);
+        } else {
+          console.log(dim("  No composed.md found — compose first."));
+        }
+        break;
+      }
 
       case "p":
         if (fs.existsSync(pptxPath)) openFile(pptxPath);
@@ -507,6 +521,26 @@ async function interactive(preselectedInput) {
         if (newBrief) composeArgs.push("--brief", newBrief);
         if (slideRange) composeArgs.push("--slides", slideRange);
         const ok = run("compose.js", composeArgs);
+        break;
+      }
+
+      case "f": {
+        // Fresh start: clear the .compose cache directory and recompose
+        const cacheDir = htmlPath.replace(/\.html$/, ".compose");
+        if (fs.existsSync(cacheDir)) {
+          const { execSync: ex } = require("child_process");
+          ex(`rm -rf "${cacheDir}"`);
+          process.stderr.write(`  ${sage("✓")} Cleared cache: ${teal(cacheDir)}\n`);
+        }
+        const freshIntensity = await select("INTENSITY", [
+          { key: "n", label: "minimal" },
+          { key: "m", label: "moderate" },
+          { key: "x", label: "maximal" },
+        ], { autoSelect: true });
+        const freshArgs = [input, htmlPath, "--theme", themeName, "--intensity", freshIntensity.label, "--model", modelName, "--incremental"];
+        if (slideRange) freshArgs.push("--slides", slideRange);
+        console.log(`\n  ${rule}`);
+        run("compose.js", freshArgs);
         break;
       }
 
