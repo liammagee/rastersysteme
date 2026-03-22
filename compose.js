@@ -829,11 +829,22 @@ async function composeIncremental(inputPath, outputPath, options = {}) {
   const workDir = outputPath.replace(/\.(pptx|html)$/, ".compose");
   if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
 
-  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  let sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  const totalAll = sourceSlides.length;
+
+  // Apply --slides range filter
+  if (options.slides) {
+    const match = String(options.slides).match(/^(\d+)(?:-(\d+))?$/);
+    if (match) {
+      const start = parseInt(match[1], 10) - 1;
+      const end = match[2] ? parseInt(match[2], 10) : start + 1;
+      sourceSlides = sourceSlides.slice(start, end);
+    }
+  }
   const total = sourceSlides.length;
 
   process.stderr.write(`\n  ${accent("━━━ INCREMENTAL COMPOSE ━━━━━━━━━━━━━━━━━━")}\n`);
-  process.stderr.write(`  ${dim("Source:")} ${teal(path.basename(inputPath))} ${dim("(")}${total} slides${dim(")")}\n`);
+  process.stderr.write(`  ${dim("Source:")} ${teal(path.basename(inputPath))} ${dim("(")}${total}${total < totalAll ? "/" + totalAll : ""} slides${dim(")")}\n`);
   process.stderr.write(`  ${dim("Intensity:")} ${accent(intensity)} ${dim("| Model:")} ${amber(model)} ${dim("| Batch:")} ${batchSize}\n`);
   process.stderr.write(`  ${dim("Work dir:")} ${teal(workDir)}\n\n`);
 
