@@ -240,7 +240,16 @@ async function getBrief(sourcePath) {
 // INTERACTIVE FLOW
 // ═══════════════════════════════════════════════════════
 
+function timer() {
+  const start = Date.now();
+  return () => {
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+    return `${elapsed}s`;
+  };
+}
+
 async function interactive(preselectedInput) {
+  const pipelineTimer = timer();
   console.log("");
   console.log(`  ${accent("■")} ${bright("rastersysteme")}`);
   console.log(`  ${rule}`);
@@ -302,25 +311,46 @@ async function interactive(preselectedInput) {
 
     const brief = await getBrief(input);
 
+    // Image generation option
+    const imgChoice = await select("IMAGES", [
+      { key: "n", label: "none            no image generation" },
+      { key: "s", label: "strategic       images on key slides only" },
+      { key: "a", label: "all             image for every slide" },
+    ], { autoSelect: true });
+
+    let imageStyle = null;
+    if (imgChoice.key !== "n") {
+      const { IMAGE_STYLES } = require("./imagine.js");
+      const styleNames = Object.keys(IMAGE_STYLES);
+      const styleItems = styleNames.map((s, i) => ({
+        key: String(i + 1),
+        label: `${s.padEnd(16)} ${IMAGE_STYLES[s].name}`,
+      }));
+      const styleChoice = await select("IMAGE STYLE", styleItems, { autoSelect: true });
+      imageStyle = styleNames[parseInt(styleChoice.key, 10) - 1];
+    }
+
     const outputName = await askText("Output name", inputBase);
 
-    pptxPath = path.join(SCRIPT_DIR, `${outputName}.pptx`);
     htmlPath = path.join(SCRIPT_DIR, `${outputName}.html`);
+    pptxPath = path.join(SCRIPT_DIR, `${outputName}.pptx`);
     composedPath = path.join(SCRIPT_DIR, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
-    const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName];
+    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental"];
     if (brief) composeArgs.push("--brief", brief);
     if (slideRange) composeArgs.push("--slides", slideRange);
+    if (imgChoice.key !== "n") {
+      composeArgs.push("--with-images");
+      if (imageStyle) composeArgs.push("--image-style", imageStyle);
+      if (imgChoice.key === "s") composeArgs.push("--image-slides", "1,5,10,15,20");
+    }
     const ok = run("compose.js", composeArgs);
 
     if (!ok) {
       console.error(`  ${accent("✗")} Composition failed.`);
       process.exit(1);
     }
-
-    console.log(dim("  ── HTML ──────────────────────────────────"));
-    run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html"]);
 
   } else if (mode.key === "r") {
     // ── RENDER ───────────────────────────────
@@ -400,7 +430,7 @@ async function interactive(preselectedInput) {
   }
 
   // ── POST-RENDER LOOP ──────────────────────
-  console.log(`\n  ${sage("── Done ──────────────────────────────────")}`);
+  console.log(`\n  ${sage("── Done")} ${amber(pipelineTimer())} ${sage("──────────────────────────────────")}`);
 
   let running = true;
   while (running) {
@@ -411,6 +441,7 @@ async function interactive(preselectedInput) {
       { key: "w", label: "review (QA validation)" },
       { key: "v", label: "compare variants (3-way)" },
       { key: "r", label: "re-render (change theme)" },
+      { key: "i", label: "add images (generate + splice)" },
       { key: "c", label: "recompose (call Claude again)" },
       { key: "e", label: "edit composed.md" },
       { key: "q", label: "quit" },
@@ -472,11 +503,40 @@ async function interactive(preselectedInput) {
         ], { autoSelect: true });
         const newBrief = await askText("Brief (optional)", "");
         console.log(`\n  ${rule}`);
-        const composeArgs = [input, pptxPath, "--theme", themeName, "--intensity", newIntensity.label, "--model", modelName];
+        const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", newIntensity.label, "--model", modelName, "--incremental"];
         if (newBrief) composeArgs.push("--brief", newBrief);
         if (slideRange) composeArgs.push("--slides", slideRange);
         const ok = run("compose.js", composeArgs);
-        if (ok) run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html"]);
+        break;
+      }
+
+      case "i": {
+        const { IMAGE_STYLES } = require("./imagine.js");
+        const styleNames = Object.keys(IMAGE_STYLES);
+        const imgStyleItems = styleNames.map((s, idx) => ({
+          key: String(idx + 1),
+          label: `${s.padEnd(16)} ${IMAGE_STYLES[s].name}`,
+        }));
+        const imgStyleChoice = await select("IMAGE STYLE", imgStyleItems, { autoSelect: true });
+        const imgStyleName = styleNames[parseInt(imgStyleChoice.key, 10) - 1];
+
+        const imgScope = await select("SCOPE", [
+          { key: "s", label: "strategic       key slides only (1,5,10,15,20)" },
+          { key: "a", label: "all             every slide" },
+        ], { autoSelect: true });
+
+        console.log(`\n  ${rule}`);
+        const imagineArgs = [composedPath || input, "--style", imgStyleName, "--generate", "--model", modelName];
+        if (imgScope.key === "s") imagineArgs.push("--slides", "1,5,10,15,20");
+        const imgOk = run("imagine.js", imagineArgs);
+
+        if (imgOk && fs.existsSync(htmlPath)) {
+          const imgDir = path.join(path.dirname(path.resolve(composedPath || input)), `${inputBase}-images`);
+          if (fs.existsSync(imgDir)) {
+            process.stderr.write(`  ${amber("○")} Splicing images...\n`);
+            run("splice-images.js", [htmlPath, imgDir, "--model", modelName]);
+          }
+        }
         break;
       }
 
