@@ -266,6 +266,10 @@ async function interactive(preselectedInput) {
     { key: "v", label: "compare         3-way A/B evaluation" },
     { key: "x", label: "explosive       12-way: all themes × intensities" },
     { key: "i", label: "imagine         generate image prompts per slide" },
+    { key: "w", label: "watch           hot-reload (edit → auto-refresh)" },
+    { key: "d", label: "design          manage design systems" },
+    { key: "p", label: "pace            timing cues for presentation" },
+    { key: "f", label: "pdf             export to PDF" },
     { key: "q", label: "quit" },
   ], { autoSelect: true });
 
@@ -308,6 +312,29 @@ async function interactive(preselectedInput) {
       { key: "x", label: "maximal         Weingart: full chromatic arc, font mixing" },
     ], { autoSelect: true });
     const intensityName = intensity.label.split(/\s+/)[0];
+
+    // Design system
+    const { listSystems } = require("./design-system.js");
+    const systems = listSystems();
+    let designSystemName = null;
+    if (systems.length > 0) {
+      const dsItems = [
+        { key: "n", label: "none            generate fresh design" },
+        ...systems.map((s, i) => ({ key: String(i + 1), label: `${s.name.padEnd(16)} ${s.aesthetic.slice(0, 40)}`, value: s.name })),
+      ];
+      const dsChoice = await select("DESIGN SYSTEM", dsItems, { autoSelect: true });
+      if (dsChoice.value) designSystemName = dsChoice.value;
+    }
+
+    // Transition
+    const transChoice = await select("TRANSITION", [
+      { key: "f", label: "fade            smooth crossfade (default)" },
+      { key: "l", label: "slide-left      horizontal slide" },
+      { key: "u", label: "slide-up        vertical slide" },
+      { key: "z", label: "zoom            scale in" },
+      { key: "c", label: "cut             instant, no animation" },
+    ], { autoSelect: true });
+    const transitionName = { f: "fade", l: "slide-left", u: "slide-up", z: "zoom", c: "cut" }[transChoice.key] || "fade";
 
     const brief = await getBrief(input);
 
@@ -352,9 +379,10 @@ async function interactive(preselectedInput) {
     composedPath = path.join(SCRIPT_DIR, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
-    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental"];
+    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--transition", transitionName];
     if (brief) composeArgs.push("--brief", brief);
     if (slideRange) composeArgs.push("--slides", slideRange);
+    if (designSystemName) composeArgs.push("--design-system", designSystemName);
     if (imgChoice.key === "e" && imagesDir) {
       composeArgs.push("--images-dir", imagesDir);
     } else if (imgChoice.key !== "n") {
@@ -428,14 +456,23 @@ async function interactive(preselectedInput) {
     const styleChoice = await select("IMAGE STYLE", styleItems);
     const styleName = styleChoice.value;
 
+    const absChoice = await select("ABSTRACTION", [
+      { key: "s", label: "suggestive      semi-abstract, suggests the topic (default)" },
+      { key: "r", label: "representational recognizable scenes in the chosen style" },
+      { key: "a", label: "abstract        pure geometry, color fields" },
+      { key: "l", label: "literal         direct visual of the content" },
+    ], { autoSelect: true });
+    const absName = { s: "suggestive", r: "representational", a: "abstract", l: "literal" }[absChoice.key] || "suggestive";
+
     const genChoice = await select("GENERATE IMAGES?", [
       { key: "p", label: "prompts only    generate text prompts (no API needed)" },
       { key: "g", label: "generate        call image API (needs key in .env)" },
     ], { autoSelect: true });
 
     console.log(`\n  ${rule}`);
-    const imagineArgs = [input, "--style", styleName, "--model", modelName];
+    const imagineArgs = [input, "--style", styleName, "--abstraction", absName, "--model", modelName];
     if (genChoice.key === "g") imagineArgs.push("--generate");
+    if (slideRange) imagineArgs.push("--slides", slideRange);
     run("imagine.js", imagineArgs);
 
     const imgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
@@ -443,6 +480,84 @@ async function interactive(preselectedInput) {
     if (fs.existsSync(galleryPath)) {
       console.log(`\n  ${sage("✓")} Gallery: ${teal(galleryPath)}`);
     }
+    process.exit(0);
+  }
+
+  } else if (mode.key === "w") {
+    // ── WATCH ────────────────────────────────
+    console.log(`\n  ${rule}`);
+    run("watch.js", [input, "--theme", themeName]);
+    process.exit(0);
+
+  } else if (mode.key === "d") {
+    // ── DESIGN SYSTEM ────────────────────────
+    const dsAction = await select("DESIGN SYSTEM", [
+      { key: "l", label: "list            browse saved systems" },
+      { key: "g", label: "generate        ask Claude to create one" },
+      { key: "p", label: "preview         render sample slides" },
+      { key: "s", label: "show            display system details" },
+    ], { autoSelect: true });
+
+    if (dsAction.key === "l") {
+      run("design-system.js", ["list"]);
+    } else if (dsAction.key === "g") {
+      const dsName = await askText("Name for the design system", "");
+      if (dsName) {
+        const dsBrief = await askText("Creative direction", "");
+        const dsArgs = ["generate", dsName, "--model", modelName];
+        if (dsBrief) dsArgs.push("--brief", dsBrief);
+        run("design-system.js", dsArgs);
+      }
+    } else if (dsAction.key === "p") {
+      const { listSystems: ls } = require("./design-system.js");
+      const sysList = ls();
+      if (sysList.length === 0) {
+        console.log(dim("  No saved systems. Generate one first."));
+      } else {
+        const dsItems = sysList.map((s, i) => ({ key: String(i + 1), label: s.name, value: s.name }));
+        const dsChoice = await select("SELECT SYSTEM", dsItems);
+        run("design-system.js", ["preview", dsChoice.value, "--slides", input, "--theme", themeName]);
+      }
+    } else if (dsAction.key === "s") {
+      const { listSystems: ls } = require("./design-system.js");
+      const sysList = ls();
+      if (sysList.length === 0) {
+        console.log(dim("  No saved systems."));
+      } else {
+        const dsItems = sysList.map((s, i) => ({ key: String(i + 1), label: s.name, value: s.name }));
+        const dsChoice = await select("SELECT SYSTEM", dsItems);
+        run("design-system.js", ["show", dsChoice.value]);
+      }
+    }
+    process.exit(0);
+
+  } else if (mode.key === "p") {
+    // ── PACE ─────────────────────────────────
+    const duration = await askText("Presentation duration (minutes)", "50");
+    const paceOutput = await askText("Write timestamps to notes? (y/n)", "y");
+
+    console.log(`\n  ${rule}`);
+    const paceArgs = [input, "--duration", duration];
+    if (paceOutput.toLowerCase() === "y") {
+      const pacedPath = input.replace(/\.md$/, "-paced.md");
+      paceArgs.push("--output", pacedPath);
+    }
+    run("pace.js", paceArgs);
+    process.exit(0);
+
+  } else if (mode.key === "f") {
+    // ── PDF ──────────────────────────────────
+    // Need an HTML file first
+    const htmlSource = await askText("HTML file to export", input.replace(/\.md$/, ".html"));
+    if (!fs.existsSync(htmlSource)) {
+      console.log(`  ${accent("✗")} ${htmlSource} not found — render HTML first`);
+      process.exit(1);
+    }
+    const includeNotes = (await askText("Include speaker notes pages? (y/n)", "y")).toLowerCase() === "y";
+    console.log(`\n  ${rule}`);
+    const pdfArgs = [htmlSource];
+    if (!includeNotes) pdfArgs.push("--no-notes");
+    run("export-pdf.js", pdfArgs);
     process.exit(0);
   }
 
@@ -462,6 +577,9 @@ async function interactive(preselectedInput) {
       { key: "i", label: "add images (generate + splice)" },
       { key: "c", label: "recompose (call Claude again)" },
       { key: "f", label: "fresh start (clear cache, recompose)" },
+      { key: "d", label: "diff (compare with another version)" },
+      { key: "x", label: "export PDF" },
+      { key: "t", label: "pace (add timing cues)" },
       { key: "e", label: "edit composed.md" },
       { key: "q", label: "quit" },
     ], { autoSelect: true });
@@ -588,6 +706,34 @@ async function interactive(preselectedInput) {
             run("splice-images.js", [htmlPath, imgDir, "--model", modelName]);
           }
         }
+        break;
+      }
+
+      case "d": {
+        const diffWith = await askText("Compare with (path to another .composed.md)", "");
+        if (diffWith && fs.existsSync(diffWith) && fs.existsSync(composedPath)) {
+          const diffOutput = composedPath.replace(".composed.md", ".diff.html");
+          run("diff-slides.js", [composedPath, diffWith, "--output", diffOutput]);
+          if (fs.existsSync(diffOutput)) openFile(diffOutput);
+        } else {
+          console.log(dim("  Both files must exist for diff."));
+        }
+        break;
+      }
+
+      case "x": {
+        if (fs.existsSync(htmlPath)) {
+          run("export-pdf.js", [htmlPath]);
+        } else {
+          console.log(dim("  No HTML file — render first."));
+        }
+        break;
+      }
+
+      case "t": {
+        const dur = await askText("Duration (minutes)", "50");
+        const pacedPath = composedPath ? composedPath.replace(".composed.md", "-paced.md") : input.replace(".md", "-paced.md");
+        run("pace.js", [composedPath || input, "--duration", dur, "--output", pacedPath]);
         break;
       }
 
