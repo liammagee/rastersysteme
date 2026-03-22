@@ -34,37 +34,37 @@ function placementCSS(mode, imgPath, opts = {}) {
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:50"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "left":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:50"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "top":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:50"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "bottom":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:50"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-tr":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${size}%;aspect-ratio:1;overflow:hidden;border-radius:6px;box-shadow:0 4px 24px rgba(0,0,0,0.3);z-index:100;pointer-events:none"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, 22)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.2);z-index:10;opacity:0.9"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-bl":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${size}%;aspect-ratio:1;overflow:hidden;border-radius:6px;box-shadow:0 4px 24px rgba(0,0,0,0.3);z-index:100;pointer-events:none"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
+        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, 22)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.2);z-index:10;opacity:0.9"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "background":
       return {
