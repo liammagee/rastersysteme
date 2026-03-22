@@ -428,6 +428,9 @@ function scoreColor(score, max) {
 function generateCompareReport(variants, evaluations, sourceName, outputPath, options = {}) {
   const theme = THEMES[options.theme || "light"] || THEMES.light;
   const criteriaKeys = Object.keys(RUBRIC);
+  const intensityColors = { minimal: "#4080D0", moderate: "#D0A030", maximal: "#D04030" };
+  const timestamp = new Date().toISOString().replace("T", " ").slice(0, 19) + " UTC";
+  const modelUsed = options.model || "sonnet";
 
   const variantColumns = variants.map((v, i) => {
     const ev = evaluations[i] || {};
@@ -436,55 +439,135 @@ function generateCompareReport(variants, evaluations, sourceName, outputPath, op
     return { ...v, ev, scores, total };
   });
 
-  const rubricRows = criteriaKeys.map((key) => {
-    const r = RUBRIC[key];
-    const cells = variantColumns.map((vc) => {
-      const s = vc.scores[key];
-      if (!s || s.score == null) return `<td class="score na">—</td>`;
-      const color = scoreColor(s.score, r.weight);
-      return `<td class="score" style="color:${color}" title="${(s.rationale || "").replace(/"/g, "&quot;")}">${s.score}/${r.weight}</td>`;
-    }).join("");
-    return `<tr><td class="criterion">${key.replace(/([A-Z])/g, " $1").trim()}</td>${cells}</tr>`;
-  }).join("\n");
+  // Parse slide metadata for each variant (layout types, bg colors, slide counts)
+  const variantSlideMeta = variantColumns.map((vc) => {
+    try {
+      const md = fs.readFileSync(vc.composedPath, "utf-8");
+      const slides = parseMarkdown(md);
+      return slides.map((slide, idx) => {
+        const layout = detectLayout(slide, idx, slides.length);
+        return { layout, bg: slide.bgOverride || null };
+      });
+    } catch { return []; }
+  });
 
-  const totalRow = variantColumns.map((vc) => {
-    if (vc.total == null) return `<td class="score total na">—</td>`;
-    const color = scoreColor(vc.total, 100);
-    return `<td class="score total" style="color:${color};font-weight:bold">${vc.total}/100</td>`;
-  }).join("");
+  // Max slide count across variants
+  const maxSlides = Math.max(...variantSlideMeta.map(m => m.length), 0);
 
-  // Render slide previews for each variant
-  const previewColumns = variantColumns.map((vc) => {
-    const variantTheme = THEMES[vc.theme || options.theme || "light"] || theme;
-    const previews = renderSlidePreviewsHTML(vc.composedPath, variantTheme);
+  // Grade letter from score
+  function gradeLetter(score) {
+    if (score == null) return "—";
+    if (score >= 90) return "A";
+    if (score >= 80) return "B+";
+    if (score >= 70) return "B";
+    if (score >= 60) return "C+";
+    if (score >= 50) return "C";
+    if (score >= 40) return "D";
+    return "F";
+  }
+
+  // Build score cards HTML
+  const scoreCardsHTML = variantColumns.map((vc) => {
+    const intensity = vc.intensity || "unknown";
+    const color = intensityColors[intensity] || "#D04030";
+    const score = vc.total != null ? vc.total : null;
+    const grade = gradeLetter(score);
     const label = vc.label || vc.intensity;
-    return `<div class="preview-col">
-      <h3>${label} <span class="slide-count">${vc.total != null ? vc.total + "/100" : ""}</span></h3>
-      <div class="preview-scroll">${previews}</div>
+    return `<div class="score-card" style="--card-color:${color}">
+      <div class="score-card__strip"></div>
+      <div class="score-card__body">
+        <div class="score-card__intensity">${intensity}</div>
+        <div class="score-card__score">${score != null ? score : "—"}<span class="score-card__max">/100</span></div>
+        <div class="score-card__grade">${grade}</div>
+      </div>
     </div>`;
   }).join("");
 
-  const detailColumns = variantColumns.map((vc) => {
+  // Slide tabs HTML
+  const slideTabsHTML = Array.from({ length: maxSlides }, (_, i) => {
+    return `<button class="slide-tab${i === 0 ? " active" : ""}" data-slide="${i}">${String(i + 1).padStart(2, "0")}</button>`;
+  }).join("");
+
+  // Render slide previews for each variant (keeps renderSlidePreviewsHTML logic)
+  const previewColumnsHTML = variantColumns.map((vc, vi) => {
+    const variantTheme = THEMES[vc.theme || options.theme || "light"] || theme;
+    const previews = renderSlidePreviewsHTML(vc.composedPath, variantTheme);
+    const intensity = vc.intensity || "unknown";
+    const color = intensityColors[intensity] || "#D04030";
+    const label = vc.label || vc.intensity;
+    const meta = variantSlideMeta[vi] || [];
+    return `<div class="variant-col" data-variant="${vi}" data-intensity="${intensity}" style="--variant-color:${color}">
+      <div class="variant-col__header" data-variant-toggle="${vi}">
+        <span class="variant-col__name">${intensity}</span>
+        <span class="variant-col__theme">${vc.theme || options.theme || "light"}</span>
+      </div>
+      <div class="variant-col__slides">${previews}</div>
+    </div>`;
+  }).join("");
+
+  // Build slide metadata JSON for JS
+  const slideMetaJSON = JSON.stringify(variantSlideMeta);
+
+  // Evaluation bars data
+  const barGroupsHTML = criteriaKeys.map((key) => {
+    const r = RUBRIC[key];
+    const label = key.replace(/([A-Z])/g, " $1").trim();
+    const barsHTML = variantColumns.map((vc) => {
+      const intensity = vc.intensity || "unknown";
+      const color = intensityColors[intensity] || "#D04030";
+      const s = vc.scores[key];
+      const score = (s && s.score != null) ? s.score : 0;
+      const max = r.weight;
+      const pct = (score / max * 100).toFixed(1);
+      const rationale = (s && s.rationale) ? s.rationale.replace(/"/g, "&quot;") : "";
+      return `<div class="bar-row">
+        <div class="bar-track">
+          <div class="bar-fill" style="width:${pct}%;background:${color}" data-score="${score}" data-max="${max}"></div>
+        </div>
+        <span class="bar-value" style="color:${color}">${score}<span class="bar-value__max">/${max}</span></span>
+        <div class="bar-tooltip">${rationale}</div>
+      </div>`;
+    }).join("");
+    return `<div class="bar-group">
+      <div class="bar-group__label">${label}</div>
+      <div class="bar-group__bars">${barsHTML}</div>
+    </div>`;
+  }).join("");
+
+  // Strengths / weaknesses cards
+  const evalCardsHTML = variantColumns.map((vc) => {
     const ev = vc.ev || {};
+    const intensity = vc.intensity || "unknown";
+    const color = intensityColors[intensity] || "#D04030";
     const strengths = (ev.strengths || []).map((s) => `<li>${s}</li>`).join("");
     const weaknesses = (ev.weaknesses || []).map((w) => `<li>${w}</li>`).join("");
     const rec = ev.recommendation || "";
-    const label = vc.label || vc.intensity;
-    return `<div class="detail-col">
-      <h3>${label}</h3>
-      ${strengths ? `<h4>Strengths</h4><ul class="strengths">${strengths}</ul>` : ""}
-      ${weaknesses ? `<h4>Weaknesses</h4><ul class="weaknesses">${weaknesses}</ul>` : ""}
-      ${rec ? `<p class="verdict">${rec}</p>` : ""}
+    return `<div class="eval-card" style="--eval-color:${color}">
+      <div class="eval-card__header">${intensity}</div>
+      ${strengths ? `<div class="eval-card__section">
+        <div class="eval-card__section-title">Strengths</div>
+        <ul class="eval-card__list eval-card__list--strengths">${strengths}</ul>
+      </div>` : ""}
+      ${weaknesses ? `<div class="eval-card__section">
+        <div class="eval-card__section-title">Weaknesses</div>
+        <ul class="eval-card__list eval-card__list--weaknesses">${weaknesses}</ul>
+      </div>` : ""}
+      ${rec ? `<div class="eval-card__verdict">${rec}</div>` : ""}
     </div>`;
   }).join("");
 
   // Find winner
   const scored = variantColumns.filter((vc) => vc.total != null);
   const winner = scored.length ? scored.reduce((a, b) => (a.total >= b.total ? a : b)) : null;
-  const winnerLabel = winner ? (winner.label || winner.intensity) : "";
-  const recommendation = winner
-    ? `<strong>${winnerLabel}</strong> scored highest at ${winner.total}/100.`
-    : "Evaluation incomplete — review variants manually.";
+  const winnerIntensity = winner ? winner.intensity : "";
+  const winnerColor = intensityColors[winnerIntensity] || "#D04030";
+
+  // Build the bar legend
+  const barLegendHTML = variantColumns.map((vc) => {
+    const intensity = vc.intensity || "unknown";
+    const color = intensityColors[intensity] || "#D04030";
+    return `<span class="bar-legend__item"><span class="bar-legend__dot" style="background:${color}"></span>${intensity}</span>`;
+  }).join("");
 
   const html = `<!DOCTYPE html>
 <html lang="en">
@@ -492,51 +575,358 @@ function generateCompareReport(variants, evaluations, sourceName, outputPath, op
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Compare: ${sourceName}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ═══════════════════════════════════════════════════════ */
+/* RESET & CUSTOM PROPERTIES                              */
+/* ═══════════════════════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;background:#1a1a1a;color:#f0ebe3;line-height:1.5}
-.header{padding:2rem 3rem;border-bottom:1px solid #333}
-.header h1{font-size:1.4rem;font-weight:400;color:#8C8478;margin-bottom:.5rem}
-.header h2{font-size:2rem;font-weight:700;letter-spacing:-0.02em}
-.header .totals{display:flex;gap:2rem;margin-top:1rem}
-.header .total-pill{padding:.4rem 1rem;border-radius:4px;background:#242424;font-size:1.1rem;font-weight:600}
-.rubric{padding:2rem 3rem}
-.rubric table{width:100%;border-collapse:collapse}
-.rubric th,.rubric td{padding:.6rem 1rem;text-align:left;border-bottom:1px solid #333}
-.rubric th{color:#8C8478;font-size:.75rem;text-transform:uppercase;letter-spacing:0.1em}
-.criterion{font-size:.85rem;text-transform:capitalize}
-.score{font-size:1rem;font-weight:600;text-align:center}
-.score.na{color:#555}
-.score.total{font-size:1.2rem;border-top:2px solid #555}
-.details{display:flex;gap:2rem;padding:2rem 3rem}
-.detail-col{flex:1;background:#242424;padding:1.5rem;border-radius:8px}
-.detail-col h3{font-size:1rem;text-transform:uppercase;letter-spacing:0.15em;color:#8C8478;margin-bottom:1rem}
-.detail-col h4{font-size:.75rem;text-transform:uppercase;letter-spacing:0.1em;color:#8C8478;margin:1rem 0 .5rem}
-.strengths li{color:#548C5A;font-size:.85rem;margin-bottom:.3rem;list-style:none}
-.strengths li::before{content:"+ ";font-weight:bold}
-.weaknesses li{color:#C44230;font-size:.85rem;margin-bottom:.3rem;list-style:none}
-.weaknesses li::before{content:"- ";font-weight:bold}
-.verdict{margin-top:1rem;padding:1rem;background:#1a1a1a;border-radius:4px;font-size:.9rem;font-style:italic;color:#B8B0A2}
-.recommendation{padding:2rem 3rem;border-top:1px solid #333}
-.recommendation p{font-size:1.1rem}
-.files{padding:2rem 3rem;border-top:1px solid #333;color:#8C8478;font-size:.8rem}
-.files code{color:#B8B0A2}
-/* Slide previews */
-.previews{display:flex;gap:1rem;padding:2rem 3rem;border-top:1px solid #333}
-.preview-col{flex:1;min-width:0}
-.preview-col h3{font-size:.85rem;text-transform:uppercase;letter-spacing:0.1em;color:#8C8478;margin-bottom:1rem;display:flex;justify-content:space-between}
-.slide-count{color:#548C5A}
-.preview-scroll{max-height:80vh;overflow-y:auto;display:flex;flex-direction:column;gap:.5rem;padding-right:.5rem}
-.preview-scroll::-webkit-scrollbar{width:4px}
-.preview-scroll::-webkit-scrollbar-thumb{background:#333;border-radius:2px}
-.preview-card{position:relative}
-.preview-num{position:absolute;top:4px;left:6px;font-size:.6rem;color:#8C8478;z-index:1;font-weight:600}
-.preview-slide{aspect-ratio:16/9;overflow:hidden;border-radius:3px;border:1px solid #333;position:relative}
-.slide-inner{position:absolute;width:960px;height:540px;transform-origin:top left;transform:scale(var(--preview-scale,0.3));display:flex !important}
-.preview-error{color:#C44230;font-size:.85rem;padding:1rem}
+:root{
+  --bg:#0E0E12;
+  --surface:#17171D;
+  --surface-2:#1F1F27;
+  --border:#2A2A35;
+  --text:#E8E8F0;
+  --text-2:#9090A8;
+  --text-3:#606078;
+  --accent:#D04030;
+  --minimal:#4080D0;
+  --moderate:#D0A030;
+  --maximal:#D04030;
+  --font-display:'Sora',sans-serif;
+  --font-body:'Source Sans 3',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(0.4,0,0.2,1);
+  --radius:6px;
+  --radius-lg:10px;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* BASE                                                    */
+/* ═══════════════════════════════════════════════════════ */
+html{font-size:16px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-height:1.55;overflow-x:hidden}
+::selection{background:rgba(208,64,48,0.3);color:#fff}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text-3)}
+
+/* ═══════════════════════════════════════════════════════ */
+/* NAVIGATION                                              */
+/* ═══════════════════════════════════════════════════════ */
+.top-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:0.75rem 2rem;
+  background:rgba(14,14,18,0.85);
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.top-nav__back{
+  font-family:var(--font-display);font-size:0.8rem;font-weight:500;
+  color:var(--text-2);text-decoration:none;
+  display:flex;align-items:center;gap:0.4rem;
+  transition:color 0.2s var(--ease);
+}
+.top-nav__back:hover{color:var(--text)}
+.top-nav__back svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2}
+.top-nav__title{
+  font-family:var(--font-mono);font-size:0.75rem;font-weight:500;
+  color:var(--text-3);letter-spacing:0.02em;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* HEADER                                                  */
+/* ═══════════════════════════════════════════════════════ */
+.header{
+  padding:5rem 3rem 2.5rem;
+  border-bottom:1px solid var(--border);
+}
+.header__meta{
+  font-family:var(--font-mono);font-size:0.75rem;font-weight:400;
+  color:var(--text-3);letter-spacing:0.02em;
+  margin-bottom:0.75rem;
+  display:flex;gap:1.5rem;flex-wrap:wrap;
+}
+.header__meta span{display:flex;align-items:center;gap:0.3rem}
+.header__title{
+  font-family:var(--font-display);font-size:clamp(2rem,4vw,3.2rem);
+  font-weight:700;letter-spacing:-0.03em;line-height:1.1;
+  color:var(--text);margin-bottom:2rem;
+}
+.score-cards{display:flex;gap:1rem;flex-wrap:wrap}
+.score-card{
+  flex:1;min-width:200px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+  transition:transform 0.2s var(--ease),box-shadow 0.2s var(--ease);
+}
+.score-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+.score-card__strip{height:3px;background:var(--card-color)}
+.score-card__body{padding:1.25rem 1.5rem}
+.score-card__intensity{
+  font-family:var(--font-display);font-size:0.7rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--card-color);margin-bottom:0.5rem;
+}
+.score-card__score{
+  font-family:var(--font-display);font-size:2.4rem;font-weight:800;
+  line-height:1;color:var(--text);
+}
+.score-card__max{font-size:1rem;font-weight:400;color:var(--text-3);margin-left:0.1em}
+.score-card__grade{
+  font-family:var(--font-display);font-size:0.85rem;font-weight:600;
+  color:var(--text-2);margin-top:0.4rem;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* SLIDE COMPARISON                                        */
+/* ═══════════════════════════════════════════════════════ */
+.slides-section{padding:2rem 3rem;border-bottom:1px solid var(--border)}
+.slides-section__title{
+  font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+  color:var(--text);margin-bottom:1.25rem;
+  display:flex;align-items:center;gap:0.75rem;
+}
+.slides-section__title span{
+  font-family:var(--font-mono);font-size:0.7rem;font-weight:400;
+  color:var(--text-3);
+}
+
+/* Slide tabs */
+.slide-tabs{
+  display:flex;gap:2px;flex-wrap:wrap;
+  margin-bottom:1.5rem;
+  background:var(--surface);border-radius:var(--radius);
+  padding:3px;border:1px solid var(--border);
+}
+.slide-tab{
+  font-family:var(--font-mono);font-size:0.75rem;font-weight:500;
+  color:var(--text-3);background:transparent;border:none;
+  padding:0.4rem 0.7rem;border-radius:4px;cursor:pointer;
+  transition:all 0.15s var(--ease);
+  min-width:2.2rem;text-align:center;
+}
+.slide-tab:hover{color:var(--text-2);background:var(--surface-2)}
+.slide-tab.active{color:var(--text);background:var(--accent);font-weight:600}
+
+/* Variant columns */
+.slide-compare{display:flex;gap:1rem;min-height:0}
+.variant-col{
+  flex:1;min-width:0;
+  border:1px solid var(--border);border-radius:var(--radius-lg);
+  background:var(--surface);overflow:hidden;
+  transition:flex 0.4s var(--ease);
+}
+.variant-col.solo{flex:3}
+.variant-col:not(.solo){flex:1}
+.variant-col__header{
+  padding:0.6rem 1rem;
+  background:var(--variant-color);
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;user-select:none;
+  transition:opacity 0.15s var(--ease);
+}
+.variant-col__header:hover{opacity:0.85}
+.variant-col__name{
+  font-family:var(--font-display);font-size:0.75rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.1em;color:#fff;
+}
+.variant-col__theme{
+  font-family:var(--font-mono);font-size:0.65rem;font-weight:400;
+  color:rgba(255,255,255,0.65);
+}
+.variant-col__slides{padding:0.75rem}
+
+/* Individual slide cards within variant columns */
+.variant-col .preview-card{
+  position:relative;margin-bottom:0.5rem;
+  display:none; /* hidden by default; JS shows the active slide */
+}
+.variant-col .preview-card.slide-visible{display:block}
+.variant-col .preview-num{
+  position:absolute;top:6px;left:8px;z-index:2;
+  font-family:var(--font-mono);font-size:0.6rem;font-weight:600;
+  color:rgba(255,255,255,0.5);
+  background:rgba(0,0,0,0.5);padding:1px 5px;border-radius:3px;
+}
+.variant-col .preview-slide{
+  aspect-ratio:16/9;overflow:hidden;border-radius:var(--radius);
+  border:1px solid var(--border);position:relative;
+  background:var(--surface-2);
+}
+.slide-inner{
+  position:absolute;width:960px;height:540px;
+  transform-origin:top left;transform:scale(var(--preview-scale,0.3));
+  display:flex !important;
+}
+.slide-meta{
+  display:flex;align-items:center;gap:0.5rem;
+  padding:0.5rem 0 0;
+}
+.slide-meta__layout{
+  font-family:var(--font-mono);font-size:0.6rem;font-weight:500;
+  color:var(--text-3);background:var(--surface-2);
+  padding:2px 8px;border-radius:3px;border:1px solid var(--border);
+  text-transform:uppercase;letter-spacing:0.05em;
+}
+.slide-meta__bg{
+  width:14px;height:14px;border-radius:3px;
+  border:1px solid var(--border);flex-shrink:0;
+}
+
+.preview-error{
+  font-family:var(--font-mono);font-size:0.8rem;
+  color:var(--accent);padding:1rem;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* EVALUATION — BARS                                       */
+/* ═══════════════════════════════════════════════════════ */
+.eval-section{padding:2.5rem 3rem;border-bottom:1px solid var(--border)}
+.eval-section__title{
+  font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+  color:var(--text);margin-bottom:0.5rem;
+}
+.bar-legend{
+  display:flex;gap:1.25rem;margin-bottom:1.5rem;
+}
+.bar-legend__item{
+  font-family:var(--font-mono);font-size:0.7rem;font-weight:500;
+  color:var(--text-2);display:flex;align-items:center;gap:0.35rem;
+}
+.bar-legend__dot{width:8px;height:8px;border-radius:2px}
+.bar-group{
+  display:flex;align-items:flex-start;gap:1rem;
+  padding:0.65rem 0;border-bottom:1px solid var(--border);
+}
+.bar-group:last-child{border-bottom:none}
+.bar-group__label{
+  width:160px;flex-shrink:0;
+  font-family:var(--font-body);font-size:0.8rem;font-weight:500;
+  color:var(--text-2);text-transform:capitalize;
+  padding-top:0.15rem;
+}
+.bar-group__bars{flex:1;display:flex;flex-direction:column;gap:0.35rem}
+.bar-row{display:flex;align-items:center;gap:0.6rem;position:relative}
+.bar-track{
+  flex:1;height:20px;background:var(--surface-2);
+  border-radius:3px;overflow:hidden;position:relative;
+}
+.bar-fill{
+  height:100%;border-radius:3px;
+  transition:width 0.6s var(--ease);
+  position:relative;
+}
+.bar-value{
+  font-family:var(--font-mono);font-size:0.75rem;font-weight:600;
+  min-width:3.5rem;text-align:right;
+}
+.bar-value__max{font-weight:400;color:var(--text-3);font-size:0.65rem}
+.bar-tooltip{
+  display:none;position:absolute;left:0;top:100%;
+  margin-top:4px;z-index:10;
+  background:var(--surface-2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:0.6rem 0.8rem;
+  font-family:var(--font-body);font-size:0.75rem;color:var(--text-2);
+  line-height:1.4;max-width:360px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  pointer-events:none;
+}
+.bar-row:hover .bar-tooltip{display:block}
+
+/* ═══════════════════════════════════════════════════════ */
+/* EVALUATION — STRENGTHS / WEAKNESSES                     */
+/* ═══════════════════════════════════════════════════════ */
+.eval-cards-section{padding:2.5rem 3rem;border-bottom:1px solid var(--border)}
+.eval-cards-section__title{
+  font-family:var(--font-display);font-size:1.1rem;font-weight:600;
+  color:var(--text);margin-bottom:1.25rem;
+}
+.eval-cards{display:flex;gap:1rem;flex-wrap:wrap}
+.eval-card{
+  flex:1;min-width:260px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-lg);overflow:hidden;
+}
+.eval-card__header{
+  padding:0.6rem 1.25rem;
+  background:var(--eval-color);
+  font-family:var(--font-display);font-size:0.7rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.12em;color:#fff;
+}
+.eval-card__section{padding:0.75rem 1.25rem 0}
+.eval-card__section-title{
+  font-family:var(--font-display);font-size:0.65rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--text-3);margin-bottom:0.4rem;
+}
+.eval-card__list{list-style:none;padding:0}
+.eval-card__list li{
+  font-family:var(--font-body);font-size:0.82rem;color:var(--text-2);
+  padding:0.3rem 0 0.3rem 1rem;
+  border-left:2px solid var(--eval-color);
+  margin-bottom:0.3rem;line-height:1.4;
+}
+.eval-card__list--strengths li{border-left-color:#548C5A}
+.eval-card__list--weaknesses li{border-left-color:var(--accent)}
+.eval-card__verdict{
+  padding:0.75rem 1.25rem 1rem;
+  font-family:var(--font-body);font-size:0.82rem;
+  color:var(--text-3);font-style:italic;line-height:1.4;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* FOOTER                                                  */
+/* ═══════════════════════════════════════════════════════ */
+.footer{
+  padding:2rem 3rem;
+  border-top:1px solid var(--border);
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.footer__item{
+  font-family:var(--font-mono);font-size:0.7rem;
+  color:var(--text-3);display:flex;align-items:center;gap:0.3rem;
+}
+.footer__item strong{color:var(--text-2);font-weight:600}
+
+/* Winner banner */
+.winner-banner{
+  padding:1.5rem 3rem;
+  background:var(--surface);border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:1rem;
+}
+.winner-banner__icon{
+  width:32px;height:32px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1rem;
+}
+.winner-banner__text{
+  font-family:var(--font-body);font-size:0.95rem;color:var(--text-2);
+}
+.winner-banner__text strong{
+  font-family:var(--font-display);font-weight:700;
+  text-transform:uppercase;letter-spacing:0.05em;
+}
+
+/* ═══════════════════════════════════════════════════════ */
+/* RESPONSIVE                                              */
+/* ═══════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  .header{padding:5rem 1.5rem 2rem}
+  .slides-section,.eval-section,.eval-cards-section,.footer,.winner-banner{padding-left:1.5rem;padding-right:1.5rem}
+  .slide-compare{flex-direction:column}
+  .score-cards{flex-direction:column}
+  .eval-cards{flex-direction:column}
+  .bar-group{flex-direction:column;gap:0.4rem}
+  .bar-group__label{width:auto}
+}
 </style>
 <style>
-/* Embedded slide layout CSS */
+/* Embedded slide layout CSS from raster.js */
 ${generateHTMLCSS()}
 :root{${Object.entries({
     bg: theme.bg, "bg-alt": theme.bgAlt, "bg-dark": theme.bgDark,
@@ -548,88 +938,182 @@ ${generateHTMLCSS()}
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>rastersysteme comparison</h1>
-  <h2>${sourceName}</h2>
-  <div class="totals">
-    ${variantColumns.map((vc) => {
-      const label = vc.label || vc.intensity;
-      const score = vc.total != null ? `${vc.total}/100` : "—";
-      return `<div class="total-pill">${label}: ${score}</div>`;
-    }).join("")}
+
+<!-- Fixed nav -->
+<nav class="top-nav">
+  <a class="top-nav__back" href="../index.html">
+    <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    rastersysteme
+  </a>
+  <span class="top-nav__title">comparison report</span>
+</nav>
+
+<!-- Header -->
+<header class="header">
+  <div class="header__meta">
+    <span>Source: ${esc(sourceName)}.md</span>
+    <span>Theme: ${esc(options.theme || "light")}</span>
+    <span>Model: ${esc(modelUsed)}</span>
   </div>
-</div>
+  <h1 class="header__title">${esc(sourceName)}</h1>
+  <div class="score-cards">${scoreCardsHTML}</div>
+</header>
 
-<div class="previews">
-  ${previewColumns}
-</div>
+<!-- Winner banner -->
+${winner ? `<div class="winner-banner">
+  <div class="winner-banner__icon" style="background:${winnerColor}">&#9733;</div>
+  <div class="winner-banner__text">
+    <strong style="color:${winnerColor}">${esc(winnerIntensity)}</strong> scored highest at <strong>${winner.total}/100</strong>
+    ${winner.ev && winner.ev.recommendation ? ` &mdash; ${esc(winner.ev.recommendation)}` : ""}
+  </div>
+</div>` : `<div class="winner-banner">
+  <div class="winner-banner__text">Evaluation incomplete &mdash; review variants manually.</div>
+</div>`}
 
-<div class="rubric">
-  <table>
-    <thead><tr>
-      <th>Criterion</th>
-      ${variantColumns.map((vc) => `<th>${vc.label || vc.intensity}</th>`).join("")}
-    </tr></thead>
-    <tbody>
-      ${rubricRows}
-      <tr><td class="criterion" style="font-weight:bold">Total</td>${totalRow}</tr>
-    </tbody>
-  </table>
-</div>
+<!-- Slide comparison -->
+<section class="slides-section">
+  <div class="slides-section__title">
+    Slide Comparison
+    <span>${maxSlides} slide${maxSlides !== 1 ? "s" : ""} per variant</span>
+  </div>
+  <div class="slide-tabs" role="tablist">${slideTabsHTML}</div>
+  <div class="slide-compare">${previewColumnsHTML}</div>
+</section>
 
-<div class="details">
-  ${detailColumns}
-</div>
+<!-- Evaluation bars -->
+<section class="eval-section">
+  <div class="eval-section__title">Rubric Scores</div>
+  <div class="bar-legend">${barLegendHTML}</div>
+  <div class="bar-groups">${barGroupsHTML}</div>
+</section>
 
-<div class="recommendation">
-  <p>${recommendation}</p>
-</div>
+<!-- Strengths / weaknesses -->
+<section class="eval-cards-section">
+  <div class="eval-cards-section__title">Analysis</div>
+  <div class="eval-cards">${evalCardsHTML}</div>
+</section>
 
-<div class="files">
-  <p>Generated files:</p>
-  ${variantColumns.map((vc) => `<p><code>${vc.composedPath}</code></p>`).join("")}
-</div>
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer__item"><strong>Generated</strong> ${esc(timestamp)}</div>
+  <div class="footer__item"><strong>Model</strong> ${esc(modelUsed)}</div>
+  <div class="footer__item"><strong>Variants</strong> ${variants.length}</div>
+  ${variantColumns.map((vc) => `<div class="footer__item"><strong>${esc(vc.intensity)}</strong> ${esc(vc.composedPath)}</div>`).join("")}
+</footer>
+
 <script>
-// Scale slide previews to fit columns
+// ═══════════════════════════════════════════════════════
+// SLIDE META (layout + bg per variant per slide)
+// ═══════════════════════════════════════════════════════
+const slideMeta = ${slideMetaJSON};
+const maxSlides = ${maxSlides};
+
+// ═══════════════════════════════════════════════════════
+// SCALE SLIDE PREVIEWS
+// ═══════════════════════════════════════════════════════
 function scaleSlides(){
   document.querySelectorAll('.preview-slide').forEach(el => {
     const w = el.offsetWidth;
-    el.style.setProperty('--preview-scale', (w / 960).toFixed(4));
-    el.style.height = (w * 9 / 16) + 'px';
+    if (w > 0) {
+      el.style.setProperty('--preview-scale', (w / 960).toFixed(4));
+      el.style.height = (w * 9 / 16) + 'px';
+    }
   });
 }
-scaleSlides();
-window.addEventListener('resize', scaleSlides);
 
-// Synced scrolling — toggle with button
-const scrollers = document.querySelectorAll('.preview-scroll');
-let syncEnabled = true;
-let scrolling = false;
+// ═══════════════════════════════════════════════════════
+// TABBED SLIDE NAVIGATION
+// ═══════════════════════════════════════════════════════
+let currentSlide = 0;
 
-scrollers.forEach(scroller => {
-  scroller.addEventListener('scroll', () => {
-    if (!syncEnabled || scrolling) return;
-    scrolling = true;
-    const pct = scroller.scrollTop / (scroller.scrollHeight - scroller.clientHeight || 1);
-    scrollers.forEach(other => {
-      if (other !== scroller) {
-        other.scrollTop = pct * (other.scrollHeight - other.clientHeight);
+function showSlide(idx) {
+  currentSlide = idx;
+  // Update tabs
+  document.querySelectorAll('.slide-tab').forEach(tab => {
+    tab.classList.toggle('active', parseInt(tab.dataset.slide) === idx);
+  });
+  // Show/hide cards + add metadata
+  document.querySelectorAll('.variant-col').forEach((col, vi) => {
+    const cards = col.querySelectorAll('.preview-card');
+    cards.forEach((card, ci) => {
+      card.classList.toggle('slide-visible', ci === idx);
+      // Add metadata badge if not already there
+      if (ci === idx && !card.querySelector('.slide-meta')) {
+        const meta = (slideMeta[vi] || [])[ci];
+        if (meta) {
+          const metaEl = document.createElement('div');
+          metaEl.className = 'slide-meta';
+          metaEl.innerHTML = '<span class="slide-meta__layout">' + (meta.layout || '?') + '</span>'
+            + (meta.bg ? '<span class="slide-meta__bg" style="background:#' + meta.bg + '"></span>' : '');
+          card.appendChild(metaEl);
+        }
       }
     });
-    requestAnimationFrame(() => { scrolling = false; });
+  });
+  // Re-scale after display change
+  requestAnimationFrame(scaleSlides);
+}
+
+// Tab clicks
+document.querySelectorAll('.slide-tab').forEach(tab => {
+  tab.addEventListener('click', () => showSlide(parseInt(tab.dataset.slide)));
+});
+
+// Arrow key navigation
+document.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    if (currentSlide < maxSlides - 1) showSlide(currentSlide + 1);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    if (currentSlide > 0) showSlide(currentSlide - 1);
+  }
+});
+
+// ═══════════════════════════════════════════════════════
+// SOLO VIEW — click variant header to expand/collapse
+// ═══════════════════════════════════════════════════════
+document.querySelectorAll('[data-variant-toggle]').forEach(header => {
+  header.addEventListener('click', () => {
+    const vi = header.dataset.variantToggle;
+    const col = header.closest('.variant-col');
+    const allCols = document.querySelectorAll('.variant-col');
+    const isSolo = col.classList.contains('solo');
+    allCols.forEach(c => {
+      c.classList.remove('solo');
+      c.style.display = '';
+    });
+    if (!isSolo) {
+      col.classList.add('solo');
+      allCols.forEach(c => {
+        if (c !== col) c.style.display = 'none';
+      });
+    }
+    requestAnimationFrame(scaleSlides);
   });
 });
 
-// Toggle button
-const btn = document.createElement('button');
-btn.textContent = 'Sync scroll: ON';
-btn.style.cssText = 'position:fixed;top:1rem;right:1rem;z-index:99;padding:.4rem 1rem;background:#242424;color:#f0ebe3;border:1px solid #555;border-radius:4px;font-family:inherit;font-size:.75rem;cursor:pointer;letter-spacing:0.05em';
-btn.addEventListener('click', () => {
-  syncEnabled = !syncEnabled;
-  btn.textContent = 'Sync scroll: ' + (syncEnabled ? 'ON' : 'OFF');
-  btn.style.borderColor = syncEnabled ? '#548C5A' : '#555';
-});
-document.body.appendChild(btn);
+// ═══════════════════════════════════════════════════════
+// ANIMATE BARS ON SCROLL
+// ═══════════════════════════════════════════════════════
+const barObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.bar-fill').forEach(bar => {
+        bar.style.width = bar.style.width; // trigger reflow
+      });
+      barObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.2 });
+document.querySelectorAll('.bar-group').forEach(g => barObserver.observe(g));
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+showSlide(0);
+window.addEventListener('resize', scaleSlides);
 </script>
 </body>
 </html>`;
