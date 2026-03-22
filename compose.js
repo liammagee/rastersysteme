@@ -1051,6 +1051,7 @@ Output ONLY valid JSON (no code fences, no commentary):
   let lastRenderedCount = 0;
   if (!options.dryRun && outputPath.endsWith(".html")) {
     const renderInterval = setInterval(async () => {
+      if (!bgRenderer) return; // Stopped — don't overwrite final/spliced output
       if (slideDesigns.length === 0 || slideDesigns.length === lastRenderedCount) return;
       lastRenderedCount = slideDesigns.length;
       try {
@@ -1330,8 +1331,9 @@ JSON objects, one per line:`;
 
   process.stderr.write(`  ${completed === total ? sage("✓") : amber("⚠")} Stage 2: ${completed}/${total} slides designed (${failed} batch failures)\n`);
 
-  // Stop background renderer before final render
+  // Stop background renderer before final render — set flag to prevent late writes
   if (bgRenderer) clearInterval(bgRenderer);
+  bgRenderer = null; // Signal to any pending callback not to write
 
   // ── STAGE 3: Final assembly ─────────────────────
   process.stderr.write(`\n  ${amber("○")} Stage 3: Assembling ${teal(composedPath)}...\n`);
