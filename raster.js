@@ -1702,7 +1702,7 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
 .slide.active{display:flex}
 
 /* === Designed slides (parameterised grid) === */
-.slide.designed{position:relative;overflow:hidden;padding:0}
+.slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
 .slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
 .slide.designed .accent-el{position:absolute;pointer-events:none}
 
