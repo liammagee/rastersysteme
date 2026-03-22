@@ -24,7 +24,7 @@ const teal = chalk.hex("#2C7A92");
 const sage = chalk.hex("#548C5A");
 const amber = chalk.hex("#C79B38");
 
-const { compose, composeAsync, callClaude } = require("./compose.js");
+const { compose, composeAsync, composeIncremental, callClaude } = require("./compose.js");
 const { generateHTML, parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
 const { runQA } = require("./qa.js");
 
@@ -242,7 +242,7 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
   const t = timer();
 
   try {
-    await composeAsync(sourcePath, pptxPath, {
+    await composeIncremental(sourcePath, htmlPath, {
       theme: themeName,
       intensity,
       brief: options.brief,
