@@ -729,7 +729,7 @@ async function compose(inputPath, outputPath, options = {}) {
 async function composeIncremental(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
-  const batchSize = options.batchSize || 5;
+  const batchSize = options.batchSize || 1;
   const model = options.model || "sonnet";
 
   // Work directory for incremental state
@@ -816,7 +816,8 @@ Output ONLY valid JSON (no code fences, no commentary):
   }
 
   // ── STAGE 2: Per-slide design (batched) ─────────
-  process.stderr.write(`\n  ${amber("○")} Stage 2: Designing ${total} slides in batches of ${batchSize}...\n`);
+  const perSlide = batchSize === 1;
+  process.stderr.write(`\n  ${amber("○")} Stage 2: Designing ${total} slides${perSlide ? " (1 per call)" : ` in batches of ${batchSize}`}...\n`);
 
   const designSystemContext = JSON.stringify(designSystem, null, 2);
   const slideDesigns = [];
@@ -826,14 +827,22 @@ Output ONLY valid JSON (no code fences, no commentary):
   // Check for cached batches
   for (let i = 0; i < total; i += batchSize) {
     const batchNum = Math.floor(i / batchSize) + 1;
-    const batchPath = path.join(workDir, `batch-${String(batchNum).padStart(2, "0")}.md`);
+    const batchPath = path.join(workDir, `slide-${String(batchNum).padStart(2, "0")}.md`);
 
     if (fs.existsSync(batchPath)) {
       const cached = fs.readFileSync(batchPath, "utf-8");
       slideDesigns.push(cached);
-      const batchSlideCount = (cached.match(/<!-- design:/g) || []).length + (cached.match(/<!-- layout:/g) || []).length;
-      completed += batchSlideCount;
-      process.stderr.write(`  ${sage("✓")} Batch ${batchNum}: slides ${i + 1}-${Math.min(i + batchSize, total)} ${dim("(cached)")}\n`);
+      completed += 1;
+      if (perSlide) {
+        // Compact progress for single-slide mode
+        if (batchNum === 1 || batchNum === total) {
+          process.stderr.write(`  ${sage("✓")} Slide ${batchNum}/${total} ${dim("(cached)")}\n`);
+        } else if (batchNum === 2) {
+          process.stderr.write(`  ${sage("✓")} Slides 2-${total - 1} ${dim("(cached, checking...)")}\n`);
+        }
+      } else {
+        process.stderr.write(`  ${sage("✓")} Batch ${batchNum}: slides ${i + 1}-${Math.min(i + batchSize, total)} ${dim("(cached)")}\n`);
+      }
       continue;
     }
 
@@ -847,37 +856,41 @@ ${designSystemContext}
 
 INTENSITY: ${intensity.toUpperCase()}
 
-Design slides ${i + 1}-${batchEnd} (${batchSlides.length} slides). Each slide needs a <!-- design: {...} --> directive.
+Design slide ${i + 1} of ${total}. It needs a <!-- design: {...} --> directive as its FIRST line.
 
 Use the palette, fonts, grid strategy, and accent strategy from the design system above.
-Vary zone positions, type sizes, and accent placements across slides.
-The content is FIXED — copy it exactly. Add ### labels for typographic texture.
+The content is FIXED — copy it exactly. You may add a ### label for typographic texture.
 
 ${numberedBatch}
 
-Output EXACTLY ${batchSlides.length} slides separated by ---.
-Each slide starts with <!-- design: { on its first line.
-No commentary, no code fences.`;
+Output EXACTLY ONE slide starting with <!-- design: {.
+No --- separators, no commentary, no code fences.`;
 
-    process.stderr.write(`  ${amber("⟐")} Batch ${batchNum}: slides ${i + 1}-${batchEnd}...`);
+    if (perSlide) {
+      process.stderr.write(`  ${amber("⟐")} Slide ${batchNum}/${total}...`);
+    } else {
+      process.stderr.write(`  ${amber("⟐")} Batch ${batchNum}: slides ${i + 1}-${batchEnd}...`);
+    }
 
     try {
-      const raw = await callClaudeAsync(batchPrompt, { model, label: `batch-${batchNum}` });
+      const raw = await callClaudeAsync(batchPrompt, { model, label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}` });
       let cleaned = raw.trim();
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
 
       fs.writeFileSync(batchPath, cleaned);
       slideDesigns.push(cleaned);
 
-      const batchSlideCount = (cleaned.match(/<!-- design:/g) || []).length + (cleaned.match(/<!-- layout:/g) || []).length;
-      completed += batchSlideCount;
-      process.stderr.write(` ${sage("✓")} ${batchSlideCount} slides\n`);
+      completed += 1;
+      process.stderr.write(` ${sage("✓")}\n`);
+
+      // Brief pause between calls to avoid rate limiting
+      if (i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
     } catch (err) {
       // Retry once on stall/timeout (0 chars = connection issue, not content issue)
       if (err.message.includes("stalled") || (err.message.includes("timed out") && err.message.includes("0 chars"))) {
         process.stderr.write(` ${amber("↻")} retrying...\n`);
         try {
-          const raw = await callClaudeAsync(batchPrompt, { model, label: `batch-${batchNum}-retry` });
+          const raw = await callClaudeAsync(batchPrompt, { model, label: `${perSlide ? "slide" : "batch"}-${batchNum}-retry` });
           let cleaned = raw.trim();
           if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
           fs.writeFileSync(batchPath, cleaned);
@@ -1024,7 +1037,7 @@ if (require.main === module) {
     slides: getFlag("--slides"),
     dryRun: args.includes("--dry-run"),
     incremental: args.includes("--incremental"),
-    batchSize: parseInt(getFlag("--batch-size") || "5", 10),
+    batchSize: parseInt(getFlag("--batch-size") || "1", 10),
     withImages: args.includes("--with-images"),
     imageStyle: getFlag("--image-style"),
     imageSlides: getFlag("--image-slides"),
