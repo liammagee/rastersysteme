@@ -419,7 +419,23 @@ function callClaudeAsync(prompt, options = {}) {
       return logFile;
     }
 
+    // Stall detection: if no chars after 90s, connection is dead — kill early
+    const stallCheck = setInterval(() => {
+      const elapsed = (Date.now() - startTime) / 1000;
+      if (elapsed > 90 && chars === 0) {
+        clearInterval(stallCheck);
+        clearInterval(heartbeat);
+        clearTimeout(timeout);
+        const logFile = writeLog(`STALL: 0 chars after ${elapsed.toFixed(0)}s`, "");
+        proc.kill();
+        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} stalled (0 chars after ${elapsed.toFixed(0)}s)\n`);
+        process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
+        reject(new Error(`Claude [${label}] stalled: 0 chars after ${elapsed.toFixed(0)}s`));
+      }
+    }, 10000);
+
     const timeout = setTimeout(() => {
+      clearInterval(stallCheck);
       clearInterval(heartbeat);
       const logFile = writeLog("TIMEOUT after 600s", `partial_result (first 500 chars):\n${resultText.slice(0, 500)}`);
       proc.kill();
@@ -429,6 +445,7 @@ function callClaudeAsync(prompt, options = {}) {
     }, 600000);
 
     proc.on("close", (code) => {
+      clearInterval(stallCheck);
       clearInterval(heartbeat);
       clearTimeout(timeout);
       const totalEl = ((Date.now() - startTime) / 1000).toFixed(1);
@@ -454,6 +471,7 @@ function callClaudeAsync(prompt, options = {}) {
     });
 
     proc.on("error", (err) => {
+      clearInterval(stallCheck);
       clearInterval(heartbeat);
       clearTimeout(timeout);
       const logFile = writeLog(`process_error: ${err.code || err.message}`, "");
@@ -850,10 +868,28 @@ No commentary, no code fences.`;
       completed += batchSlideCount;
       process.stderr.write(` ${sage("✓")} ${batchSlideCount} slides\n`);
     } catch (err) {
+      // Retry once on stall/timeout (0 chars = connection issue, not content issue)
+      if (err.message.includes("stalled") || (err.message.includes("timed out") && err.message.includes("0 chars"))) {
+        process.stderr.write(` ${amber("↻")} retrying...\n`);
+        try {
+          const raw = await callClaudeAsync(batchPrompt, { model, label: `batch-${batchNum}-retry` });
+          let cleaned = raw.trim();
+          if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
+          fs.writeFileSync(batchPath, cleaned);
+          slideDesigns.push(cleaned);
+          const batchSlideCount = (cleaned.match(/<!-- design:/g) || []).length + (cleaned.match(/<!-- layout:/g) || []).length;
+          completed += batchSlideCount;
+          process.stderr.write(`  ${sage("✓")} Batch ${batchNum} retry: ${batchSlideCount} slides\n`);
+          continue;
+        } catch (retryErr) {
+          process.stderr.write(`  ${accent("✗")} Retry failed: ${retryErr.message.split("\n")[0].slice(0, 60)}\n`);
+        }
+      } else {
+        process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
+      }
       failed++;
-      process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
       // Insert fallback — plain source slides with minimal design
-      const fallback = batchSlides.map((s, j) => {
+      const fallback = batchSlides.map((s) => {
         return `<!-- layout: split -->\n${s.trim()}`;
       }).join("\n\n---\n\n");
       slideDesigns.push(fallback);
