@@ -16,7 +16,7 @@ const { spawnSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 const chalk = require("chalk");
-const { generate, parseMarkdown } = require("./raster.js");
+const { generate, generateHTML, parseMarkdown } = require("./raster.js");
 
 const dim = chalk.gray;
 const accent = chalk.hex("#C44230");
@@ -610,7 +610,7 @@ async function composeAsync(inputPath, outputPath, options = {}) {
   const raw = await callClaudeAsync(prompt, { ...options, label: intensity });
   const composed = sanitizeClaudeOutput(raw);
 
-  const composedPath = outputPath.replace(/\.pptx$/, ".composed.md");
+  const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
   fs.writeFileSync(composedPath, composed);
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} → ${teal(composedPath)}\n`);
 
@@ -618,7 +618,8 @@ async function composeAsync(inputPath, outputPath, options = {}) {
     return { slides: 0, output: composedPath, dryRun: true };
   }
 
-  const result = await generate(composedPath, outputPath, {
+  const renderer = outputPath.endsWith(".html") ? generateHTML : generate;
+  const result = await renderer(composedPath, outputPath, {
     theme: options.theme,
     ratio: options.ratio,
   });
@@ -657,7 +658,7 @@ async function compose(inputPath, outputPath, options = {}) {
   const composed = sanitizeClaudeOutput(raw);
 
   // Write intermediate composed markdown for inspection / manual editing
-  const composedPath = outputPath.replace(/\.pptx$/, ".composed.md");
+  const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
   fs.writeFileSync(composedPath, composed);
   process.stderr.write(`  ${dim("Composed →")} ${teal(composedPath)}\n`);
 
@@ -667,7 +668,8 @@ async function compose(inputPath, outputPath, options = {}) {
   }
 
   // Render via rastersysteme
-  const result = await generate(composedPath, outputPath, {
+  const renderer = outputPath.endsWith(".html") ? generateHTML : generate;
+  const result = await renderer(composedPath, outputPath, {
     theme: options.theme,
     ratio: options.ratio,
   });
@@ -876,7 +878,8 @@ No commentary, no code fences.`;
   }
 
   process.stderr.write(`  ${amber("○")} Stage 4: Rendering...\n`);
-  const result = await generate(composedPath, outputPath, {
+  const renderer = outputPath.endsWith(".html") ? generateHTML : generate;
+  const result = await renderer(composedPath, outputPath, {
     theme: options.theme,
     ratio: options.ratio,
   });
@@ -931,7 +934,7 @@ if (require.main === module) {
   let output =
     args[1] && !args[1].startsWith("--")
       ? args[1]
-      : input.replace(/\.md$/, ".pptx");
+      : input.replace(/\.md$/, ".html");
 
   function getFlag(flag) {
     const idx = args.indexOf(flag);
