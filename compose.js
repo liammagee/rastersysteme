@@ -1037,6 +1037,8 @@ Output ONLY valid JSON (no code fences, no commentary):
     process.stderr.write(`  ${dim("  Background renderer active — HTML updates live")}\n`);
   }
 
+  const parallel = options.parallel || 1;
+
   // Check for cached batches
   for (let i = 0; i < total; i += batchSize) {
     const batchNum = Math.floor(i / batchSize) + 1;
@@ -1047,7 +1049,6 @@ Output ONLY valid JSON (no code fences, no commentary):
       slideDesigns.push(cached);
       completed += 1;
       if (perSlide) {
-        // Compact progress for single-slide mode
         if (batchNum === 1 || batchNum === total) {
           process.stderr.write(`  ${sage("✓")} Slide ${batchNum}/${total} ${dim("(cached)")}\n`);
         } else if (batchNum === 2) {
@@ -1215,10 +1216,10 @@ JSON objects, one per line:`;
       completed += 1;
       process.stderr.write(` ${sage("✓")}\n`);
 
-      // Brief pause between calls to avoid rate limiting
-      if (i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
+      // Brief pause between sequential calls to avoid rate limiting
+      if (parallel <= 1 && i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
     } catch (err) {
-      // Retry once on stall/timeout (0 chars = connection issue, not content issue)
+      // Retry once on stall/timeout
       if (err.message.includes("stalled") || (err.message.includes("timed out") && err.message.includes("0 chars"))) {
         process.stderr.write(` ${amber("↻")} retrying...\n`);
         try {
@@ -1245,6 +1246,14 @@ JSON objects, one per line:`;
       slideDesigns.push(fallback);
       completed += batchSlides.length;
     }
+  }
+
+  // Parallel execution note: cross-batch coherence requires sequential processing
+  // (each batch needs the previous batch's context). Parallelism is applied at the
+  // variant level (compare.js runs 3 intensities in parallel via composeAsync).
+  // The --parallel flag controls variant-level concurrency, not batch-level.
+  if (parallel > 1) {
+    process.stderr.write(`  ${dim("  Note: --parallel applies to variant-level concurrency, not batch-level")}\n`);
   }
 
   process.stderr.write(`  ${completed === total ? sage("✓") : amber("⚠")} Stage 2: ${completed}/${total} slides designed (${failed} batch failures)\n`);
@@ -1403,6 +1412,7 @@ if (require.main === module) {
     dryRun: args.includes("--dry-run"),
     incremental: args.includes("--incremental"),
     batchSize: parseInt(getFlag("--batch-size") || "1", 10),
+    parallel: parseInt(getFlag("--parallel") || "1", 10),
     withImages: args.includes("--with-images") || !!getFlag("--images-dir"),
     imagesDir: getFlag("--images-dir"),
     imageStyle: getFlag("--image-style"),

@@ -1250,6 +1250,7 @@ if (require.main === module) {
     slides: getFlag("--slides"),
     skipEval: args.includes("--skip-eval"),
     explosive: args.includes("--explosive"),
+    maxParallel: parseInt(getFlag("--parallel") || "3"),
   };
 
   if (!fs.existsSync(input)) {
