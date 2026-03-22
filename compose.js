@@ -963,30 +963,37 @@ Output ONLY valid JSON (no code fences, no commentary):
 
     const batchSlides = sourceSlides.slice(i, i + batchSize);
     const batchEnd = Math.min(i + batchSize, total);
-    const numberedBatch = batchSlides.map((s, j) => `=== SLIDE ${i + j + 1} of ${total} ===\n${s.trim()}`).join("\n\n");
 
-    // First slide sends full context; subsequent slides resume the session
+    // Slide summaries for Claude (not full content — just enough to choose layout)
+    const slideSummaries = batchSlides.map((s, j) => {
+      const title = (s.match(/^#\s+(.+)/m) || s.match(/^##\s+(.+)/m) || ["", "(untitled)"])[1];
+      const bulletCount = (s.match(/^\s*[-*]\s/gm) || []).length;
+      const hasQuote = /^>\s/m.test(s);
+      const bodyLines = s.split("\n").filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith(">") && !l.startsWith("```") && !l.startsWith("<!--")).length;
+      return `  Slide ${i + j + 1}: "${title}" | ${bulletCount} bullets${hasQuote ? " | quote" : ""} | ${bodyLines} body lines`;
+    }).join("\n");
+
+    // First call sends full context; subsequent calls resume session
     let batchPrompt;
     if (!sessionId) {
-      batchPrompt = `You are composing slides on a 60×40 grid. Here is the design system you MUST follow for ALL slides in this session:
+      batchPrompt = `You are a Swiss art director. Design system:
 
 ${designSystemContext}
 
 INTENSITY: ${intensity.toUpperCase()}
 
-I will send you slides one at a time. For each, output ONLY:
-1. A <!-- design: {...} --> directive as the FIRST line
-2. The slide content exactly as given (you may add a ### label)
+I'll send slide summaries. For each, return ONE JSON object:
+{"slide":N, "layout":"split", "bg":"0F2A4A", "font":"Georgia", "label":"INTRO", "notes":"rationale"}
+Layouts: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank.
+bg = 6-char hex or null. font = name or null. label = ### text or null.
 
-No commentary. No explanations. Start with <!-- design: {
+Rules: vary layouts (5+ types), build chromatic arc with bg, no 3× consecutive same layout.
 
-Here is slide ${i + 1} of ${total}:
+${slideSummaries}
 
-${numberedBatch}`;
+Output ONLY valid JSON — one object per line. No commentary.`;
     } else {
-      batchPrompt = `Slide ${i + 1} of ${total}:
-
-${numberedBatch}`;
+      batchPrompt = `Next slides:\n${slideSummaries}\n\nJSON objects, one per line:`;
     }
 
     if (perSlide) {
@@ -1009,15 +1016,41 @@ ${numberedBatch}`;
         cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
       }
       // Strip code fences
-      if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
-      // Strip any preamble before the design directive (Insight blocks, commentary)
-      const designStart = cleaned.indexOf("<!-- design:");
-      const layoutStart = cleaned.indexOf("<!-- layout:");
-      const firstDir = designStart >= 0 ? designStart : layoutStart;
-      if (firstDir > 0) cleaned = cleaned.substring(firstDir);
+      if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
 
-      fs.writeFileSync(batchPath, cleaned);
-      slideDesigns.push(cleaned);
+      // Parse JSON directives and merge with source slides
+      let directives;
+      try {
+        // Handle both JSON array and one-per-line formats
+        if (cleaned.startsWith("[")) {
+          directives = JSON.parse(cleaned);
+        } else {
+          directives = cleaned.split("\n").filter(l => l.trim().startsWith("{")).map(l => JSON.parse(l));
+        }
+      } catch {
+        // Try extracting JSON objects with regex
+        directives = [];
+        const matches = cleaned.matchAll(/\{[^}]+\}/g);
+        for (const m of matches) {
+          try { directives.push(JSON.parse(m[0])); } catch { /* skip */ }
+        }
+      }
+
+      // Merge directives with original source slides
+      const mergedSlides = batchSlides.map((src, j) => {
+        const d = directives[j] || {};
+        const parts = [];
+        if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
+        if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
+        if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+        if (d.label) parts.push(`### ${d.label}`);
+        parts.push(src.trim());
+        return parts.join("\n");
+      });
+
+      const mergedOutput = mergedSlides.join("\n\n---\n\n");
+      fs.writeFileSync(batchPath, mergedOutput);
+      slideDesigns.push(mergedOutput);
 
       completed += 1;
       process.stderr.write(` ${sage("✓")}\n`);
