@@ -926,6 +926,39 @@ No commentary, no code fences.`;
   });
 
   process.stderr.write(`  ${sage("✓")} Stage 4: ${chalk.white.bold(result.slides)} slides → ${teal(result.output)}\n`);
+
+  // ── STAGE 5: Images (optional) ──────────────────
+  if (options.withImages && outputPath.endsWith(".html")) {
+    process.stderr.write(`\n  ${amber("○")} Stage 5: Generating images...\n`);
+
+    const imagesDir = path.join(workDir, "images");
+    if (!fs.existsSync(imagesDir)) fs.mkdirSync(imagesDir, { recursive: true });
+
+    try {
+      const { imagine } = require("./imagine.js");
+      const imageStyle = options.imageStyle || "swiss-poster";
+      const imageResult = await imagine(composedPath, {
+        style: imageStyle,
+        generate: true,
+        model: options.model,
+        outputDir: imagesDir,
+        slides: options.imageSlides, // optional: "1,5,10" — key slides only
+      });
+
+      process.stderr.write(`  ${sage("✓")} Stage 5: ${imageResult.generated || 0} images generated\n`);
+
+      // Splice images into the rendered HTML
+      if (imageResult.generated > 0) {
+        process.stderr.write(`  ${amber("○")} Stage 5b: Splicing images into HTML...\n`);
+        const { spliceImages } = require("./splice-images.js");
+        await spliceImages(outputPath, imagesDir, { model: options.model });
+        process.stderr.write(`  ${sage("✓")} Stage 5b: Images spliced into ${teal(outputPath)}\n`);
+      }
+    } catch (err) {
+      process.stderr.write(`  ${amber("⚠")} Stage 5: Image generation failed (non-fatal): ${err.message.split("\n")[0].slice(0, 80)}\n`);
+    }
+  }
+
   process.stderr.write(`  ${accent("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")}\n\n`);
 
   return { ...result, composedPath, designSystem, workDir };
@@ -992,6 +1025,9 @@ if (require.main === module) {
     dryRun: args.includes("--dry-run"),
     incremental: args.includes("--incremental"),
     batchSize: parseInt(getFlag("--batch-size") || "5", 10),
+    withImages: args.includes("--with-images"),
+    imageStyle: getFlag("--image-style"),
+    imageSlides: getFlag("--image-slides"),
   };
 
   if (!fs.existsSync(input)) {
