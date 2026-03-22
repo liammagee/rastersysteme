@@ -49,41 +49,100 @@ function esc(str) {
 // ═══════════════════════════════════════════════════════
 
 function studioCSS() {
+  // Layout-type colour map for grid badges
+  const layoutColours = {
+    title:    { bg: 'rgba(224,64,64,0.12)',  text: '#E04040' },
+    section:  { bg: 'rgba(64,192,128,0.12)', text: '#40C080' },
+    split:    { bg: 'rgba(80,140,220,0.12)', text: '#508CDC' },
+    bullets:  { bg: 'rgba(224,160,64,0.12)', text: '#E0A040' },
+    quote:    { bg: 'rgba(180,120,220,0.12)',text: '#B478DC' },
+    statement:{ bg: 'rgba(80,200,200,0.12)', text: '#50C8C8' },
+    image:    { bg: 'rgba(220,100,160,0.12)',text: '#DC64A0' },
+    code:     { bg: 'rgba(160,180,80,0.12)', text: '#A0B450' },
+    table:    { bg: 'rgba(100,160,200,0.12)',text: '#64A0C8' },
+    comparison:{ bg:'rgba(200,140,80,0.12)', text: '#C88C50' },
+    'content-heavy':{ bg:'rgba(140,120,200,0.12)',text:'#8C78C8' },
+    blank:    { bg: 'rgba(136,136,160,0.10)',text: '#8888A0' },
+    arc:      { bg: 'rgba(200,80,120,0.12)', text: '#C85078' },
+    rotated:  { bg: 'rgba(120,180,120,0.12)',text: '#78B478' },
+    overlap:  { bg: 'rgba(180,160,80,0.12)', text: '#B4A050' },
+    designed: { bg: 'rgba(200,200,220,0.10)',text: '#C8C8DC' },
+  };
+
+  // Generate per-layout badge CSS
+  const layoutBadgeCSS = Object.entries(layoutColours).map(([layout, c]) =>
+    `.studio-card-layout[data-layout="${layout}"] { background: ${c.bg}; color: ${c.text}; }`
+  ).join('\n');
+
   return `
 /* ═══════════════════════════════════════════════════════
-   STUDIO CHROME — "Precision Instrument" aesthetic
+   STUDIO CHROME — v2 "Editorial Stage" aesthetic
+   Fonts: Fraunces (display), Outfit (UI), JetBrains Mono
    ═══════════════════════════════════════════════════════ */
 
 :root {
-  --studio-bg: #0A0A0A;
-  --studio-surface: #141414;
-  --studio-surface2: #1E1E1E;
-  --studio-border: #2A2A2A;
-  --studio-border2: #333;
-  --studio-text: #E8E8E8;
-  --studio-text2: #999;
-  --studio-text3: #666;
-  --studio-accent: #E63946;
-  --studio-success: #2A9D8F;
-  --studio-warning: #E9C46A;
-  --studio-error: #E76F51;
-  --studio-radius: 6px;
-  --studio-ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --stage:       #0C0C0E;
+  --surface:     #16161A;
+  --surface-2:   #1E1E24;
+  --border:      #2A2A32;
+  --border-2:    #353540;
+  --text:        #ECECF0;
+  --text-2:      #8888A0;
+  --text-3:      #55556A;
+  --accent:      #E04040;
+  --accent-glow: rgba(224,64,64,0.3);
+  --success:     #40C080;
+  --warning:     #E0A040;
+  --error:       #E04040;
+  --radius:      4px;
+  --ease:        cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* legacy aliases so existing JS refs don't break */
+  --studio-bg:      var(--stage);
+  --studio-surface:  var(--surface);
+  --studio-surface2: var(--surface-2);
+  --studio-border:   var(--border);
+  --studio-border2:  var(--border-2);
+  --studio-text:     var(--text);
+  --studio-text2:    var(--text-2);
+  --studio-text3:    var(--text-3);
+  --studio-accent:   var(--accent);
+  --studio-success:  var(--success);
+  --studio-warning:  var(--warning);
+  --studio-error:    var(--error);
+  --studio-radius:   var(--radius);
+  --studio-ease:     var(--ease);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body {
   width: 100%; height: 100%;
-  background: var(--studio-bg);
+  background: var(--stage);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  color: var(--studio-text);
+  font-family: 'Outfit', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--text);
+}
+
+/* ─── NOISE TEXTURE (CSS-only) ─── */
+
+.studio-stage::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-conic-gradient(
+      rgba(255,255,255,0.012) 0% 25%,
+      transparent 0% 50%
+    );
+  background-size: 4px 4px;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ─── STAGE: the dark area behind slides ─── */
@@ -91,42 +150,49 @@ body {
 .studio-stage {
   position: fixed; inset: 0;
   display: flex; align-items: center; justify-content: center;
-  background: var(--studio-bg);
-  padding: 2vmin;
-  transition: padding 0.3s var(--studio-ease);
+  background: var(--stage);
+  padding: 3vmin;
+  transition: padding 0.4s var(--ease);
 }
 
 .studio-stage.qa-open {
-  padding-right: calc(30% + 2vmin);
+  padding-right: calc(30% + 3vmin);
 }
 
-/* ─── SLIDE VIEWPORT ─── */
+/* ─── SLIDE VIEWPORT — floating card ─── */
 
 .studio-viewport {
   position: relative;
   width: 100%;
-  max-width: calc((100vh - 4vmin) * 16 / 9);
+  max-width: calc((100vh - 6vmin) * 16 / 9);
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: 2px;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.04), 0 20px 80px rgba(0,0,0,0.6);
+  border-radius: 3px;
+  z-index: 1;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 2px 4px rgba(0,0,0,0.3),
+    0 8px 24px rgba(0,0,0,0.4),
+    0 24px 80px rgba(0,0,0,0.5);
 }
 
 .studio-stage.qa-open .studio-viewport {
-  max-width: calc((100vh - 4vmin) * 16 / 9 * 0.7);
+  max-width: calc((100vh - 6vmin) * 16 / 9 * 0.7);
 }
 
-/* ─── INDIVIDUAL SLIDES ─── */
+/* ─── INDIVIDUAL SLIDES — crossfade + scale ─── */
 
 .studio-slide {
   position: absolute; inset: 0;
   opacity: 0;
+  transform: scale(0.98);
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease, transform 0.4s ease;
 }
 
 .studio-slide.active {
   opacity: 1;
+  transform: scale(1);
   pointer-events: auto;
 }
 
@@ -137,92 +203,99 @@ body {
   overflow: hidden;
 }
 
-/* ─── PROGRESS BAR ─── */
+/* ─── PROGRESS BAR — thin accent with glow ─── */
 
 .studio-progress {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 2px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.04);
   z-index: 500;
 }
 
 .studio-progress-fill {
   height: 100%;
-  background: var(--studio-accent);
-  transition: width 0.3s ease;
+  background: var(--accent);
+  transition: width 0.35s ease;
   width: 0;
-  box-shadow: 0 0 12px var(--studio-accent);
+  box-shadow: 0 0 8px var(--accent-glow), 0 0 24px var(--accent-glow);
 }
 
-/* ─── SLIDE COUNTER ─── */
+/* ─── SLIDE COUNTER — bottom-right, Outfit ─── */
 
 .studio-counter {
   position: fixed;
-  bottom: 12px; right: 20px;
-  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  bottom: 14px; right: 20px;
+  font-family: 'Outfit', sans-serif;
   font-size: 11px;
-  color: var(--studio-text3);
+  font-weight: 400;
+  color: var(--text-3);
   z-index: 500;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
   user-select: none;
   transition: opacity 0.3s ease;
+  opacity: 0.6;
 }
 
 .studio-counter.hidden { opacity: 0; }
 
-/* ─── SPEAKER NOTES PANEL ─── */
+/* ─── SPEAKER NOTES — frosted dark glass ─── */
 
 .studio-notes {
   position: fixed;
   bottom: 0; left: 0; right: 0;
   height: 0;
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(24px) saturate(1.2);
-  -webkit-backdrop-filter: blur(24px) saturate(1.2);
-  border-top: 1px solid var(--studio-border);
-  color: var(--studio-text);
+  background: rgba(12, 12, 14, 0.7);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-top: 1px solid var(--border);
+  color: var(--text);
   overflow: auto;
-  transition: height 0.25s var(--studio-ease), padding 0.25s var(--studio-ease);
+  transition: height 0.3s var(--ease), padding 0.3s var(--ease);
   z-index: 600;
-  padding: 0 32px;
+  padding: 0 40px;
 }
 
 .studio-notes.open {
   height: 25vh;
-  padding: 20px 32px;
+  padding: 24px 40px;
 }
 
 .studio-notes-header {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Outfit', sans-serif;
   font-size: 10px;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--studio-accent);
-  margin-bottom: 12px;
+  color: var(--accent);
+  margin-bottom: 14px;
 }
 
 .studio-notes-body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: 'Outfit', sans-serif;
   font-size: 15px;
   line-height: 1.7;
-  color: var(--studio-text2);
+  color: var(--text-2);
   white-space: pre-wrap;
   max-width: 80ch;
 }
 
-/* ─── GRID MODE ─── */
+/* ─── GRID MODE — dark surface + grid pattern ─── */
 
 .studio-grid {
   position: fixed; inset: 0;
-  background: var(--studio-bg);
+  background:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+    var(--stage);
+  background-size: 40px 40px, 40px 40px, 100% 100%;
   z-index: 800;
   overflow-y: auto;
-  padding: 48px 40px;
+  padding: 48px 48px;
   opacity: 0;
   pointer-events: none;
-  transform: scale(0.98);
-  transition: opacity 0.25s var(--studio-ease), transform 0.25s var(--studio-ease);
+  transform: scale(0.97);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
 }
 
 .studio-grid.open {
@@ -235,21 +308,22 @@ body {
   display: flex;
   align-items: baseline;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 36px;
 }
 
 .studio-grid-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 24px;
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
   font-weight: 400;
-  color: var(--studio-text);
+  font-optical-sizing: auto;
+  color: var(--text);
   letter-spacing: -0.02em;
 }
 
 .studio-grid-meta {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--studio-text3);
+  color: var(--text-3);
 }
 
 .studio-grid-cards {
@@ -258,26 +332,30 @@ body {
   gap: 20px;
 }
 
+/* ─── GRID CARDS — rounded, hover lift ─── */
+
 .studio-card {
-  background: var(--studio-surface);
-  border: 1px solid var(--studio-border);
-  border-radius: var(--studio-radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s var(--studio-ease), box-shadow 0.2s var(--studio-ease),
-              border-color 0.2s ease;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              border-color 0.25s ease;
   outline: none;
 }
 
 .studio-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  border-color: var(--studio-border2);
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  border-color: var(--border-2);
 }
 
-.studio-card:focus-visible {
-  border-color: var(--studio-accent);
-  box-shadow: 0 0 0 2px rgba(230, 57, 70, 0.3), 0 8px 32px rgba(0,0,0,0.4);
+.studio-card:focus-visible,
+.studio-card.grid-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 12px 40px rgba(0,0,0,0.5);
+  transform: scale(1.02);
 }
 
 .studio-card-preview {
@@ -308,27 +386,38 @@ body {
   font-family: 'JetBrains Mono', monospace;
   font-size: 12px;
   font-weight: 700;
-  color: var(--studio-text);
+  color: var(--text);
   min-width: 24px;
 }
 
+/* ─── Layout badge: pill-shaped, colour-coded ─── */
+
 .studio-card-layout {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  color: var(--studio-accent);
-  background: rgba(230, 57, 70, 0.1);
-  padding: 2px 8px;
-  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  /* default fallback colour */
+  color: var(--text-2);
+  background: rgba(136,136,160,0.1);
 }
+
+${layoutBadgeCSS}
+
+/* ─── QA status dot ─── */
 
 .studio-card-status {
   margin-left: auto;
-  font-size: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
 }
-.studio-card-status.ok { color: var(--studio-success); }
-.studio-card-status.warn { color: var(--studio-warning); }
-.studio-card-status.err { color: var(--studio-error); }
+.studio-card-status.ok   { background: var(--success); }
+.studio-card-status.warn { background: var(--warning); }
+.studio-card-status.err  { background: var(--error); }
 
 .studio-card-badges {
   padding: 0 14px 10px;
@@ -340,125 +429,129 @@ body {
 .studio-badge {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: 100px;
   line-height: 1.4;
 }
 .studio-badge.warn {
-  background: rgba(233, 196, 106, 0.15);
-  color: var(--studio-warning);
+  background: rgba(224,160,64,0.12);
+  color: var(--warning);
 }
 .studio-badge.err {
-  background: rgba(231, 111, 81, 0.15);
-  color: var(--studio-error);
+  background: rgba(224,64,64,0.12);
+  color: var(--error);
 }
 
-/* ─── QA PANEL ─── */
+/* ─── QA PANEL — slide-in from right ─── */
 
 .studio-qa {
   position: fixed;
   top: 0; right: 0; bottom: 0;
   width: 0;
-  background: var(--studio-surface);
-  border-left: 1px solid var(--studio-border);
+  background: var(--surface);
+  border-left: 1px solid var(--border);
   z-index: 700;
   overflow-y: auto;
   overflow-x: hidden;
   opacity: 0;
-  transition: width 0.25s var(--studio-ease), opacity 0.25s ease;
+  transition: width 0.4s var(--ease-spring), opacity 0.3s ease;
 }
 
 .studio-qa.open {
   width: 30%;
-  min-width: 360px;
+  min-width: 380px;
   opacity: 1;
 }
 
 .studio-qa-inner {
-  padding: 32px 28px;
-  min-width: 340px;
+  padding: 36px 32px;
+  min-width: 360px;
 }
 
 .studio-qa-title {
-  font-family: 'DM Serif Display', serif;
-  font-size: 20px;
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
   font-weight: 400;
-  color: var(--studio-text);
+  font-optical-sizing: auto;
+  color: var(--text);
   margin-bottom: 4px;
 }
 
 .studio-qa-subtitle {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: var(--studio-text3);
+  color: var(--text-3);
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
-/* Grade display */
+/* Grade display — large Fraunces letter */
 .studio-grade-container {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 28px;
-  padding: 20px;
-  background: var(--studio-surface2);
-  border-radius: var(--studio-radius);
-  border: 1px solid var(--studio-border);
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
 }
 
 .studio-grade-letter {
-  font-family: 'DM Serif Display', serif;
-  font-size: 56px;
-  font-weight: 400;
+  font-family: 'Fraunces', serif;
+  font-size: 80px;
+  font-weight: 900;
+  font-optical-sizing: auto;
   line-height: 1;
 }
 
 .studio-grade-details {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .studio-grade-score {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 14px;
-  color: var(--studio-text);
+  font-size: 15px;
+  color: var(--text);
 }
 
 .studio-grade-pct {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 11px;
-  color: var(--studio-text3);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  color: var(--text-3);
 }
 
-/* Score bars */
+/* Score bars — 4px, rounded, gradient */
 .studio-score-section {
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .studio-score-label {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Outfit', sans-serif;
   font-size: 10px;
+  font-weight: 600;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--studio-text3);
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--studio-border);
+  color: var(--text-3);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
 }
 
 .studio-score-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .studio-score-name {
+  font-family: 'Outfit', sans-serif;
   font-size: 12px;
-  color: var(--studio-text2);
+  color: var(--text-2);
   width: 120px;
   flex-shrink: 0;
 }
@@ -466,7 +559,7 @@ body {
 .studio-score-bar-bg {
   flex: 1;
   height: 4px;
-  background: var(--studio-border);
+  background: var(--border);
   border-radius: 2px;
   overflow: hidden;
 }
@@ -474,13 +567,13 @@ body {
 .studio-score-bar-fill {
   height: 100%;
   border-radius: 2px;
-  transition: width 0.6s var(--studio-ease);
+  transition: width 0.7s var(--ease);
 }
 
 .studio-score-val {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--studio-text2);
+  color: var(--text-2);
   min-width: 36px;
   text-align: right;
 }
@@ -490,103 +583,113 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .studio-qa-stat {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 4px;
-  background: var(--studio-surface2);
-  border: 1px solid var(--studio-border);
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
 }
-.studio-qa-stat.ok { color: var(--studio-success); }
-.studio-qa-stat.warn { color: var(--studio-warning); }
-.studio-qa-stat.err { color: var(--studio-error); }
+.studio-qa-stat.ok   { color: var(--success); }
+.studio-qa-stat.warn { color: var(--warning); }
+.studio-qa-stat.err  { color: var(--error); }
 
-/* Issue list */
+/* Issue list — cards with left colour border */
 .studio-issue {
-  padding: 8px 12px;
-  margin-bottom: 4px;
-  border-radius: 4px;
-  font-size: 11px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: var(--radius);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
   line-height: 1.5;
-  background: var(--studio-surface2);
-  border: 1px solid var(--studio-border);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
 }
 
 .studio-issue .issue-slide {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: var(--studio-text3);
+  color: var(--text-3);
   margin-right: 6px;
 }
 
 .studio-issue .issue-layout {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  color: var(--studio-accent);
-  background: rgba(230, 57, 70, 0.1);
-  padding: 1px 5px;
-  border-radius: 2px;
+  color: var(--accent);
+  background: rgba(224,64,64,0.1);
+  padding: 1px 6px;
+  border-radius: 100px;
   margin-right: 8px;
 }
 
 .studio-issue.severity-error {
-  border-left: 2px solid var(--studio-error);
+  border-left-color: var(--error);
 }
 .studio-issue.severity-warning {
-  border-left: 2px solid var(--studio-warning);
+  border-left-color: var(--warning);
 }
 
 .studio-issue .issue-icon {
   margin-right: 4px;
 }
-.studio-issue .issue-icon.err { color: var(--studio-error); }
-.studio-issue .issue-icon.warn { color: var(--studio-warning); }
+.studio-issue .issue-icon.err  { color: var(--error); }
+.studio-issue .issue-icon.warn { color: var(--warning); }
 
-/* Content inventory */
+/* Content inventory — compact table, alternating tints */
 .studio-inventory {
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .studio-inv-slide {
-  margin-bottom: 8px;
+  padding: 6px 10px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.studio-inv-slide:nth-child(odd) {
+  background: rgba(255,255,255,0.02);
 }
 
 .studio-inv-num {
   font-family: 'JetBrains Mono', monospace;
   font-size: 10px;
-  color: var(--studio-text3);
-  display: inline-block;
+  color: var(--text-3);
   width: 28px;
+  flex-shrink: 0;
 }
 
 .studio-inv-tag {
   font-family: 'JetBrains Mono', monospace;
   font-size: 9px;
-  color: var(--studio-text3);
-  background: var(--studio-surface2);
-  padding: 1px 5px;
-  border-radius: 2px;
-  margin-right: 3px;
+  color: var(--text-3);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 100px;
 }
 
-/* ─── HELP OVERLAY ─── */
+/* ─── HELP OVERLAY — frosted glass card, two-column ─── */
 
 .studio-help {
   position: fixed; inset: 0;
-  background: rgba(10, 10, 10, 0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: rgba(12, 12, 14, 0.85);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
   z-index: 900;
   display: flex;
   align-items: center;
   justify-content: center;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.25s ease;
 }
 
 .studio-help.open {
@@ -595,21 +698,28 @@ body {
 }
 
 .studio-help-inner {
-  max-width: 480px;
+  max-width: 520px;
   width: 90%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 36px 40px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
 }
 
 .studio-help-title {
-  font-family: 'DM Serif Display', serif;
+  font-family: 'Fraunces', serif;
   font-size: 28px;
   font-weight: 400;
-  color: var(--studio-text);
-  margin-bottom: 8px;
+  font-optical-sizing: auto;
+  color: var(--text);
+  margin-bottom: 4px;
 }
 
 .studio-help-subtitle {
+  font-family: 'Outfit', sans-serif;
   font-size: 13px;
-  color: var(--studio-text3);
+  color: var(--text-3);
   margin-bottom: 28px;
 }
 
@@ -618,48 +728,53 @@ body {
 }
 
 .studio-help-section-title {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Outfit', sans-serif;
   font-size: 10px;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--studio-accent);
+  color: var(--accent);
   margin-bottom: 10px;
 }
 
 .studio-shortcut {
   display: flex;
   align-items: center;
-  padding: 6px 0;
+  padding: 5px 0;
 }
 
 .studio-key {
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
-  color: var(--studio-text);
-  background: var(--studio-surface2);
-  border: 1px solid var(--studio-border2);
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
   border-radius: 4px;
-  padding: 3px 10px;
-  min-width: 56px;
+  padding: 4px 12px;
+  min-width: 72px;
   text-align: center;
-  margin-right: 16px;
+  margin-right: 20px;
+  flex-shrink: 0;
 }
 
 .studio-shortcut-desc {
+  font-family: 'Outfit', sans-serif;
   font-size: 13px;
-  color: var(--studio-text2);
+  color: var(--text-2);
 }
 
 /* ─── MODE INDICATOR ─── */
 
 .studio-mode {
   position: fixed;
-  top: 16px; left: 20px;
-  font-family: 'JetBrains Mono', monospace;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Outfit', sans-serif;
   font-size: 10px;
-  letter-spacing: 0.15em;
+  font-weight: 600;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--studio-text3);
+  color: var(--text-3);
   z-index: 500;
   user-select: none;
   opacity: 0;
@@ -671,18 +786,41 @@ body {
   opacity: 1;
 }
 
+/* ─── BACK LINK (top-left) ─── */
+
+.studio-back {
+  position: fixed;
+  top: 16px; left: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
+  text-decoration: none;
+  z-index: 500;
+  user-select: none;
+  opacity: 0.5;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.studio-back:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
 /* ─── DECK TITLE (top-right in present mode) ─── */
 
 .studio-deck-title {
   position: fixed;
   top: 16px; right: 20px;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  color: var(--studio-text3);
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
   z-index: 500;
   user-select: none;
-  opacity: 0.4;
+  opacity: 0.35;
   transition: opacity 0.3s ease;
 }
 
@@ -773,8 +911,13 @@ function studioJS() {
       mode = 'grid';
       flashMode('GRID');
       scaleGridCards();
-      // Focus current card
-      if (gridCards[cur]) gridCards[cur].focus();
+      // Focus current card and scroll to it
+      if (gridCards[cur]) {
+        gridCards[cur].focus();
+        setTimeout(function() {
+          gridCards[cur].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
     }
   }
 
@@ -851,7 +994,9 @@ function studioJS() {
       else if (e.key === 'ArrowDown') next = Math.min(focusIdx + cols, total - 1);
       else if (e.key === 'ArrowUp') next = Math.max(focusIdx - cols, 0);
       if (next !== focusIdx && next >= 0) {
-        gridCards[next].focus(); e.preventDefault();
+        gridCards[next].focus();
+        gridCards[next].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        e.preventDefault();
       }
       if (e.key === '?') { toggleHelp(); e.preventDefault(); }
       return;
@@ -947,14 +1092,14 @@ async function generateStudio(inputPath, outputPath, options = {}) {
     pct >= 90 ? "A" : pct >= 80 ? "B" : pct >= 70 ? "C" : pct >= 60 ? "D" : "F";
   const gradeColor =
     grade === "A"
-      ? "#2A9D8F"
+      ? "#40C080"
       : grade === "B"
-      ? "#4A90D9"
+      ? "#508CDC"
       : grade === "C"
-      ? "#E9C46A"
+      ? "#E0A040"
       : grade === "D"
-      ? "#E76F51"
-      : "#E63946";
+      ? "#E07040"
+      : "#E04040";
 
   const a11yErrors = a11yResults.filter((r) => r.severity === "error");
   const a11yWarnings = a11yResults.filter((r) => r.severity === "warning");
@@ -1202,14 +1347,8 @@ async function generateStudio(inputPath, outputPath, options = {}) {
 
       const previewStyle = previewParts.join(";");
 
-      // Status
+      // Status (rendered as a coloured dot via CSS)
       const statusClass = errs.length > 0 ? "err" : warns.length > 0 ? "warn" : "ok";
-      const statusIcon =
-        errs.length > 0
-          ? "\u2716"
-          : warns.length > 0
-          ? "\u26A0"
-          : "\u2714";
 
       // QA badges
       const badges = [
@@ -1245,8 +1384,8 @@ async function generateStudio(inputPath, outputPath, options = {}) {
   </div>
   <div class="studio-card-info">
     <span class="studio-card-num">${String(idx + 1).padStart(2, "0")}</span>
-    <span class="studio-card-layout">${cardLayoutLabel}</span>
-    <span class="studio-card-status ${statusClass}">${statusIcon}</span>
+    <span class="studio-card-layout" data-layout="${cardLayoutLabel}">${cardLayoutLabel}</span>
+    <span class="studio-card-status ${statusClass}"></span>
   </div>
   ${badges ? `<div class="studio-card-badges">${badges}</div>` : ""}
 </div>`;
@@ -1256,10 +1395,11 @@ async function generateStudio(inputPath, outputPath, options = {}) {
   // ── Build QA panel content ──
   function scoreBarHTML(name, s) {
     const p = Math.round((s.score / s.max) * 100);
-    const c = p >= 80 ? "#2A9D8F" : p >= 60 ? "#E9C46A" : "#E76F51";
+    const cStart = p >= 80 ? "#40C080" : p >= 60 ? "#E0A040" : "#E04040";
+    const cEnd   = p >= 80 ? "#50D898" : p >= 60 ? "#E8C060" : "#E86060";
     return `<div class="studio-score-row">
   <span class="studio-score-name">${name}</span>
-  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:${p}%;background:${c}"></div></div>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:${p}%;background:linear-gradient(90deg,${cStart},${cEnd})"></div></div>
   <span class="studio-score-val">${s.score}/${s.max}</span>
 </div>`;
   }
@@ -1341,14 +1481,14 @@ async function generateStudio(inputPath, outputPath, options = {}) {
 <title>${deckTitle} — Studio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=DM+Serif+Display:ital@0;1&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Outfit:wght@100..900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 /* ── Slide layout system (from raster.js) ── */
 :root{${cssVars};--font:'${globalFont}','Helvetica Neue',Helvetica,Arial,sans-serif}
 ${generateHTMLCSS()}
 
 /* ── Override raster defaults for studio context ── */
-body { background: var(--studio-bg, #0A0A0A); overflow: hidden; }
+body { background: var(--stage, #0C0C0E); overflow: hidden; }
 .slide { display: flex; } /* undo display:none from raster default */
 .slide.active { display: flex; } /* keep compatibility */
 .deck { display: none; } /* we don't use the .deck wrapper */
@@ -1401,6 +1541,7 @@ ${studioCSS()}
 <div class="studio-progress"><div class="studio-progress-fill"></div></div>
 <div class="studio-counter">01 / ${String(slides.length).padStart(2, "0")}</div>
 <div class="studio-mode"></div>
+<a class="studio-back" href="../index.html">&larr; rastersysteme</a>
 <div class="studio-deck-title">${deckTitle}</div>
 
 <!-- ═══ SPEAKER NOTES ═══ -->
@@ -1469,19 +1610,19 @@ ${studioCSS()}
 
     <div class="studio-help-section">
       <div class="studio-help-section-title">Navigation</div>
-      <div class="studio-shortcut"><span class="studio-key">\u2192 / Space</span><span class="studio-shortcut-desc">Next slide</span></div>
-      <div class="studio-shortcut"><span class="studio-key">\u2190</span><span class="studio-shortcut-desc">Previous slide</span></div>
+      <div class="studio-shortcut"><span class="studio-key">&rarr; / Space</span><span class="studio-shortcut-desc">Next slide</span></div>
+      <div class="studio-shortcut"><span class="studio-key">&larr;</span><span class="studio-shortcut-desc">Previous slide</span></div>
       <div class="studio-shortcut"><span class="studio-key">Home</span><span class="studio-shortcut-desc">First slide</span></div>
       <div class="studio-shortcut"><span class="studio-key">End</span><span class="studio-shortcut-desc">Last slide</span></div>
     </div>
 
     <div class="studio-help-section">
       <div class="studio-help-section-title">Modes</div>
-      <div class="studio-shortcut"><span class="studio-key">G</span><span class="studio-shortcut-desc">Toggle grid overview</span></div>
-      <div class="studio-shortcut"><span class="studio-key">Q</span><span class="studio-shortcut-desc">Toggle QA panel</span></div>
-      <div class="studio-shortcut"><span class="studio-key">N</span><span class="studio-shortcut-desc">Toggle speaker notes</span></div>
-      <div class="studio-shortcut"><span class="studio-key">F</span><span class="studio-shortcut-desc">Toggle fullscreen</span></div>
-      <div class="studio-shortcut"><span class="studio-key">?</span><span class="studio-shortcut-desc">Toggle this help</span></div>
+      <div class="studio-shortcut"><span class="studio-key">G</span><span class="studio-shortcut-desc">Grid overview</span></div>
+      <div class="studio-shortcut"><span class="studio-key">Q</span><span class="studio-shortcut-desc">QA analysis panel</span></div>
+      <div class="studio-shortcut"><span class="studio-key">N</span><span class="studio-shortcut-desc">Speaker notes</span></div>
+      <div class="studio-shortcut"><span class="studio-key">F</span><span class="studio-shortcut-desc">Fullscreen</span></div>
+      <div class="studio-shortcut"><span class="studio-key">?</span><span class="studio-shortcut-desc">This help overlay</span></div>
       <div class="studio-shortcut"><span class="studio-key">Esc</span><span class="studio-shortcut-desc">Close panel / overlay</span></div>
     </div>
 
