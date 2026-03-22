@@ -826,22 +826,24 @@ Output ONLY valid JSON (no code fences, no commentary):
   let completed = 0;
   let failed = 0;
 
-  // Background renderer: watches slide files and re-renders HTML on each new one
+  // Background renderer: assembles + renders HTML every 8s so user can preview
   let bgRenderer = null;
+  let lastRenderedCount = 0;
   if (!options.dryRun && outputPath.endsWith(".html")) {
-    const renderInterval = setInterval(() => {
-      if (slideDesigns.length === 0) return;
+    const renderInterval = setInterval(async () => {
+      if (slideDesigns.length === 0 || slideDesigns.length === lastRenderedCount) return;
+      lastRenderedCount = slideDesigns.length;
       try {
         const partial = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
         fs.writeFileSync(composedPath, partial);
-        // Fork a detached child to render without blocking
-        const { execFile } = require("child_process");
-        const args = [path.join(__dirname, "raster.js"), composedPath, outputPath, "--format", "html", "--theme", options.theme || "light"];
-        execFile("node", args, { timeout: 10000 }, () => {}); // fire and forget
-      } catch { /* non-fatal */ }
-    }, 8000); // re-render every 8 seconds
+        await generateHTML(composedPath, outputPath, { theme: options.theme || "light" });
+        process.stderr.write(`  ${dim("  → preview:")} ${teal(path.basename(outputPath))} ${dim(`(${lastRenderedCount}/${total})`)}\n`);
+      } catch (renderErr) {
+        process.stderr.write(`  ${dim("  → preview render failed:")} ${dim(renderErr.message.slice(0, 60))}\n`);
+      }
+    }, 8000);
     bgRenderer = renderInterval;
-    process.stderr.write(`  ${dim("  Background renderer active — HTML updates every 8s")}\n`);
+    process.stderr.write(`  ${dim("  Background renderer active — HTML updates live")}\n`);
   }
 
   // Check for cached batches

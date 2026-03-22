@@ -128,6 +128,96 @@ const THEMES = {
 // MARKDOWN PARSER
 // ═══════════════════════════════════════════════════════
 
+// Normalise Claude's varied design JSON formats to our expected schema
+function normaliseDesign(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const d = { zones: [], accents: [], typography: {} };
+
+  // Copy through standard fields
+  d.bg = (raw.bg || raw.background || "").replace(/^#/, "") || undefined;
+  d.font = raw.font || undefined;
+  d.gap = raw.gap || undefined;
+
+  // Normalise a single zone object from Claude's varied key names
+  function normaliseZone(z, role) {
+    return {
+      role: z.role || z.id || z.type || role,
+      col: z.col ?? z.x ?? 0,
+      span: z.span ?? z.colSpan ?? z.width ?? 30,
+      row: z.row ?? z.y ?? 0,
+      rowSpan: z.rowSpan ?? z.height ?? 20,
+    };
+  }
+
+  // Normalise an accent from Claude's varied formats
+  function normaliseAccent(a) {
+    return {
+      type: a.type || "bar",
+      col: a.col ?? a.x ?? 0,
+      span: a.span ?? a.colSpan ?? a.width ?? 2,
+      row: a.row ?? a.y ?? 0,
+      rowSpan: a.rowSpan ?? a.height ?? 40,
+      color: (a.color || a.fill || a.stroke || "E63946").replace(/^#/, ""),
+    };
+  }
+
+  // Case 1: zones is already an array
+  if (Array.isArray(raw.zones)) {
+    d.zones = raw.zones.map(z => normaliseZone(z, z.role || z.id || "body"));
+  }
+  // Case 2: zones is an object { title: {...}, body: {...} }
+  else if (raw.zones && typeof raw.zones === "object") {
+    for (const [role, z] of Object.entries(raw.zones)) {
+      d.zones.push(normaliseZone(z, role));
+    }
+  }
+  // Case 3: no zones, but has titleZone/bodyZone keys
+  else {
+    if (raw.titleZone) d.zones.push(normaliseZone(raw.titleZone, "title"));
+    if (raw.bodyZone) d.zones.push(normaliseZone(raw.bodyZone, "body"));
+    if (raw.labelZone || raw.label) {
+      const lz = raw.labelZone || raw.label;
+      if (typeof lz === "object" && lz.col !== undefined) d.zones.push(normaliseZone(lz, "label"));
+    }
+  }
+
+  // Normalise accents
+  if (Array.isArray(raw.accents)) {
+    d.accents = raw.accents.map(normaliseAccent);
+  } else {
+    // Look for accent-like keys: accentBar, rule, vbar, etc.
+    for (const [key, val] of Object.entries(raw)) {
+      if ((key.includes("accent") || key.includes("bar") || key.includes("rule")) &&
+          typeof val === "object" && val !== null && !Array.isArray(val)) {
+        d.accents.push(normaliseAccent(val));
+      }
+    }
+  }
+
+  // Normalise typography
+  if (raw.typography) {
+    d.typography = raw.typography;
+  } else {
+    // Extract typography from zone-level or top-level keys
+    for (const role of ["title", "body", "label"]) {
+      const src = raw[role] || raw[`${role}Zone`] || {};
+      if (src.size || src.fontSize || src.weight || src.fontWeight) {
+        d.typography[role] = {
+          size: src.size || src.fontSize,
+          weight: src.weight || src.fontWeight,
+          transform: src.transform || src.case === "upper" ? "uppercase" : undefined,
+          tracking: src.tracking || src.letterSpacing,
+        };
+      }
+    }
+  }
+
+  // Must have at least one zone OR accent to be valid
+  if (d.zones.length === 0 && d.accents.length === 0) return null;
+
+  return d;
+}
+
 function parseMarkdownTable(lines) {
   if (lines.length < 2) return null;
   const parseCells = (row) => row.split("|").slice(1, -1).map(c => c.trim());
@@ -195,7 +285,8 @@ function parseMarkdown(md) {
     const designMatch = slideText.match(/<!--\s*design:\s*([\s\S]*?)\s*-->/);
     if (designMatch) {
       try {
-        slide.design = JSON.parse(designMatch[1].trim());
+        const raw = JSON.parse(designMatch[1].trim());
+        slide.design = normaliseDesign(raw);
       } catch {
         slide.design = null;
       }
