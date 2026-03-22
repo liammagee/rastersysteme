@@ -861,7 +861,17 @@ async function composeIncremental(inputPath, outputPath, options = {}) {
     const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
     const mood = options.brief || getDefaultBrief();
 
+    const themeName = options.theme || "light";
+    const themeDesc = {
+      light: "LIGHT THEME: The default background is warm white (#F8F5F0). Most slides should have NO bg override or use light/warm tones. Use dark bg ONLY on 2-3 section dividers. The deck should feel bright, clean, paper-like.",
+      dark: "DARK THEME: The default background is near-black (#1A1A1A). Most slides should have NO bg override or use dark tones. Light bg slides are rare accent moments.",
+      red: "RED THEME: Warm white default with red accents. Use the red accent colour strategically, not on every slide.",
+      blue: "BLUE THEME: Cool grey-white default (#F0F4F8). Use deep blue for section dividers. Most slides stay light.",
+    };
+
     const designPrompt = `You are a Swiss-trained art director designing a slide deck on a 60-column × 40-row grid.
+
+${themeDesc[themeName] || themeDesc.light}
 
 INTENSITY: ${intensity.toUpperCase()}
 ${INTENSITY[intensity] || INTENSITY.moderate}
@@ -870,6 +880,7 @@ CREATIVE DIRECTION: ${mood}
 COMPOSITIONAL EMPHASIS: ${seed}
 
 The source deck has ${total} slides. Design a COMPLETE visual system for it.
+IMPORTANT: Your palette MUST match the ${themeName.toUpperCase()} theme. ${themeName === "light" || themeName === "blue" || themeName === "red" ? "70%+ of slides should have NO bg override (null) — let the light theme default show." : "Use the dark default for most slides."}
 
 Output ONLY valid JSON (no code fences, no commentary):
 {
