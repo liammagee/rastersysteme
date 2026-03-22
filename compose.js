@@ -398,10 +398,34 @@ function callClaudeAsync(prompt, options = {}) {
     proc.stdin.write(prompt);
     proc.stdin.end();
 
+    function writeLog(reason, extraData) {
+      const logDir = path.join(__dirname, "logs");
+      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
+      const ts = new Date().toISOString().replace(/[:.]/g, "-");
+      const logFile = path.join(logDir, `claude-${label}-${ts}.log`);
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      const logData = [
+        `timestamp: ${new Date().toISOString()}`,
+        `label: ${label}`,
+        `model: ${model || options.model || "default"}`,
+        `reason: ${reason}`,
+        `chars: ${chars}`,
+        `elapsed: ${elapsed}s`,
+        `result_length: ${resultText.length}`,
+        stderrBuf ? `stderr:\n${stderrBuf}` : "stderr: (empty)",
+        extraData || "",
+      ].join("\n");
+      try { fs.writeFileSync(logFile, logData); } catch { /* best effort */ }
+      return logFile;
+    }
+
     const timeout = setTimeout(() => {
       clearInterval(heartbeat);
+      const logFile = writeLog("TIMEOUT after 600s", `partial_result (first 500 chars):\n${resultText.slice(0, 500)}`);
       proc.kill();
-      reject(new Error("Claude timed out after 10 minutes"));
+      process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} TIMEOUT after 600s (${chars} chars received)\n`);
+      process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
+      reject(new Error(`Claude [${label}] timed out after 600s (${chars} chars received)`));
     }, 600000);
 
     proc.on("close", (code) => {
@@ -409,26 +433,8 @@ function callClaudeAsync(prompt, options = {}) {
       clearTimeout(timeout);
       const totalEl = ((Date.now() - startTime) / 1000).toFixed(1);
 
-      // Log to persistent file
-      const logDir = path.join(__dirname, "logs");
-      if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-      const ts = new Date().toISOString().replace(/[:.]/g, "-");
-      const logFile = path.join(logDir, `claude-${label}-${ts}.log`);
-      const logData = [
-        `timestamp: ${new Date().toISOString()}`,
-        `label: ${label}`,
-        `model: ${model || options.model || "default"}`,
-        `exit_code: ${code}`,
-        `chars: ${chars}`,
-        `elapsed: ${totalEl}s`,
-        `result_length: ${resultText.length}`,
-        stderrBuf ? `stderr:\n${stderrBuf}` : "stderr: (empty)",
-        `---`,
-        resultText ? `result (first 500 chars):\n${resultText.slice(0, 500)}` : "result: (empty)",
-      ].join("\n");
-      try { fs.writeFileSync(logFile, logData); } catch { /* best effort */ }
-
       if (code !== 0) {
+        const logFile = writeLog(`exit_code=${code}`, `result (first 500 chars):\n${resultText.slice(0, 500)}`);
         const errMsg = stderrBuf.trim() || `exit code ${code}`;
         process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} ${errMsg.split("\n")[0].slice(0, 100)} ${amber(totalEl + "s")}\n`);
         process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
@@ -436,11 +442,13 @@ function callClaudeAsync(prompt, options = {}) {
       }
 
       if (!resultText) {
+        const logFile = writeLog("empty_response", "result: (empty)");
         process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} empty response ${amber(totalEl + "s")}\n`);
         process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
         return reject(new Error(`Claude [${label}] returned empty response after ${totalEl}s`));
       }
 
+      const logFile = writeLog(`success (code=${code})`, `result (first 500 chars):\n${resultText.slice(0, 500)}`);
       process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${sage("✓")} ${chalk.white.bold(chars)} chars ${amber(totalEl + "s")}\n`);
       resolve(resultText);
     });
@@ -448,9 +456,12 @@ function callClaudeAsync(prompt, options = {}) {
     proc.on("error", (err) => {
       clearInterval(heartbeat);
       clearTimeout(timeout);
+      const logFile = writeLog(`process_error: ${err.code || err.message}`, "");
       if (err.code === "ENOENT") {
         return reject(new Error("Claude CLI not found. Install it: npm install -g @anthropic-ai/claude-code"));
       }
+      process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${accent("✗")} ${err.message}\n`);
+      process.stderr.write(`  ${dim("Log:")} ${teal(logFile)}\n`);
       reject(err);
     });
   });

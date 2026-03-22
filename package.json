@@ -11,6 +11,7 @@
     "studio": "node studio.js",
     "compare": "node compare.js",
     "imagine": "node imagine.js",
+    "serve": "python3 -m http.server 8701",
     "qa": "node qa.js",
     "batch": "node batch.js"
   },
