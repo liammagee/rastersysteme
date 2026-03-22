@@ -613,6 +613,49 @@ function sanitizeClaudeOutput(raw) {
 }
 
 // ═══════════════════════════════════════════════════════
+// RETRY LOGIC — exponential backoff for stalls, rate limits, parse failures
+// ═══════════════════════════════════════════════════════
+
+async function callClaudeWithRetry(prompt, options = {}) {
+  const maxRetries = options.maxRetries || 3;
+  const baseDelay = options.baseDelay || 15; // seconds
+  const label = options.label || "claude";
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      const raw = await callClaudeAsync(prompt, options);
+
+      // Check for rate limit response in the text
+      if (raw && raw.includes("Credit balance is too low")) {
+        throw new Error("RATE_LIMIT: Credit balance is too low");
+      }
+
+      return raw;
+    } catch (err) {
+      const isStall = err.message.includes("stall");
+      const isTimeout = err.message.includes("timed out") || err.message.includes("TIMEOUT");
+      const isRateLimit = err.message.includes("RATE_LIMIT") || err.message.includes("rate") || err.message.includes("429");
+      const isEmpty = err.message.includes("empty");
+      const isRetryable = isStall || isTimeout || isRateLimit || isEmpty;
+
+      if (!isRetryable || attempt === maxRetries) {
+        throw err;
+      }
+
+      // Exponential backoff: 15s, 30s, 60s (with jitter)
+      const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 5;
+      const reason = isRateLimit ? "rate limited" : isStall ? "stalled" : isTimeout ? "timed out" : "empty response";
+
+      process.stderr.write(
+        `  ${dim("[")}${accent(label)}${dim("]")} ${amber("↻")} ${reason}, retry ${attempt}/${maxRetries} in ${Math.round(delay)}s\n`
+      );
+
+      await new Promise(resolve => setTimeout(resolve, delay * 1000));
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 // DIRECTIVE ASSEMBLER — Claude outputs JSON, we inject into source markdown
 // ═══════════════════════════════════════════════════════
 
@@ -688,7 +731,7 @@ async function composeAsync(inputPath, outputPath, options = {}) {
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sourceSlides.length} slides → Claude for directives...\n`);
 
   const prompt = buildPrompt(md, options);
-  const raw = await callClaudeAsync(prompt, { ...options, label: intensity, raw: true });
+  const raw = await callClaudeWithRetry(prompt, { ...options, label: intensity, raw: true });
 
   // Parse JSON directives
   let directives;
@@ -755,7 +798,7 @@ async function compose(inputPath, outputPath, options = {}) {
   process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))} ${dim(`(${sourceSlides.length} slides)`)}\n`);
 
   const prompt = buildPrompt(md, options);
-  const raw = await callClaudeAsync(prompt, { ...options, label: intensity, raw: true });
+  const raw = await callClaudeWithRetry(prompt, { ...options, label: intensity, raw: true });
 
   // Parse JSON directives and assemble
   let directives;
@@ -997,6 +1040,13 @@ Output ONLY valid JSON (no code fences, no commentary):
 
     // First call sends full context; subsequent calls resume session
     let batchPrompt;
+    const withImg = options.withImages;
+    const imgExample = withImg ? ', "image":"right", "imageSize":40' : '';
+    const imgRules = withImg ? `
+Also specify image placement per slide:
+  "image": "right|left|top|bottom|inset-tr|inset-bl|background|overlay|none"
+  "imageSize": 30-50 (% for sidebar/inset). Use "none" for blank slides. Vary placements.` : "";
+
     if (!sessionId) {
       batchPrompt = `You are a Swiss art director. Design system:
 
@@ -1005,10 +1055,10 @@ ${designSystemContext}
 INTENSITY: ${intensity.toUpperCase()}
 
 I'll send slide summaries. For each, return ONE JSON object:
-{"slide":N, "layout":"split", "bg":"0F2A4A", "font":"Georgia", "label":"INTRO", "notes":"rationale"}
+{"slide":N, "layout":"split", "bg":"0F2A4A", "font":"Georgia", "label":"INTRO", "notes":"rationale"${imgExample}}
 Layouts: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank.
 bg = 6-char hex or null. font = name or null. label = ### text or null.
-
+${imgRules}
 Rules: vary layouts (5+ types), build chromatic arc with bg, no 3× consecutive same layout.
 
 ${slideSummaries}
@@ -1249,4 +1299,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compose, composeAsync, composeIncremental, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, parseDirectives, assembleComposed, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
+module.exports = { compose, composeAsync, composeIncremental, buildPrompt, callClaude, callClaudeAsync, callClaudeWithRetry, sanitizeClaudeOutput, parseDirectives, assembleComposed, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
