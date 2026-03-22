@@ -397,6 +397,11 @@ async function interactive(preselectedInput) {
       process.exit(1);
     }
 
+    // Auto-open the output in the browser
+    if (fs.existsSync(htmlPath)) {
+      openFile(htmlPath);
+    }
+
   } else if (mode.key === "r") {
     // ── RENDER ───────────────────────────────
     composedPath = path.resolve(input);
@@ -419,6 +424,9 @@ async function interactive(preselectedInput) {
     if (fmtKey === "h" || fmtKey === "b") {
       run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html"]);
     }
+    // Auto-open
+    if (fs.existsSync(htmlPath)) openFile(htmlPath);
+    else if (fs.existsSync(pptxPath)) openFile(pptxPath);
 
   } else if (mode.key === "v" || mode.key === "x") {
     // ── COMPARE / EXPLOSIVE ──────────────────
