@@ -248,6 +248,8 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
       brief: options.brief,
       model: options.model,
       slides: options.slides,
+      withImages: !!options.imagesDir,
+      imagesDir: options.imagesDir,
     });
     process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} compose ${amber(t())}\n`);
   } catch (err) {
@@ -1250,6 +1252,7 @@ if (require.main === module) {
     slides: getFlag("--slides"),
     skipEval: args.includes("--skip-eval"),
     explosive: args.includes("--explosive"),
+    imagesDir: getFlag("--images-dir"),
     maxParallel: parseInt(getFlag("--parallel") || "3"),
   };
 

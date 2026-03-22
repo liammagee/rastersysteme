@@ -426,6 +426,20 @@ async function interactive(preselectedInput) {
 
     const brief = await getBrief(input);
 
+    // Image option for compare
+    const cmpImgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
+    const cmpHasImages = fs.existsSync(cmpImgDir) &&
+      fs.readdirSync(cmpImgDir).some(f => /^slide-\d+\.png$/.test(f));
+    let cmpImagesDir = null;
+    if (cmpHasImages) {
+      const cmpImgCount = fs.readdirSync(cmpImgDir).filter(f => /^slide-\d+\.png$/.test(f)).length;
+      const cmpImgChoice = await select("IMAGES", [
+        { key: "e", label: `existing        use ${cmpImgCount} images in ${inputBase}-images/` },
+        { key: "n", label: "none            no images" },
+      ], { autoSelect: true });
+      if (cmpImgChoice.key === "e") cmpImagesDir = cmpImgDir;
+    }
+
     const evalChoice = await select("EVALUATION", [
       { key: "y", label: "yes             Claude evaluates each variant" },
       { key: "n", label: "no              skip evaluation, variants only" },
@@ -439,6 +453,7 @@ async function interactive(preselectedInput) {
     compareArgs.push("--brief", brief || "default");
     if (skipEval) compareArgs.push("--skip-eval");
     if (slideRange) compareArgs.push("--slides", slideRange);
+    if (cmpImagesDir) compareArgs.push("--images-dir", cmpImagesDir);
     run("compare.js", compareArgs);
 
     const reportPath = path.join(path.dirname(path.resolve(input)), `${inputBase}.compare.html`);
