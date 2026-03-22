@@ -24,6 +24,60 @@ const path = require("path");
 // FILE DISCOVERY — recursively find design-system.json
 // ═══════════════════════════════════════════════════════
 
+function findDecks(dir) {
+  const decks = [];
+  try {
+    const files = fs.readdirSync(dir);
+    // Find HTML files that look like slide outputs (not explorer, compare, etc.)
+    for (const f of files) {
+      if (!f.endsWith(".html")) continue;
+      if (f === "explorer.html" || f.includes(".compare.") || f.includes(".review.") ||
+          f.includes(".studio.") || f.includes(".grid.") || f.includes(".diff") ||
+          f.includes(".merged.") || f.includes(".spliced.")) continue;
+
+      const name = f.replace(/\.html$/, "");
+      const deck = { name, htmlFile: f, files: [f] };
+
+      // Look for associated files
+      const composedMd = name + ".composed.md";
+      if (files.includes(composedMd)) deck.files.push(composedMd);
+      const studioHtml = name + ".studio.html";
+      if (files.includes(studioHtml)) { deck.studioFile = studioHtml; deck.files.push(studioHtml); }
+      const compareHtml = name + ".compare.html";
+      if (files.includes(compareHtml)) { deck.compareFile = compareHtml; deck.files.push(compareHtml); }
+      const reviewHtml = name + ".review.html";
+      if (files.includes(reviewHtml)) { deck.reviewFile = reviewHtml; deck.files.push(reviewHtml); }
+
+      // Check for images directory
+      const imgDir = name + "-images";
+      if (files.includes(imgDir)) {
+        const imgCount = fs.readdirSync(path.join(dir, imgDir)).filter(i => /\.png$/.test(i)).length;
+        deck.imageCount = imgCount;
+        deck.imagesDir = imgDir;
+      }
+
+      // Check for .compose work directory
+      const composeDir = name + ".compose";
+      if (files.includes(composeDir)) {
+        deck.composeDir = composeDir;
+        const dsPath = path.join(dir, composeDir, "design-system.json");
+        if (fs.existsSync(dsPath)) {
+          try { deck.designSystem = JSON.parse(fs.readFileSync(dsPath, "utf-8")); } catch {}
+        }
+      }
+
+      // Get file stats for date
+      try {
+        const stat = fs.statSync(path.join(dir, f));
+        deck.modified = stat.mtime.toISOString();
+      } catch {}
+
+      decks.push(deck);
+    }
+  } catch {}
+  return decks.sort((a, b) => (b.modified || "").localeCompare(a.modified || ""));
+}
+
 function findDesignSystems(dir) {
   const results = [];
   function walk(d) {
@@ -76,9 +130,11 @@ function esc(str) {
 // HTML GENERATION
 // ═══════════════════════════════════════════════════════
 
-function generateHTML(systems) {
+function generateHTML(systems, decks) {
+  decks = decks || [];
   const systemsJSON = JSON.stringify(systems.map(s => s.data));
   const systemsMeta = JSON.stringify(systems.map(s => ({ path: s.path, dir: s.dir })));
+  const decksJSON = JSON.stringify(decks);
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -793,6 +849,10 @@ body {
       <span class="sidebar-count" id="sidebar-count"></span>
     </div>
     <div class="sidebar-list" id="sidebar-list"></div>
+    <div id="decks-section" style="border-top:1px solid #ddd;margin-top:12px;padding-top:12px">
+      <div style="font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#999;font-weight:600;margin-bottom:8px;padding:0 12px">Slide Decks</div>
+      <div id="decks-list"></div>
+    </div>
   </aside>
   <main class="main" id="main-content">
     <div class="empty-state" id="empty-state">
@@ -829,6 +889,28 @@ body {
 
 const SYSTEMS = ${systemsJSON};
 const META = ${systemsMeta};
+const DECKS = ${decksJSON};
+
+// Populate decks list
+(function() {
+  const list = document.getElementById('decks-list');
+  if (!list || !DECKS.length) { const sec = document.getElementById('decks-section'); if (sec) sec.style.display = 'none'; return; }
+  list.innerHTML = DECKS.map(d => {
+    const links = [];
+    links.push('<a href="' + d.htmlFile + '" target="_blank" style="color:#B7311A;text-decoration:none;font-weight:600">' + d.name + '</a>');
+    const meta = [];
+    if (d.studioFile) meta.push('<a href="' + d.studioFile + '" target="_blank" style="color:#666;text-decoration:none;font-size:10px">studio</a>');
+    if (d.compareFile) meta.push('<a href="' + d.compareFile + '" target="_blank" style="color:#666;text-decoration:none;font-size:10px">compare</a>');
+    if (d.reviewFile) meta.push('<a href="' + d.reviewFile + '" target="_blank" style="color:#666;text-decoration:none;font-size:10px">review</a>');
+    if (d.imageCount) meta.push('<span style="color:#999;font-size:10px">' + d.imageCount + ' images</span>');
+    if (d.designSystem) meta.push('<span style="color:#999;font-size:10px;font-style:italic">' + (d.designSystem.aesthetic || '').slice(0, 30) + '</span>');
+    const date = d.modified ? '<span style="color:#bbb;font-size:9px">' + new Date(d.modified).toLocaleDateString() + '</span>' : '';
+    return '<div style="padding:6px 12px;border-bottom:1px solid #eee">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center">' + links.join('') + date + '</div>'
+      + (meta.length ? '<div style="display:flex;gap:8px;margin-top:3px;flex-wrap:wrap">' + meta.join('') + '</div>' : '')
+      + '</div>';
+  }).join('');
+})();
 
 // ═══════════════════════════════════════════════════════
 // STATE
@@ -1416,21 +1498,28 @@ async function generateExplorer(dir, outputPath) {
   outputPath = outputPath || path.join(dir, "explorer.html");
 
   const systems = findDesignSystems(path.resolve(dir));
+  const decks = findDecks(path.resolve(dir));
 
-  if (systems.length === 0) {
-    console.error("No design-system.json files found in " + dir);
+  if (systems.length === 0 && decks.length === 0) {
+    console.error("No design systems or slide decks found in " + dir);
     process.exit(1);
   }
 
-  console.log("Found " + systems.length + " design system(s):");
-  for (const s of systems) {
-    const name = s.data.aesthetic
-      ? s.data.aesthetic.substring(0, 60)
-      : "Untitled";
-    console.log("  " + s.path + "  —  " + name);
+  if (systems.length > 0) {
+    console.log("Found " + systems.length + " design system(s):");
+    for (const s of systems) {
+      const name = s.data.aesthetic ? s.data.aesthetic.substring(0, 60) : "Untitled";
+      console.log("  " + s.path + "  —  " + name);
+    }
+  }
+  if (decks.length > 0) {
+    console.log("Found " + decks.length + " slide deck(s):");
+    for (const d of decks) {
+      console.log("  " + d.htmlFile + (d.imageCount ? ` (${d.imageCount} images)` : ""));
+    }
   }
 
-  const html = generateHTML(systems);
+  const html = generateHTML(systems, decks);
   fs.writeFileSync(outputPath, html, "utf-8");
   console.log("\nWrote " + outputPath + " (" + (html.length / 1024).toFixed(0) + " KB)");
 
