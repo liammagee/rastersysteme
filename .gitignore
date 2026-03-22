@@ -1,6 +1,7 @@
 node_modules/
 *.pptx
 *.html
+!index.html
 *.composed.md
 .DS_Store
 logs/
