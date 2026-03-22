@@ -25,7 +25,7 @@ const sage = chalk.hex("#548C5A");
 const amber = chalk.hex("#C79B38");
 
 const { compose, composeAsync, callClaude } = require("./compose.js");
-const { generateHTML, parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS } = require("./raster.js");
+const { generateHTML, parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
 const { runQA } = require("./qa.js");
 
 const SCRIPT_DIR = __dirname;
@@ -389,6 +389,23 @@ function renderSlidePreviewsHTML(composedPath, theme) {
         }
       }
       const style = styleParts.length ? ` style="${styleParts.join(";")}"` : "";
+
+      // Use designed renderer for slides with a design directive
+      if (slide.design) {
+        const designStyleParts = [];
+        if (slide.design.bg) designStyleParts.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+        if (slide.design.font) designStyleParts.push(`font-family:'${slide.design.font}',var(--font)`);
+        designStyleParts.push(...styleParts);
+        designStyleParts.push(`position:relative;overflow:hidden;padding:0`);
+        const ds = designStyleParts.length ? ` style="${designStyleParts.join(";")}"` : "";
+        return `<div class="preview-card">
+        <div class="preview-num">${String(idx + 1).padStart(2, "0")}</div>
+        <div class="preview-slide">
+          <div class="slide-inner slide designed"${ds}>${renderDesigned(slide)}</div>
+        </div>
+      </div>`;
+      }
+
       return `<div class="preview-card">
         <div class="preview-num">${String(idx + 1).padStart(2, "0")}</div>
         <div class="preview-slide">

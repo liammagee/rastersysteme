@@ -167,6 +167,7 @@ function parseMarkdown(md) {
       codeBlocks: [],
       fontOverride: null,
       style: null,
+      design: null,
       raw: slideText.trim(),
     };
 
@@ -188,6 +189,16 @@ function parseMarkdown(md) {
         const [k, v] = pair.split("=").map(s => s.trim());
         if (k && v) slide.style[k] = v;
       });
+    }
+
+    // Design directive: <!-- design: { "zones": [...], ... } -->
+    const designMatch = slideText.match(/<!--\s*design:\s*([\s\S]*?)\s*-->/);
+    if (designMatch) {
+      try {
+        slide.design = JSON.parse(designMatch[1].trim());
+      } catch {
+        slide.design = null;
+      }
     }
 
     // Extract notes
@@ -1199,8 +1210,13 @@ async function generate(inputPath, outputPath, options = {}) {
     const fontFace = slide.fontOverride || globalFont;
     const opts = { fontFace, basePath };
 
-    const renderer = LAYOUTS[layout] || LAYOUTS.split;
-    renderer(s, slide, g, effectiveTheme, pres, idx + 1, opts);
+    // Use designed renderer for slides with a design directive
+    if (slide.design) {
+      renderDesignedPPTX(s, slide, g, effectiveTheme, pres, fontFace);
+    } else {
+      const renderer = LAYOUTS[layout] || LAYOUTS.split;
+      renderer(s, slide, g, effectiveTheme, pres, idx + 1, opts);
+    }
 
     // Background override applied AFTER renderer so it takes precedence
     if (slide.bgOverride) {
@@ -1392,6 +1408,199 @@ const HTML_LAYOUTS = {
   blank() { return ""; },
 };
 
+// ═══════════════════════════════════════════════════════
+// DESIGNED SLIDE RENDERER (parameterised grid)
+// ═══════════════════════════════════════════════════════
+
+function typographyToCSS(typo) {
+  if (!typo) return "";
+  const parts = [];
+  if (typo.size) parts.push(`font-size:${typo.size}px`);
+  if (typo.weight) parts.push(`font-weight:${typo.weight}`);
+  if (typo.transform) parts.push(`text-transform:${typo.transform}`);
+  if (typo.tracking) parts.push(`letter-spacing:${typo.tracking}`);
+  if (typo.leading) parts.push(`line-height:${typo.leading}`);
+  if (typo.align) parts.push(`text-align:${typo.align}`);
+  if (typo.color) parts.push(`color:#${typo.color.replace(/^#/, "")}`);
+  return parts.join(";");
+}
+
+function zonePositionCSS(zone) {
+  const left = (zone.col / 60 * 100).toFixed(4);
+  const width = (zone.span / 60 * 100).toFixed(4);
+  const top = (zone.row / 40 * 100).toFixed(4);
+  const height = (zone.rowSpan / 40 * 100).toFixed(4);
+  return `left:${left}%;width:${width}%;top:${top}%;height:${height}%`;
+}
+
+function renderDesigned(slide) {
+  const design = slide.design;
+  if (!design) return "";
+  const typography = design.typography || {};
+  const gapVal = design.gap === "tight" ? "0.5vmin" : design.gap === "loose" ? "4vmin" : "2vmin";
+
+  // Render accent elements
+  const accentsHTML = (design.accents || []).map(a => {
+    const pos = zonePositionCSS(a);
+    let extra = "";
+    if (a.type === "bar") {
+      extra = `background:#${(a.color || "E63946").replace(/^#/, "")}`;
+    } else if (a.type === "line") {
+      // Determine orientation: wider than tall = horizontal, else vertical
+      const isHoriz = a.span / 60 > a.rowSpan / 40;
+      if (isHoriz) {
+        extra = `background:#${(a.color || "E63946").replace(/^#/, "")};height:2px;top:${(a.row / 40 * 100).toFixed(4)}%`;
+      } else {
+        extra = `background:#${(a.color || "E63946").replace(/^#/, "")};width:2px;left:${(a.col / 60 * 100).toFixed(4)}%`;
+      }
+    } else if (a.type === "dot") {
+      const size = Math.min(parseFloat((a.span / 60 * 100).toFixed(4)), parseFloat((a.rowSpan / 40 * 100).toFixed(4)));
+      extra = `background:#${(a.color || "E63946").replace(/^#/, "")};border-radius:50%;width:${size}%;height:0;padding-bottom:${size}%`;
+    } else if (a.type === "block") {
+      extra = `background:#${(a.color || "E63946").replace(/^#/, "")};opacity:0.15`;
+    }
+    return `<div class="accent-el accent-${a.type || "bar"}" style="${pos};${extra}"></div>`;
+  }).join("\n");
+
+  // Render zones
+  const zonesHTML = (design.zones || []).map(zone => {
+    const pos = zonePositionCSS(zone);
+    const typoStyle = typographyToCSS(typography[zone.role] || {});
+    const style = [pos, typoStyle].filter(Boolean).join(";");
+    let content = "";
+
+    switch (zone.role) {
+      case "title": {
+        const text = slide.title || slide.subtitle || "";
+        content = text ? `<h1 style="${typoStyle}">${esc(text)}</h1>` : "";
+        break;
+      }
+      case "body": {
+        content = slide.body.map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        break;
+      }
+      case "bullets": {
+        content = bulletsToHTML(slide.bullets);
+        break;
+      }
+      case "label": {
+        const labelText = slide.sectionLabel || "";
+        const labelStyle = typographyToCSS(typography.label || {});
+        content = labelText ? `<span class="label" style="font-variant-caps:small-caps;${labelStyle}">${esc(labelText)}</span>` : "";
+        break;
+      }
+      case "quote": {
+        content = slide.blockquote ? `<blockquote style="${typoStyle}">${esc(slide.blockquote)}</blockquote>` : "";
+        break;
+      }
+      default:
+        break;
+    }
+
+    return `<div class="zone zone-${zone.role}" style="${style};padding:${gapVal}">${content}</div>`;
+  }).join("\n");
+
+  return `${accentsHTML}\n${zonesHTML}`;
+}
+
+function renderDesignedPPTX(s, slide, g, theme, pres, fontFace) {
+  const design = slide.design;
+  if (!design) return;
+  const typography = design.typography || {};
+
+  // Background
+  if (design.bg) {
+    s.background = { color: design.bg.replace(/^#/, "") };
+  }
+
+  // Render accent elements
+  (design.accents || []).forEach(a => {
+    const color = (a.color || "E63946").replace(/^#/, "");
+    if (a.type === "dot") {
+      s.addShape(pres.shapes.OVAL, {
+        x: g.cx(a.col), y: g.cy(a.row),
+        w: g.cw(a.span), h: g.ch(a.rowSpan),
+        fill: { color },
+      });
+    } else if (a.type === "block") {
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: g.cx(a.col), y: g.cy(a.row),
+        w: g.cw(a.span), h: g.ch(a.rowSpan),
+        fill: { color, transparency: 85 },
+      });
+    } else if (a.type === "line") {
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: g.cx(a.col), y: g.cy(a.row),
+        w: a.span / 60 > a.rowSpan / 40 ? g.cw(a.span) : 0.02,
+        h: a.span / 60 > a.rowSpan / 40 ? 0.02 : g.ch(a.rowSpan),
+        fill: { color },
+      });
+    } else {
+      // bar (default)
+      s.addShape(pres.shapes.RECTANGLE, {
+        x: g.cx(a.col), y: g.cy(a.row),
+        w: g.cw(a.span), h: g.ch(a.rowSpan),
+        fill: { color },
+      });
+    }
+  });
+
+  // Render zones
+  const ff = design.font || fontFace;
+  (design.zones || []).forEach(zone => {
+    const typo = typography[zone.role] || {};
+    const textOpts = {
+      x: g.cx(zone.col), y: g.cy(zone.row),
+      w: g.cw(zone.span), h: g.ch(zone.rowSpan),
+      fontSize: typo.size || 14,
+      fontFace: ff,
+      color: typo.color ? typo.color.replace(/^#/, "") : theme.text,
+      bold: (typo.weight || 400) >= 700,
+      margin: [4, 8, 4, 8],
+      valign: "top",
+    };
+    if (typo.align) textOpts.align = typo.align;
+    if (typo.leading) textOpts.lineSpacingMultiple = typo.leading;
+    if (typo.tracking) {
+      const em = parseFloat(typo.tracking);
+      if (!isNaN(em)) textOpts.charSpacing = em * (typo.size || 14);
+    }
+
+    let text = "";
+    switch (zone.role) {
+      case "title":
+        text = slide.title || slide.subtitle || "";
+        break;
+      case "body":
+        text = slide.body.join("\n");
+        break;
+      case "bullets":
+        text = slide.bullets.map(b => {
+          const prefix = (b.level || 0) === 0 ? "\u2022 " : "  \u2014 ";
+          return prefix + b.text;
+        }).join("\n");
+        break;
+      case "label":
+        text = (slide.sectionLabel || "").toUpperCase();
+        if (typo.tracking) {
+          const em = parseFloat(typo.tracking);
+          if (!isNaN(em)) textOpts.charSpacing = em * (typo.size || 8);
+        }
+        break;
+      case "quote":
+        text = slide.blockquote || "";
+        textOpts.italic = true;
+        break;
+      default:
+        break;
+    }
+
+    if (text) {
+      s.addText(text, textOpts);
+    }
+  });
+}
+
 function generateHTMLCSS() {
   return `
 *{margin:0;padding:0;box-sizing:border-box}
@@ -1400,6 +1609,11 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
 .slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
   font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
 .slide.active{display:flex}
+
+/* === Designed slides (parameterised grid) === */
+.slide.designed{position:relative;overflow:hidden;padding:0}
+.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.slide.designed .accent-el{position:absolute;pointer-events:none}
 
 /* Typography — uses CSS custom properties for per-slide overrides */
 h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
@@ -1771,6 +1985,17 @@ async function generateHTML(inputPath, outputPath, options = {}) {
     }
 
     const style = styleParts.length ? ` style="${styleParts.join(";")}"` : "";
+
+    // Use designed renderer for slides with a design directive
+    if (slide.design) {
+      const designStyle = [];
+      if (slide.design.bg) designStyle.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+      if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
+      designStyle.push(...styleParts);
+      const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
+      return `<section class="slide designed"${ds}>${renderDesigned(slide)}${slideNotes(slide)}</section>`;
+    }
+
     return `<section class="slide layout-${layout}"${style}>${renderer(slide)}${slideNotes(slide)}</section>`;
   }).join("\n");
 
@@ -1919,7 +2144,7 @@ async function generateReview(inputPath, outputPath, options = {}) {
     <span class="card-status">${statusIcon}</span>
   </div>
   <div class="card-preview">
-    <div class="slide-scaled layout-${layout}" style="${slideStyle}">${renderer(slide)}</div>
+    <div class="slide-scaled ${slide.design ? "designed" : `layout-${layout}`}" style="${slide.design ? (slide.design.bg ? `background:#${slide.design.bg.replace(/^#/, "")};` : "") + (slide.design.font ? `font-family:'${esc(slide.design.font)}',var(--font);` : "") + slideStyle + "position:relative;overflow:hidden;padding:0" : slideStyle}">${slide.design ? renderDesigned(slide) : renderer(slide)}</div>
   </div>
   <div class="card-meta">
     <div class="tags">${contentHTML}</div>
@@ -2279,4 +2504,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS };
+module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned };

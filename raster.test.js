@@ -1,6 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
-const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS } = require("./raster.js");
+const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
 const { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES } = require("./qa.js");
 const { buildPrompt, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY } = require("./compose.js");
 const { RUBRIC, buildEvalPrompt, parseEvaluation } = require("./compare.js");
@@ -376,6 +376,193 @@ describe("Markdown parser", () => {
     it("notes do not appear in body", () => {
       const [s] = parseMarkdown("Body\n```notes\nHidden\n```");
       assert.ok(!s.body.some(b => b.includes("Hidden")));
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// DESIGN DIRECTIVE
+// ═══════════════════════════════════════════════════════
+
+describe("Design directive", () => {
+  it("parseMarkdown extracts design directive as parsed JSON", () => {
+    const md = `<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 24, "row": 0, "rowSpan": 20 }], "bg": "0A1628" } -->
+# Hello`;
+    const [s] = parseMarkdown(md);
+    assert.ok(s.design, "design should be parsed");
+    assert.deepEqual(s.design.zones[0].role, "title");
+    assert.equal(s.design.zones[0].col, 0);
+    assert.equal(s.design.zones[0].span, 24);
+    assert.equal(s.design.bg, "0A1628");
+  });
+
+  it("design is null when no directive present", () => {
+    const [s] = parseMarkdown("# Title\n- bullet");
+    assert.equal(s.design, null);
+  });
+
+  it("design is null for invalid JSON", () => {
+    const [s] = parseMarkdown("<!-- design: {invalid json} -->\n# Title");
+    assert.equal(s.design, null);
+  });
+
+  it("parses multi-line design directive", () => {
+    const md = `<!-- design: {
+  "zones": [
+    { "role": "title", "col": 0, "span": 30, "row": 0, "rowSpan": 20 },
+    { "role": "body", "col": 32, "span": 28, "row": 0, "rowSpan": 40 }
+  ],
+  "accents": [
+    { "type": "bar", "col": 30, "span": 1, "row": 0, "rowSpan": 40, "color": "E63946" }
+  ],
+  "typography": {
+    "title": { "size": 48, "weight": 900 },
+    "body": { "size": 14, "weight": 400 }
+  },
+  "bg": "1A1A1A",
+  "font": "Georgia"
+} -->
+# My Title
+Some body text`;
+    const [s] = parseMarkdown(md);
+    assert.ok(s.design);
+    assert.equal(s.design.zones.length, 2);
+    assert.equal(s.design.accents.length, 1);
+    assert.equal(s.design.accents[0].type, "bar");
+    assert.equal(s.design.typography.title.size, 48);
+    assert.equal(s.design.font, "Georgia");
+  });
+
+  it("design coexists with layout directive (layout ignored when design present)", () => {
+    const md = `<!-- layout: split -->
+<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 30, "row": 0, "rowSpan": 20 }] } -->
+# Title`;
+    const [s] = parseMarkdown(md);
+    assert.equal(s.layout, "split");
+    assert.ok(s.design);
+    assert.equal(s.design.zones.length, 1);
+  });
+
+  describe("zone validation", () => {
+    it("col must be in range 0-59", () => {
+      const design = { zones: [{ role: "title", col: 0, span: 20, row: 0, rowSpan: 20 }] };
+      assert.ok(design.zones[0].col >= 0 && design.zones[0].col <= 59);
+    });
+
+    it("col + span must not exceed 60", () => {
+      const design = { zones: [{ role: "title", col: 30, span: 30, row: 0, rowSpan: 20 }] };
+      assert.ok(design.zones[0].col + design.zones[0].span <= 60);
+    });
+
+    it("col + span exceeding 60 is out of bounds", () => {
+      const design = { zones: [{ role: "title", col: 50, span: 15, row: 0, rowSpan: 20 }] };
+      assert.ok(design.zones[0].col + design.zones[0].span > 60, "should exceed 60");
+    });
+
+    it("row must be in range 0-39", () => {
+      const design = { zones: [{ role: "title", col: 0, span: 20, row: 0, rowSpan: 20 }] };
+      assert.ok(design.zones[0].row >= 0 && design.zones[0].row <= 39);
+    });
+
+    it("row + rowSpan must not exceed 40", () => {
+      const design = { zones: [{ role: "title", col: 0, span: 20, row: 0, rowSpan: 40 }] };
+      assert.ok(design.zones[0].row + design.zones[0].rowSpan <= 40);
+    });
+
+    it("row + rowSpan exceeding 40 is out of bounds", () => {
+      const design = { zones: [{ role: "title", col: 0, span: 20, row: 30, rowSpan: 15 }] };
+      assert.ok(design.zones[0].row + design.zones[0].rowSpan > 40, "should exceed 40");
+    });
+  });
+
+  describe("renderDesigned", () => {
+    it("produces HTML with correct percentage positions", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 24, "row": 0, "rowSpan": 20 }], "bg": "0A1628" } -->
+# Hello World`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      // col=0 → left:0%, span=24 → width: 24/60*100 = 40%
+      assert.ok(html.includes("left:0.0000%"), "should have left:0%");
+      assert.ok(html.includes("width:40.0000%"), "should have width:40% (24/60)");
+      // row=0 → top:0%, rowSpan=20 → height: 20/40*100 = 50%
+      assert.ok(html.includes("top:0.0000%"), "should have top:0%");
+      assert.ok(html.includes("height:50.0000%"), "should have height:50% (20/40)");
+    });
+
+    it("renders accent elements", () => {
+      const md = `<!-- design: { "zones": [], "accents": [{ "type": "bar", "col": 26, "span": 2, "row": 0, "rowSpan": 40, "color": "E63946" }] } -->
+# Title`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("accent-bar"), "should have accent-bar class");
+      assert.ok(html.includes("#E63946"), "should have accent colour");
+    });
+
+    it("renders title zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 30, "row": 0, "rowSpan": 20 }] } -->
+# My Title`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("My Title"), "should contain title text");
+      assert.ok(html.includes("<h1"), "should use h1 tag");
+    });
+
+    it("renders body zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "body", "col": 30, "span": 28, "row": 0, "rowSpan": 40 }] } -->
+Body line one
+Body line two`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("Body line one"), "should contain body text");
+      assert.ok(html.includes("<p"), "should use p tags");
+    });
+
+    it("renders bullets zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "bullets", "col": 0, "span": 40, "row": 10, "rowSpan": 30 }] } -->
+- First bullet
+- Second bullet`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("First bullet"), "should contain bullet text");
+      assert.ok(html.includes("bullets"), "should have bullets class");
+    });
+
+    it("renders quote zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "quote", "col": 5, "span": 50, "row": 10, "rowSpan": 20 }] } -->
+> To be or not to be`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("To be or not to be"), "should contain quote text");
+      assert.ok(html.includes("<blockquote"), "should use blockquote tag");
+    });
+
+    it("applies typography styles", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 30, "row": 0, "rowSpan": 20 }], "typography": { "title": { "size": 48, "weight": 900, "transform": "uppercase", "tracking": "0.15em" } } } -->
+# Styled Title`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("font-size:48px"), "should have font-size from typography");
+      assert.ok(html.includes("font-weight:900"), "should have font-weight from typography");
+      assert.ok(html.includes("text-transform:uppercase"), "should have text-transform");
+      assert.ok(html.includes("letter-spacing:0.15em"), "should have letter-spacing");
+    });
+
+    it("handles dot accent type with border-radius", () => {
+      const md = `<!-- design: { "zones": [], "accents": [{ "type": "dot", "col": 10, "span": 4, "row": 10, "rowSpan": 4, "color": "FF0000" }] } -->
+# Title`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("border-radius:50%"), "dot should have border-radius:50%");
+      assert.ok(html.includes("accent-dot"), "should have accent-dot class");
+    });
+
+    it("handles block accent type with opacity", () => {
+      const md = `<!-- design: { "zones": [], "accents": [{ "type": "block", "col": 0, "span": 20, "row": 0, "rowSpan": 40, "color": "0000FF" }] } -->
+# Title`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("opacity:0.15"), "block should have opacity:0.15");
+      assert.ok(html.includes("accent-block"), "should have accent-block class");
     });
   });
 });

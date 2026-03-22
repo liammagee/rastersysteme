@@ -24,6 +24,7 @@ const {
   THEMES,
   adaptThemeForBg,
   generateHTMLCSS,
+  renderDesigned,
 } = require("./raster.js");
 const { runQA } = require("./qa.js");
 
@@ -1099,6 +1100,21 @@ async function generateStudio(inputPath, outputPath, options = {}) {
         ? `<div class="slide-notes" hidden>${esc(slide.notes)}</div>`
         : "";
 
+      // Use designed renderer for slides with a design directive
+      if (slide.design) {
+        const designStyle = [];
+        if (slide.design.bg) designStyle.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+        if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
+        designStyle.push(`color:var(--text)`);
+        const ds = designStyle.join(";");
+        return `<section class="studio-slide${idx === 0 ? " active" : ""}" data-index="${idx}" data-layout="designed">
+  <div class="slide-content designed" style="${ds}">
+    ${renderDesigned(slide)}
+    ${slideNotesHTML}
+  </div>
+</section>`;
+      }
+
       return `<section class="studio-slide${idx === 0 ? " active" : ""}" data-index="${idx}" data-layout="${layout}">
   <div class="slide-content layout-${layout}" style="${style}">
     ${renderer(slide)}
@@ -1207,15 +1223,29 @@ async function generateStudio(inputPath, outputPath, options = {}) {
         ),
       ].join("");
 
+      // Use designed renderer for slides with a design directive
+      const isDesigned = !!slide.design;
+      const cardClass = isDesigned ? "designed" : `layout-${layout}`;
+      let cardStyle = previewStyle;
+      if (isDesigned) {
+        const designStyleParts = [];
+        if (slide.design.bg) designStyleParts.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+        if (slide.design.font) designStyleParts.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
+        designStyleParts.push(`color:var(--text);position:relative;overflow:hidden;padding:0`);
+        cardStyle = designStyleParts.join(";");
+      }
+      const cardContent = isDesigned ? renderDesigned(slide) : renderer(slide);
+      const cardLayoutLabel = isDesigned ? "designed" : layout;
+
       return `<div class="studio-card" data-index="${idx}" tabindex="0">
   <div class="studio-card-preview">
-    <div class="slide-scaled layout-${layout}" style="${previewStyle}">
-      ${renderer(slide)}
+    <div class="slide-scaled ${cardClass}" style="${cardStyle}">
+      ${cardContent}
     </div>
   </div>
   <div class="studio-card-info">
     <span class="studio-card-num">${String(idx + 1).padStart(2, "0")}</span>
-    <span class="studio-card-layout">${layout}</span>
+    <span class="studio-card-layout">${cardLayoutLabel}</span>
     <span class="studio-card-status ${statusClass}">${statusIcon}</span>
   </div>
   ${badges ? `<div class="studio-card-badges">${badges}</div>` : ""}
