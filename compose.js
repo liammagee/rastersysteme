@@ -323,6 +323,7 @@ function callClaudeAsync(prompt, options = {}) {
       "--setting-sources", "user",
       "--append-system-prompt", "Output ONLY what was requested. No commentary, no annotations. Raw output only."];
     if (options.model) args.push("--model", options.model);
+    if (options.resume) args.push("--resume", options.resume);
 
     const proc = spawnAsync("claude", args, {
       stdio: ["pipe", "pipe", "pipe"],
@@ -370,6 +371,7 @@ function callClaudeAsync(prompt, options = {}) {
           } else if (ev.type === "result") {
             phase = "done";
             resultText = ev.result || "";
+            if (ev.session_id) resultText = `__SESSION:${ev.session_id}__` + resultText;
             if (ev.usage) {
               const inp = ev.usage.input_tokens || 0;
               const out = ev.usage.output_tokens || 0;
@@ -821,6 +823,7 @@ async function composeIncremental(inputPath, outputPath, options = {}) {
   const intensity = options.intensity || "moderate";
   const batchSize = options.batchSize || 1;
   const model = options.model || "sonnet";
+  let sessionId = null; // Reuse session across slides for speed
 
   // Work directory for incremental state
   const workDir = outputPath.replace(/\.(pptx|html)$/, ".compose");
@@ -962,22 +965,29 @@ Output ONLY valid JSON (no code fences, no commentary):
     const batchEnd = Math.min(i + batchSize, total);
     const numberedBatch = batchSlides.map((s, j) => `=== SLIDE ${i + j + 1} of ${total} ===\n${s.trim()}`).join("\n\n");
 
-    const batchPrompt = `You are composing slides on a 60×40 grid. Here is the design system you MUST follow:
+    // First slide sends full context; subsequent slides resume the session
+    let batchPrompt;
+    if (!sessionId) {
+      batchPrompt = `You are composing slides on a 60×40 grid. Here is the design system you MUST follow for ALL slides in this session:
 
 ${designSystemContext}
 
 INTENSITY: ${intensity.toUpperCase()}
 
-Design slide ${i + 1} of ${total}. It needs a <!-- design: {...} --> directive as its FIRST line.
+I will send you slides one at a time. For each, output ONLY:
+1. A <!-- design: {...} --> directive as the FIRST line
+2. The slide content exactly as given (you may add a ### label)
 
-Use the palette, fonts, grid strategy, and accent strategy from the design system above.
-The content is FIXED — copy it exactly. You may add a ### label for typographic texture.
+No commentary. No explanations. Start with <!-- design: {
 
-${numberedBatch}
+Here is slide ${i + 1} of ${total}:
 
-CRITICAL: Output ONLY the slide. The FIRST characters must be <!-- design: {
-No commentary, no explanations, no "Insight" blocks, no backtick blocks, no preamble.
-Just the <!-- design: {...} --> directive followed by the slide content. Nothing else.`;
+${numberedBatch}`;
+    } else {
+      batchPrompt = `Slide ${i + 1} of ${total}:
+
+${numberedBatch}`;
+    }
 
     if (perSlide) {
       process.stderr.write(`  ${amber("⟐")} Slide ${batchNum}/${total}...`);
@@ -986,8 +996,18 @@ Just the <!-- design: {...} --> directive followed by the slide content. Nothing
     }
 
     try {
-      const raw = await callClaudeAsync(batchPrompt, { model, label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}` });
+      const raw = await callClaudeAsync(batchPrompt, {
+        model,
+        label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}`,
+        resume: sessionId,
+      });
       let cleaned = raw.trim();
+      // Extract session_id for subsequent calls
+      const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
+      if (sessionMatch) {
+        sessionId = sessionMatch[1];
+        cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
+      }
       // Strip code fences
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
       // Strip any preamble before the design directive (Insight blocks, commentary)
