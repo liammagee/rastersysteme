@@ -1169,9 +1169,12 @@ COLUMNS: 0-59 (col + span ≤ 60). ROWS: 0-39 (row + rowSpan ≤ 40).
 ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
 
 DESIGN RULES:
-- EVERY slide must have different zone positions. Vary col/span/row/rowSpan.
-  Slide 1: title at col:4 span:24. Slide 2: title at col:30 span:28. Slide 3: title at col:0 span:58.
-- Title sizes: vary between 28-64px across slides. Body: 12-16px.
+- Use 2-3 CONSISTENT grid templates across the deck, not a unique layout per slide.
+  E.g. Template A: title col:4 span:28, body col:4 span:40.
+       Template B: title col:30 span:28, body col:2 span:26.
+  Rotate between them. Consistency creates rhythm; chaos creates fatigue.
+- SUBTLE variation within templates: shift a title col by 2-4, change size by 4-8px.
+- Title sizes: pick 2-3 sizes (e.g. 36, 44, 52) and use them consistently. Body: 13-15px.
 - bg: ALWAYS set. Use palette colours. Alternate light and dark for rhythm.
 - Accents: use on 40%+ of slides. Vary position and type.
 - font: vary between ${designSystem.fontStrategy?.default || "Helvetica Neue"} and ${designSystem.fontStrategy?.secondary || "Georgia"}.

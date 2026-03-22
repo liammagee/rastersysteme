@@ -1321,6 +1321,44 @@ describe("Output path contracts", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// THEME ENFORCEMENT + DESIGN CONSISTENCY
+// ═══════════════════════════════════════════════════════
+
+describe("Theme enforcement in compose pipeline", () => {
+  const src = require("fs").readFileSync("./compose.js", "utf-8");
+
+  it("post-processes bg luminance: light theme rejects dark bg", () => {
+    assert.ok(src.includes("lum < 100") && src.includes("too dark"),
+      "should check luminance and replace dark bg on light themes");
+  });
+
+  it("post-processes bg luminance: dark theme rejects light bg", () => {
+    assert.ok(src.includes("lum > 200") && src.includes("too light"),
+      "should check luminance and replace light bg on dark themes");
+  });
+
+  it("palette validation demotes dark ground colours in light theme", () => {
+    assert.ok(src.includes("demoted to accent") || src.includes("Fixing dark"),
+      "should demote dark ground/dominant colours in light theme palette");
+  });
+
+  it("palette validation injects Warm White if no light ground exists", () => {
+    assert.ok(src.includes("Warm White") && src.includes("F8F5F0"),
+      "should inject Warm White ground if palette has none");
+  });
+
+  it("design prompt asks for consistent grid templates, not unique per slide", () => {
+    assert.ok(src.includes("2-3 CONSISTENT") || src.includes("consistent grid"),
+      "should ask for consistent templates, not unique layouts per slide");
+  });
+
+  it("design prompt asks for subtle variation within templates", () => {
+    assert.ok(src.includes("SUBTLE variation") || src.includes("subtle variation"),
+      "should ask for subtle variation, not radical changes per slide");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // COMPARE MODULE
 // ═══════════════════════════════════════════════════════
 
