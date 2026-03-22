@@ -419,10 +419,13 @@ function callClaudeAsync(prompt, options = {}) {
       return logFile;
     }
 
+    let killed = false; // Prevents close handler from re-logging after stall/timeout
+
     // Stall detection: if no chars after 90s, connection is dead — kill early
     const stallCheck = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
       if (elapsed > 90 && chars === 0) {
+        killed = true;
         clearInterval(stallCheck);
         clearInterval(heartbeat);
         clearTimeout(timeout);
@@ -435,6 +438,7 @@ function callClaudeAsync(prompt, options = {}) {
     }, 10000);
 
     const timeout = setTimeout(() => {
+      killed = true;
       clearInterval(stallCheck);
       clearInterval(heartbeat);
       const logFile = writeLog("TIMEOUT after 600s", `partial_result (first 500 chars):\n${resultText.slice(0, 500)}`);
@@ -448,6 +452,7 @@ function callClaudeAsync(prompt, options = {}) {
       clearInterval(stallCheck);
       clearInterval(heartbeat);
       clearTimeout(timeout);
+      if (killed) return; // Already handled by stall/timeout — don't re-log
       const totalEl = ((Date.now() - startTime) / 1000).toFixed(1);
 
       if (code !== 0) {
