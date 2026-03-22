@@ -698,6 +698,196 @@ async function compose(inputPath, outputPath, options = {}) {
 }
 
 // ═══════════════════════════════════════════════════════
+// INCREMENTAL COMPOSE — batched, resumable, progressive
+// ═══════════════════════════════════════════════════════
+
+async function composeIncremental(inputPath, outputPath, options = {}) {
+  const md = fs.readFileSync(inputPath, "utf-8");
+  const intensity = options.intensity || "moderate";
+  const batchSize = options.batchSize || 5;
+  const model = options.model || "sonnet";
+
+  // Work directory for incremental state
+  const workDir = outputPath.replace(/\.(pptx|html)$/, ".compose");
+  if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
+
+  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  const total = sourceSlides.length;
+
+  process.stderr.write(`\n  ${accent("━━━ INCREMENTAL COMPOSE ━━━━━━━━━━━━━━━━━━")}\n`);
+  process.stderr.write(`  ${dim("Source:")} ${teal(path.basename(inputPath))} ${dim("(")}${total} slides${dim(")")}\n`);
+  process.stderr.write(`  ${dim("Intensity:")} ${accent(intensity)} ${dim("| Model:")} ${amber(model)} ${dim("| Batch:")} ${batchSize}\n`);
+  process.stderr.write(`  ${dim("Work dir:")} ${teal(workDir)}\n\n`);
+
+  // ── STAGE 1: Design System ──────────────────────
+  const designSystemPath = path.join(workDir, "design-system.json");
+  let designSystem;
+
+  if (fs.existsSync(designSystemPath)) {
+    process.stderr.write(`  ${sage("✓")} Stage 1: Design system ${dim("(cached)")}\n`);
+    designSystem = JSON.parse(fs.readFileSync(designSystemPath, "utf-8"));
+  } else {
+    process.stderr.write(`  ${amber("○")} Stage 1: Generating design system...\n`);
+
+    const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
+    const mood = options.brief || getDefaultBrief();
+
+    const designPrompt = `You are a Swiss-trained art director designing a slide deck on a 60-column × 40-row grid.
+
+INTENSITY: ${intensity.toUpperCase()}
+${INTENSITY[intensity] || INTENSITY.moderate}
+
+CREATIVE DIRECTION: ${mood}
+COMPOSITIONAL EMPHASIS: ${seed}
+
+The source deck has ${total} slides. Design a COMPLETE visual system for it.
+
+Output ONLY valid JSON (no code fences, no commentary):
+{
+  "aesthetic": "name and 1-sentence description of the visual concept",
+  "palette": [
+    { "hex": "XXXXXX", "name": "descriptive name", "role": "dominant|accent|ground|signal" }
+  ],
+  "chromaticArc": "1-sentence description of how colours flow across the ${total} slides",
+  "gridStrategy": "1-sentence description of how zone positions vary across slides",
+  "typeScale": {
+    "titleRange": [min, max],
+    "bodySize": N,
+    "labelSize": N,
+    "titleWeightRange": [min, max]
+  },
+  "fontStrategy": {
+    "default": "font name",
+    "secondary": "font name or null",
+    "tertiary": "font name or null",
+    "secondarySlides": "description of when secondary font is used"
+  },
+  "accentStrategy": "1-sentence description of accent element usage"
+}`;
+
+    try {
+      const raw = await callClaudeAsync(designPrompt, { model, label: "design-system" });
+      let json = raw.trim();
+      if (/^```/.test(json)) json = json.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
+      const firstBrace = json.indexOf("{");
+      const lastBrace = json.lastIndexOf("}");
+      if (firstBrace >= 0 && lastBrace > firstBrace) json = json.slice(firstBrace, lastBrace + 1);
+      designSystem = JSON.parse(json);
+      fs.writeFileSync(designSystemPath, JSON.stringify(designSystem, null, 2));
+      process.stderr.write(`  ${sage("✓")} Stage 1: ${chalk.white(designSystem.aesthetic || "Design system generated")}\n`);
+    } catch (err) {
+      process.stderr.write(`  ${accent("✗")} Stage 1 failed: ${err.message}\n`);
+      throw err;
+    }
+  }
+
+  // Show the design system
+  if (designSystem.palette) {
+    const swatches = designSystem.palette.map(c => `${dim(c.hex)} ${c.name}`).join(dim(" · "));
+    process.stderr.write(`  ${dim("  Palette:")} ${swatches}\n`);
+  }
+  if (designSystem.fontStrategy) {
+    process.stderr.write(`  ${dim("  Fonts:")} ${designSystem.fontStrategy.default}${designSystem.fontStrategy.secondary ? " + " + designSystem.fontStrategy.secondary : ""}\n`);
+  }
+
+  // ── STAGE 2: Per-slide design (batched) ─────────
+  process.stderr.write(`\n  ${amber("○")} Stage 2: Designing ${total} slides in batches of ${batchSize}...\n`);
+
+  const designSystemContext = JSON.stringify(designSystem, null, 2);
+  const slideDesigns = [];
+  let completed = 0;
+  let failed = 0;
+
+  // Check for cached batches
+  for (let i = 0; i < total; i += batchSize) {
+    const batchNum = Math.floor(i / batchSize) + 1;
+    const batchPath = path.join(workDir, `batch-${String(batchNum).padStart(2, "0")}.md`);
+
+    if (fs.existsSync(batchPath)) {
+      const cached = fs.readFileSync(batchPath, "utf-8");
+      slideDesigns.push(cached);
+      const batchSlideCount = (cached.match(/<!-- design:/g) || []).length + (cached.match(/<!-- layout:/g) || []).length;
+      completed += batchSlideCount;
+      process.stderr.write(`  ${sage("✓")} Batch ${batchNum}: slides ${i + 1}-${Math.min(i + batchSize, total)} ${dim("(cached)")}\n`);
+      continue;
+    }
+
+    const batchSlides = sourceSlides.slice(i, i + batchSize);
+    const batchEnd = Math.min(i + batchSize, total);
+    const numberedBatch = batchSlides.map((s, j) => `=== SLIDE ${i + j + 1} of ${total} ===\n${s.trim()}`).join("\n\n");
+
+    const batchPrompt = `You are composing slides on a 60×40 grid. Here is the design system you MUST follow:
+
+${designSystemContext}
+
+INTENSITY: ${intensity.toUpperCase()}
+
+Design slides ${i + 1}-${batchEnd} (${batchSlides.length} slides). Each slide needs a <!-- design: {...} --> directive.
+
+Use the palette, fonts, grid strategy, and accent strategy from the design system above.
+Vary zone positions, type sizes, and accent placements across slides.
+The content is FIXED — copy it exactly. Add ### labels for typographic texture.
+
+${numberedBatch}
+
+Output EXACTLY ${batchSlides.length} slides separated by ---.
+Each slide starts with <!-- design: { on its first line.
+No commentary, no code fences.`;
+
+    process.stderr.write(`  ${amber("⟐")} Batch ${batchNum}: slides ${i + 1}-${batchEnd}...`);
+
+    try {
+      const raw = await callClaudeAsync(batchPrompt, { model, label: `batch-${batchNum}` });
+      let cleaned = raw.trim();
+      if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
+
+      fs.writeFileSync(batchPath, cleaned);
+      slideDesigns.push(cleaned);
+
+      const batchSlideCount = (cleaned.match(/<!-- design:/g) || []).length + (cleaned.match(/<!-- layout:/g) || []).length;
+      completed += batchSlideCount;
+      process.stderr.write(` ${sage("✓")} ${batchSlideCount} slides\n`);
+    } catch (err) {
+      failed++;
+      process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
+      // Insert fallback — plain source slides with minimal design
+      const fallback = batchSlides.map((s, j) => {
+        return `<!-- layout: split -->\n${s.trim()}`;
+      }).join("\n\n---\n\n");
+      slideDesigns.push(fallback);
+      completed += batchSlides.length;
+    }
+  }
+
+  process.stderr.write(`  ${completed === total ? sage("✓") : amber("⚠")} Stage 2: ${completed}/${total} slides designed (${failed} batch failures)\n`);
+
+  // ── STAGE 3: Assembly ───────────────────────────
+  process.stderr.write(`\n  ${amber("○")} Stage 3: Assembling composed markdown...\n`);
+
+  const designPlanComment = `<!-- DESIGN PLAN\n${JSON.stringify(designSystem, null, 2)}\n-->`;
+  const assembled = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
+  const composedPath = outputPath.replace(/\.(pptx|html)$/, ".composed.md");
+  fs.writeFileSync(composedPath, assembled);
+  process.stderr.write(`  ${sage("✓")} Stage 3: ${teal(composedPath)}\n`);
+
+  // ── STAGE 4: Render ─────────────────────────────
+  if (options.dryRun) {
+    return { slides: total, output: composedPath, dryRun: true, designSystem, workDir };
+  }
+
+  process.stderr.write(`  ${amber("○")} Stage 4: Rendering...\n`);
+  const result = await generate(composedPath, outputPath, {
+    theme: options.theme,
+    ratio: options.ratio,
+  });
+
+  process.stderr.write(`  ${sage("✓")} Stage 4: ${chalk.white.bold(result.slides)} slides → ${teal(result.output)}\n`);
+  process.stderr.write(`  ${accent("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")}\n\n`);
+
+  return { ...result, composedPath, designSystem, workDir };
+}
+
+// ═══════════════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════════════
 
@@ -756,6 +946,8 @@ if (require.main === module) {
     model: getFlag("--model") || "sonnet",
     slides: getFlag("--slides"),
     dryRun: args.includes("--dry-run"),
+    incremental: args.includes("--incremental"),
+    batchSize: parseInt(getFlag("--batch-size") || "5", 10),
   };
 
   if (!fs.existsSync(input)) {
@@ -763,10 +955,11 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  compose(input, output, options).catch((err) => {
+  const fn = options.incremental ? composeIncremental : compose;
+  fn(input, output, options).catch((err) => {
     console.error(`Error: ${err.message}`);
     process.exit(1);
   });
 }
 
-module.exports = { compose, composeAsync, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
+module.exports = { compose, composeAsync, composeIncremental, buildPrompt, callClaude, callClaudeAsync, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY };
