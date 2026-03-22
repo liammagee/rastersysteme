@@ -483,7 +483,6 @@ async function interactive(preselectedInput) {
       console.log(`\n  ${sage("✓")} Gallery: ${teal(galleryPath)}`);
     }
     process.exit(0);
-  }
 
   } else if (mode.key === "w") {
     // ── WATCH ────────────────────────────────
