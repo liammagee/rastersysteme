@@ -956,7 +956,8 @@ CREATIVE DIRECTION: ${mood}
 COMPOSITIONAL EMPHASIS: ${seed}
 
 The source deck has ${total} slides. Design a COMPLETE visual system for it.
-IMPORTANT: Your palette MUST match the ${themeName.toUpperCase()} theme. ${themeName === "light" || themeName === "blue" || themeName === "red" ? "70%+ of slides should have NO bg override (null) — let the light theme default show." : "Use the dark default for most slides."}
+IMPORTANT: Your palette MUST match the ${themeName.toUpperCase()} theme.
+${themeName === "light" ? "Include warm whites (F8F5F0, FAFAF8) as the DOMINANT ground colour. Every slide needs an explicit bg." : themeName === "dark" ? "Include near-blacks (1A1A1A, 111111) as the DOMINANT ground. Every slide needs an explicit bg." : "Include theme-appropriate ground colours. Every slide needs an explicit bg."}
 
 Output ONLY valid JSON (no code fences, no commentary):
 {
@@ -1137,9 +1138,12 @@ bg = 6-char hex or null. font = name or null. label = ### text or null.
 ${imgRules}
 Rules:
 - Vary layouts (5+ types), no 3× consecutive same layout
-- bg: use null for 50%+ of slides (shows theme default). When set, use dark/muted tones.
+- bg: ALWAYS set a bg colour on every slide — never use null.
+  For light themes: use warm whites (F8F5F0, FAFAF8, FFF8E7) for most slides.
+  For dark themes: use near-blacks (1A1A1A, 111111, 0A0A0A) for most slides.
+  Use 2-4 accent bg colours (from the palette) for chromatic variety.
 - NEVER use red/warm bg on "title" layout — the red accent block becomes invisible.
-- For light themes: prefer null bg (clean white default) over coloured overrides.
+- For "title" and "section" layouts: bg is REQUIRED (they default to dark if not set).
 ${batchContext}
 
 ${slideSummaries}
