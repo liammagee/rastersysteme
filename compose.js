@@ -319,7 +319,7 @@ function callClaudeAsync(prompt, options = {}) {
   const { spawn: spawnAsync } = require("child_process");
   return new Promise((resolve, reject) => {
     const label = options.label || "claude";
-    const args = ["-p", "--output-format", "stream-json", "--verbose"];
+    const args = ["-p", "--bare", "--output-format", "stream-json", "--verbose"];
     if (options.model) args.push("--model", options.model);
 
     const proc = spawnAsync("claude", args, {
@@ -478,7 +478,7 @@ function callClaudeAsync(prompt, options = {}) {
 }
 
 function callClaude(prompt, options = {}) {
-  const args = ["-p", "--output-format", "text"];
+  const args = ["-p", "--bare", "--output-format", "text"];
   if (options.model) args.push("--model", options.model);
 
   const result = spawnSync("claude", args, {
