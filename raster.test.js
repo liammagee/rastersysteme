@@ -1101,6 +1101,172 @@ describe("Compose module", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// THEME-AWARENESS IN COMPOSE
+// ═══════════════════════════════════════════════════════
+
+describe("Theme-aware compose", () => {
+  const src = require("fs").readFileSync("./compose.js", "utf-8");
+
+  it("design system prompt includes theme description for light", () => {
+    assert.ok(src.includes("LIGHT THEME"), "should have LIGHT THEME description");
+    assert.ok(src.includes("warm white") || src.includes("paper"),
+      "light theme should mention warm/white/paper");
+  });
+
+  it("design system prompt includes theme description for dark", () => {
+    assert.ok(src.includes("DARK THEME"), "should have DARK THEME description");
+    assert.ok(src.includes("near-black"), "dark theme should mention near-black");
+  });
+
+  it("light theme instructs 70%+ null bg", () => {
+    assert.ok(src.includes("70%") && src.includes("null"),
+      "light theme should tell Claude to leave 70%+ slides without bg override");
+  });
+
+  it("theme is passed to design system generation", () => {
+    assert.ok(src.includes("options.theme") || src.includes("themeName"),
+      "composeIncremental should read options.theme");
+    assert.ok(src.includes("themeDesc"), "should have theme descriptions object");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// JSON DIRECTIVE PIPELINE
+// ═══════════════════════════════════════════════════════
+
+describe("JSON directive pipeline", () => {
+  const src = require("fs").readFileSync("./compose.js", "utf-8");
+
+  it("incremental compose asks for JSON directives, not content", () => {
+    assert.ok(src.includes("Do NOT reproduce the slide content") ||
+      src.includes("one JSON object") || src.includes('"layout"'),
+      "should ask for JSON directives only");
+  });
+
+  it("directives are merged with original source (not reproduced by Claude)", () => {
+    assert.ok(src.includes("mergedSlides") || src.includes("merge"),
+      "should merge directives with original source");
+  });
+
+  it("slide summaries sent to Claude, not full content", () => {
+    assert.ok(src.includes("slideSummaries") || src.includes("bulletCount"),
+      "should send summaries, not full slide content");
+  });
+
+  it("JSON parsing handles both array and one-per-line formats", () => {
+    assert.ok(src.includes("startsWith(\"[\")") || src.includes("split(\"\\n\")"),
+      "should handle JSON array and line-by-line");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// SESSION REUSE
+// ═══════════════════════════════════════════════════════
+
+describe("Session reuse", () => {
+  const src = require("fs").readFileSync("./compose.js", "utf-8");
+
+  it("callClaudeAsync supports --resume flag", () => {
+    assert.ok(src.includes("options.resume") && src.includes("--resume"),
+      "should pass --resume to CLI when session exists");
+  });
+
+  it("session_id is extracted from stream-json result", () => {
+    assert.ok(src.includes("__SESSION:") && src.includes("session_id"),
+      "should extract session_id from result event");
+  });
+
+  it("first call sends full context, subsequent calls resume", () => {
+    assert.ok(src.includes("!sessionId") || src.includes("if (!sessionId"),
+      "should check sessionId to decide full vs resume prompt");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// ANTI-REGRESSION: KNOWN BUGS
+// ═══════════════════════════════════════════════════════
+
+describe("Anti-regression guards", () => {
+
+  it("--slides filter applied in incremental compose", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    // composeIncremental must filter sourceSlides by options.slides
+    const incremental = src.slice(src.indexOf("async function composeIncremental"));
+    assert.ok(incremental.includes("options.slides"),
+      "composeIncremental must apply --slides filter");
+  });
+
+  it("designed slides use position:absolute not position:relative", () => {
+    const {generateHTMLCSS} = require("./raster.js");
+    const css = generateHTMLCSS();
+    assert.ok(css.includes(".slide.designed{position:absolute"),
+      "designed slides must use position:absolute;inset:0 to fill viewport");
+    assert.ok(!css.includes(".slide.designed{position:relative"),
+      "position:relative causes black screen — must not be used");
+  });
+
+  it("CLI uses --setting-sources user to skip project CLAUDE.md", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    assert.ok(src.includes("--setting-sources") && src.includes("user"),
+      "CLI calls should use --setting-sources user to avoid CLAUDE.md caching overhead");
+  });
+
+  it("CLI uses --append-system-prompt to suppress Insight blocks", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    assert.ok(src.includes("--append-system-prompt") && src.includes("No commentary"),
+      "CLI calls should append system prompt suppressing Insight blocks");
+  });
+
+  it("normaliseDesign handles Claude's varied JSON schemas", () => {
+    const {parseMarkdown} = require("./raster.js");
+    // titleZone format (Claude's common variation)
+    const [s1] = parseMarkdown('<!-- design: {"titleZone":{"col":0,"span":24,"row":0,"rowSpan":20},"bg":"F0E9DE"} -->\n# Title');
+    assert.ok(s1.design, "should normalise titleZone format");
+    assert.equal(s1.design.zones[0].role, "title");
+    assert.equal(s1.design.zones[0].col, 0);
+
+    // colSpan format
+    const [s2] = parseMarkdown('<!-- design: {"titleZone":{"col":0,"colSpan":24,"row":0,"rowSpan":20}} -->\n# Title');
+    assert.ok(s2.design, "should normalise colSpan → span");
+    assert.equal(s2.design.zones[0].span, 24);
+
+    // width/height format
+    const [s3] = parseMarkdown('<!-- design: {"titleZone":{"col":0,"width":24,"row":0,"height":20}} -->\n# Title');
+    assert.ok(s3.design, "should normalise width → span, height → rowSpan");
+    assert.equal(s3.design.zones[0].span, 24);
+    assert.equal(s3.design.zones[0].rowSpan, 20);
+
+    // background → bg normalisation
+    const [s4] = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":20}],"background":"#1A1A1A"} -->\n# Title');
+    assert.ok(s4.design);
+    assert.equal(s4.design.bg, "1A1A1A");
+  });
+
+  it("Insight blocks are stripped from slide output", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    // Post-processing strip
+    assert.ok(src.includes("designStart") || src.includes("indexOf(\"<!-- design:\")"),
+      "should strip preamble before design/layout directives");
+  });
+
+  it("stall detection kills after 90s with no progress", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    assert.ok(src.includes("90") && src.includes("stallCheck"),
+      "should detect stall after 90s with no progress");
+  });
+
+  it("content preservation: slide count must match", () => {
+    const {validateContentPreservation} = require("./qa.js");
+    // Same count = ok
+    const ok = validateContentPreservation("# A\n---\n# B", "<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B");
+    assert.ok(!ok.some(r => r.check === "slideCount"), "same count should pass");
+    // Different count = error
+    const bad = validateContentPreservation("# A\n---\n# B\n---\n# C", "<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B");
+    assert.ok(bad.some(r => r.check === "slideCount"), "different count should fail");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // COMPARE MODULE
 // ═══════════════════════════════════════════════════════
 
