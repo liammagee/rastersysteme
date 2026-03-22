@@ -1125,32 +1125,36 @@ Don't use the same layout as the last slide. Maintain variety.`;
     }
 
     if (!sessionId) {
-      batchPrompt = `You are a Swiss art director. Design system:
-
-${designSystemContext}
-
+      batchPrompt = `You are a Swiss art director designing on a 60-column × 40-row grid.
+Design system: ${designSystemContext}
 INTENSITY: ${intensity.toUpperCase()}
 
-I'll send slide summaries. For each, return ONE JSON object:
-{"slide":N, "layout":"split", "bg":"0F2A4A", "font":"Georgia", "label":"INTRO", "notes":"rationale"${imgExample}}
-Layouts: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank.
-bg = 6-char hex or null. font = name or null. label = ### text or null.
+I'll send slide summaries. For EACH slide, return a JSON object that specifies
+WHERE elements sit on the grid. This is NOT a template — you design the spatial
+composition from scratch for each slide.
+
+Example (vary positions, sizes, and accents for every slide):
+{"slide":1, "zones":[{"role":"title","col":4,"span":24,"row":4,"rowSpan":14},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}], "accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"${(designSystem.palette?.[2]?.hex) || 'D32F2F'}"}], "typography":{"title":{"size":42,"weight":700},"body":{"size":14}}, "bg":"F8F5F0", "font":"Helvetica Neue", "label":"SECTION NAME"${imgExample}}
+
+ZONE ROLES: title, body, bullets, label, quote
+COLUMNS: 0-59 (col + span ≤ 60). ROWS: 0-39 (row + rowSpan ≤ 40).
+ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
+
+DESIGN RULES:
+- EVERY slide must have different zone positions. Vary col/span/row/rowSpan.
+  Slide 1: title at col:4 span:24. Slide 2: title at col:30 span:28. Slide 3: title at col:0 span:58.
+- Title sizes: vary between 28-64px across slides. Body: 12-16px.
+- bg: ALWAYS set. Use palette colours. Alternate light and dark for rhythm.
+- Accents: use on 40%+ of slides. Vary position and type.
+- font: vary between ${designSystem.fontStrategy?.default || "Helvetica Neue"} and ${designSystem.fontStrategy?.secondary || "Georgia"}.
 ${imgRules}
-Rules:
-- Vary layouts (5+ types), no 3× consecutive same layout
-- bg: ALWAYS set a bg colour on every slide — never use null.
-  For light themes: use warm whites (F8F5F0, FAFAF8, FFF8E7) for most slides.
-  For dark themes: use near-blacks (1A1A1A, 111111, 0A0A0A) for most slides.
-  Use 2-4 accent bg colours (from the palette) for chromatic variety.
-- NEVER use red/warm bg on "title" layout — the red accent block becomes invisible.
-- For "title" and "section" layouts: bg is REQUIRED (they default to dark if not set).
 ${batchContext}
 
 ${slideSummaries}
 
 Output ONLY valid JSON — one object per line. No commentary.`;
     } else {
-      batchPrompt = `Next slides:
+      batchPrompt = `Next slides (continue varying zone positions, type sizes, accents):
 ${batchContext}
 
 ${slideSummaries}
@@ -1202,9 +1206,23 @@ JSON objects, one per line:`;
       const mergedSlides = batchSlides.map((src, j) => {
         const d = directives[j] || {};
         const parts = [];
-        if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
-        if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
-        if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+
+        // If Claude provided zones (design directive), use <!-- design: -->
+        // Otherwise fall back to <!-- layout: -->
+        if (d.zones && Array.isArray(d.zones) && d.zones.length > 0) {
+          const designObj = {};
+          if (d.zones) designObj.zones = d.zones;
+          if (d.accents) designObj.accents = d.accents;
+          if (d.typography) designObj.typography = d.typography;
+          if (d.bg) designObj.bg = d.bg.replace(/^#/, "");
+          if (d.font) designObj.font = d.font;
+          parts.push(`<!-- design: ${JSON.stringify(designObj)} -->`);
+        } else if (d.layout) {
+          parts.push(`<!-- layout: ${d.layout} -->`);
+          if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
+          if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+        }
+
         if (d.image && d.image !== "none") {
           parts.push(`<!-- image: ${d.image}${d.imageSize ? " " + d.imageSize : ""} -->`);
         }
