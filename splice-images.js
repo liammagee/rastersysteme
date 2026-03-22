@@ -32,43 +32,43 @@ function placementCSS(mode, imgPath, opts = {}) {
   switch (mode) {
     case "right":
       return {
-        wrapper: `display:flex;flex-direction:row;padding:0;`,
+        wrapper: `flex-direction:row;padding:0;`,
         before: `<div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin;overflow:auto">`,
         after: `</div><div style="flex:0 0 ${size}%;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
       };
     case "left":
       return {
-        wrapper: `display:flex;flex-direction:row;padding:0;`,
+        wrapper: `flex-direction:row;padding:0;`,
         before: `<div style="flex:0 0 ${size}%;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin;overflow:auto">`,
         after: `</div>`,
       };
     case "top":
       return {
-        wrapper: `display:flex;flex-direction:column;padding:0;`,
+        wrapper: `flex-direction:column;padding:0;`,
         before: `<div style="flex:0 0 ${size}%;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div><div style="flex:1;padding:4vmin;display:flex;flex-direction:column;gap:2vmin;overflow:auto">`,
         after: `</div>`,
       };
     case "bottom":
       return {
-        wrapper: `display:flex;flex-direction:column;padding:0;`,
+        wrapper: `flex-direction:column;padding:0;`,
         before: `<div style="flex:1;padding:4vmin;display:flex;flex-direction:column;gap:2vmin;overflow:auto">`,
         after: `</div><div style="flex:0 0 ${size}%;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
       };
     case "inset-tr":
       return {
-        wrapper: `position:relative;`,
+        wrapper: ``,
         before: ``,
         after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${size}%;aspect-ratio:1;overflow:hidden;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:2"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
       };
     case "inset-bl":
       return {
-        wrapper: `position:relative;`,
+        wrapper: ``,
         before: ``,
         after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${size}%;aspect-ratio:1;overflow:hidden;border-radius:4px;box-shadow:0 4px 24px rgba(0,0,0,0.4);z-index:2"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover;opacity:${opacity}"></div>`,
       };
     case "background":
       return {
-        wrapper: `background-image:url('${imgPath}');background-size:cover;background-position:center;position:relative;`,
+        wrapper: `background-image:url('${imgPath}');background-size:cover;background-position:center;`,
         before: `<div style="position:absolute;inset:0;background:inherit;opacity:${1 - (opts.bgOpacity || 0.2)};z-index:0"></div><div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:2vmin;width:100%;height:100%;padding:5vmin">`,
         after: `</div>`,
       };
