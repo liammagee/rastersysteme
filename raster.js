@@ -2062,6 +2062,13 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow-
 .next-notes em{color:#876512}
 
 /* Keyboard hints */
+.countdown{font-family:'Space Mono',monospace;font-size:1rem;color:#2B7038;font-variant-numeric:tabular-nums;margin-top:0.2rem}
+.countdown.warning{color:#876512}
+.countdown.danger{color:#B7311A;animation:pulse 1s ease-in-out infinite}
+.countdown.over{color:#B7311A}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.duration-set{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 2rem;border-bottom:1px solid #1a1a1a}
+.duration-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;letter-spacing:0.1em}
 .hints{padding:0.8rem 2rem;border-top:1px solid #1a1a1a;
   font-family:'Space Mono',monospace;font-size:.6rem;color:#333;letter-spacing:0.1em}
 </style></head><body>
@@ -2070,12 +2077,20 @@ body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow-
     <div class="slide-num" id="pn-num">SLIDE 1</div>
     <div class="progress-row" id="pn-progress"></div>
   </div>
-  <div class="elapsed" id="pn-timer">00:00</div>
+  <div style="text-align:right">
+    <div class="elapsed" id="pn-timer">00:00</div>
+    <div class="countdown" id="pn-countdown" style="display:none">remaining</div>
+  </div>
 </div>
 <div class="timing" id="pn-timing" style="display:none">
   <span class="timing-icon">\\u23F1</span>
   <span class="timing-range" id="pn-timing-range"></span>
   <span class="timing-duration" id="pn-timing-dur"></span>
+</div>
+<div class="duration-set" id="pn-duration-set">
+  <span class="duration-label">Duration:</span>
+  <input type="number" id="pn-duration-input" min="1" max="600" placeholder="minutes" style="width:60px;background:#222;border:1px solid #333;color:#e8e0d4;padding:4px 8px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem">
+  <button id="pn-duration-btn" style="background:#222;border:1px solid #333;color:#8C8478;padding:4px 10px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem;cursor:pointer">Set</button>
 </div>
 <div class="notes-body">
   <div class="notes" id="pn-notes">Press <strong>P</strong> in the slide window to sync.</div>
@@ -2124,6 +2139,15 @@ bc2.onmessage=function(e){
   }
 };
 
+let durationMinutes=0;
+document.getElementById('pn-duration-btn').addEventListener('click',function(){
+  const v=parseInt(document.getElementById('pn-duration-input').value);
+  if(v>0){durationMinutes=v;document.getElementById('pn-duration-set').style.display='none'}
+});
+document.getElementById('pn-duration-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){document.getElementById('pn-duration-btn').click()}
+});
+
 setInterval(function(){
   const s=Math.floor((Date.now()-startTime)/1000);
   const h=Math.floor(s/3600);
@@ -2133,6 +2157,23 @@ setInterval(function(){
     ? h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')
     : String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
   document.getElementById('pn-timer').textContent=t;
+
+  // Countdown
+  const cdEl=document.getElementById('pn-countdown');
+  if(durationMinutes>0){
+    cdEl.style.display='block';
+    const remaining=durationMinutes*60-s;
+    if(remaining<=0){
+      cdEl.textContent='OVER by '+Math.abs(Math.floor(remaining/60))+'m';
+      cdEl.className='countdown over';
+    } else {
+      const rm=Math.floor(remaining/60);
+      const rs=remaining%60;
+      cdEl.textContent=rm+':'+String(rs).padStart(2,'0')+' left';
+      const pct=remaining/(durationMinutes*60);
+      cdEl.className='countdown'+(pct<0.1?' danger':pct<0.25?' warning':'');
+    }
+  }
 },1000);
 <\\/script></body></html>\`);
     presenterWin.document.close();

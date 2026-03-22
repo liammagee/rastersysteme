@@ -248,6 +248,26 @@ function buildPrompt(markdown, options = {}) {
 
 COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
+  // Inject design system if provided — constrains Claude's choices
+  if (options.designSystem) {
+    const ds = typeof options.designSystem === "string"
+      ? require("./design-system.js").loadSystem(options.designSystem)
+      : options.designSystem;
+    const palette = (ds.palette || []).map(c => `${c.hex} (${c.name}, ${c.role})`).join(", ");
+    const fonts = ds.fontStrategy
+      ? `Primary: ${ds.fontStrategy.default}` + (ds.fontStrategy.secondary ? `, Secondary: ${ds.fontStrategy.secondary}` : "")
+      : "";
+    parts.push(`DESIGN SYSTEM (use these specific colours, fonts, and strategies):
+Aesthetic: ${ds.aesthetic || ""}
+Palette: ${palette}
+Chromatic arc: ${ds.chromaticArc || ""}
+Grid strategy: ${ds.gridStrategy || ""}
+Font strategy: ${fonts}${ds.fontStrategy?.secondarySlides ? " — " + ds.fontStrategy.secondarySlides : ""}
+Accent strategy: ${ds.accentStrategy || ""}
+IMPORTANT: Use ONLY colours from this palette for bg overrides. Use ONLY the specified fonts.`);
+    process.stderr.write(`  ${dim("Design system:")} ${teal(ds.aesthetic || "loaded")}\n`);
+  }
+
   // Pre-split source into numbered slides, optionally filtered by --slides range
   let sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
   const slideRange = options.slides;
@@ -1314,6 +1334,7 @@ if (require.main === module) {
     brief: getFlag("--brief"),
     model: getFlag("--model") || "sonnet",
     slides: getFlag("--slides"),
+    designSystem: getFlag("--design-system"),
     dryRun: args.includes("--dry-run"),
     incremental: args.includes("--incremental"),
     batchSize: parseInt(getFlag("--batch-size") || "1", 10),
