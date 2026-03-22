@@ -14,25 +14,37 @@ Output: `slides.pptx`
 ## npm Scripts
 
 ```bash
-# Interactive mode — asks for preferences, orchestrates full pipeline
+# Interactive wizard — the easiest way to use everything
 npm start
 
-# Generate PPTX (default)
-npm run raster -- slides.md --theme dark
+# Incremental compose (batched, resumable, live HTML preview)
+npm run compose -- slides.md --incremental --theme light
 
-# Generate HTML slideshow
+# Quick test on 5 slides with Haiku
+npm run compose -- slides.md --incremental --slides 1-5 --model haiku
+
+# With image generation (Midjourney)
+npm run compose -- slides.md --incremental --with-images
+
+# Use existing images
+npm run compose -- slides.md --incremental --images-dir slides-images/
+
+# Studio viewer (present / grid / QA modes)
+npm run studio -- slides.composed.md --theme dark
+
+# Browse design systems + slide decks
+npm run explorer -- decks/
+
+# 3-way comparison (minimal / moderate / maximal)
+npm run compare -- slides.md --skip-eval
+
+# Accessibility audit
+npm run qa -- slides.md --theme light
+
+# Generate PPTX or HTML directly
 npm run raster -- slides.md --format html --theme dark
 
-# Visual review (thumbnail grid with validation)
-npm run raster -- slides.md --format review --theme dark
-
-# Claude-directed art direction → slides
-npm run compose -- slides.md --theme dark --intensity radical
-
-# Multi-style comparison: runs faithful/moderate/radical, evaluates, generates report
-npm run compare -- slides.md --theme light
-
-# Run unit tests
+# Run unit tests (211 tests)
 npm test
 ```
 

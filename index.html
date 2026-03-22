@@ -1685,6 +1685,7 @@ footer {
       <li><a href="#quickstart">Start</a></li>
       <li class="nav-divider"></li>
       <li><a href="decks/explorer.html" class="nav-tool">Explorer</a></li>
+      <li><a href="decks/showcase-studio.html" class="nav-tool">Studio</a></li>
     </ul>
   </div>
 </nav>
@@ -1913,27 +1914,27 @@ footer {
     <div class="pipeline reveal reveal-delay-3">
       <div class="pipeline-step">
         <div class="pipeline-step-num">1</div>
-        <div class="pipeline-step-name">Parse</div>
-        <div class="pipeline-step-desc">Markdown slides separated by <code>---</code></div>
+        <div class="pipeline-step-name">Design System</div>
+        <div class="pipeline-step-desc">Claude generates palette, fonts, grid strategy as JSON</div>
       </div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">2</div>
         <div class="pipeline-step-name">Compose</div>
-        <div class="pipeline-step-desc">Claude selects layouts, pacing, colour arc</div>
+        <div class="pipeline-step-desc">Per-slide JSON directives via session reuse (~5s each)</div>
       </div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">3</div>
-        <div class="pipeline-step-name">Render</div>
-        <div class="pipeline-step-desc">Grid engine places elements on 60&times;40 canvas</div>
+        <div class="pipeline-step-name">Assemble</div>
+        <div class="pipeline-step-desc">Merge directives with source &mdash; content never touched</div>
       </div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">4</div>
-        <div class="pipeline-step-name">Output</div>
-        <div class="pipeline-step-desc">PPTX, HTML slideshow, or review grid</div>
+        <div class="pipeline-step-name">Render</div>
+        <div class="pipeline-step-desc">HTML with live preview, PPTX, or Studio viewer</div>
       </div>
       <div class="pipeline-step">
         <div class="pipeline-step-num">5</div>
-        <div class="pipeline-step-name">QA</div>
+        <div class="pipeline-step-name">Images + QA</div>
         <div class="pipeline-step-desc">WCAG 2.1 AA contrast &amp; accessibility audit</div>
       </div>
     </div>
@@ -2165,20 +2166,32 @@ Slide 3: <span class="syn-kw">layout: table</span>
 <pre><span class="qs-comment"># Install</span>
 <span class="qs-prompt">$ </span><span class="qs-cmd">npm install</span>
 
-<span class="qs-comment"># Generate PPTX from Markdown</span>
-<span class="qs-prompt">$ </span><span class="qs-cmd">npm run raster --</span> <span class="qs-flag">slides.md --theme dark</span>
+<span class="qs-comment"># Interactive wizard — the easiest way</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm start</span>
 
-<span class="qs-comment"># Claude-directed art direction</span>
-<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compose --</span> <span class="qs-flag">slides.md --intensity radical</span>
+<span class="qs-comment"># Incremental compose (batched, resumable, live preview)</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compose --</span> <span class="qs-flag">slides.md --incremental --theme light</span>
 
-<span class="qs-comment"># 3-way comparison with evaluation</span>
-<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compare --</span> <span class="qs-flag">slides.md --theme light</span>
+<span class="qs-comment"># Quick test on 5 slides with Haiku</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compose --</span> <span class="qs-flag">slides.md --incremental --slides 1-5 --model haiku</span>
 
-<span class="qs-comment"># Interactive studio viewer</span>
-<span class="qs-prompt">$ </span><span class="qs-cmd">npm run studio --</span> <span class="qs-flag">slides.html</span>
+<span class="qs-comment"># With images (Midjourney)</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compose --</span> <span class="qs-flag">slides.md --incremental --with-images</span>
+
+<span class="qs-comment"># Use existing images</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compose --</span> <span class="qs-flag">slides.md --incremental --images-dir slides-images/</span>
+
+<span class="qs-comment"># Studio viewer (present / grid / QA)</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run studio --</span> <span class="qs-flag">slides.composed.md --theme dark</span>
+
+<span class="qs-comment"># Browse design systems + slide decks</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run explorer --</span> <span class="qs-flag">decks/</span>
+
+<span class="qs-comment"># 3-way comparison</span>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run compare --</span> <span class="qs-flag">slides.md --skip-eval</span>
 
 <span class="qs-comment"># Accessibility audit</span>
-<span class="qs-prompt">$ </span><span class="qs-cmd">npm run qa --</span> <span class="qs-flag">slides.html</span></pre>
+<span class="qs-prompt">$ </span><span class="qs-cmd">npm run qa --</span> <span class="qs-flag">slides.md --theme light</span></pre>
       </div>
     </div>
   </div>

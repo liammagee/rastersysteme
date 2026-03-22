@@ -18,6 +18,7 @@
     "pdf": "node export-pdf.js",
     "serve": "python3 -m http.server 8701",
     "explorer": "node explorer.js",
+    "refresh": "node refresh.js",
     "qa": "node qa.js",
     "batch": "node batch.js"
   },
