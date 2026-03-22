@@ -1257,12 +1257,66 @@ describe("Anti-regression guards", () => {
 
   it("content preservation: slide count must match", () => {
     const {validateContentPreservation} = require("./qa.js");
-    // Same count = ok
     const ok = validateContentPreservation("# A\n---\n# B", "<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B");
     assert.ok(!ok.some(r => r.check === "slideCount"), "same count should pass");
-    // Different count = error
     const bad = validateContentPreservation("# A\n---\n# B\n---\n# C", "<!-- layout: section -->\n# A\n---\n<!-- layout: bullets -->\n# B");
     assert.ok(bad.some(r => r.check === "slideCount"), "different count should fail");
+  });
+
+  it("bg-accent colour clash detection exists in QA", () => {
+    const src = require("fs").readFileSync("./qa.js", "utf-8");
+    assert.ok(src.includes("accent") && src.includes("dist < 80"),
+      "QA should detect bg-accent colour clash (Euclidean distance < 80)");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// OUTPUT PATH CONTRACTS
+// ═══════════════════════════════════════════════════════
+
+describe("Output path contracts", () => {
+  it("compose CLI: output defaults to same dir as input", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    // The default output is input.replace(.md, .html) — preserves directory
+    assert.ok(src.includes('input.replace(/\\.md$/, ".html")'),
+      "CLI should derive output from input path (same directory)");
+  });
+
+  it("compose CLI: workDir derived from outputPath (same directory)", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    assert.ok(src.includes('outputPath.replace(/\\.(pptx|html)$/, ".compose")'),
+      "workDir should be derived from outputPath");
+  });
+
+  it("compose CLI: composedPath derived from outputPath (same directory)", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    assert.ok(src.includes('outputPath.replace(/\\.(pptx|html)$/, ".composed.md")'),
+      "composedPath should be derived from outputPath");
+  });
+
+  it("npm start: output goes to input's directory, not project root", () => {
+    const src = require("fs").readFileSync("./rastersysteme.js", "utf-8");
+    // Must use path.dirname(input) or similar — NOT SCRIPT_DIR
+    assert.ok(src.includes("path.dirname(path.resolve(input))") || src.includes("outputDir"),
+      "npm start must write output to input file's directory");
+    assert.ok(!src.includes('path.join(SCRIPT_DIR, `${outputName}.html`)'),
+      "must NOT write HTML to SCRIPT_DIR (project root)");
+  });
+
+  it("background renderer writes to correct outputPath", () => {
+    const src = require("fs").readFileSync("./compose.js", "utf-8");
+    // The background renderer should use generateHTML(composedPath, outputPath, ...)
+    // NOT fork a child process with potentially wrong paths
+    assert.ok(src.includes("generateHTML(composedPath, outputPath"),
+      "background renderer should use generateHTML with correct paths");
+  });
+
+  it("refresh.js re-renders all composed.md files", () => {
+    const src = require("fs").readFileSync("./refresh.js", "utf-8");
+    assert.ok(src.includes(".composed.md") && src.includes("Re-render"),
+      "refresh should find and re-render .composed.md files");
+    assert.ok(!src.includes("--all") || src.includes("--minimal"),
+      "refresh should render decks by default (not require --all)");
   });
 });
 
