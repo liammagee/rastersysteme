@@ -21,7 +21,7 @@ const cyan = (s) => `\x1b[36m${s}\x1b[0m`;
 const args = process.argv.slice(2);
 const decksDir = args.includes("--decks-dir") ? args[args.indexOf("--decks-dir") + 1] : "decks";
 const theme = args.includes("--theme") ? args[args.indexOf("--theme") + 1] : "light";
-const all = args.includes("--all");
+const minimal = args.includes("--minimal"); // skip deck re-rendering
 
 const ROOT = __dirname;
 let passed = 0;
@@ -57,7 +57,7 @@ if (fs.existsSync("showcase.md")) {
 }
 
 // 3. Re-render any .composed.md files found in decks
-if (all && fs.existsSync(decksDir)) {
+if (!minimal && fs.existsSync(decksDir)) {
   const composedFiles = fs.readdirSync(decksDir).filter(f => f.endsWith(".composed.md"));
   for (const f of composedFiles) {
     const name = f.replace(".composed.md", "");
@@ -67,7 +67,7 @@ if (all && fs.existsSync(decksDir)) {
 
     // Also regenerate studio if it existed
     const studioPath = path.join(decksDir, `${name}.studio.html`);
-    if (fs.existsSync(studioPath) || all) {
+    if (fs.existsSync(studioPath)) {
       run(`Studio ${name}`, `node studio.js ${srcPath} ${studioPath} --theme ${theme}`);
     }
   }
