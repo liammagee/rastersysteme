@@ -1952,9 +1952,11 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .videos.single figure.video-wrap{max-width:85%;width:85%}
 .video-responsive{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.5vmin}
 .video-responsive iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
-.extra-videos{max-height:50vh;max-width:60%;margin-top:auto;z-index:5}
-.extra-videos .videos{height:100%}
-.extra-videos .video-responsive{max-height:45vh}
+.extra-videos{position:absolute;right:5vmin;bottom:5vmin;width:45%;max-height:55%;z-index:5;
+  border-radius:0.5vmin;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+.extra-videos .videos,.extra-videos .videos.single{width:100%;height:100%}
+.extra-videos .videos figure.video-wrap{max-width:100%;width:100%}
+.extra-videos .video-responsive{max-height:100%}
 .videos figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
 
 /* Links */

@@ -421,6 +421,14 @@ async function interactive(preselectedInput) {
     ], { autoSelect: true });
     const batchSize = batchChoice.key === "a" ? "999" : batchChoice.key;
 
+    // Parallel batches
+    const parallelChoice = await select("PARALLEL BATCHES", [
+      { key: "1", label: "sequential      coherent, slower (default)" },
+      { key: "4", label: "4 concurrent    fast, less cross-batch coherence" },
+      { key: "8", label: "8 concurrent    fastest" },
+    ], { autoSelect: true });
+    const parallelCount = parallelChoice.key;
+
     const brief = await getBrief(input);
 
     // Image generation option
@@ -490,7 +498,7 @@ async function interactive(preselectedInput) {
     composedPath = path.join(outputDir, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
-    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--batch-size", batchSize, "--transition", transitionName];
+    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--batch-size", batchSize, "--parallel", parallelCount, "--transition", transitionName];
     if (brief) composeArgs.push("--brief", brief);
     if (slideRange) composeArgs.push("--slides", slideRange);
     if (designSystemName) composeArgs.push("--design-system", designSystemName);

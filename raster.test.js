@@ -564,6 +564,88 @@ Body line two`;
       assert.ok(html.includes("opacity:0.15"), "block should have opacity:0.15");
       assert.ok(html.includes("accent-block"), "should have accent-block class");
     });
+
+    it("renders video zone with YouTube iframe", () => {
+      const md = `<!-- design: { "zones": [{ "role": "video", "col": 5, "span": 50, "row": 5, "rowSpan": 30 }] } -->
+![Demo](https://www.youtube.com/watch?v=dQw4w9WgXcQ)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-video"), "should have zone-video class");
+      assert.ok(html.includes("youtube-nocookie.com/embed/dQw4w9WgXcQ"), "should contain YouTube iframe");
+      assert.ok(!html.includes("zone-extras"), "should NOT have extras when video zone exists");
+    });
+
+    it("renders image zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "image", "col": 30, "span": 28, "row": 0, "rowSpan": 40 }] } -->
+![Photo](photo.png)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-image"), "should have zone-image class");
+      assert.ok(html.includes("photo.png"), "should contain image src");
+      assert.ok(!html.includes("zone-extras"), "should NOT have extras when image zone exists");
+    });
+
+    it("renders links zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "links", "col": 5, "span": 50, "row": 30, "rowSpan": 8 }] } -->
+[Example](http://example.com)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-links"), "should have zone-links class");
+      assert.ok(html.includes("example.com"), "should contain link URL");
+    });
+
+    it("renders code zone content", () => {
+      const md = `<!-- design: { "zones": [{ "role": "code", "col": 5, "span": 50, "row": 10, "rowSpan": 25 }] } -->
+\`\`\`js
+console.log("hello");
+\`\`\``;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-code"), "should have zone-code class");
+      assert.ok(html.includes("code-block"), "should contain code-block div");
+      assert.ok(html.includes("console.log"), "should contain code text");
+    });
+
+    it("appends unzoned video as zone-extras fallback", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 5, "span": 40, "row": 20, "rowSpan": 10 }] } -->
+## Karpathy on Agents
+![Demo](https://youtu.be/kwSVtQ7dziU)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-extras"), "should have zone-extras fallback");
+      assert.ok(html.includes("youtube-nocookie.com/embed/kwSVtQ7dziU"), "extras should contain YouTube iframe");
+      assert.ok(html.includes("video-responsive"), "should have responsive video wrapper");
+    });
+
+    it("appends unzoned images as zone-extras fallback", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 5, "span": 40, "row": 0, "rowSpan": 10 }] } -->
+# Slide
+![Photo](diagram.png)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-extras"), "should have zone-extras for unzoned image");
+      assert.ok(html.includes("diagram.png"), "extras should contain image");
+    });
+
+    it("appends unzoned links as zone-extras fallback", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 5, "span": 40, "row": 0, "rowSpan": 10 }] } -->
+# Slide
+[Resources](http://example.com)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-extras"), "should have zone-extras for unzoned links");
+      assert.ok(html.includes("example.com"), "extras should contain link");
+    });
+
+    it("does NOT produce zone-extras when all content has zones", () => {
+      const md = `<!-- design: { "zones": [{ "role": "title", "col": 0, "span": 30, "row": 0, "rowSpan": 10 }, { "role": "video", "col": 0, "span": 60, "row": 10, "rowSpan": 30 }] } -->
+# Watch
+![](https://youtu.be/dQw4w9WgXcQ)`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("zone-video"), "should render video in its zone");
+      assert.ok(!html.includes("zone-extras"), "should NOT have extras when video zone exists");
+    });
   });
 });
 
@@ -574,7 +656,7 @@ Body line two`;
 describe("Layout detection", () => {
   function detect(md, index = 1, total = 3) {
     // Reset layout history by simulating a new deck
-    detectLayout({ layout: null, title: "reset", subtitle: null, bullets: [], body: [], blockquote: null, images: [], tables: [], codeBlocks: [], links: [] }, 0, total);
+    detectLayout({ layout: null, title: "reset", subtitle: null, bullets: [], body: [], blockquote: null, images: [], videos: [], tables: [], codeBlocks: [], links: [] }, 0, total);
     const slides = parseMarkdown(md);
     return detectLayout(slides[0], index, total);
   }
@@ -629,6 +711,52 @@ describe("Layout detection", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// YOUTUBE / VIDEO PARSING
+// ═══════════════════════════════════════════════════════
+
+describe("YouTube video parsing", () => {
+  it("parses ![title](youtube-url) as video, not image", () => {
+    const slides = parseMarkdown("# Demo\n![My Video](https://www.youtube.com/watch?v=dQw4w9WgXcQ)");
+    assert.equal(slides[0].videos.length, 1);
+    assert.equal(slides[0].images.length, 0);
+    assert.equal(slides[0].videos[0].id, "dQw4w9WgXcQ");
+    assert.equal(slides[0].videos[0].title, "My Video");
+  });
+
+  it("parses youtu.be short URLs", () => {
+    const slides = parseMarkdown("![](https://youtu.be/dQw4w9WgXcQ)");
+    assert.equal(slides[0].videos.length, 1);
+    assert.equal(slides[0].videos[0].id, "dQw4w9WgXcQ");
+  });
+
+  it("parses standalone [text](youtube-url) as video", () => {
+    const slides = parseMarkdown("[Watch this](https://youtube.com/watch?v=abc123def45)");
+    assert.equal(slides[0].videos.length, 1);
+    assert.equal(slides[0].links.length, 0);
+    assert.equal(slides[0].videos[0].id, "abc123def45");
+  });
+
+  it("parses bare YouTube URL on its own line", () => {
+    const slides = parseMarkdown("# Slide\nhttps://www.youtube.com/watch?v=abc123def45");
+    assert.equal(slides[0].videos.length, 1);
+    assert.equal(slides[0].videos[0].id, "abc123def45");
+  });
+
+  it("does not treat non-YouTube image as video", () => {
+    const slides = parseMarkdown("![photo](./img/photo.png)");
+    assert.equal(slides[0].images.length, 1);
+    assert.equal(slides[0].videos.length, 0);
+  });
+
+  it("auto-detects video layout", () => {
+    const slides = parseMarkdown("# Intro\n---\n# Watch\n![](https://youtu.be/dQw4w9WgXcQ)");
+    // First slide is title, second has video
+    const layout = detectLayout(slides[1], 1, 2);
+    assert.equal(layout, "video");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // LAYOUT RENDERERS
 // ═══════════════════════════════════════════════════════
 
@@ -636,18 +764,18 @@ describe("Layout renderers", () => {
   const allLayouts = [
     "title", "section", "bullets", "stagger", "split",
     "rotated", "fragment", "overlap", "arc", "image",
-    "table", "code", "blank",
+    "video", "table", "code", "blank",
   ];
 
-  it("all 13 PPTX layouts are registered", () => {
-    assert.equal(Object.keys(LAYOUTS).length, 13);
+  it("all 14 PPTX layouts are registered", () => {
+    assert.equal(Object.keys(LAYOUTS).length, 14);
     for (const name of allLayouts) {
       assert.ok(typeof LAYOUTS[name] === "function", `LAYOUTS.${name} should be a function`);
     }
   });
 
-  it("all 13 HTML layouts are registered", () => {
-    assert.equal(Object.keys(HTML_LAYOUTS).length, 13);
+  it("all 14 HTML layouts are registered", () => {
+    assert.equal(Object.keys(HTML_LAYOUTS).length, 14);
     for (const name of allLayouts) {
       assert.ok(typeof HTML_LAYOUTS[name] === "function", `HTML_LAYOUTS.${name} should be a function`);
     }
@@ -1179,7 +1307,7 @@ describe("Session reuse", () => {
   });
 
   it("first call sends full context, subsequent calls resume", () => {
-    assert.ok(src.includes("!sessionId") || src.includes("if (!sessionId"),
+    assert.ok(src.includes("sessionId") && (src.includes("useSession") || src.includes("!sessionId")),
       "should check sessionId to decide full vs resume prompt");
   });
 });

@@ -79,6 +79,13 @@ function renderSlideReveal(slide, layout, theme, index) {
     parts.push(`<blockquote>${esc(slide.blockquote)}</blockquote>`);
   }
 
+  // Videos (YouTube embeds)
+  if (slide.videos && slide.videos.length > 0) {
+    slide.videos.forEach(v => {
+      parts.push(`<div style="position:relative;width:80%;margin:0 auto;padding-bottom:45%;height:0"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div>`);
+    });
+  }
+
   // Images
   if (slide.images && slide.images.length > 0) {
     slide.images.forEach(img => {

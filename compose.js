@@ -1127,44 +1127,10 @@ Output ONLY valid JSON (no code fences, no commentary):
 
   const parallel = options.parallel || 1;
 
-  // Check for cached batches
-  for (let i = 0; i < total; i += batchSize) {
-    const batchNum = Math.floor(i / batchSize) + 1;
-    const batchPath = path.join(workDir, `slide-${String(batchNum).padStart(2, "0")}.md`);
-
-    if (fs.existsSync(batchPath)) {
-      const cached = fs.readFileSync(batchPath, "utf-8");
-      slideDesigns.push(cached);
-      completed += 1;
-      if (perSlide) {
-        if (batchNum === 1 || batchNum === total) {
-          process.stderr.write(`  ${sage("✓")} Slide ${batchNum}/${total} ${dim("(cached)")}\n`);
-        } else if (batchNum === 2) {
-          process.stderr.write(`  ${sage("✓")} Slides 2-${total - 1} ${dim("(cached, checking...)")}\n`);
-        }
-      } else {
-        process.stderr.write(`  ${sage("✓")} Batch ${batchNum}: slides ${i + 1}-${Math.min(i + batchSize, total)} ${dim("(cached)")}\n`);
-      }
-      continue;
-    }
-
-    const batchSlides = sourceSlides.slice(i, i + batchSize);
-    const batchEnd = Math.min(i + batchSize, total);
-
-    // Slide summaries for Claude (not full content — just enough to choose layout)
-    const slideSummaries = batchSlides.map((s, j) => {
-      const title = (s.match(/^#\s+(.+)/m) || s.match(/^##\s+(.+)/m) || ["", "(untitled)"])[1];
-      const bulletCount = (s.match(/^\s*[-*]\s/gm) || []).length;
-      const hasQuote = /^>\s/m.test(s);
-      const bodyLines = s.split("\n").filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith(">") && !l.startsWith("```") && !l.startsWith("<!--")).length;
-      return `  Slide ${i + j + 1}: "${title}" | ${bulletCount} bullets${hasQuote ? " | quote" : ""} | ${bodyLines} body lines`;
-    }).join("\n");
-
-    // First call sends full context; subsequent calls resume session
-    let batchPrompt;
-    const withImg = options.withImages;
-    const imgExample = withImg ? ', "image":"right", "imageSize":40' : '';
-    const imgRules = withImg ? `
+  // ── Build batch work items ──
+  const withImg = options.withImages;
+  const imgExample = withImg ? ', "image":"right", "imageSize":40' : '';
+  const imgRules = withImg ? `
 Also specify image placement per slide:
   "image": "right|left|inset-tr|inset-bl|background|none"
   "imageSize": 25-40 (% of slide width for sidebar modes). Use "none" for text-dense slides. Vary placements.
@@ -1177,50 +1143,8 @@ CRITICAL IMAGE-AWARE LAYOUT RULE:
   When "image":"inset-bl", keep zones away from bottom-left corner (col > 15, or row < 30).
   ALWAYS design zones to AVOID the image area. Text over images is unreadable.` : "";
 
-    // Build context summary from previous batches for coherence
-    let batchContext = "";
-    if (slideDesigns.length > 0) {
-      // Parse directives from previously completed slides
-      const prevDirectives = [];
-      slideDesigns.forEach(sd => {
-        try {
-          const lines = sd.split("\n").filter(l => l.trim());
-          lines.forEach(l => {
-            const layoutM = l.match(/<!-- layout: (\w+) -->/);
-            const bgM = l.match(/<!-- bg: ([A-Fa-f0-9]+) -->/);
-            const fontM = l.match(/<!-- font: ([^->]+?) -->/);
-            if (layoutM) prevDirectives.push({ layout: layoutM[1], bg: bgM ? bgM[1] : null, font: fontM ? fontM[1].trim() : null });
-          });
-          // Also try JSON format
-          lines.filter(l => l.startsWith("{")).forEach(l => {
-            try { prevDirectives.push(JSON.parse(l)); } catch {}
-          });
-        } catch {}
-      });
-
-      if (prevDirectives.length > 0) {
-        const prevLayouts = prevDirectives.map(d => d.layout).filter(Boolean);
-        const prevBgs = [...new Set(prevDirectives.map(d => d.bg).filter(Boolean))];
-        const prevFonts = [...new Set(prevDirectives.map(d => d.font).filter(Boolean))];
-        const lastFew = prevDirectives.slice(-3);
-        const layoutCounts = {};
-        prevLayouts.forEach(l => layoutCounts[l] = (layoutCounts[l] || 0) + 1);
-
-        batchContext = `
-PREVIOUS SLIDES CONTEXT (maintain coherence):
-- Slides completed: ${prevDirectives.length}
-- Last 3 layouts: ${lastFew.map(d => d.layout).join(" → ")}
-- Last 3 bgs: ${lastFew.map(d => d.bg || "null").join(" → ")}
-- Layout distribution so far: ${Object.entries(layoutCounts).map(([k,v]) => `${k}:${v}`).join(", ")}
-- Palette used: ${prevBgs.join(", ") || "none"}
-- Fonts used: ${prevFonts.join(", ") || "default only"}
-IMPORTANT: Continue the chromatic arc — don't repeat the last bg colour.
-Don't use the same layout as the last slide. Maintain variety.`;
-      }
-    }
-
-    if (!sessionId) {
-      batchPrompt = `You are a Swiss art director designing on a 60-column × 40-row grid.
+  function buildFullPrompt(slideSummaries, batchContext) {
+    return `You are a Swiss art director designing on a 60-column × 40-row grid.
 Design system: ${designSystemContext}
 INTENSITY: ${intensity.toUpperCase()}
 
@@ -1251,13 +1175,174 @@ ${batchContext}
 ${slideSummaries}
 
 Output ONLY valid JSON — one object per line. No commentary.`;
-    } else {
+  }
+
+  function buildBatchContext(completedDesigns) {
+    if (completedDesigns.length === 0) return "";
+    const prevDirectives = [];
+    completedDesigns.forEach(sd => {
+      try {
+        const lines = sd.split("\n").filter(l => l.trim());
+        lines.forEach(l => {
+          const layoutM = l.match(/<!-- layout: (\w+) -->/);
+          const bgM = l.match(/<!-- bg: ([A-Fa-f0-9]+) -->/);
+          const fontM = l.match(/<!-- font: ([^->]+?) -->/);
+          if (layoutM) prevDirectives.push({ layout: layoutM[1], bg: bgM ? bgM[1] : null, font: fontM ? fontM[1].trim() : null });
+        });
+        lines.filter(l => l.startsWith("{")).forEach(l => {
+          try { prevDirectives.push(JSON.parse(l)); } catch {}
+        });
+      } catch {}
+    });
+    if (prevDirectives.length === 0) return "";
+    const prevLayouts = prevDirectives.map(d => d.layout).filter(Boolean);
+    const prevBgs = [...new Set(prevDirectives.map(d => d.bg).filter(Boolean))];
+    const prevFonts = [...new Set(prevDirectives.map(d => d.font).filter(Boolean))];
+    const lastFew = prevDirectives.slice(-3);
+    const layoutCounts = {};
+    prevLayouts.forEach(l => layoutCounts[l] = (layoutCounts[l] || 0) + 1);
+    return `
+PREVIOUS SLIDES CONTEXT (maintain coherence):
+- Slides completed: ${prevDirectives.length}
+- Last 3 layouts: ${lastFew.map(d => d.layout).join(" → ")}
+- Last 3 bgs: ${lastFew.map(d => d.bg || "null").join(" → ")}
+- Layout distribution so far: ${Object.entries(layoutCounts).map(([k,v]) => `${k}:${v}`).join(", ")}
+- Palette used: ${prevBgs.join(", ") || "none"}
+- Fonts used: ${prevFonts.join(", ") || "default only"}
+IMPORTANT: Continue the chromatic arc — don't repeat the last bg colour.
+Don't use the same layout as the last slide. Maintain variety.`;
+  }
+
+  function buildSlideSummaries(batchSlides, offset) {
+    return batchSlides.map((s, j) => {
+      const title = (s.match(/^#\s+(.+)/m) || s.match(/^##\s+(.+)/m) || ["", "(untitled)"])[1];
+      const bulletCount = (s.match(/^\s*[-*]\s/gm) || []).length;
+      const hasQuote = /^>\s/m.test(s);
+      const bodyLines = s.split("\n").filter(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith(">") && !l.startsWith("```") && !l.startsWith("<!--")).length;
+      return `  Slide ${offset + j + 1}: "${title}" | ${bulletCount} bullets${hasQuote ? " | quote" : ""} | ${bodyLines} body lines`;
+    }).join("\n");
+  }
+
+  function postProcessDirectives(directives) {
+    // Enforce theme-appropriate bg colours
+    const themeName = options.theme || "light";
+    const groundColour = (designSystem.palette || []).find(c => c.role === "ground")?.hex || "F8F5F0";
+    directives.forEach(d => {
+      if (!d.bg) return;
+      const hex = d.bg.replace(/^#/, "");
+      if (hex.length !== 6) return;
+      const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
+      const lum = r * 0.299 + g * 0.587 + b * 0.114;
+      if (themeName === "light" && lum < 100) {
+        process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too dark (lum=${Math.round(lum)}) → replaced with #${groundColour}\n`);
+        d.bg = groundColour;
+      } else if (themeName === "dark" && lum > 200) {
+        const darkGround = (designSystem.palette || []).find(c => c.role === "ground" || c.role === "dominant")?.hex || "1A1A1A";
+        process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too light (lum=${Math.round(lum)}) → replaced with #${darkGround}\n`);
+        d.bg = darkGround;
+      }
+    });
+
+    // Enforce zone-image separation
+    if (withImg) {
+      directives.forEach(d => {
+        if (!d.zones || !d.image || d.image === "none" || d.image === "background") return;
+        const imgSize = d.imageSize || 35;
+        const imgCols = Math.ceil(60 * imgSize / 100);
+        d.zones.forEach(z => {
+          if (typeof z.col !== "number" || typeof z.span !== "number") return;
+          const zEnd = z.col + z.span;
+          if (d.image === "right") {
+            const boundary = 60 - imgCols;
+            if (zEnd > boundary) {
+              const oldSpan = z.span;
+              z.span = Math.max(10, boundary - z.col);
+              if (z.span < 10) { z.col = Math.max(0, boundary - 20); z.span = 20; }
+              process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" span ${oldSpan}→${z.span} (avoiding right image)\n`);
+            }
+          } else if (d.image === "left") {
+            if (z.col < imgCols) {
+              const oldCol = z.col;
+              z.col = imgCols + 1;
+              if (z.col + z.span > 60) z.span = 59 - z.col;
+              process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" col ${oldCol}→${z.col} (avoiding left image)\n`);
+            }
+          } else if (d.image === "inset-tr") {
+            if (z.col + z.span > 44 && (z.row || 0) < 12) {
+              z.span = Math.max(10, 44 - z.col);
+            }
+          } else if (d.image === "inset-bl") {
+            if (z.col < 16 && (z.row || 0) + (z.rowSpan || 10) > 28) {
+              z.col = 16;
+              if (z.col + z.span > 60) z.span = 59 - z.col;
+            }
+          }
+        });
+      });
+    }
+  }
+
+  function mergeDirectivesWithSlides(batchSlides, directives) {
+    return batchSlides.map((src, j) => {
+      const d = directives[j] || {};
+      const parts = [];
+      if (d.zones && Array.isArray(d.zones) && d.zones.length > 0) {
+        const designObj = {};
+        if (d.zones) designObj.zones = d.zones;
+        if (d.accents) designObj.accents = d.accents;
+        if (d.typography) designObj.typography = d.typography;
+        if (d.bg) designObj.bg = d.bg.replace(/^#/, "");
+        if (d.font) designObj.font = d.font;
+        parts.push(`<!-- design: ${JSON.stringify(designObj)} -->`);
+      } else if (d.layout) {
+        parts.push(`<!-- layout: ${d.layout} -->`);
+        if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
+        if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+      }
+      if (d.image && d.image !== "none") {
+        parts.push(`<!-- image: ${d.image}${d.imageSize ? " " + d.imageSize : ""} -->`);
+      }
+      if (d.label) parts.push(`### ${d.label}`);
+      parts.push(src.trim());
+      return parts.join("\n");
+    });
+  }
+
+  async function processBatch(i, batchNum, useSession) {
+    const batchPath = path.join(workDir, `slide-${String(batchNum).padStart(2, "0")}.md`);
+
+    if (fs.existsSync(batchPath)) {
+      const cached = fs.readFileSync(batchPath, "utf-8");
+      if (perSlide) {
+        if (batchNum === 1 || batchNum === total) {
+          process.stderr.write(`  ${sage("✓")} Slide ${batchNum}/${total} ${dim("(cached)")}\n`);
+        } else if (batchNum === 2) {
+          process.stderr.write(`  ${sage("✓")} Slides 2-${total - 1} ${dim("(cached, checking...)")}\n`);
+        }
+      } else {
+        process.stderr.write(`  ${sage("✓")} Batch ${batchNum}: slides ${i + 1}-${Math.min(i + batchSize, total)} ${dim("(cached)")}\n`);
+      }
+      return { index: batchNum - 1, output: cached, ok: true };
+    }
+
+    const batchSlides = sourceSlides.slice(i, i + batchSize);
+    const batchEnd = Math.min(i + batchSize, total);
+    const slideSummaries = buildSlideSummaries(batchSlides, i);
+
+    // In sequential mode, use session continuity + batch context
+    // In parallel mode, each batch gets the full prompt independently
+    let batchPrompt;
+    if (useSession && sessionId) {
+      const batchContext = buildBatchContext(slideDesigns);
       batchPrompt = `Next slides (continue varying zone positions, type sizes, accents):
 ${batchContext}
 
 ${slideSummaries}
 
 JSON objects, one per line:`;
+    } else {
+      const batchContext = useSession ? buildBatchContext(slideDesigns) : "";
+      batchPrompt = buildFullPrompt(slideSummaries, batchContext);
     }
 
     if (perSlide) {
@@ -1270,31 +1355,29 @@ JSON objects, one per line:`;
       const raw = await callClaudeWithRetry(batchPrompt, {
         model,
         label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}`,
-        resume: sessionId,
+        resume: useSession ? sessionId : undefined,
         maxRetries: 3,
         baseDelay: 10,
       });
       let cleaned = raw.trim();
-      // Extract session_id for subsequent calls
-      const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
-      if (sessionMatch) {
-        sessionId = sessionMatch[1];
-        cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
+      // Extract session_id for subsequent calls (sequential mode only)
+      if (useSession) {
+        const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
+        if (sessionMatch) {
+          sessionId = sessionMatch[1];
+          cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
+        }
       }
-      // Strip code fences
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
 
-      // Parse JSON directives and merge with source slides
       let directives;
       try {
-        // Handle both JSON array and one-per-line formats
         if (cleaned.startsWith("[")) {
           directives = JSON.parse(cleaned);
         } else {
           directives = cleaned.split("\n").filter(l => l.trim().startsWith("{")).map(l => JSON.parse(l));
         }
       } catch {
-        // Try extracting JSON objects with regex
         directives = [];
         const matches = cleaned.matchAll(/\{[^}]+\}/g);
         for (const m of matches) {
@@ -1302,121 +1385,68 @@ JSON objects, one per line:`;
         }
       }
 
-      // Enforce theme-appropriate bg colours
-      const themeName = options.theme || "light";
-      const groundColour = (designSystem.palette || []).find(c => c.role === "ground")?.hex || "F8F5F0";
-      directives.forEach(d => {
-        if (!d.bg) return;
-        const hex = d.bg.replace(/^#/, "");
-        if (hex.length !== 6) return;
-        const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
-        const lum = r * 0.299 + g * 0.587 + b * 0.114;
-        if (themeName === "light" && lum < 100) {
-          process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too dark (lum=${Math.round(lum)}) → replaced with #${groundColour}\n`);
-          d.bg = groundColour;
-        } else if (themeName === "dark" && lum > 200) {
-          const darkGround = (designSystem.palette || []).find(c => c.role === "ground" || c.role === "dominant")?.hex || "1A1A1A";
-          process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: bg #${hex} too light (lum=${Math.round(lum)}) → replaced with #${darkGround}\n`);
-          d.bg = darkGround;
-        }
-      });
-
-      // Enforce zone-image separation: shift zones that overlap the image area
-      if (withImg) {
-        directives.forEach(d => {
-          if (!d.zones || !d.image || d.image === "none" || d.image === "background") return;
-          const imgSize = d.imageSize || 35;
-          const imgCols = Math.ceil(60 * imgSize / 100);
-
-          d.zones.forEach(z => {
-            if (typeof z.col !== "number" || typeof z.span !== "number") return;
-            const zEnd = z.col + z.span;
-
-            if (d.image === "right") {
-              const boundary = 60 - imgCols;
-              if (zEnd > boundary) {
-                const oldSpan = z.span;
-                z.span = Math.max(10, boundary - z.col);
-                if (z.span < 10) { z.col = Math.max(0, boundary - 20); z.span = 20; }
-                process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" span ${oldSpan}→${z.span} (avoiding right image)\n`);
-              }
-            } else if (d.image === "left") {
-              if (z.col < imgCols) {
-                const oldCol = z.col;
-                z.col = imgCols + 1;
-                if (z.col + z.span > 60) z.span = 59 - z.col;
-                process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" col ${oldCol}→${z.col} (avoiding left image)\n`);
-              }
-            } else if (d.image === "inset-tr") {
-              if (z.col + z.span > 44 && (z.row || 0) < 12) {
-                z.span = Math.max(10, 44 - z.col);
-              }
-            } else if (d.image === "inset-bl") {
-              if (z.col < 16 && (z.row || 0) + (z.rowSpan || 10) > 28) {
-                z.col = 16;
-                if (z.col + z.span > 60) z.span = 59 - z.col;
-              }
-            }
-          });
-        });
-      }
-
-      // Merge directives with original source slides
-      const mergedSlides = batchSlides.map((src, j) => {
-        const d = directives[j] || {};
-        const parts = [];
-
-        // If Claude provided zones (design directive), use <!-- design: -->
-        // Otherwise fall back to <!-- layout: -->
-        if (d.zones && Array.isArray(d.zones) && d.zones.length > 0) {
-          const designObj = {};
-          if (d.zones) designObj.zones = d.zones;
-          if (d.accents) designObj.accents = d.accents;
-          if (d.typography) designObj.typography = d.typography;
-          if (d.bg) designObj.bg = d.bg.replace(/^#/, "");
-          if (d.font) designObj.font = d.font;
-          parts.push(`<!-- design: ${JSON.stringify(designObj)} -->`);
-        } else if (d.layout) {
-          parts.push(`<!-- layout: ${d.layout} -->`);
-          if (d.bg) parts.push(`<!-- bg: ${d.bg.replace(/^#/, "")} -->`);
-          if (d.font) parts.push(`<!-- font: ${d.font} -->`);
-        }
-
-        if (d.image && d.image !== "none") {
-          parts.push(`<!-- image: ${d.image}${d.imageSize ? " " + d.imageSize : ""} -->`);
-        }
-        if (d.label) parts.push(`### ${d.label}`);
-        parts.push(src.trim());
-        return parts.join("\n");
-      });
-
+      postProcessDirectives(directives);
+      const mergedSlides = mergeDirectivesWithSlides(batchSlides, directives);
       const mergedOutput = mergedSlides.join("\n\n---\n\n");
       fs.writeFileSync(batchPath, mergedOutput);
-      slideDesigns.push(mergedOutput);
 
-      completed += 1;
       process.stderr.write(` ${sage("✓")}\n`);
-
-      // Brief pause between sequential calls to avoid rate limiting
-      if (parallel <= 1 && i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
+      return { index: batchNum - 1, output: mergedOutput, ok: true };
     } catch (err) {
       process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
-      failed++;
-      // Insert fallback — plain source slides with minimal design
-      const fallback = batchSlides.map((s) => {
-        return `<!-- layout: split -->\n${s.trim()}`;
-      }).join("\n\n---\n\n");
-      slideDesigns.push(fallback);
-      completed += batchSlides.length;
+      const fallback = batchSlides.map((s) => `<!-- layout: split -->\n${s.trim()}`).join("\n\n---\n\n");
+      return { index: batchNum - 1, output: fallback, ok: false };
     }
   }
 
-  // Parallel execution note: cross-batch coherence requires sequential processing
-  // (each batch needs the previous batch's context). Parallelism is applied at the
-  // variant level (compare.js runs 3 intensities in parallel via composeAsync).
-  // The --parallel flag controls variant-level concurrency, not batch-level.
-  if (parallel > 1) {
-    process.stderr.write(`  ${dim("  Note: --parallel applies to variant-level concurrency, not batch-level")}\n`);
+  // ── Execute batches ──
+  const totalBatches = Math.ceil(total / batchSize);
+  const useParallel = parallel > 1 && totalBatches > 1;
+
+  if (useParallel) {
+    process.stderr.write(`  ${dim("  Parallel mode:")} ${Math.min(parallel, totalBatches)} concurrent batches\n`);
+
+    // Build all batch tasks
+    const tasks = [];
+    for (let i = 0; i < total; i += batchSize) {
+      const batchNum = Math.floor(i / batchSize) + 1;
+      const offset = i;
+      tasks.push(() => processBatch(offset, batchNum, false));
+    }
+
+    // Run with concurrency pool
+    let taskIdx = 0;
+    async function worker() {
+      while (taskIdx < tasks.length) {
+        const t = taskIdx++;
+        const result = await tasks[t]();
+        // Place in correct order
+        slideDesigns[result.index] = result.output;
+        if (result.ok) completed++; else failed++;
+      }
+    }
+    const workers = Array.from({ length: Math.min(parallel, tasks.length) }, () => worker());
+    await Promise.all(workers);
+
+    // Compact slideDesigns (remove any undefined gaps from cached ordering)
+    const ordered = [];
+    for (let b = 0; b < totalBatches; b++) {
+      if (slideDesigns[b]) ordered.push(slideDesigns[b]);
+    }
+    slideDesigns.length = 0;
+    ordered.forEach(s => slideDesigns.push(s));
+
+  } else {
+    // Sequential mode — use session continuity for coherence
+    for (let i = 0; i < total; i += batchSize) {
+      const batchNum = Math.floor(i / batchSize) + 1;
+      const result = await processBatch(i, batchNum, true);
+      slideDesigns.push(result.output);
+      if (result.ok) completed++; else failed++;
+
+      // Brief pause between sequential calls to avoid rate limiting
+      if (i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
+    }
   }
 
   process.stderr.write(`  ${completed === total ? sage("✓") : amber("⚠")} Stage 2: ${completed}/${total} slides designed (${failed} batch failures)\n`);

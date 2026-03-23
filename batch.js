@@ -2,6 +2,8 @@
 /**
  * batch.js — run raster, compose, or qa across all *.md in a folder
  *
+ * Runs files in parallel (default: up to 4 concurrent).
+ *
  * Usage:
  *   node batch.js <command> <folder> [options]
  *
@@ -17,12 +19,13 @@
  *   node batch.js raster ./decks --theme dark --format html
  *   node batch.js qa ./decks --theme dark --format html
  *   node batch.js compose ./decks --intensity radical --theme dark
+ *   node batch.js raster ./decks --concurrency 8 --format html
  */
 
-const { spawnSync } = require("child_process");
+const { spawn } = require("child_process");
 const fs = require("fs");
 const path = require("path");
-const glob = require("path");
+const os = require("os");
 
 function findMdFiles(folder) {
   const abs = path.resolve(folder);
@@ -43,12 +46,78 @@ const COMMANDS = {
   review: "raster.js",
 };
 
+function runOne(script, file, passthrough, command) {
+  return new Promise((resolve) => {
+    const fileArgs = [script, file, ...passthrough];
+    if (command === "review" && !passthrough.includes("--format")) {
+      fileArgs.splice(1, 0, "--format", "review");
+    }
+
+    const start = Date.now();
+    let stdout = "";
+    let stderr = "";
+
+    const child = spawn("node", fileArgs, {
+      cwd: path.dirname(file),
+      stdio: ["pipe", "pipe", "pipe"],
+      timeout: 120000,
+    });
+
+    child.stdout.on("data", (d) => { stdout += d; });
+    child.stderr.on("data", (d) => { stderr += d; });
+
+    child.on("close", (code) => {
+      const elapsed = Date.now() - start;
+      const ok = code === 0;
+      const name = path.basename(file);
+
+      let info;
+      if (ok) {
+        const genMatch = stdout.match(/Generated (\d+) slides/);
+        const scoreMatch = stdout.match(/SCORE: (\d+\/\d+)/);
+        const qaMatch = stderr.match(/SCORE: (\d+\/\d+)/);
+        info = genMatch ? genMatch[0] : scoreMatch ? scoreMatch[0] : qaMatch ? qaMatch[0] : "ok";
+      } else {
+        const errMatch = (stderr + stdout).match(/(\d+) errors/);
+        info = errMatch ? errMatch[0] : "exit " + code;
+      }
+
+      resolve({ name, ok, elapsed, info, stdout, stderr });
+    });
+
+    child.on("error", (err) => {
+      const elapsed = Date.now() - start;
+      resolve({ name: path.basename(file), ok: false, elapsed, info: err.message, stdout, stderr });
+    });
+  });
+}
+
+async function runPool(tasks, concurrency) {
+  const results = [];
+  let idx = 0;
+
+  async function worker() {
+    while (idx < tasks.length) {
+      const i = idx++;
+      const result = await tasks[i]();
+      results[i] = result;
+
+      const icon = result.ok ? "\u2714" : "\u2716";
+      console.log(`  ${icon} ${result.name} — ${result.info} (${result.elapsed}ms)`);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(concurrency, tasks.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
+
 if (require.main === module) {
   const args = process.argv.slice(2);
 
   if (args.length < 2 || args.includes("--help")) {
     console.log(`
-  batch — run rastersysteme tools on all *.md in a folder
+  batch — run rastersysteme tools on all *.md in a folder (parallel)
 
   Usage:
     node batch.js <command> <folder> [options]
@@ -59,25 +128,36 @@ if (require.main === module) {
     qa        Run quality audit on each *.md
     review    Generate review page for each *.md
 
-  Options are passed through to the underlying tool.
-  Files ending in .composed.md are skipped.
+  Options:
+    --concurrency <n>  Max parallel jobs (default: 4)
+    All other options are passed through to the underlying tool.
+    Files ending in .composed.md are skipped.
 
   Examples:
     node batch.js raster ./decks --theme dark --format html
     node batch.js qa . --theme dark
     node batch.js compose ./decks --intensity radical --theme dark
     node batch.js review . --theme dark
+    node batch.js raster ./decks --concurrency 8 --format html
     `);
     process.exit(0);
   }
 
   const command = args[0];
   const folder = args[1];
-  const passthrough = args.slice(2);
 
   if (!COMMANDS[command]) {
     console.error("Unknown command: " + command + ". Use raster, compose, qa, or review.");
     process.exit(1);
+  }
+
+  // Extract --concurrency before passing remaining args through
+  let passthrough = args.slice(2);
+  let concurrency = 4;
+  const concIdx = passthrough.indexOf("--concurrency");
+  if (concIdx >= 0 && concIdx + 1 < passthrough.length) {
+    concurrency = Math.max(1, parseInt(passthrough[concIdx + 1]) || 4);
+    passthrough = [...passthrough.slice(0, concIdx), ...passthrough.slice(concIdx + 2)];
   }
 
   const script = path.join(__dirname, COMMANDS[command]);
@@ -88,58 +168,23 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  console.log(`\n  batch ${command}: ${files.length} files in ${path.resolve(folder)}\n`);
+  const effective = Math.min(concurrency, files.length);
+  console.log(`\n  batch ${command}: ${files.length} files in ${path.resolve(folder)} (${effective} concurrent)\n`);
 
-  let passed = 0;
-  let failed = 0;
-  const results = [];
+  const tasks = files.map(file => () => runOne(script, file, passthrough, command));
 
-  for (const file of files) {
-    const name = path.basename(file);
-    const fileArgs = [script, file, ...passthrough];
+  runPool(tasks, concurrency).then(results => {
+    const passed = results.filter(r => r.ok).length;
+    const failed = results.filter(r => !r.ok).length;
+    const totalTime = results.reduce((s, r) => s + r.elapsed, 0);
+    const wallTime = Math.max(...results.map(r => r.elapsed));
 
-    // For review command, inject --format review
-    if (command === "review" && !passthrough.includes("--format")) {
-      fileArgs.splice(2, 0, "--format", "review");
-    }
+    console.log();
+    console.log("  " + "\u2500".repeat(40));
+    console.log(`  ${passed} passed, ${failed} failed, ${files.length} total`);
+    console.log(`  Wall time: ~${Math.round(wallTime / 1000)}s (saved ~${Math.round((totalTime - wallTime) / 1000)}s vs serial)`);
+    console.log();
 
-    process.stdout.write("  " + name + " ... ");
-
-    const start = Date.now();
-    const result = spawnSync("node", fileArgs, {
-      cwd: path.dirname(file),
-      stdio: ["pipe", "pipe", "pipe"],
-      timeout: 120000,
-    });
-    const elapsed = Date.now() - start;
-
-    const stdout = result.stdout ? result.stdout.toString() : "";
-    const stderr = result.stderr ? result.stderr.toString() : "";
-    const ok = result.status === 0;
-
-    if (ok) {
-      passed++;
-      // Extract key info from output
-      const genMatch = stdout.match(/Generated (\d+) slides/);
-      const scoreMatch = stdout.match(/SCORE: (\d+\/\d+)/);
-      const qaMatch = stderr.match(/SCORE: (\d+\/\d+)/);
-      const info = genMatch ? genMatch[0] : scoreMatch ? scoreMatch[0] : qaMatch ? qaMatch[0] : "ok";
-      console.log("\u2714 " + info + " (" + elapsed + "ms)");
-    } else {
-      failed++;
-      // Extract error summary
-      const errMatch = (stderr + stdout).match(/(\d+) errors/);
-      const info = errMatch ? errMatch[0] : "exit " + result.status;
-      console.log("\u2716 " + info + " (" + elapsed + "ms)");
-    }
-
-    results.push({ file: name, ok, elapsed, stdout, stderr });
-  }
-
-  console.log();
-  console.log("  " + "\u2500".repeat(40));
-  console.log("  " + passed + " passed, " + failed + " failed, " + files.length + " total");
-  console.log();
-
-  if (failed > 0) process.exit(1);
+    if (failed > 0) process.exit(1);
+  });
 }

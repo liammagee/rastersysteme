@@ -310,6 +310,11 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
         return match; // Leave unchanged
       }
 
+      // Skip slides that already contain an image (from markdown or prior splice)
+      if (/<img\s/.test(content)) {
+        return match;
+      }
+
       const css = placementCSS(placement.mode, imgPath, {
         size: placement.size || 40,
         imageScale: options.imageScale || "subtle",

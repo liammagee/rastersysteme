@@ -69,6 +69,8 @@ From the course description: https://ldlprogram.web.illinois.edu/overview/course
 ```notes
 Why "intervention"? the idea is that we want to identify some kind of problem that unaddressed or question that is unknown. The intervention aims to mobilize AI itself to produce something creative, disruptive, provocative, engaging, critical - this way we will gain both practical knowledge in use of AI and theoretical or critical knowledge about AI in the context of education. 
 
+Accordingly, much of our focus in these sessions will be on design-style workshops - thinking through the readings and applying them to a rolling brief of our intervention. 
+
 ```
  
 ---
@@ -117,7 +119,7 @@ May 4 - Week 7: **Futurological Lens**
 
 
 ```notes
-Aside from this week, each week will have a specific AI theme or "lens" - a way of viewing, understanding and applying AI in the context of education. I'm aware many of you are teachers, and might be undertaking this course with different motives: to think about how to improve lesson plans with AI; to teach students about AI; to develop policies to address AI plagiarism. 
+Aside from this week, each week will have a specific AI theme or "lens" - a way of viewing, understanding and applying AI in the context of education. I'm aware many of you are teachers, and might be undertaking this course with different motives: to think about how to improve lesson plans with AI; to teach students about AI; to develop policies to address AI plagiarism. Alongside their wider scholarly interests, I'm hoping these different lens will offer something novel through which to see these practical issues in different ways - and that you'll also have something to contribute to them.
 
 ```
 
@@ -207,6 +209,7 @@ What kind of intervention? Any of the following:
  - Policy Document
 
 It should aim to integrate something of each of six “lenses” we’ve introduced in this course: historical, technological, practitioner, critical, pedagogical, futurological. 
+
 ```
 
 
@@ -216,15 +219,19 @@ It should aim to integrate something of each of six “lenses” we’ve introdu
 
 ---
 
-## Assessment Criteria
+## Assessment Criteria: Formative Weekly Responses
 
-**Formative Weekly Responses**
+
  - Cite at least one of the weekly readings / materials
- - Demonstrate critical engagement with the material
+ - Demonstate critical engagement with the material
  - Appropriate length, tone, citation practices
  - Accumulates into *summative assessment*
  
-**Summative Final Assessment**
+---
+
+## Assessment Criteria: Summative Final Assessment
+
+
  - *Creative responsiveness* of intervention to challenges and opportunities of AI
  - Evidence of *critical engagement* to course concepts and materials
  - *Coherence* and *rigor* of accompanying statement
@@ -233,18 +240,21 @@ It should aim to integrate something of each of six “lenses” we’ve introdu
  - Use of at least *six* relevant academic references 
  - Assessed in **total** (intervention / reflection / self-assessment)
 
----
+```notes
 
-## Example: 
+I'll be providing an example case study later in this session.
+
+```
 
 
 ---
 
 ## Process of submission: Why a single Google Doc?
 
- - Why? Weekly accumulation becomes easier to track for me
- - Keeps the idea of workshops / brainstorming / iterating
+ - Keeps the idea of workshops / brainstorming / iterating / design thinking
  - Enables peer sharing / review
+ - Weekly accumulation becomes easier to track
+ - But alternatives (e.g. Word submissions) are fine - just let me know
 
 
 
@@ -256,40 +266,46 @@ AI use with *acknowledgement* is *encouraged* for the intervention artefact [1] 
 
 
 
-
 ---
 
 ## A Note on Accessibility
 
-This course is aimed at providing wide exposure to range of tools as well as readings. I will be checking content for WCAG 2.1 Level AA compliance, but please let me know if any materials are inaccessible.
+This course is aimed at providing wide exposure to range of tools as well as readings. Parts of these tools - including these presentations - will be using AI as a way to exemplify some of what we can do with AI. That does raise issues though. 
+I will be checking content for WCAG 2.1 Level AA compliance, but please let me know if any materials are inaccessible.
 
 
 ---
 
-### Reading Group Carousels
+### Week 2-6: Reading Group Carousels
 
  - Rotating groups: pick a reading, discuss
  - Choose a spokesperson 
  - Return to the wider group: present the reading and respond
 
 ```notes
-
+These will take roughly 1/3 of our time, and should act as bridges between theory / lecture material and practical activities. 
 ```
 
 ---
 
 ## Course resources
 
- - CGScholar
- - Shared Google Doc
-   - Each week - Zoom chat, other links will be added to Google Docs as an informal wiki
-    
+ - Shared Google Doc: each week - Zoom chat, other links will be added to Google Docs as an informal wiki
+
+
 ###  For technical topics:
 
  - Andrej Karpathy: [Andrej Karpathy - YouTube](https://www.youtube.com/@AndrejKarpathy)
    - [Deep Dive into LLMs like ChatGPT - YouTube](https://www.youtube.com/watch?v=7xTGNNLPyMI) - very long, watch in parts
  - 3brown1blue: [But what is a neural network? | Deep learning chapter 1 - YouTube](https://www.youtube.com/watch?v=aircAruvnKk&list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi)
- 
+
+###  AI tools
+
+ - Microsoft Co-pilot, ChatGPT, Google Gemini: available at UIUC
+   - [AI Apps &#8211; Enterprise GenAI](https://genai.illinois.edu/ai-apps/)
+ - Others are available with free versions: Claude, Midjourney etc
+ - **None of the assessment will depend upon the choice or level of AI tool**.
+
 
 ---
 
@@ -297,25 +313,6 @@ This course is aimed at providing wide exposure to range of tools as well as rea
 
 [The End of Coding: Andrej Karpathy on Agents, AutoResearch, and the Loopy Era of AI - YouTube](https://www.youtube.com/watch?v=kwSVtQ7dziU)
  - See 0:00 - 9:10.
-
----
-
-## Discussion & Introductions
-
-6 Questions:
-
-1. What has been your experience of generative AI in education?
-2. What is your level of technical expertise?
-3. What criticisms have you had of generative AI?
-4. How have you applied it - in teaching or elsewhere, in professional or personal life?
-5. What are your hopes and fears about the future of AI?
-6. What do you think is still needed for generative AI in education today?
-
-```notes
-
-Introduce yourself - who you are, your professional background, your interest in education, your experience with AI.
-```
-
 
 ---
 
@@ -332,13 +329,33 @@ Introduce yourself - who you are, your professional background, your interest in
 
 ---
 
+## Discussion & Introductions
+
+6 Questions - any or all of:
+
+1. What has been your experience of generative AI in education?
+2. What is your level of technical expertise?
+3. What criticisms have you had of generative AI?
+4. How have you applied it - in teaching or elsewhere, in professional or personal life?
+5. What are your hopes and fears about the future of AI?
+6. What do you think is still needed for generative AI in education today?
+
+```notes
+
+Introduce yourself - who you are, your professional background, your interest in education, your experience with AI.
+```
+
+
+---
+
 Break - 10 minutes
 
 ---
 
-## Resume: Lessons from the discussion
+## Resume: Lessons from the discussion?
 
 
+What was the Telephone-AI question?
 
 
 ---
@@ -346,11 +363,7 @@ Break - 10 minutes
 
 ## AI in 2026: An Opinionated Take
 
-Key Trends:
- - AI Consolidation into "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini
-   - Big names have slowed down: Xai, Meta, Microsoft Copilot
-   - Apple: using Google Gemini
-   - Amazon: investor in Anthropic, provider for OpenAI
+What's going on in the world of AI today?
 
 
 ---
@@ -358,7 +371,7 @@ Key Trends:
 ## AI Consolidation 
 
  - "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini
-   - Big names have slowed down: Xai, Meta, Microsoft Copilot
+   - Other big names have slowed down: Xai, Meta, Microsoft Copilot
    - Apple: using Google Gemini
    - Amazon: investor in Anthropic, provider for OpenAI
  - Shift from free / $20 per month to:
@@ -389,7 +402,7 @@ Key Trends:
  - Scaling laws (Week 3)
  - Bigger models 
  - More "thinking" (inference) time
- - Bigger data centers
+ - Huge investment data centers, power plants
 
 ---
 
@@ -413,10 +426,8 @@ In Workshop 4 we'll be examining criticisms of the environmental and social cost
  - Computer use:
    - OpenClaw: local agent, social media for chatbots
    - Claude Cowork
-   - Embedded tools in MS Office, Google Docs, Adobe etc
  - Design:
-   - Google Stitch, Nano Banana 2
-   - Midjourney
+   - Google Stitch, Nano Banana 2, Midjourney
    - Embedded tools in Adobe, Figma etc
 
 
@@ -425,9 +436,8 @@ In Workshop 4 we'll be examining criticisms of the environmental and social cost
 
 ## Education Issues: Cons
 
-
  - Plagiarism & Cognitive Offloading
- - Biased Results & Unequal Access ($$$)
+ - Biased Results & Unequal Access
  - Potential Obsolescence of Teachers?
  - Perverse Effects: Automated Assignments > Automated Grading
    - Bernard Stiegler's *The Automatic Society*?
@@ -463,7 +473,6 @@ In Workshop 4 we'll be examining criticisms of the environmental and social cost
 
 ## What do we need to learn now? What do we need to teach?
 
-No easy answers.
 
  - "Core" Machine Learning? highly specialized (calculus, probability, linear algebra) 
  - "Prompt engineering"? But AI can write prompts...
@@ -473,6 +482,10 @@ No easy answers.
    - Care industries? (hospitals, childcare, counselling)
  - Humanities? Peter Thiel
  
+ No easy answers.
+
+
+![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
 
 ---
 
