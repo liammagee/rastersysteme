@@ -1151,4 +1151,91 @@ function validateDirectiveAdoption(composedMd, intensity) {
   return results;
 }
 
-module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, validateDirectiveAdoption, contrastRatio, relativeLuminance, INTENSITY_RULES };
+// ═══════════════════════════════════════════════════════
+// SOURCE VALIDATION — catch issues BEFORE composing
+// ═══════════════════════════════════════════════════════
+
+function validateSource(md) {
+  const results = [];
+  const warn = (msg) => results.push({ severity: "warning", check: "source", message: msg });
+  const fail = (msg) => results.push({ severity: "error", check: "source", message: msg });
+
+  // 1. Unclosed HTML comments (<!-- without matching -->)
+  const opens = (md.match(/<!--/g) || []).length;
+  const closes = (md.match(/-->/g) || []).length;
+  if (opens !== closes) {
+    fail(`Unbalanced HTML comments: ${opens} opens, ${closes} closes — will leak into rendered slides`);
+  }
+
+  // 2. Multi-line comments spanning --- separators
+  const multiLineComments = md.match(/<!--[\s\S]*?-->/g) || [];
+  multiLineComments.forEach(comment => {
+    if (comment.includes("\n---\n") && !/<!--\s*(layout|bg|font|design|style):/.test(comment)) {
+      warn(`Multi-line HTML comment spans slide separators (${comment.length} chars) — content inside will be hidden`);
+    }
+  });
+
+  // 3. Empty slides
+  const slides = md.split(/\n---\n/).filter(s => s.trim());
+  slides.forEach((slide, i) => {
+    const stripped = slide.replace(/<!--[\s\S]*?-->/g, "").replace(/```notes[\s\S]*?```/g, "").trim();
+    if (stripped.length < 3) {
+      warn(`Slide ${i + 1} appears empty (${stripped.length} chars after stripping directives/notes)`);
+    }
+  });
+
+  // 4. Common typos / spelling
+  const typos = [
+    [/\bPractioner\b/g, "Practitioner"],
+    [/\bAccesibility\b/gi, "Accessibility"],
+    [/\bOccured\b/gi, "Occurred"],
+    [/\bRecieve\b/gi, "Receive"],
+    [/\bSeperate\b/gi, "Separate"],
+    [/\bOccur?ance\b/gi, "Occurrence"],
+    [/\bDefin[ai]tly\b/gi, "Definitely"],
+    [/\bAccomodation\b/gi, "Accommodation"],
+    [/\bNeccessary\b/gi, "Necessary"],
+    [/\bGoverment\b/gi, "Government"],
+    [/\bEnvironement\b/gi, "Environment"],
+    [/\bDemonstate\b/gi, "Demonstrate"],
+  ];
+  typos.forEach(([pattern, correct]) => {
+    const matches = md.match(pattern);
+    if (matches) {
+      warn(`Possible typo: "${matches[0]}" → "${correct}" (${matches.length} occurrence${matches.length > 1 ? "s" : ""})`);
+    }
+  });
+
+  // 5. Inconsistent counts ("6 weekly themes" but 7 listed)
+  const countClaims = md.match(/\b(\d+)\s+(?:weekly\s+)?(?:themes?|topics?|points?|items?|lens(?:es)?)\b/gi) || [];
+  // (informational only — hard to validate without context)
+
+  // 6. Slides with heading but no content
+  slides.forEach((slide, i) => {
+    const hasHeading = /^#{1,3}\s+.+/m.test(slide);
+    const stripped = slide
+      .replace(/<!--[\s\S]*?-->/g, "")
+      .replace(/```notes[\s\S]*?```/g, "")
+      .replace(/^#{1,3}\s+.+$/gm, "")
+      .trim();
+    if (hasHeading && stripped.length < 5) {
+      warn(`Slide ${i + 1} has a heading but no body content — may appear empty`);
+    }
+  });
+
+  // 7. Very long slides (might overflow)
+  slides.forEach((slide, i) => {
+    const lines = slide.split("\n").filter(l => l.trim()).length;
+    const bullets = (slide.match(/^\s*[-*]\s/gm) || []).length;
+    if (bullets > 10) {
+      warn(`Slide ${i + 1} has ${bullets} bullets — may overflow in most layouts`);
+    }
+    if (lines > 30) {
+      warn(`Slide ${i + 1} has ${lines} lines — very dense, may not render well`);
+    }
+  });
+
+  return results;
+}
+
+module.exports = { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, validateDirectiveAdoption, validateSource, contrastRatio, relativeLuminance, INTENSITY_RULES };

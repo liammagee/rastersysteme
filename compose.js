@@ -840,6 +840,17 @@ async function compose(inputPath, outputPath, options = {}) {
 
   process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))} ${dim(`(${sourceSlides.length} slides)`)}\n`);
 
+  // Pre-compose source validation
+  const { validateSource } = require("./qa.js");
+  const sourceIssues = validateSource(md);
+  if (sourceIssues.length > 0) {
+    process.stderr.write(`  ${amber("⚠")} Source validation:\n`);
+    sourceIssues.forEach(r => {
+      const icon = r.severity === "error" ? accent("\u2716") : amber("\u26A0");
+      process.stderr.write(`    ${icon} ${r.message}\n`);
+    });
+  }
+
   const prompt = buildPrompt(md, options);
   const raw = await callClaudeWithRetry(prompt, { ...options, label: intensity, raw: true });
 
