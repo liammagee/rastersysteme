@@ -466,6 +466,22 @@ async function interactive(preselectedInput) {
       imageScaleName = ["subtle", "visible", "bold"][parseInt(scaleChoice.key, 10) - 1];
     }
 
+    // Pacing / timing
+    const paceChoice = await select("PACING", [
+      { key: "n", label: "none            no timing cues" },
+      { key: "5", label: "50 min          standard lecture" },
+      { key: "7", label: "75 min          extended session" },
+      { key: "1", label: "120 min         2 hour workshop" },
+      { key: "t", label: "170 min         2hr 50min (full session)" },
+      { key: "c", label: "custom          enter duration" },
+    ], { autoSelect: true });
+    let paceDuration = 0;
+    if (paceChoice.key === "c") {
+      paceDuration = parseInt(await askText("Duration (minutes)", "50"));
+    } else if (paceChoice.key !== "n") {
+      paceDuration = { "5": 50, "7": 75, "1": 120, "t": 170 }[paceChoice.key] || 0;
+    }
+
     const outputName = await askText("Output name", inputBase);
 
     const outputDir = path.dirname(path.resolve(input));
@@ -488,6 +504,19 @@ async function interactive(preselectedInput) {
       composeArgs.push("--image-scale", imageScaleName);
     }
     const ok = run("compose.js", composeArgs);
+
+    // Inject pacing timestamps if requested
+    if (paceDuration > 0 && fs.existsSync(composedPath)) {
+      process.stderr.write(`  ${dim("Injecting timing cues (")}${paceDuration}${dim(" min)...")}\n`);
+      const { injectTimestamps } = require("./pace.js");
+      const composedMd = fs.readFileSync(composedPath, "utf-8");
+      const paced = injectTimestamps(composedMd, paceDuration);
+      fs.writeFileSync(composedPath, paced);
+      // Re-render HTML with timestamps
+      if (fs.existsSync(htmlPath)) {
+        run("raster.js", [composedPath, htmlPath, "--theme", themeName, "--format", "html", "--transition", transitionName]);
+      }
+    }
 
     if (!ok) {
       // Check if partial output exists — compose may have succeeded for most slides
