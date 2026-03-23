@@ -257,12 +257,16 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
     return null;
   }
 
-  // Render HTML
-  const tHtml = timer();
-  try {
-    await generateHTML(composedPath, htmlPath, { theme: themeName });
-    process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} html   ${amber(tHtml())}\n`);
-  } catch { /* non-fatal */ }
+  // Note: composeIncremental Stage 4 already renders HTML, and Stage 5
+  // splices images. A redundant generateHTML() call here would overwrite
+  // the spliced output. Only re-render if compose didn't produce HTML.
+  if (!fs.existsSync(htmlPath)) {
+    const tHtml = timer();
+    try {
+      await generateHTML(composedPath, htmlPath, { theme: themeName });
+      process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} html   ${amber(tHtml())}\n`);
+    } catch { /* non-fatal */ }
+  }
 
   // Run mechanical QA
   const tQa = timer();
@@ -1195,7 +1199,14 @@ async function compare(sourcePath, options = {}) {
   // 3. Generate report
   const tReport = timer();
   const reportPath = path.join(sourceDir, `${base}.compare.html`);
-  generateCompareReport(variants, evaluations, base, reportPath, options);
+
+  // Use matrix report for multi-theme runs (explosive), standard report otherwise
+  const uniqueThemes = [...new Set(variants.map(v => v.theme))];
+  if (uniqueThemes.length > 1) {
+    generateMatrixReport(variants, evaluations, base, reportPath, options);
+  } else {
+    generateCompareReport(variants, evaluations, base, reportPath, options);
+  }
   process.stderr.write(`\n  ${sage("✓")} Report → ${teal(reportPath)} ${amber(tReport())}\n`);
   process.stderr.write(`  ${sage("✓")} ${chalk.white.bold("Total pipeline")} ${amber(tPipeline())}\n`);
 
@@ -1212,6 +1223,151 @@ async function compare(sourcePath, options = {}) {
 // ═══════════════════════════════════════════════════════
 // BEST PICK — automated variant recommendation
 // ═══════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════
+// MATRIX REPORT — 2D grid: themes × intensities
+// ═══════════════════════════════════════════════════════
+
+function generateMatrixReport(variants, evaluations, sourceName, outputPath, options = {}) {
+  const themes = [...new Set(variants.map(v => v.theme))];
+  const intensities = [...new Set(variants.map(v => v.intensity))];
+
+  // Build 2D lookup: matrix[intensity][theme] = { variant, evaluation }
+  const matrix = {};
+  intensities.forEach(int => {
+    matrix[int] = {};
+    themes.forEach(th => {
+      const idx = variants.findIndex(v => v.intensity === int && v.theme === th);
+      matrix[int][th] = idx >= 0 ? {
+        variant: variants[idx],
+        eval: evaluations[idx],
+        score: evaluations[idx]?.totalScore ?? null,
+      } : null;
+    });
+  });
+
+  // Find best per row, per column, and overall
+  const allScores = variants.map((v, i) => ({
+    label: v.label, score: evaluations[i]?.totalScore ?? null,
+    intensity: v.intensity, theme: v.theme,
+  })).filter(s => s.score != null);
+
+  const overall = allScores.length ? allScores.reduce((a, b) => a.score >= b.score ? a : b) : null;
+
+  function cellColor(score) {
+    if (score == null) return "#333";
+    if (score >= 80) return "#2B7038";
+    if (score >= 60) return "#876512";
+    return "#B7311A";
+  }
+
+  // Header row
+  const themeHeaders = themes.map(t => `<th class="th-theme">${t}</th>`).join("");
+
+  // Matrix rows
+  const rows = intensities.map(int => {
+    const cells = themes.map(th => {
+      const cell = matrix[int][th];
+      if (!cell) return `<td class="cell empty">—</td>`;
+      const score = cell.score;
+      const isWinner = overall && cell.variant.label === overall.label;
+      const ev = cell.eval;
+      const strengths = (ev?.strengths || []).slice(0, 2).map(s => `<li>${s}</li>`).join("");
+      const weaknesses = (ev?.weaknesses || []).slice(0, 1).map(w => `<li>${w}</li>`).join("");
+
+      return `<td class="cell${isWinner ? " winner" : ""}">
+        <div class="cell-score" style="color:${cellColor(score)}">${score != null ? score : "—"}</div>
+        ${isWinner ? '<div class="winner-badge">BEST</div>' : ""}
+        ${strengths ? `<ul class="cell-strengths">${strengths}</ul>` : ""}
+        ${weaknesses ? `<ul class="cell-weaknesses">${weaknesses}</ul>` : ""}
+      </td>`;
+    }).join("");
+    return `<tr><td class="th-intensity">${int}</td>${cells}</tr>`;
+  }).join("\n");
+
+  // Per-criterion breakdown (if evaluations exist)
+  const criteriaKeys = Object.keys(RUBRIC);
+  let criteriaSection = "";
+  if (allScores.length > 0) {
+    const criteriaRows = criteriaKeys.map(key => {
+      const r = RUBRIC[key];
+      const cells = themes.map(th => {
+        const scores = intensities.map(int => {
+          const idx = variants.findIndex(v => v.intensity === int && v.theme === th);
+          return evaluations[idx]?.scores?.[key]?.score ?? null;
+        });
+        const vals = scores.map((s, i) =>
+          s != null ? `<span style="color:${cellColor(s / r.weight * 100)}">${s}</span>` : "—"
+        ).join(" / ");
+        return `<td class="criteria-cell">${vals}</td>`;
+      }).join("");
+      return `<tr><td class="criteria-name">${key.replace(/([A-Z])/g, " $1").trim()}</td>${cells}</tr>`;
+    }).join("\n");
+
+    criteriaSection = `
+    <h2>Per-Criterion Breakdown</h2>
+    <p class="criteria-legend">${intensities.join(" / ")} — scores per cell</p>
+    <table class="criteria-table">
+      <thead><tr><th>Criterion</th>${themeHeaders}</tr></thead>
+      <tbody>${criteriaRows}</tbody>
+    </table>`;
+  }
+
+  const html = `<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;700&display=swap" rel="stylesheet">
+<title>Matrix: ${sourceName}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e0d8cc;padding:3rem}
+h1{font-family:'DM Serif Display',serif;font-size:2.5rem;margin-bottom:0.3rem}
+h2{font-family:'DM Serif Display',serif;font-size:1.3rem;font-weight:400;color:#8C8478;margin:2.5rem 0 1rem}
+.subtitle{color:#8C8478;font-size:0.9rem;margin-bottom:2rem}
+table{border-collapse:collapse;width:100%;margin-bottom:2rem}
+th,td{padding:1rem;text-align:center;border:1px solid #222}
+.th-theme{font-family:'Space Mono',monospace;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;color:#8C8478;background:#111}
+.th-intensity{font-family:'Space Mono',monospace;font-size:0.75rem;letter-spacing:0.1em;color:#8C8478;background:#111;text-align:left;text-transform:capitalize;width:120px}
+.cell{background:#1a1a1a;vertical-align:top;min-width:150px;position:relative}
+.cell.winner{background:#1a2a1a;border-color:#2B7038}
+.cell.empty{color:#333}
+.cell-score{font-family:'DM Serif Display',serif;font-size:2.2rem;font-weight:700;margin-bottom:0.5rem}
+.winner-badge{position:absolute;top:0.5rem;right:0.5rem;font-family:'Space Mono',monospace;font-size:0.55rem;
+  background:#2B7038;color:#fff;padding:0.2rem 0.5rem;border-radius:2px;letter-spacing:0.1em}
+.cell-strengths{list-style:none;text-align:left;font-size:0.7rem;color:#548C5A;margin-top:0.3rem}
+.cell-strengths li::before{content:"+ ";font-weight:700}
+.cell-weaknesses{list-style:none;text-align:left;font-size:0.7rem;color:#B7311A;margin-top:0.3rem}
+.cell-weaknesses li::before{content:"- ";font-weight:700}
+.overall{margin:2rem 0;padding:1.5rem 2rem;background:#111;border-radius:6px;border-left:3px solid #2B7038}
+.overall-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:#8C8478;letter-spacing:0.15em;text-transform:uppercase}
+.overall-pick{font-family:'DM Serif Display',serif;font-size:1.5rem;margin:0.3rem 0}
+.overall-score{color:#2B7038;font-family:'Space Mono',monospace}
+.criteria-table{font-size:0.85rem}
+.criteria-table th{font-size:0.65rem}
+.criteria-name{text-align:left;font-size:0.75rem;color:#8C8478;text-transform:capitalize;font-family:'Space Mono',monospace}
+.criteria-cell{font-family:'Space Mono',monospace;font-size:0.8rem}
+.criteria-legend{font-family:'Space Mono',monospace;font-size:0.65rem;color:#555;margin-bottom:0.5rem}
+</style></head><body>
+<h1>${sourceName}</h1>
+<p class="subtitle">Theme × Intensity Matrix — ${variants.length} variants across ${themes.length} themes and ${intensities.length} intensities</p>
+
+<table>
+  <thead><tr><th></th>${themeHeaders}</tr></thead>
+  <tbody>${rows}</tbody>
+</table>
+
+${overall ? `<div class="overall">
+  <div class="overall-label">Best Overall</div>
+  <div class="overall-pick">${overall.label} <span class="overall-score">${overall.score}/100</span></div>
+</div>` : ""}
+
+${criteriaSection}
+
+</body></html>`;
+
+  fs.writeFileSync(outputPath, html);
+  return outputPath;
+}
 
 function bestPick(variants, evaluations) {
   if (!evaluations || evaluations.every(e => !e || e.totalScore == null)) return null;
@@ -1350,4 +1506,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, generateCompareReport, bestPick, RUBRIC };
+module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, generateCompareReport, generateMatrixReport, bestPick, RUBRIC };
