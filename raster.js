@@ -393,44 +393,83 @@ function parseMarkdown(md) {
 // LAYOUT DETECTION
 // ═══════════════════════════════════════════════════════
 
+// Track layout history for variety in auto-detection
+let _layoutHistory = [];
+
 function detectLayout(slide, index, total) {
   if (slide.layout) return slide.layout;
 
-  // First slide → title
-  if (index === 0) return "title";
+  // Reset history for new decks
+  if (index === 0) _layoutHistory = [];
 
-  // Last slide with minimal content → blank or section
-  if (index === total - 1 && !slide.title && slide.body.length <= 1) return "section";
+  // First slide → title
+  if (index === 0) { _layoutHistory.push("title"); return "title"; }
+
+  // Last slide with minimal content → section
+  if (index === total - 1 && !slide.title && slide.body.length <= 1) {
+    _layoutHistory.push("section"); return "section";
+  }
 
   // Has title + subtitle but little else → section
   if (slide.title && slide.subtitle && slide.bullets.length === 0 &&
       slide.body.length <= 1 && slide.images.length === 0 &&
-      slide.tables.length === 0 && slide.codeBlocks.length === 0) return "section";
+      slide.tables.length === 0 && slide.codeBlocks.length === 0) {
+    _layoutHistory.push("section"); return "section";
+  }
 
   // New content types
-  if (slide.images.length > 0) return "image";
-  if (slide.tables.length > 0) return "table";
-  if (slide.codeBlocks.length > 0) return "code";
+  if (slide.images.length > 0) { _layoutHistory.push("image"); return "image"; }
+  if (slide.tables.length > 0) { _layoutHistory.push("table"); return "table"; }
+  if (slide.codeBlocks.length > 0) { _layoutHistory.push("code"); return "code"; }
 
-  // Many top-level bullets (4+) → stagger; nested content stays as bullets
+  // Many top-level bullets (4+) → stagger or fragment (rotate)
   const topLevel = slide.bullets.filter(b => (b.level || 0) === 0).length;
-  if (topLevel >= 4 && topLevel === slide.bullets.length) return "stagger";
+  if (topLevel >= 4 && topLevel === slide.bullets.length) {
+    const last = _layoutHistory[_layoutHistory.length - 1];
+    // Alternate between stagger and fragment for variety
+    const choice = last === "stagger" ? "fragment" : "stagger";
+    _layoutHistory.push(choice);
+    return choice;
+  }
 
-  // Has bullets → bullets
-  if (slide.bullets.length > 0) return "bullets";
+  // Has bullets → bullets, but rotate to split if bullets was just used
+  if (slide.bullets.length > 0) {
+    const last = _layoutHistory[_layoutHistory.length - 1];
+    const choice = last === "bullets" ? "split" : "bullets";
+    _layoutHistory.push(choice);
+    return choice;
+  }
 
-  // Has blockquote → rotated (use the quote as feature text)
-  if (slide.blockquote) return "rotated";
+  // Has blockquote → rotated
+  if (slide.blockquote) { _layoutHistory.push("rotated"); return "rotated"; }
 
-  // Has title + body text → split
-  if (slide.title && slide.body.length > 0) return "split";
+  // Has title + body text → split, rotated, or overlap (rotate for variety)
+  if (slide.title && slide.body.length > 0) {
+    const last = _layoutHistory[_layoutHistory.length - 1];
+    const prev2 = _layoutHistory[_layoutHistory.length - 2];
+    let choice;
+    if (last === "split" && prev2 === "split") choice = "rotated";
+    else if (last === "split") choice = "split";
+    else choice = "split";
+    // Every 5th text slide, use arc for variety
+    const splitCount = _layoutHistory.filter(l => l === "split").length;
+    if (splitCount > 0 && splitCount % 4 === 0) choice = "arc";
+    _layoutHistory.push(choice);
+    return choice;
+  }
 
-  // Title only → section
-  if (slide.title) return "section";
+  // Title only → section (but use rotated if section was just used)
+  if (slide.title) {
+    const last = _layoutHistory[_layoutHistory.length - 1];
+    const choice = last === "section" ? "rotated" : "section";
+    _layoutHistory.push(choice);
+    return choice;
+  }
 
   // Links list → fragment
-  if (slide.links.length > 0) return "fragment";
+  if (slide.links.length > 0) { _layoutHistory.push("fragment"); return "fragment"; }
 
+  _layoutHistory.push("split");
   return "split";
 }
 

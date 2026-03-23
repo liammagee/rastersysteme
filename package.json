@@ -6,7 +6,7 @@
     "start": "node rastersysteme.js",
     "raster": "node raster.js",
     "compose": "node compose.js",
-    "test": "node --test raster.test.js",
+    "test": "node --test raster.test.js tools.test.js",
     "review": "node raster.js --format review",
     "studio": "node studio.js",
     "compare": "node compare.js",

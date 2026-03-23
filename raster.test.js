@@ -573,6 +573,8 @@ Body line two`;
 
 describe("Layout detection", () => {
   function detect(md, index = 1, total = 3) {
+    // Reset layout history by simulating a new deck
+    detectLayout({ layout: null, title: "reset", subtitle: null, bullets: [], body: [], blockquote: null, images: [], tables: [], codeBlocks: [], links: [] }, 0, total);
     const slides = parseMarkdown(md);
     return detectLayout(slides[0], index, total);
   }

@@ -105,6 +105,36 @@ Each compose run generates a new design system. Need brand consistency.
 - [ ] Stagger start times to avoid API quota spikes
 - [ ] Share rate limit state across parallel workers
 
+## Priority 5 — Polish
+
+### Better default rendering
+`node raster.js deck.md --format html` should look great out of the box
+without needing compose.js. Auto-detect content structure, apply sensible
+layout variety, build a basic chromatic arc from the theme palette.
+- [ ] Smart auto-layout that goes beyond the simple detection rules
+- [ ] Auto bg-override on section slides (use theme.bgDark)
+- [ ] Auto ### labels from slide structure (use ## heading text as label)
+- [ ] Sensible layout rotation (don't default everything to split)
+
+### README overhaul
+README has grown stale vs the actual toolchain.
+- [ ] Architecture diagram showing all tools and their relationships
+- [ ] Quick start that actually works end-to-end
+- [ ] Tool reference table with all npm scripts
+- [ ] Examples section with screenshots
+- [ ] Link to SPEC.md for formal format docs
+
+### Test coverage for new tools
+watch.js, diff-slides.js, pace.js, design-system.js, splice-images.js,
+export-pdf.js, grid-compose.js, imagine.js have no unit tests.
+- [ ] pace.js: estimateSlideWeight, paceSlides, injectTimestamps
+- [ ] diff-slides.js: extractDirectives, diffSlides
+- [ ] design-system.js: saveSystem, loadSystem, listSystems
+- [ ] imagine.js: buildImagePrompt, parseSlideRange
+- [ ] splice-images.js: placementCSS, algorithmicPlan
+- [ ] compose.js: parseDirectives, assembleComposed, callClaudeWithRetry
+- [ ] grid-compose.js: buildGridPrompt, renderGridSlideHTML
+
 ## Future / Nice to have
 
 ### Theme × intensity matrix
