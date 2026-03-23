@@ -23,6 +23,7 @@
     "refresh": "node refresh.js",
     "qa": "node qa.js",
     "qa-html": "node qa-html.js",
+    "qa-live": "node qa-live.js",
     "batch": "node batch.js"
   },
   "bin": {
