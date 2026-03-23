@@ -1143,32 +1143,73 @@ CRITICAL IMAGE-AWARE LAYOUT RULE:
   When "image":"inset-bl", keep zones away from bottom-left corner (col > 15, or row < 30).
   ALWAYS design zones to AVOID the image area. Text over images is unreadable.` : "";
 
-  function buildFullPrompt(slideSummaries, batchContext) {
-    return `You are a Swiss art director designing on a 60-column × 40-row grid.
-Design system: ${designSystemContext}
-INTENSITY: ${intensity.toUpperCase()}
+  // Intensity-specific design rules for per-slide prompts
+  const INCREMENTAL_RULES = {
+    minimal: `DESIGN RULES (MINIMAL — Müller-Brockmann restraint):
+- Use ONE primary grid template: title col:6 span:30, body col:6 span:36. Wide left margins.
+- Title sizes: 28–36px ONLY. Body: 13–16px. Weight: 400 (regular). No extremes.
+- NO accent elements. The grid speaks through alignment and whitespace alone.
+- bg: 80%+ slides use light ground (${(designSystem.palette || []).find(c => c.role === "ground")?.hex || "F8F5F0"}). Max 2–3 mid-tone slides.
+- font: ${designSystem.fontStrategy?.default || "Helvetica Neue"} ONLY. No overrides.
+- Every slide should look like a well-typeset page. Wide margins, clean type, nothing decorative.`,
 
-I'll send slide summaries. For EACH slide, return a JSON object that specifies
-WHERE elements sit on the grid. This is NOT a template — you design the spatial
-composition from scratch for each slide.
-
-Example (vary positions, sizes, and accents for every slide):
-{"slide":1, "zones":[{"role":"title","col":4,"span":24,"row":4,"rowSpan":14},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}], "accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"${(designSystem.palette?.[2]?.hex) || 'D32F2F'}"}], "typography":{"title":{"size":42,"weight":700},"body":{"size":14}}, "bg":"F8F5F0", "font":"Helvetica Neue", "label":"SECTION NAME"${imgExample}}
-
-ZONE ROLES: title, body, bullets, label, quote
-COLUMNS: 0-59 (col + span ≤ 60). ROWS: 0-39 (row + rowSpan ≤ 40).
-ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
-
-DESIGN RULES:
-- Use 2-3 CONSISTENT grid templates across the deck, not a unique layout per slide.
+    moderate: `DESIGN RULES (MODERATE — Gerstner editorial):
+- Use 2-3 CONSISTENT grid templates, rotating between them for rhythm.
   E.g. Template A: title col:4 span:28, body col:4 span:40.
        Template B: title col:30 span:28, body col:2 span:26.
-  Rotate between them. Consistency creates rhythm; chaos creates fatigue.
 - SUBTLE variation within templates: shift a title col by 2-4, change size by 4-8px.
 - Title sizes: pick 2-3 sizes (e.g. 36, 44, 52) and use them consistently. Body: 13-15px.
 - bg: ALWAYS set. Use palette colours. Alternate light and dark for rhythm.
 - Accents: use on 40%+ of slides. Vary position and type.
-- font: vary between ${designSystem.fontStrategy?.default || "Helvetica Neue"} and ${designSystem.fontStrategy?.secondary || "Georgia"}.
+- font: vary between ${designSystem.fontStrategy?.default || "Helvetica Neue"} and ${designSystem.fontStrategy?.secondary || "Georgia"}.`,
+
+    maximal: `DESIGN RULES (MAXIMAL — Weingart confrontation):
+- Every slide MUST be a UNIQUE composition. NO two slides share the same zone arrangement.
+- EXTREME zone positions: col:0 span:58 (full-bleed) on one slide, col:40 span:18 (right-pushed)
+  on the next. Body ABOVE title sometimes. Inverted layouts (body col:0, title col:40).
+- Title sizes: FULL RANGE 18–96px. Weight: alternate 100 (ultra-light) and 900 (black).
+  48px title + 9px label = Weingart scale tension. Use it.
+- ### labels on 70%+ of slides: size 8–9px, tracking 0.2–0.4em, uppercase.
+- BOLD accents on 50%+ of slides: thick bars (span 4–8), colour blocks, dots as anchors.
+- bg: HIGH CONTRAST. Adjacent slides NEVER share similar brightness. Alternate near-black,
+  vivid saturated colours, and near-white from the palette.
+- font: 2-3 typefaces. ${designSystem.fontStrategy?.default || "Futura"} for declarations,
+  ${designSystem.fontStrategy?.secondary || "Georgia"} for reflection. 20-30% of slides get overrides.
+- Tracking: extreme range. 0 on body, 0.3em on labels, 0.15em on titles.
+- The audience should feel each slide was individually composed, not generated from a template.`,
+  };
+
+  function buildFullPrompt(slideSummaries, batchContext) {
+    const accentHex = (designSystem.palette?.[2]?.hex) || 'D32F2F';
+    const defaultFont = designSystem.fontStrategy?.default || "Helvetica Neue";
+
+    // Intensity-appropriate example
+    const examples = {
+      minimal: `{"slide":1, "zones":[{"role":"title","col":6,"span":30,"row":12,"rowSpan":16},{"role":"body","col":6,"span":36,"row":20,"rowSpan":18}], "typography":{"title":{"size":32,"weight":400},"body":{"size":14}}, "bg":"F8F5F0", "font":"${defaultFont}"${imgExample}}`,
+      moderate: `{"slide":1, "zones":[{"role":"title","col":4,"span":24,"row":4,"rowSpan":14},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}], "accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"${accentHex}"}], "typography":{"title":{"size":42,"weight":700},"body":{"size":14}}, "bg":"F8F5F0", "font":"${defaultFont}", "label":"SECTION NAME"${imgExample}}`,
+      maximal: `{"slide":1, "zones":[{"role":"label","col":4,"span":20,"row":2,"rowSpan":4},{"role":"title","col":0,"span":58,"row":10,"rowSpan":20},{"role":"body","col":30,"span":26,"row":32,"rowSpan":8}], "accents":[{"type":"bar","col":26,"span":3,"row":0,"rowSpan":40,"color":"${accentHex}"},{"type":"dot","col":55,"span":3,"row":3,"rowSpan":3,"color":"${(designSystem.palette?.[3]?.hex) || 'FFD700'}"}], "typography":{"title":{"size":72,"weight":900,"tracking":"0.08em"},"body":{"size":13},"label":{"size":9,"tracking":"0.3em","transform":"uppercase"}}, "bg":"0A1628", "font":"Futura", "label":"PROVOCATION"${imgExample}}`,
+    };
+
+    return `You are a Swiss-trained art director who DESIGNS slides on a 60-column × 40-row grid.
+You do not select from templates — you compose each slide as a unique grid arrangement.
+
+Design system: ${designSystemContext}
+
+${INCREMENTAL_RULES[intensity] || INCREMENTAL_RULES.moderate}
+
+I'll send slide summaries. For EACH slide, return a JSON object that specifies
+WHERE elements sit on the grid.
+
+Example:
+${examples[intensity] || examples.moderate}
+
+ZONE ROLES: title, body, bullets, label, quote
+COLUMNS: 0-59 (col + span ≤ 60). ROWS: 0-39 (row + rowSpan ≤ 40).
+ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
+TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
+
+- bg: ALWAYS set. Use palette colours.
+- font: vary between ${defaultFont} and ${designSystem.fontStrategy?.secondary || "Georgia"}.
 ${imgRules}
 ${batchContext}
 
@@ -1334,7 +1375,12 @@ Don't use the same layout as the last slide. Maintain variety.`;
     let batchPrompt;
     if (useSession && sessionId) {
       const batchContext = buildBatchContext(slideDesigns);
-      batchPrompt = `Next slides (continue varying zone positions, type sizes, accents):
+      const continueNote = intensity === "maximal"
+        ? "UNIQUE compositions — different zone positions, extreme type scales, bold accents. No repeats."
+        : intensity === "minimal"
+        ? "Maintain restraint — consistent margins, quiet precision, no accents."
+        : "Continue editorial variety — vary zone positions, type sizes, accents.";
+      batchPrompt = `Next slides (${continueNote}):
 ${batchContext}
 
 ${slideSummaries}
@@ -1360,28 +1406,43 @@ JSON objects, one per line:`;
         baseDelay: 10,
       });
       let cleaned = raw.trim();
-      // Extract session_id for subsequent calls (sequential mode only)
-      if (useSession) {
-        const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
-        if (sessionMatch) {
-          sessionId = sessionMatch[1];
-          cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
-        }
+      // Always strip session prefix (present in both parallel and sequential modes)
+      const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
+      if (sessionMatch) {
+        if (useSession) sessionId = sessionMatch[1];
+        cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
       }
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
 
       let directives;
       try {
-        if (cleaned.startsWith("[")) {
-          directives = JSON.parse(cleaned);
+        // Try parsing as a JSON array first
+        const trimmed = cleaned.trim();
+        const arrStart = trimmed.indexOf("[");
+        const arrEnd = trimmed.lastIndexOf("]");
+        if (arrStart >= 0 && arrEnd > arrStart && arrStart < 5) {
+          directives = JSON.parse(trimmed.slice(arrStart, arrEnd + 1));
+        } else if (trimmed.startsWith("{")) {
+          // Single object or one-per-line
+          const lines = trimmed.split("\n").filter(l => l.trim().startsWith("{"));
+          directives = lines.map(l => JSON.parse(l));
         } else {
-          directives = cleaned.split("\n").filter(l => l.trim().startsWith("{")).map(l => JSON.parse(l));
+          // Try to find JSON object(s) anywhere in the text
+          throw new Error("no leading JSON");
         }
       } catch {
+        // Robust fallback: find balanced JSON objects using brace counting
         directives = [];
-        const matches = cleaned.matchAll(/\{[^}]+\}/g);
-        for (const m of matches) {
-          try { directives.push(JSON.parse(m[0])); } catch { /* skip */ }
+        let depth = 0, start = -1;
+        for (let ci = 0; ci < cleaned.length; ci++) {
+          if (cleaned[ci] === "{") { if (depth === 0) start = ci; depth++; }
+          else if (cleaned[ci] === "}") {
+            depth--;
+            if (depth === 0 && start >= 0) {
+              try { directives.push(JSON.parse(cleaned.slice(start, ci + 1))); } catch { /* skip */ }
+              start = -1;
+            }
+          }
         }
       }
 

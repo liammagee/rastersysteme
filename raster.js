@@ -1714,7 +1714,16 @@ function renderDesigned(slide) {
   }).join("\n");
 
   // Render zones
-  const zonesHTML = (design.zones || []).map(zone => {
+  // Deduplicate zones by role — Claude sometimes emits two "body" zones,
+  // which causes the same content to render twice.
+  const seenRoles = new Set();
+  const deduped = (design.zones || []).filter(zone => {
+    if (seenRoles.has(zone.role)) return false;
+    seenRoles.add(zone.role);
+    return true;
+  });
+
+  const zonesHTML = deduped.map(zone => {
     const pos = zonePositionCSS(zone);
     const typoStyle = typographyToCSS(typography[zone.role] || {});
     const style = [pos, typoStyle].filter(Boolean).join(";");

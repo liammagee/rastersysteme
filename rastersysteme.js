@@ -526,6 +526,12 @@ async function interactive(preselectedInput) {
       }
     }
 
+    // Generate PPTX from composed markdown
+    if (fs.existsSync(composedPath)) {
+      process.stderr.write(`  ${dim("Generating PPTX...")}\n`);
+      run("raster.js", [composedPath, pptxPath, "--theme", themeName]);
+    }
+
     if (!ok) {
       // Check if partial output exists — compose may have succeeded for most slides
       if (fs.existsSync(htmlPath)) {
@@ -591,6 +597,12 @@ async function interactive(preselectedInput) {
     ], { autoSelect: true });
     const skipEval = evalChoice.key === "n";
 
+    const cmpParallelChoice = await select("PARALLEL BATCHES", [
+      { key: "1", label: "sequential      coherent, slower (default)" },
+      { key: "4", label: "4 concurrent    fast, less cross-batch coherence" },
+      { key: "8", label: "8 concurrent    fastest" },
+    ], { autoSelect: true });
+
     console.log(`\n  ${rule}`);
     const compareArgs = [input, "--model", modelName];
     if (!explosive) compareArgs.push("--theme", themeName);
@@ -599,6 +611,7 @@ async function interactive(preselectedInput) {
     if (skipEval) compareArgs.push("--skip-eval");
     if (slideRange) compareArgs.push("--slides", slideRange);
     if (cmpImagesDir) compareArgs.push("--images-dir", cmpImagesDir);
+    if (cmpParallelChoice.key !== "1") compareArgs.push("--batch-parallel", cmpParallelChoice.key);
     run("compare.js", compareArgs);
 
     const reportPath = path.join(path.dirname(path.resolve(input)), `${inputBase}.compare.html`);

@@ -25,7 +25,7 @@ const sage = chalk.green;
 const amber = chalk.yellow;
 
 const { compose, composeAsync, composeIncremental, callClaude } = require("./compose.js");
-const { generateHTML, parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
+const { generate, generateHTML, parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
 const { runQA } = require("./qa.js");
 
 const SCRIPT_DIR = __dirname;
@@ -250,6 +250,8 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
       slides: options.slides,
       withImages: !!options.imagesDir,
       imagesDir: options.imagesDir,
+      batchSize: options.batchSize || 1,
+      parallel: options.batchParallel || 1,
     });
     process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} compose ${amber(t())}\n`);
   } catch (err) {
@@ -265,6 +267,15 @@ async function runVariant(sourcePath, intensity, themeName, outputDir, options =
     try {
       await generateHTML(composedPath, htmlPath, { theme: themeName });
       process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} html   ${amber(tHtml())}\n`);
+    } catch { /* non-fatal */ }
+  }
+
+  // Generate PPTX alongside HTML
+  if (fs.existsSync(composedPath)) {
+    const tPptx = timer();
+    try {
+      await generate(composedPath, pptxPath, { theme: themeName });
+      process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} pptx   ${amber(tPptx())}\n`);
     } catch { /* non-fatal */ }
   }
 
@@ -768,6 +779,7 @@ body{font-family:var(--font-body);background:var(--bg);color:var(--text);line-he
   position:absolute;width:960px;height:540px;
   transform-origin:top left;transform:scale(var(--preview-scale,0.3));
   display:flex !important;
+  opacity:1 !important;
 }
 .slide-meta{
   display:flex;align-items:center;gap:0.5rem;
@@ -1465,6 +1477,8 @@ if (require.main === module) {
     --model <model>        Claude model for composition (default: sonnet)
     --eval-model <model>   Claude model for evaluation (default: sonnet)
     --skip-eval            Generate variants only, skip Claude evaluation
+    --batch-size <n>       Slides per Claude call (default: 1)
+    --batch-parallel <n>   Concurrent slide batches within each variant (default: 1)
     --help                 Show this help
 
   Examples:
@@ -1472,6 +1486,7 @@ if (require.main === module) {
     node compare.js talk.md --explosive
     node compare.js talk.md --theme dark --brief "brutalist, maximum contrast"
     node compare.js notes.md --skip-eval
+    node compare.js talk.md --batch-size 5 --batch-parallel 4
     `);
     process.exit(0);
   }
@@ -1493,6 +1508,8 @@ if (require.main === module) {
     explosive: args.includes("--explosive"),
     imagesDir: getFlag("--images-dir"),
     maxParallel: parseInt(getFlag("--parallel") || "3"),
+    batchSize: parseInt(getFlag("--batch-size") || "1"),
+    batchParallel: parseInt(getFlag("--batch-parallel") || "1"),
   };
 
   if (!fs.existsSync(input)) {

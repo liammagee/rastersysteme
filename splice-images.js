@@ -285,8 +285,23 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
   // Get placement plan — use pre-computed plan if provided, else ask Claude
   let plan;
   if (options.plan) {
-    plan = options.plan;
-    process.stderr.write(`  ${sage("✓")} Using pre-computed placement plan (${plan.filter(p => p.mode !== "none").length} placed)\n`);
+    const explicitCount = options.plan.filter(p => p.mode !== "none").length;
+    const totalCount = options.plan.length;
+    // If most slides have "none", fill gaps with content-aware placement
+    if (explicitCount < totalCount * 0.5) {
+      const caPlan = contentAwarePlan(html);
+      plan = options.plan.map((p, i) => {
+        if (p.mode === "none" && caPlan[i] && caPlan[i].mode !== "none") {
+          return caPlan[i]; // Fill in from content-aware analysis
+        }
+        return p;
+      });
+      const filled = plan.filter(p => p.mode !== "none").length;
+      process.stderr.write(`  ${sage("✓")} Placement: ${explicitCount} from directives + ${filled - explicitCount} content-aware (${filled} total)\n`);
+    } else {
+      plan = options.plan;
+      process.stderr.write(`  ${sage("✓")} Using pre-computed placement plan (${explicitCount} placed)\n`);
+    }
   } else if (options.smart) {
     plan = getPlacementPlan(html, imageCount, options);
   }

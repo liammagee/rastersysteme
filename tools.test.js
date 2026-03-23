@@ -605,12 +605,12 @@ describe("Multi-line HTML comment stripping", () => {
     });
   });
 
-  it("week-1.md produces 38 slides (6 commented out)", () => {
+  it("week-1.md produces 40 slides (6 commented out)", () => {
     const fs = require("fs");
     if (!fs.existsSync("./decks/week-1.md")) return;
     const md = fs.readFileSync("./decks/week-1.md", "utf-8");
     const slides = parseMarkdown(md);
-    assert.equal(slides.length, 38, `Expected 38, got ${slides.length}`);
+    assert.equal(slides.length, 40, `Expected 40, got ${slides.length}`);
   });
 });
 

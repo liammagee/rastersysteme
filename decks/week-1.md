@@ -311,8 +311,15 @@ These will take roughly 1/3 of our time, and should act as bridges between theor
 
 ## Setting the Scene: Karpathy on Agents
 
-[The End of Coding: Andrej Karpathy on Agents, AutoResearch, and the Loopy Era of AI - YouTube](https://www.youtube.com/watch?v=kwSVtQ7dziU)
+
  - See 0:00 - 9:10.
+
+
+---
+
+
+[The End of Coding: Andrej Karpathy on Agents, AutoResearch, and the Loopy Era of AI - YouTube](https://www.youtube.com/watch?v=kwSVtQ7dziU)
+
 
 ---
 
@@ -480,10 +487,12 @@ In Workshop 4 we'll be examining criticisms of the environmental and social cost
  - Services? 
    - plumbing, electrician - Jensen Huang - but what about robots?
    - Care industries? (hospitals, childcare, counselling)
- - Humanities? Peter Thiel
+ - Humanities? Peter Thiel...
  
  No easy answers.
 
+
+---
 
 ![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
 
