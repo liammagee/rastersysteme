@@ -243,6 +243,65 @@ describe("splice-images.js", () => {
     const modes = new Set(plan.map(p => p.mode));
     assert.ok(modes.size >= 5, `Should have 5+ unique modes, got ${modes.size}`);
   });
+
+  it("spliceImages inserts img tags into HTML", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const os = require("os");
+    const { spliceImages } = require("./splice-images.js");
+
+    // Create temp dir with a fake image and HTML
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "splice-test-"));
+    const imgDir = path.join(tmp, "images");
+    fs.mkdirSync(imgDir);
+    fs.writeFileSync(path.join(imgDir, "slide-1.png"), "fake");
+    fs.writeFileSync(path.join(imgDir, "slide-2.png"), "fake");
+    const html = '<section class="slide">Content 1</section>\n<section class="slide">Content 2</section>';
+    const htmlPath = path.join(tmp, "test.html");
+    fs.writeFileSync(htmlPath, html);
+
+    const result = spliceImages(htmlPath, imgDir, {
+      plan: [
+        { slide: 1, mode: "right", size: 30 },
+        { slide: 2, mode: "none" },
+      ],
+    });
+
+    assert.ok(result.includes("slide-1.png"), "Slide 1 should have image spliced");
+    assert.ok(!result.includes("slide-2.png"), "Slide 2 should not have image (mode: none)");
+
+    // Clean up
+    fs.rmSync(tmp, { recursive: true });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// COMPARE — anti-regression: no double-render clobber
+// ═══════════════════════════════════════════════════════
+
+describe("compare.js — image preservation", () => {
+  const fs = require("fs");
+
+  it("runVariant guards generateHTML with existsSync to protect spliced images", () => {
+    // Structural check: compare.js must guard generateHTML so Stage 5 spliced images aren't overwritten
+    const src = fs.readFileSync(require.resolve("./compare.js"), "utf-8");
+    const runVariantSection = src.slice(
+      src.indexOf("async function runVariant"),
+      src.indexOf("async function runVariants")
+    );
+    // The generateHTML call must be inside an fs.existsSync guard
+    assert.ok(
+      runVariantSection.includes("fs.existsSync(htmlPath)"),
+      "runVariant must check htmlPath exists before calling generateHTML"
+    );
+    // Ensure the guard precedes the generateHTML call (not a stale check elsewhere)
+    const guardIdx = runVariantSection.indexOf("fs.existsSync(htmlPath)");
+    const renderIdx = runVariantSection.indexOf("generateHTML(composedPath, htmlPath");
+    assert.ok(
+      guardIdx < renderIdx,
+      "existsSync guard must come before generateHTML call"
+    );
+  });
 });
 
 // ═══════════════════════════════════════════════════════
@@ -386,6 +445,98 @@ describe("bestPick", () => {
     const pick = bestPick([variants[0]], evals);
     assert.ok(pick.reasoning.length > 10);
     assert.ok(pick.reasoning.includes("watch:"));
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// MASTERS
+// ═══════════════════════════════════════════════════════
+
+describe("masters.js", () => {
+  const { saveMasterSet, loadMasterSet, listMasterSets, matchMaster, applyMasters, MASTERS_DIR } = require("./masters.js");
+  const { parseMarkdown } = require("./raster.js");
+  const fs = require("fs");
+  const path = require("path");
+
+  const testName = "__test_masters_" + Date.now();
+  const testSet = {
+    name: testName,
+    description: "Test master set",
+    masters: {
+      title: { layout: "title", bg: "0F2A4A", font: "DM Serif Display" },
+      section: { layout: "section", bg: "1A1A1A" },
+      content: { layout: "split", bg: null },
+      list: { layout: "bullets", bg: null },
+      data: { layout: "stagger", bg: null, font: "Space Mono" },
+      quote: { layout: "rotated", bg: "1B3D22", font: "Georgia" },
+      closing: { layout: "section", bg: "0F2A4A" },
+    },
+  };
+
+  it("saveMasterSet and loadMasterSet round-trip", () => {
+    saveMasterSet(testName, testSet);
+    const loaded = loadMasterSet(testName);
+    assert.equal(loaded.name, testName);
+    assert.equal(Object.keys(loaded.masters).length, 7);
+  });
+
+  it("listMasterSets includes saved set", () => {
+    const sets = listMasterSets();
+    assert.ok(sets.find(s => s.name === testName));
+  });
+
+  it("matchMaster returns title for first slide", () => {
+    const slides = parseMarkdown("# Title\n\n---\n\n## Content\n\nBody text");
+    assert.equal(matchMaster(slides[0], 0, 2, testSet), "title");
+  });
+
+  it("matchMaster returns closing for last slide", () => {
+    const slides = parseMarkdown("# Title\n\n---\n\n## End");
+    assert.equal(matchMaster(slides[1], 1, 2, testSet), "closing");
+  });
+
+  it("matchMaster returns quote for blockquote slides", () => {
+    const slides = parseMarkdown("> A quote here");
+    assert.equal(matchMaster(slides[0], 1, 3, testSet), "quote");
+  });
+
+  it("matchMaster returns data for 5+ bullets", () => {
+    const slides = parseMarkdown("- a\n- b\n- c\n- d\n- e");
+    assert.equal(matchMaster(slides[0], 1, 3, testSet), "data");
+  });
+
+  it("matchMaster returns list for 1-4 bullets", () => {
+    const slides = parseMarkdown("- a\n- b");
+    assert.equal(matchMaster(slides[0], 1, 3, testSet), "list");
+  });
+
+  it("matchMaster respects explicit <!-- master: name --> directive", () => {
+    const slides = parseMarkdown("<!-- master: quote -->\n# Not actually a quote");
+    assert.equal(matchMaster(slides[0], 1, 3, testSet), "quote");
+  });
+
+  it("applyMasters injects directives preserving content", () => {
+    const md = "# Opening Title\n\n---\n\n## Body Slide\n\nSome content\n\n---\n\n> A quote\n\n---\n\n## The End";
+    const composed = applyMasters(md, testSet);
+    assert.ok(composed.includes("<!-- layout: title -->"));
+    assert.ok(composed.includes("<!-- bg: 0F2A4A -->"));
+    assert.ok(composed.includes("Opening Title"));
+    assert.ok(composed.includes("Some content"));
+    assert.ok(composed.includes("A quote"));
+    assert.ok(composed.includes("The End"));
+  });
+
+  it("applyMasters maintains slide count", () => {
+    const md = "# A\n\n---\n\n## B\n\n---\n\n## C";
+    const composed = applyMasters(md, testSet);
+    assert.equal(composed.split("\n---\n").length, 3);
+  });
+
+  // Cleanup
+  it("cleanup test set", () => {
+    const fp = path.join(MASTERS_DIR, `${testName}.json`);
+    if (fs.existsSync(fp)) fs.unlinkSync(fp);
+    assert.ok(true);
   });
 });
 
