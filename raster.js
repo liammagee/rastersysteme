@@ -1952,6 +1952,9 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .videos.single figure.video-wrap{max-width:85%;width:85%}
 .video-responsive{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.5vmin}
 .video-responsive iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.extra-videos{max-height:50vh;max-width:60%;margin-top:auto;z-index:5}
+.extra-videos .videos{height:100%}
+.extra-videos .video-responsive{max-height:45vh}
 .videos figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
 
 /* Links */
@@ -2375,6 +2378,28 @@ setInterval(function(){
     if(e.key==='p'||e.key==='P'){openPresenter()}
   });
 
+  // Auto-fit: shrink text in designed zones that overflow their container
+  function autoFitZones(){
+    document.querySelectorAll('.slide.designed .zone').forEach(function(zone){
+      // Reset any previous auto-fit
+      zone.style.removeProperty('--auto-fit-size');
+      var els=zone.querySelectorAll('p,blockquote,h1,h2,span.label,.bullet,.bullets');
+      // Get the base font size from inline style or computed
+      var base=parseFloat(zone.style.fontSize)||parseFloat(getComputedStyle(zone).fontSize)||16;
+      var size=base;
+      var min=Math.max(8,base*0.45);
+      while(zone.scrollHeight>zone.clientHeight+1&&size>min){
+        size-=0.5;
+        els.forEach(function(el){el.style.fontSize=size+'px'});
+      }
+    });
+  }
+
+  // Run auto-fit on load and after each slide transition
+  var origGo2=go;
+  go=function(n){origGo2(n);autoFitZones()};
+  autoFitZones();
+
   go(0);
 })();
 `;
@@ -2449,8 +2474,9 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 
     const trans = ` data-transition="${slide.transition || globalTransition}"`;
 
-    // Append videos if present but layout isn't "video"
-    const extraVideos = (slide.videos && slide.videos.length > 0 && layout !== "video") ? videosHTML(slide.videos) : "";
+    // Append videos in non-video layouts — constrained so they don't overlap text
+    const extraVideos = (slide.videos && slide.videos.length > 0 && layout !== "video")
+      ? `<div class="extra-videos">${videosHTML(slide.videos)}</div>` : "";
 
     // Use designed renderer for slides with a design directive
     if (slide.design) {
