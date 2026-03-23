@@ -1943,6 +1943,13 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
 .images.single figure{max-height:100%;max-width:100%}
 .images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images img[src$=".png"],.images img[src$=".jpg"],.images img[src$=".jpeg"]{
+  /* Hide broken images gracefully */}
+img:not([src]),.images img[alt]:not([src]){display:none}
+/* Mixed layout: when image layout has bullets, split into flex row */
+.layout-image{flex-direction:row;gap:3vmin}
+.layout-image .images{flex:0 0 45%;max-height:100%}
+.layout-image .bullets{flex:1}
 .images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
 
 /* Videos */
