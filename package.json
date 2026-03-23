@@ -22,6 +22,7 @@
     "explorer": "node explorer.js",
     "refresh": "node refresh.js",
     "qa": "node qa.js",
+    "qa-html": "node qa-html.js",
     "batch": "node batch.js"
   },
   "bin": {
