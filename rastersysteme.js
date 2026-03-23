@@ -13,11 +13,11 @@ const path = require("path");
 const chalk = require("chalk");
 
 const SCRIPT_DIR = __dirname;
-const dim = chalk.gray;
-const accent = chalk.hex("#C44230");
-const teal = chalk.hex("#2C7A92");
-const sage = chalk.hex("#548C5A");
-const amber = chalk.hex("#C79B38");
+const dim = chalk.dim;
+const accent = chalk.red;
+const teal = chalk.cyan;
+const sage = chalk.green;
+const amber = chalk.yellow;
 const bright = chalk.bold;
 const highlight = chalk.inverse;
 const rule = dim("─".repeat(52));
@@ -183,7 +183,7 @@ async function selectInput() {
 function run(script, args) {
   const result = spawnSync("node", [path.join(SCRIPT_DIR, script), ...args], {
     stdio: "inherit",
-    timeout: 600000,
+    timeout: 1800000, // 30 minutes for large decks
     cwd: SCRIPT_DIR,
   });
   return result.status === 0;
@@ -420,12 +420,15 @@ async function interactive(preselectedInput) {
     const ok = run("compose.js", composeArgs);
 
     if (!ok) {
-      console.error(`  ${accent("✗")} Composition failed.`);
-      process.exit(1);
-    }
-
-    // Auto-open the output in the browser
-    if (fs.existsSync(htmlPath)) {
+      // Check if partial output exists — compose may have succeeded for most slides
+      if (fs.existsSync(htmlPath)) {
+        console.error(`  ${amber("⚠")} Composition had errors but produced output — opening partial result.`);
+        openFile(htmlPath);
+      } else {
+        console.error(`  ${accent("✗")} Composition failed with no output.`);
+        process.exit(1);
+      }
+    } else if (fs.existsSync(htmlPath)) {
       openFile(htmlPath);
     }
 

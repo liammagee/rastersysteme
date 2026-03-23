@@ -14,10 +14,10 @@ const path = require("path");
 const chalk = require("chalk");
 const { parseMarkdown, THEMES, detectLayout, adaptThemeForBg } = require("./raster.js");
 
-const dim = chalk.gray;
-const accent = chalk.hex("#C44230");
-const teal = chalk.hex("#2C7A92");
-const sage = chalk.hex("#548C5A");
+const dim = chalk.dim;
+const accent = chalk.red;
+const teal = chalk.cyan;
+const sage = chalk.green;
 
 // ═══════════════════════════════════════════════════════
 // REVEAL.JS CDN

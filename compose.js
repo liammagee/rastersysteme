@@ -18,11 +18,11 @@ const path = require("path");
 const chalk = require("chalk");
 const { generate, generateHTML, parseMarkdown } = require("./raster.js");
 
-const dim = chalk.gray;
-const accent = chalk.hex("#C44230");
-const teal = chalk.hex("#2C7A92");
-const sage = chalk.hex("#548C5A");
-const amber = chalk.hex("#C79B38");
+const dim = chalk.dim;
+const accent = chalk.red;
+const teal = chalk.cyan;
+const sage = chalk.green;
+const amber = chalk.yellow;
 
 // ═══════════════════════════════════════════════════════
 // DESIGN VOCABULARY — the prompt that teaches Claude
@@ -638,7 +638,7 @@ function sanitizeClaudeOutput(raw) {
 
 async function callClaudeWithRetry(prompt, options = {}) {
   const maxRetries = options.maxRetries || 3;
-  const baseDelay = options.baseDelay || 15; // seconds
+  const baseDelay = options.baseDelay || 10; // seconds
   const label = options.label || "claude";
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -652,19 +652,27 @@ async function callClaudeWithRetry(prompt, options = {}) {
 
       return raw;
     } catch (err) {
-      const isStall = err.message.includes("stall");
-      const isTimeout = err.message.includes("timed out") || err.message.includes("TIMEOUT");
-      const isRateLimit = err.message.includes("RATE_LIMIT") || err.message.includes("rate") || err.message.includes("429");
-      const isEmpty = err.message.includes("empty");
-      const isRetryable = isStall || isTimeout || isRateLimit || isEmpty;
+      const msg = err.message || "";
+      const isStall = msg.includes("stall");
+      const isTimeout = msg.includes("timed out") || msg.includes("TIMEOUT");
+      const isRateLimit = msg.includes("RATE_LIMIT") || msg.includes("rate") || msg.includes("429") || msg.includes("overloaded");
+      const isEmpty = msg.includes("empty");
+      const isExitCode = msg.includes("exit code") || msg.includes("non-zero");
+      const isConnection = msg.includes("ECONNR") || msg.includes("EPIPE") || msg.includes("socket") || msg.includes("network");
+      const isRetryable = isStall || isTimeout || isRateLimit || isEmpty || isExitCode || isConnection;
 
       if (!isRetryable || attempt === maxRetries) {
         throw err;
       }
 
-      // Exponential backoff: 15s, 30s, 60s (with jitter)
+      // Exponential backoff: 10s, 20s, 40s (with jitter)
       const delay = baseDelay * Math.pow(2, attempt - 1) + Math.random() * 5;
-      const reason = isRateLimit ? "rate limited" : isStall ? "stalled" : isTimeout ? "timed out" : "empty response";
+      const reason = isRateLimit ? "rate limited"
+        : isStall ? "stalled"
+        : isTimeout ? "timed out"
+        : isExitCode ? "process error"
+        : isConnection ? "connection error"
+        : "empty response";
 
       process.stderr.write(
         `  ${dim("[")}${accent(label)}${dim("]")} ${amber("↻")} ${reason}, retry ${attempt}/${maxRetries} in ${Math.round(delay)}s\n`
@@ -1201,10 +1209,12 @@ JSON objects, one per line:`;
     }
 
     try {
-      const raw = await callClaudeAsync(batchPrompt, {
+      const raw = await callClaudeWithRetry(batchPrompt, {
         model,
         label: perSlide ? `slide-${batchNum}` : `batch-${batchNum}`,
         resume: sessionId,
+        maxRetries: 3,
+        baseDelay: 10,
       });
       let cleaned = raw.trim();
       // Extract session_id for subsequent calls
@@ -1292,25 +1302,7 @@ JSON objects, one per line:`;
       // Brief pause between sequential calls to avoid rate limiting
       if (parallel <= 1 && i + batchSize < total) await new Promise(r => setTimeout(r, 1000));
     } catch (err) {
-      // Retry once on stall/timeout
-      if (err.message.includes("stalled") || (err.message.includes("timed out") && err.message.includes("0 chars"))) {
-        process.stderr.write(` ${amber("↻")} retrying...\n`);
-        try {
-          const raw = await callClaudeAsync(batchPrompt, { model, label: `${perSlide ? "slide" : "batch"}-${batchNum}-retry` });
-          let cleaned = raw.trim();
-          if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:markdown)?\s*\n/, "").replace(/\n```\s*$/, "");
-          fs.writeFileSync(batchPath, cleaned);
-          slideDesigns.push(cleaned);
-          const batchSlideCount = (cleaned.match(/<!-- design:/g) || []).length + (cleaned.match(/<!-- layout:/g) || []).length;
-          completed += batchSlideCount;
-          process.stderr.write(`  ${sage("✓")} Batch ${batchNum} retry: ${batchSlideCount} slides\n`);
-          continue;
-        } catch (retryErr) {
-          process.stderr.write(`  ${accent("✗")} Retry failed: ${retryErr.message.split("\n")[0].slice(0, 60)}\n`);
-        }
-      } else {
-        process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
-      }
+      process.stderr.write(` ${accent("✗")} ${err.message.split("\n")[0].slice(0, 60)}\n`);
       failed++;
       // Insert fallback — plain source slides with minimal design
       const fallback = batchSlides.map((s) => {

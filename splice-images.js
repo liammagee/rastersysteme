@@ -15,11 +15,11 @@ const path = require("path");
 const chalk = require("chalk");
 const { callClaude } = require("./compose.js");
 
-const dim = chalk.gray;
-const accent = chalk.hex("#C44230");
-const teal = chalk.hex("#2C7A92");
-const sage = chalk.hex("#548C5A");
-const amber = chalk.hex("#C79B38");
+const dim = chalk.dim;
+const accent = chalk.red;
+const teal = chalk.cyan;
+const sage = chalk.green;
+const amber = chalk.yellow;
 
 // ═══════════════════════════════════════════════════════
 // PLACEMENT STRATEGIES — CSS for each mode
@@ -29,30 +29,34 @@ function placementCSS(mode, imgPath, opts = {}) {
   const size = opts.size || 40;
   const opacity = opts.opacity || 1;
 
+  // Semi-transparent backdrop for text legibility over images
+  const backdrop = `background:rgba(255,255,255,0.85);padding:3vmin 4vmin;border-radius:4px;max-width:55%`;
+
+  const contentArea = 100 - size;
   switch (mode) {
     case "right":
       return {
         wrapper: ``,
-        before: ``,
-        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;top:0;left:0;width:${contentArea}%;height:100%;z-index:2;overflow:hidden">`,
+        after: `</div><div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:1"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "left":
       return {
         wrapper: ``,
-        before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;top:0;right:0;width:${contentArea}%;height:100%;z-index:2;overflow:hidden">`,
+        after: `</div><div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:1"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "top":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.12"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "bottom":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.15"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.12"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-tr":
       return {
@@ -68,14 +72,14 @@ function placementCSS(mode, imgPath, opts = {}) {
       };
     case "background":
       return {
-        wrapper: `background-image:url('${imgPath}');background-size:cover;background-position:center;`,
-        before: `<div style="position:absolute;inset:0;background:inherit;opacity:${1 - (opts.bgOpacity || 0.2)};z-index:0"></div><div style="position:relative;z-index:1;display:flex;flex-direction:column;gap:2vmin;width:100%;height:100%;padding:5vmin">`,
+        wrapper: ``,
+        before: `<div style="position:absolute;inset:0;z-index:0;opacity:0.18;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div><div style="position:absolute;top:5vmin;left:5vmin;z-index:2;${backdrop}">`,
         after: `</div>`,
       };
     case "overlay":
       return {
-        wrapper: `background-image:url('${imgPath}');background-size:cover;background-position:center;`,
-        before: `<div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,rgba(0,0,0,0.2) 60%,transparent 100%);z-index:0"></div><div style="position:relative;z-index:1;display:flex;flex-direction:column;justify-content:flex-end;gap:2vmin;width:100%;height:100%;padding:5vmin;color:#fff">`,
+        wrapper: ``,
+        before: `<div style="position:absolute;inset:0;z-index:0;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.15) 50%,transparent 100%);z-index:1"></div><div style="position:absolute;bottom:5vmin;left:5vmin;z-index:2;max-width:60%;color:#fff">`,
         after: `</div>`,
       };
     case "none":
@@ -194,12 +198,12 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
     plan = getPlacementPlan(html, imageCount, options);
   }
   if (!plan) {
-    // Default: uniform right sidebar at specified size
-    const size = options.defaultSize || 33;
-    plan = Array.from({ length: 100 }, (_, i) => ({
-      slide: i + 1, mode: "right", size,
-    }));
-    process.stderr.write(`  ${dim("Placement:")} right sidebar ${size}%\n`);
+    // Default: varied placement using algorithmic rotation
+    const totalSlides = (html.match(/<section[^>]*class="[^"]*slide[^"]*"/g) || []).length;
+    plan = algorithmicPlan(Math.max(totalSlides, imageCount));
+    const modes = {};
+    plan.forEach(p => modes[p.mode] = (modes[p.mode] || 0) + 1);
+    process.stderr.write(`  ${dim("Placement:")} algorithmic (${Object.entries(modes).map(([m,c]) => `${m}:${c}`).join(", ")})\n`);
   }
 
   // Find all <section> slides and splice images into them

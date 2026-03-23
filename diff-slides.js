@@ -14,11 +14,11 @@ const path = require("path");
 const chalk = require("chalk");
 const { parseMarkdown, THEMES, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS } = require("./raster.js");
 
-const dim = chalk.gray;
-const accent = chalk.hex("#C44230");
-const teal = chalk.hex("#2C7A92");
-const sage = chalk.hex("#548C5A");
-const amber = chalk.hex("#C79B38");
+const dim = chalk.dim;
+const accent = chalk.red;
+const teal = chalk.cyan;
+const sage = chalk.green;
+const amber = chalk.yellow;
 
 // ═══════════════════════════════════════════════════════
 // SLIDE DIFFER
