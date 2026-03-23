@@ -11,6 +11,13 @@ overflow, broken images. Reports findings with screenshots of problem slides.
 
 Usage: `/qa-visual decks/week-1.html`
 
+### /qa-fix-loop
+Autonomous a11y fix cycle: audit → analyze → fix code → re-render → verify.
+Uses Chrome for auditing AND repo access for fixing. Continues until all
+issues are resolved or the user stops it.
+
+Usage: `/qa-fix-loop decks/week-1.html`
+
 ## Key files
 
 - `raster.js` — core renderer (PPTX + HTML), themes, layouts, grid system

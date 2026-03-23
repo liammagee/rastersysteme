@@ -398,6 +398,17 @@ async function interactive(preselectedInput) {
       imageStyle = styleNames[parseInt(styleChoice.key, 10) - 1];
     }
 
+    // Image scale (opacity/presence)
+    let imageScaleName = "subtle";
+    if (imgChoice.key !== "n") {
+      const scaleChoice = await select("IMAGE SCALE", [
+        { key: "1", label: "subtle         faint watermark texture" },
+        { key: "2", label: "visible        clear but not dominant" },
+        { key: "3", label: "bold           prominent, high contrast" },
+      ], { autoSelect: true });
+      imageScaleName = ["subtle", "visible", "bold"][parseInt(scaleChoice.key, 10) - 1];
+    }
+
     const outputName = await askText("Output name", inputBase);
 
     const outputDir = path.dirname(path.resolve(input));
@@ -412,10 +423,12 @@ async function interactive(preselectedInput) {
     if (designSystemName) composeArgs.push("--design-system", designSystemName);
     if (imgChoice.key === "e" && imagesDir) {
       composeArgs.push("--images-dir", imagesDir);
+      composeArgs.push("--image-scale", imageScaleName);
     } else if (imgChoice.key !== "n") {
       composeArgs.push("--with-images");
       if (imageStyle) composeArgs.push("--image-style", imageStyle);
       if (imgChoice.key === "s") composeArgs.push("--image-slides", "1,5,10,15,20");
+      composeArgs.push("--image-scale", imageScaleName);
     }
     const ok = run("compose.js", composeArgs);
 

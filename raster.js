@@ -238,6 +238,16 @@ function parseMarkdownTable(lines) {
 }
 
 function parseMarkdown(md) {
+  // Strip multi-line HTML comments BEFORE splitting on --- separators.
+  // This prevents <!-- ... --> blocks that span multiple slides from
+  // leaking their delimiters into rendered slides.
+  // Preserve directive comments (<!-- layout: -->, <!-- design: {...} -->, etc.)
+  md = md.replace(/<!--[\s\S]*?-->/g, (match) => {
+    if (!match.includes("\n")) return match; // single-line — always keep
+    if (/<!--\s*(layout|bg|font|transition|style|design|master|image):/.test(match)) return match; // directive — keep
+    return ""; // generic multi-line comment — strip
+  });
+
   const raw = md.split(/\n---\n/);
   return raw.map((slideText, idx) => {
     const slide = {
@@ -1752,7 +1762,7 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
 
 /* === Designed slides (parameterised grid) === */
 .slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
-.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;z-index:2}
 .slide.designed .accent-el{position:absolute;pointer-events:none}
 
 /* Typography — uses CSS custom properties for per-slide overrides */

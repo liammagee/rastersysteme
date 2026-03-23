@@ -25,62 +25,65 @@ const amber = chalk.yellow;
 // PLACEMENT STRATEGIES — CSS for each mode
 // ═══════════════════════════════════════════════════════
 
+// Image presence levels: subtle (watermark), visible (clear but not dominant), bold (prominent)
+const IMAGE_SCALES = {
+  subtle:  { panel: 0.13, strip: 0.10, inset: 0.20, bg: 0.10, overlay: 0.15, insetCap: 18 },
+  visible: { panel: 0.35, strip: 0.25, inset: 0.55, bg: 0.20, overlay: 0.35, insetCap: 22 },
+  bold:    { panel: 0.70, strip: 0.50, inset: 0.85, bg: 0.35, overlay: 0.60, insetCap: 28 },
+};
+
 function placementCSS(mode, imgPath, opts = {}) {
   const size = opts.size || 40;
-  const opacity = opts.opacity || 1;
+  const scale = IMAGE_SCALES[opts.imageScale] || IMAGE_SCALES.subtle;
 
-  // Semi-transparent backdrop for text legibility over images
-  const backdrop = `background:rgba(255,255,255,0.85);padding:3vmin 4vmin;border-radius:4px;max-width:55%`;
-
-  const contentArea = 100 - size;
   switch (mode) {
     case "right":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;top:0;left:0;width:${contentArea}%;height:100%;z-index:2;overflow:hidden">`,
-        after: `</div><div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:1"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: ``,
+        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "left":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;top:0;right:0;width:${contentArea}%;height:100%;z-index:2;overflow:hidden">`,
-        after: `</div><div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:1"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: ``,
+        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "top":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.12"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "bottom":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:1;opacity:0.12"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-tr":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, 22)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.2);z-index:10;opacity:0.9"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-bl":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, 22)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;box-shadow:0 2px 12px rgba(0,0,0,0.2);z-index:10;opacity:0.9"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "background":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;opacity:0.18;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div><div style="position:absolute;top:5vmin;left:5vmin;z-index:2;${backdrop}">`,
-        after: `</div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${scale.bg};overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: ``,
       };
     case "overlay":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div><div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.75) 0%,rgba(0,0,0,0.15) 50%,transparent 100%);z-index:1"></div><div style="position:absolute;bottom:5vmin;left:5vmin;z-index:2;max-width:60%;color:#fff">`,
-        after: `</div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;overflow:hidden;opacity:${scale.overlay}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: ``,
       };
     case "none":
     default:
@@ -169,6 +172,96 @@ function algorithmicPlan(slideCount) {
   }));
 }
 
+// Content-aware placement: read zone positions from HTML, place image in empty space
+function contentAwarePlan(html) {
+  const slides = html.match(/<section[^>]*class="[^"]*slide[^"]*"[^>]*>[\s\S]*?<\/section>/g) || [];
+  let lastMode = "";
+
+  return slides.map((slideHtml, idx) => {
+    // Extract zone bounding boxes (left%, top%, width%, height%)
+    const zones = [];
+    const zoneMatches = slideHtml.matchAll(/class="zone[^"]*"[^>]*style="([^"]+)"/g);
+    for (const m of zoneMatches) {
+      const s = m[1];
+      const left = parseFloat((s.match(/left:\s*([\d.]+)%/) || [])[1]) || 0;
+      const top = parseFloat((s.match(/top:\s*([\d.]+)%/) || [])[1]) || 0;
+      const width = parseFloat((s.match(/width:\s*([\d.]+)%/) || [])[1]) || 0;
+      const height = parseFloat((s.match(/height:\s*([\d.]+)%/) || [])[1]) || 0;
+      if (width > 0 && height > 0) zones.push({ left, top, right: left + width, bottom: top + height });
+    }
+
+    // Also check for non-designed layouts (flex-based) — estimate from layout class
+    const isDesigned = slideHtml.includes("designed");
+    const isBlank = /layout-blank/.test(slideHtml) || zones.length === 0 && !isDesigned;
+    if (isBlank) return { slide: idx + 1, mode: "none" };
+
+    // For non-designed slides, estimate text position from layout type
+    if (!isDesigned || zones.length === 0) {
+      const isTitle = /layout-title/.test(slideHtml);
+      const isSplit = /layout-split/.test(slideHtml);
+      // Non-designed layouts use flexbox, text fills most of the slide
+      // Use background at low opacity or inset in a corner
+      const fallbacks = ["inset-tr", "inset-bl", "background"];
+      const mode = fallbacks[idx % fallbacks.length];
+      return { slide: idx + 1, mode, size: 30 };
+    }
+
+    // Grid analysis: divide slide into 6 columns × 4 rows, mark cells with text
+    const COLS = 6, ROWS = 4;
+    const cellW = 100 / COLS, cellH = 100 / ROWS;
+    const occupied = Array.from({ length: ROWS }, () => Array(COLS).fill(false));
+
+    for (const z of zones) {
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (z.left < (c + 1) * cellW && z.right > c * cellW &&
+              z.top < (r + 1) * cellH && z.bottom > r * cellH) {
+            occupied[r][c] = true;
+          }
+        }
+      }
+    }
+
+    // For right/left panels (~35% width = rightmost/leftmost 2 columns of 6)
+    const rightEdge = occupied.map(row => row.slice(-2)).flat().filter(Boolean).length; // 8 max
+    const leftEdge = occupied.map(row => row.slice(0, 2)).flat().filter(Boolean).length;
+    // For top/bottom strips (~35% height = top/bottom 1 row of 4)
+    const topRow = occupied[0].filter(Boolean).length; // 6 max
+    const bottomRow = occupied[ROWS - 1].filter(Boolean).length;
+    // For insets (single corner cell)
+    const trCorner = [occupied[0][COLS-1], occupied[0][COLS-2]].filter(Boolean).length; // 2 max
+    const blCorner = [occupied[ROWS-1][0], occupied[ROWS-1][1]].filter(Boolean).length;
+
+    const candidates = [
+      { mode: "right",    overlap: rightEdge, max: ROWS * 2, size: 35 },
+      { mode: "left",     overlap: leftEdge,  max: ROWS * 2, size: 35 },
+      { mode: "bottom",   overlap: bottomRow, max: COLS,     size: 30 },
+      { mode: "top",      overlap: topRow,    max: COLS,     size: 30 },
+      { mode: "inset-tr", overlap: trCorner,  max: 2,        size: 22 },
+      { mode: "inset-bl", overlap: blCorner,  max: 2,        size: 22 },
+    ];
+
+    // Sort by overlap ratio (least text in image region)
+    candidates.sort((a, b) => (a.overlap / a.max) - (b.overlap / b.max));
+
+    // Pick the best, varying from last
+    let pick = candidates[0];
+    if (pick.mode === lastMode && candidates.length > 1 &&
+        (candidates[1].overlap / candidates[1].max) <= (pick.overlap / pick.max) + 0.15) {
+      pick = candidates[1];
+    }
+
+    // Only fall back to background if ALL options have >75% overlap
+    if (pick.overlap / pick.max > 0.75) {
+      lastMode = "background";
+      return { slide: idx + 1, mode: "background", size: 100 };
+    }
+
+    lastMode = pick.mode;
+    return { slide: idx + 1, mode: pick.mode, size: pick.size };
+  });
+}
+
 // ═══════════════════════════════════════════════════════
 // SPLICER — modifies existing HTML in place
 // ═══════════════════════════════════════════════════════
@@ -198,12 +291,11 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
     plan = getPlacementPlan(html, imageCount, options);
   }
   if (!plan) {
-    // Default: varied placement using algorithmic rotation
-    const totalSlides = (html.match(/<section[^>]*class="[^"]*slide[^"]*"/g) || []).length;
-    plan = algorithmicPlan(Math.max(totalSlides, imageCount));
+    // Default: content-aware placement — reads zone positions, puts images in empty space
+    plan = contentAwarePlan(html);
     const modes = {};
-    plan.forEach(p => modes[p.mode] = (modes[p.mode] || 0) + 1);
-    process.stderr.write(`  ${dim("Placement:")} algorithmic (${Object.entries(modes).map(([m,c]) => `${m}:${c}`).join(", ")})\n`);
+    plan.filter(p => p.mode !== "none").forEach(p => modes[p.mode] = (modes[p.mode] || 0) + 1);
+    process.stderr.write(`  ${dim("Placement:")} content-aware (${Object.entries(modes).map(([m,c]) => `${m}:${c}`).join(", ")})\n`);
   }
 
   // Find all <section> slides and splice images into them
@@ -220,8 +312,7 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
 
       const css = placementCSS(placement.mode, imgPath, {
         size: placement.size || 40,
-        opacity: placement.opacity || 1,
-        bgOpacity: 0.2,
+        imageScale: options.imageScale || "subtle",
       });
 
       if (!css.wrapper && !css.before && !css.after) return match;
@@ -267,9 +358,10 @@ if (require.main === module) {
 
   Options:
     --output <path>    Output path (default: .spliced.html)
-    --varied           Use Claude to vary placement per slide (default: uniform right)
+    --varied           Use Claude to vary placement per slide (default: algorithmic)
     --model <model>    Claude model for varied placement (default: sonnet)
     --size <pct>       Image panel width percentage (default: 33)
+    --image-scale <s>  Image presence: subtle, visible, bold (default: subtle)
     --help             Show this help
 
   Examples:
@@ -293,6 +385,7 @@ if (require.main === module) {
     model: getFlag("--model") || "sonnet",
     smart: args.includes("--varied"),
     defaultSize: parseInt(getFlag("--size") || "33"),
+    imageScale: getFlag("--image-scale") || "subtle",
   };
 
   const outputPath = getFlag("--output") || htmlPath.replace(/\.html$/, ".spliced.html");

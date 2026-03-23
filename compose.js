@@ -268,8 +268,16 @@ IMPORTANT: Use ONLY colours from this palette for bg overrides. Use ONLY the spe
     process.stderr.write(`  ${dim("Design system:")} ${teal(ds.aesthetic || "loaded")}\n`);
   }
 
+  // Strip multi-line HTML comments before processing (prevents leaked <!-- --> in output)
+  // Preserve directive comments (layout, design, bg, font, etc.)
+  const cleanedMarkdown = markdown.replace(/<!--[\s\S]*?-->/g, (match) => {
+    if (!match.includes("\n")) return match;
+    if (/<!--\s*(layout|bg|font|transition|style|design|master|image):/.test(match)) return match;
+    return "";
+  });
+
   // Pre-split source into numbered slides, optionally filtered by --slides range
-  let sourceSlides = markdown.split(/\n---\n/).filter(s => s.trim());
+  let sourceSlides = cleanedMarkdown.split(/\n---\n/).filter(s => s.trim());
   const slideRange = options.slides;
   if (slideRange) {
     const match = String(slideRange).match(/^(\d+)(?:-(\d+))?$/);
@@ -1116,8 +1124,16 @@ Output ONLY valid JSON (no code fences, no commentary):
     const imgExample = withImg ? ', "image":"right", "imageSize":40' : '';
     const imgRules = withImg ? `
 Also specify image placement per slide:
-  "image": "right|left|top|bottom|inset-tr|inset-bl|background|overlay|none"
-  "imageSize": 30-50 (% for sidebar/inset). Use "none" for blank slides. Vary placements.` : "";
+  "image": "right|left|inset-tr|inset-bl|background|none"
+  "imageSize": 25-40 (% of slide width for sidebar modes). Use "none" for text-dense slides. Vary placements.
+
+CRITICAL IMAGE-AWARE LAYOUT RULE:
+  When "image":"right", ALL zones must fit in columns 0-${Math.floor(60 * 0.6)} (left 60%). No zone may extend into the image area.
+  When "image":"left", ALL zones must fit in columns ${Math.floor(60 * 0.4)}-59 (right 60%).
+  When "image":"background" or "image":"none", zones may use full width.
+  When "image":"inset-tr", keep zones away from top-right corner (col < 45, or row > 10).
+  When "image":"inset-bl", keep zones away from bottom-left corner (col > 15, or row < 30).
+  ALWAYS design zones to AVOID the image area. Text over images is unreadable.` : "";
 
     // Build context summary from previous batches for coherence
     let batchContext = "";
@@ -1263,6 +1279,46 @@ JSON objects, one per line:`;
         }
       });
 
+      // Enforce zone-image separation: shift zones that overlap the image area
+      if (withImg) {
+        directives.forEach(d => {
+          if (!d.zones || !d.image || d.image === "none" || d.image === "background") return;
+          const imgSize = d.imageSize || 35;
+          const imgCols = Math.ceil(60 * imgSize / 100);
+
+          d.zones.forEach(z => {
+            if (typeof z.col !== "number" || typeof z.span !== "number") return;
+            const zEnd = z.col + z.span;
+
+            if (d.image === "right") {
+              const boundary = 60 - imgCols;
+              if (zEnd > boundary) {
+                const oldSpan = z.span;
+                z.span = Math.max(10, boundary - z.col);
+                if (z.span < 10) { z.col = Math.max(0, boundary - 20); z.span = 20; }
+                process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" span ${oldSpan}→${z.span} (avoiding right image)\n`);
+              }
+            } else if (d.image === "left") {
+              if (z.col < imgCols) {
+                const oldCol = z.col;
+                z.col = imgCols + 1;
+                if (z.col + z.span > 60) z.span = 59 - z.col;
+                process.stderr.write(`  ${amber("⚠")} Slide ${d.slide}: zone "${z.role}" col ${oldCol}→${z.col} (avoiding left image)\n`);
+              }
+            } else if (d.image === "inset-tr") {
+              if (z.col + z.span > 44 && (z.row || 0) < 12) {
+                z.span = Math.max(10, 44 - z.col);
+              }
+            } else if (d.image === "inset-bl") {
+              if (z.col < 16 && (z.row || 0) + (z.rowSpan || 10) > 28) {
+                z.col = 16;
+                if (z.col + z.span > 60) z.span = 59 - z.col;
+              }
+            }
+          });
+        });
+      }
+
       // Merge directives with original source slides
       const mergedSlides = batchSlides.map((src, j) => {
         const d = directives[j] || {};
@@ -1403,6 +1459,7 @@ JSON objects, one per line:`;
         const splicedHTML = spliceImages(outputPath, imagesDir, {
           model: options.model,
           plan: hasPlacement ? imageDirectives : undefined,
+          imageScale: options.imageScale || "subtle",
         });
         if (splicedHTML) {
           fs.writeFileSync(outputPath, splicedHTML);
@@ -1488,6 +1545,7 @@ if (require.main === module) {
     imagesDir: getFlag("--images-dir"),
     imageStyle: getFlag("--image-style"),
     imageSlides: getFlag("--image-slides"),
+    imageScale: getFlag("--image-scale") || "subtle",
   };
 
   if (!fs.existsSync(input)) {

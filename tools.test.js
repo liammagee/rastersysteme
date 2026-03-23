@@ -220,17 +220,20 @@ describe("splice-images.js", () => {
     assert.ok(all.includes("img.png"), "Should reference the image");
   });
 
-  it("placementCSS background mode includes image and text backdrop", () => {
+  it("placementCSS background mode includes image at low opacity", () => {
     const css = placementCSS("background", "img.png", {});
     const all = (css.wrapper || "") + (css.before || "") + (css.after || "");
     assert.ok(all.includes("img.png"), "Should reference the image");
     assert.ok(all.includes("opacity"), "Should control image opacity");
-    assert.ok(all.includes("background:rgba"), "Should have text backdrop");
+    assert.ok(!css.after || !css.after.includes("</div>") || !css.before.includes("</div>"),
+      "Should not wrap content (breaks absolute-positioned zones)");
   });
 
-  it("placementCSS overlay mode adds gradient", () => {
+  it("placementCSS overlay mode includes image at low opacity", () => {
     const css = placementCSS("overlay", "img.png", {});
-    assert.ok(css.before.includes("gradient"));
+    const all = (css.wrapper || "") + (css.before || "") + (css.after || "");
+    assert.ok(all.includes("img.png"), "Should reference the image");
+    assert.ok(all.includes("opacity"), "Should control image opacity");
   });
 
   it("placementCSS none mode returns empty strings", () => {
