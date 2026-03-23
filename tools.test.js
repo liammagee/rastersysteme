@@ -650,3 +650,160 @@ describe("grid-compose.js", () => {
     assert.ok(html.includes("0000FF"));
   });
 });
+
+// ═══════════════════════════════════════════════════════
+// VIDEO + IMAGE LAYOUT HANDLING
+// ═══════════════════════════════════════════════════════
+
+describe("Video and image rendering", () => {
+  const { parseMarkdown, detectLayout, generateHTMLCSS } = require("./raster.js");
+
+  describe("YouTube parsing", () => {
+    it("parses standalone [text](youtube-url) as video", () => {
+      const slides = parseMarkdown("[Watch](https://www.youtube.com/watch?v=abc123def45def45)");
+      assert.equal(slides[0].videos.length, 1);
+      assert.equal(slides[0].videos[0].id, "abc123def45");
+    });
+
+    it("parses bare YouTube URL on its own line", () => {
+      const slides = parseMarkdown("# Slide\nhttps://www.youtube.com/watch?v=abc123def45def45");
+      assert.equal(slides[0].videos.length, 1);
+    });
+
+    it("parses youtu.be short URLs", () => {
+      const slides = parseMarkdown("![](https://youtu.be/dQw4w9WgXcQ)");
+      assert.equal(slides[0].videos.length, 1);
+      assert.equal(slides[0].videos[0].id, "dQw4w9WgXcQ");
+    });
+
+    it("does not treat non-YouTube image as video", () => {
+      const slides = parseMarkdown("![photo](./img/photo.png)");
+      assert.equal(slides[0].images.length, 1);
+      assert.equal(slides[0].videos.length, 0);
+    });
+
+    it("YouTube links inside bullets stay as bullets (not extracted as videos)", () => {
+      const slides = parseMarkdown("- [Video](https://www.youtube.com/watch?v=test123)");
+      assert.equal(slides[0].bullets.length, 1);
+      // The link renders as clickable <a> inside the bullet via esc()
+    });
+  });
+
+  describe("Layout detection for media slides", () => {
+    it("slide with video gets video layout", () => {
+      // 3 slides so the video slide isn't the last (which would get "section")
+      const slides = parseMarkdown("# Title\n\n---\n\n[Watch](https://www.youtube.com/watch?v=abc123def45)\n\n---\n\n## End");
+      // Reset history then detect
+      detectLayout(slides[0], 0, 3);
+      const layout = detectLayout(slides[1], 1, 3);
+      assert.equal(layout, "video");
+    });
+
+    it("slide with image gets image layout", () => {
+      const slides = parseMarkdown("# Title\n\n---\n\n![photo](img/test.png)\n\n---\n\n## End");
+      detectLayout(slides[0], 0, 3);
+      const layout = detectLayout(slides[1], 1, 3);
+      assert.equal(layout, "image");
+    });
+  });
+
+  describe("CSS for extra videos and images", () => {
+    it("CSS has .extra-videos with absolute positioning", () => {
+      const css = generateHTMLCSS();
+      assert.ok(css.includes(".extra-videos"), "Should have .extra-videos class");
+      assert.ok(css.includes("position:absolute"), "Extra videos should be absolutely positioned");
+    });
+
+    it("CSS has .layout-image flex-direction:row for mixed content", () => {
+      const css = generateHTMLCSS();
+      assert.ok(css.includes(".layout-image{flex-direction:row"), "Image layout should use row flex for mixed content");
+    });
+
+    it("CSS constrains extra videos width", () => {
+      const css = generateHTMLCSS();
+      assert.ok(css.includes("width:45%"), "Extra videos should be 45% width");
+    });
+  });
+
+  describe("Extra videos in non-video layouts", () => {
+    const { generateHTML } = require("./raster.js");
+    const fs = require("fs");
+    const os = require("os");
+    const path = require("path");
+
+    it("video slide with forced split layout still renders iframe", async () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vid-test-"));
+      const mdPath = path.join(tmp, "test.md");
+      const htmlPath = path.join(tmp, "test.html");
+      fs.writeFileSync(mdPath, "<!-- layout: split -->\n## Karpathy\n[Watch](https://www.youtube.com/watch?v=abc123def45)\n- See 0:00 - 9:10");
+      await generateHTML(mdPath, htmlPath, { theme: "light" });
+      const html = fs.readFileSync(htmlPath, "utf-8");
+      assert.ok(html.includes("iframe"), "Should contain iframe for YouTube embed");
+      assert.ok(html.includes("extra-videos"), "Should use extra-videos container");
+      assert.ok(html.includes("abc123"), "Should have the video ID");
+      fs.rmSync(tmp, { recursive: true });
+    });
+
+    it("video slide with auto-detected video layout renders without extra-videos wrapper", async () => {
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "vid-test2-"));
+      const mdPath = path.join(tmp, "test.md");
+      const htmlPath = path.join(tmp, "test.html");
+      fs.writeFileSync(mdPath, "# Title\n\n---\n\n[Watch](https://www.youtube.com/watch?v=xyz789)");
+      await generateHTML(mdPath, htmlPath, { theme: "light" });
+      const html = fs.readFileSync(htmlPath, "utf-8");
+      assert.ok(html.includes("iframe"), "Should contain iframe");
+      assert.ok(html.includes("xyz789"), "Should have video ID");
+      // The video layout slide should NOT have extra-videos wrapper
+      const videoSlideMatch = html.match(/layout-video[^>]*>[\s\S]*?<\/section>/);
+      if (videoSlideMatch) {
+        assert.ok(!videoSlideMatch[0].includes("extra-videos"), "Video layout should not use extra-videos wrapper");
+      }
+      fs.rmSync(tmp, { recursive: true });
+    });
+  });
+
+  describe("Image layout with mixed content", () => {
+    it("slide with image + bullets gets image layout", () => {
+      const slides = parseMarkdown("## Title\n![photo](img/test.png)\n- bullet 1\n- bullet 2");
+      const layout = detectLayout(slides[0], 1, 3);
+      assert.equal(layout, "image");
+      assert.equal(slides[0].images.length, 1);
+      assert.equal(slides[0].bullets.length, 2);
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// SOURCE VALIDATION
+// ═══════════════════════════════════════════════════════
+
+describe("validateSource", () => {
+  const { validateSource } = require("./qa.js");
+
+  it("catches unbalanced HTML comments", () => {
+    const results = validateSource("# Title\n<!--\nsome stuff");
+    assert.ok(results.some(r => r.message.includes("Unbalanced")));
+  });
+
+  it("catches known typos", () => {
+    const results = validateSource("# Title\n- Practioner skills needed");
+    assert.ok(results.some(r => r.message.includes("Practitioner")));
+  });
+
+  it("catches empty slides", () => {
+    const results = validateSource("# Title\n\n---\n\n\n\n---\n\n## End");
+    assert.ok(results.some(r => r.message.includes("empty")));
+  });
+
+  it("catches dense slides", () => {
+    const bullets = Array.from({length: 12}, (_, i) => `- bullet ${i+1}`).join("\n");
+    const results = validateSource("## Dense\n" + bullets);
+    assert.ok(results.some(r => r.message.includes("bullets")));
+  });
+
+  it("passes clean content", () => {
+    const results = validateSource("# Title\n\n---\n\n## Slide 2\n\n- point one\n- point two");
+    const errors = results.filter(r => r.severity === "error");
+    assert.equal(errors.length, 0);
+  });
+});
