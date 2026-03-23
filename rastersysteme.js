@@ -413,6 +413,14 @@ async function interactive(preselectedInput) {
     ], { autoSelect: true });
     const transitionName = { f: "fade", l: "slide-left", u: "slide-up", z: "zoom", c: "cut" }[transChoice.key] || "fade";
 
+    // Batch size
+    const batchChoice = await select("BATCH SIZE", [
+      { key: "1", label: "1 slide         most variety, slower" },
+      { key: "5", label: "5 slides        balanced" },
+      { key: "a", label: "all at once     fastest, less variety" },
+    ], { autoSelect: true });
+    const batchSize = batchChoice.key === "a" ? "999" : batchChoice.key;
+
     const brief = await getBrief(input);
 
     // Image generation option
@@ -466,7 +474,7 @@ async function interactive(preselectedInput) {
     composedPath = path.join(outputDir, `${outputName}.composed.md`);
 
     console.log(`\n  ${rule}`);
-    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--transition", transitionName];
+    const composeArgs = [input, htmlPath, "--theme", themeName, "--intensity", intensityName, "--model", modelName, "--incremental", "--batch-size", batchSize, "--transition", transitionName];
     if (brief) composeArgs.push("--brief", brief);
     if (slideRange) composeArgs.push("--slides", slideRange);
     if (designSystemName) composeArgs.push("--design-system", designSystemName);
