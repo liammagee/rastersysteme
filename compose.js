@@ -762,7 +762,12 @@ function assembleComposed(sourceMd, directives) {
 async function composeAsync(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
-  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  const cleanMd = md.replace(/<!--[\s\S]*?-->/g, (m) => {
+    if (!m.includes("\n")) return m;
+    if (/<!--\s*(layout|bg|font|transition|style|design|master|image):/.test(m)) return m;
+    return "";
+  });
+  const sourceSlides = cleanMd.split(/\n---\n/).filter(s => s.trim());
 
   process.stderr.write(`  ${dim("[")}${accent(intensity)}${dim("]")} ${sourceSlides.length} slides → Claude for directives...\n`);
 
@@ -836,7 +841,13 @@ async function composeAsync(inputPath, outputPath, options = {}) {
 async function compose(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const intensity = options.intensity || "moderate";
-  const sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  // Strip multi-line HTML comments before splitting
+  const cleanMd = md.replace(/<!--[\s\S]*?-->/g, (m) => {
+    if (!m.includes("\n")) return m;
+    if (/<!--\s*(layout|bg|font|transition|style|design|master|image):/.test(m)) return m;
+    return "";
+  });
+  const sourceSlides = cleanMd.split(/\n---\n/).filter(s => s.trim());
 
   process.stderr.write(`  ${dim("Reading")} ${teal(path.basename(inputPath))} ${dim(`(${sourceSlides.length} slides)`)}\n`);
 
@@ -932,7 +943,14 @@ async function composeIncremental(inputPath, outputPath, options = {}) {
   const workDir = outputPath.replace(/\.(pptx|html)$/, ".compose");
   if (!fs.existsSync(workDir)) fs.mkdirSync(workDir, { recursive: true });
 
-  let sourceSlides = md.split(/\n---\n/).filter(s => s.trim());
+  // Strip multi-line HTML comments before splitting (prevents commented-out slides leaking)
+  const cleanedMd = md.replace(/<!--[\s\S]*?-->/g, (match) => {
+    if (!match.includes("\n")) return match;
+    if (/<!--\s*(layout|bg|font|transition|style|design|master|image):/.test(match)) return match;
+    return "";
+  });
+
+  let sourceSlides = cleanedMd.split(/\n---\n/).filter(s => s.trim());
   const totalAll = sourceSlides.length;
 
   // Apply --slides range filter

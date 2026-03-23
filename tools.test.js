@@ -279,6 +279,35 @@ describe("splice-images.js", () => {
     // Clean up
     fs.rmSync(tmp, { recursive: true });
   });
+
+  it("spliceImages skips slides that already contain an image", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const os = require("os");
+    const { spliceImages } = require("./splice-images.js");
+
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "splice-skip-"));
+    const imgDir = path.join(tmp, "images");
+    fs.mkdirSync(imgDir);
+    fs.writeFileSync(path.join(imgDir, "slide-1.png"), "fake");
+    fs.writeFileSync(path.join(imgDir, "slide-2.png"), "fake");
+    // Slide 1 already has an <img> tag; slide 2 does not
+    const html = '<section class="slide"><img src="existing.png" alt="photo">Caption</section>\n<section class="slide">Text only</section>';
+    const htmlPath = path.join(tmp, "test.html");
+    fs.writeFileSync(htmlPath, html);
+
+    const result = spliceImages(htmlPath, imgDir, {
+      plan: [
+        { slide: 1, mode: "right", size: 30 },
+        { slide: 2, mode: "right", size: 30 },
+      ],
+    });
+
+    assert.ok(!result.includes("slide-1.png"), "Slide 1 already has an image — should be skipped");
+    assert.ok(result.includes("slide-2.png"), "Slide 2 has no image — should get one spliced in");
+
+    fs.rmSync(tmp, { recursive: true });
+  });
 });
 
 // ═══════════════════════════════════════════════════════
@@ -543,6 +572,45 @@ describe("masters.js", () => {
     const fp = path.join(MASTERS_DIR, `${testName}.json`);
     if (fs.existsSync(fp)) fs.unlinkSync(fp);
     assert.ok(true);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// MULTI-LINE COMMENT STRIPPING
+// ═══════════════════════════════════════════════════════
+
+describe("Multi-line HTML comment stripping", () => {
+  const { parseMarkdown } = require("./raster.js");
+
+  it("strips multi-line comments that span slide separators", () => {
+    const md = "# Slide 1\n\n---\n\n## Slide 2\n\n---\n\n<!--\n\n---\n\nHidden slide\n\n---\n\nAnother hidden\n\n-->\n\n---\n\n## Visible Slide 3";
+    const slides = parseMarkdown(md);
+    assert.equal(slides.length, 3, `Expected 3 slides, got ${slides.length}`);
+  });
+
+  it("preserves single-line directive comments", () => {
+    const md = "<!-- layout: stagger -->\n# Title\n\n---\n\n<!-- bg: 0F2A4A -->\n## Slide 2";
+    const slides = parseMarkdown(md);
+    assert.equal(slides.length, 2);
+    assert.equal(slides[0].layout, "stagger");
+    assert.equal(slides[1].bgOverride, "0F2A4A");
+  });
+
+  it("does not leak <!-- or --> into rendered content", () => {
+    const md = "# Before\n\n---\n\n<!--\n\n---\n\nHidden\n\n-->\n\n---\n\n# After";
+    const slides = parseMarkdown(md);
+    slides.forEach((s, i) => {
+      assert.ok(!s.raw.match(/^<!--$/m), `Slide ${i+1} leaked <!--`);
+      assert.ok(!s.raw.match(/^-->$/m), `Slide ${i+1} leaked -->`);
+    });
+  });
+
+  it("week-1.md produces 38 slides (6 commented out)", () => {
+    const fs = require("fs");
+    if (!fs.existsSync("./decks/week-1.md")) return;
+    const md = fs.readFileSync("./decks/week-1.md", "utf-8");
+    const slides = parseMarkdown(md);
+    assert.equal(slides.length, 38, `Expected 38, got ${slides.length}`);
   });
 });
 

@@ -691,7 +691,9 @@ async function interactive(preselectedInput) {
       { key: "w", label: "review (QA validation)" },
       { key: "v", label: "compare variants (3-way)" },
       { key: "r", label: "re-render (change theme)" },
+      { key: "1", label: "refresh slide (recompose one slide)" },
       { key: "i", label: "add images (generate + splice)" },
+      { key: "m", label: "merge images (from any images dir)" },
       { key: "c", label: "recompose (call Claude again)" },
       { key: "f", label: "fresh start (clear cache, recompose)" },
       { key: "d", label: "diff (compare with another version)" },
@@ -793,6 +795,90 @@ async function interactive(preselectedInput) {
         if (slideRange) freshArgs.push("--slides", slideRange);
         console.log(`\n  ${rule}`);
         run("compose.js", freshArgs);
+        break;
+      }
+
+      case "1": {
+        // Single slide refresh
+        const totalSlides = fs.readFileSync(composedPath || input, "utf-8").split(/\n---\n/).filter(s => s.trim()).length;
+        const slideNum = await askText(`Which slide to refresh? (1-${totalSlides})`, "");
+        if (slideNum && parseInt(slideNum) > 0) {
+          // Delete the cached slide file so compose regenerates it
+          const cacheDir = htmlPath.replace(/\.html$/, ".compose");
+          const cacheFile = path.join(cacheDir, `slide-${String(parseInt(slideNum)).padStart(2, "0")}.md`);
+          if (fs.existsSync(cacheFile)) {
+            fs.unlinkSync(cacheFile);
+            process.stderr.write(`  ${sage("✓")} Cleared cache for slide ${slideNum}\n`);
+          }
+          // Recompose just that slide range
+          console.log(`\n  ${rule}`);
+          const refreshArgs = [input, htmlPath, "--theme", themeName, "--intensity", "moderate", "--model", modelName, "--incremental", "--slides", slideNum];
+          run("compose.js", refreshArgs);
+        }
+        break;
+      }
+
+      case "m": {
+        // Merge images from a discovered directory
+        if (!fs.existsSync(htmlPath)) {
+          console.log(dim("  No HTML file — render first."));
+          break;
+        }
+
+        // Search for all image directories
+        const inputDir = path.dirname(path.resolve(input));
+        const parentDir = path.dirname(inputDir);
+        const allImgDirs = [];
+
+        [inputDir, parentDir].forEach(dir => {
+          try {
+            fs.readdirSync(dir, { withFileTypes: true })
+              .filter(e => e.isDirectory() && e.name.endsWith("-images"))
+              .forEach(e => {
+                const full = path.join(dir, e.name);
+                const count = fs.readdirSync(full).filter(f => /^slide-\d+\.png$/.test(f)).length;
+                if (count > 0) allImgDirs.push({ dir: full, name: e.name, count });
+              });
+          } catch {}
+        });
+
+        if (allImgDirs.length === 0) {
+          console.log(dim("  No image directories found. Generate images first with [i]."));
+          break;
+        }
+
+        const imgDirItems = allImgDirs.map((d, i) => ({
+          key: String(i + 1),
+          label: `${d.name.padEnd(25)} ${d.count} images`,
+          value: d.dir,
+        }));
+        const imgDirChoice = await select("SELECT IMAGE DIRECTORY", imgDirItems);
+
+        const mergeMode = await select("PLACEMENT", [
+          { key: "r", label: "right           image panel on the right (default)" },
+          { key: "v", label: "varied          Claude picks per-slide placement" },
+          { key: "l", label: "left            image panel on the left" },
+          { key: "b", label: "background      full-bleed behind content" },
+          { key: "o", label: "overlay         image with dark gradient overlay" },
+        ], { autoSelect: true });
+
+        const modeMap = { r: "right", v: "varied", l: "left", b: "background", o: "overlay" };
+        const spliceMode = modeMap[mergeMode.key] || "right";
+
+        console.log(`\n  ${rule}`);
+        const spliceArgs = [htmlPath, imgDirChoice.value];
+        if (spliceMode === "varied") {
+          spliceArgs.push("--varied", "--model", modelName);
+        } else {
+          spliceArgs.push("--mode", spliceMode);
+        }
+        const splicedPath = htmlPath.replace(/\.html$/, ".spliced.html");
+        spliceArgs.push("--output", splicedPath);
+        run("splice-images.js", spliceArgs);
+
+        if (fs.existsSync(splicedPath)) {
+          openFile(splicedPath);
+        }
         break;
       }
 
