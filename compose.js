@@ -1103,6 +1103,19 @@ Output ONLY valid JSON (no code fences, no commentary):
         const partial = designPlanComment + "\n\n" + slideDesigns.join("\n\n---\n\n");
         fs.writeFileSync(composedPath, partial);
         await generateHTML(composedPath, outputPath, { theme: options.theme || "light" });
+
+        // Splice images into live preview if available
+        if (options.withImages || options.imagesDir) {
+          const imgDir = options.imagesDir || path.join(workDir, "images");
+          if (fs.existsSync(imgDir) && fs.readdirSync(imgDir).some(f => /^slide-\d+\.png$/.test(f))) {
+            try {
+              const { spliceImages } = require("./splice-images.js");
+              const spliced = spliceImages(outputPath, imgDir, { smart: false });
+              if (spliced) fs.writeFileSync(outputPath, spliced);
+            } catch {}
+          }
+        }
+
         process.stderr.write(`  ${dim("  → preview:")} ${teal(path.basename(outputPath))} ${dim(`(${lastRenderedCount}/${total})`)}\n`);
       } catch (renderErr) {
         process.stderr.write(`  ${dim("  → preview render failed:")} ${dim(renderErr.message.slice(0, 60))}\n`);

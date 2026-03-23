@@ -2449,6 +2449,9 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 
     const trans = ` data-transition="${slide.transition || globalTransition}"`;
 
+    // Append videos if present but layout isn't "video"
+    const extraVideos = (slide.videos && slide.videos.length > 0 && layout !== "video") ? videosHTML(slide.videos) : "";
+
     // Use designed renderer for slides with a design directive
     if (slide.design) {
       const designStyle = [];
@@ -2456,10 +2459,10 @@ async function generateHTML(inputPath, outputPath, options = {}) {
       if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
-      return `<section class="slide designed"${ds}${trans}>${renderDesigned(slide)}${slideNotes(slide)}</section>`;
+      return `<section class="slide designed"${ds}${trans}>${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
     }
 
-    return `<section class="slide layout-${layout}"${style}${trans}>${renderer(slide)}${slideNotes(slide)}</section>`;
+    return `<section class="slide layout-${layout}"${style}${trans}>${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
   }).join("\n");
 
   const title = esc(path.basename(inputPath, ".md"));
