@@ -237,6 +237,17 @@ function parseMarkdownTable(lines) {
   return { headers, alignments, rows };
 }
 
+// ═══════════════════════════════════════════════════════
+// YOUTUBE HELPERS
+// ═══════════════════════════════════════════════════════
+
+const YT_REGEX = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{11})/;
+
+function extractYouTubeId(url) {
+  const m = url.match(YT_REGEX);
+  return m ? m[1] : null;
+}
+
 function parseMarkdown(md) {
   // Strip multi-line HTML comments BEFORE splitting on --- separators.
   // This prevents <!-- ... --> blocks that span multiple slides from
@@ -263,6 +274,7 @@ function parseMarkdown(md) {
       bgOverride: null,
       links: [],
       images: [],
+      videos: [],
       tables: [],
       codeBlocks: [],
       fontOverride: null,
@@ -362,10 +374,15 @@ function parseMarkdown(md) {
       } else if (trimmed.startsWith("### ")) {
         slide.sectionLabel = trimmed.replace(/^###\s+/, "");
       }
-      // Images: ![alt](path)
+      // Images or YouTube videos: ![alt](path)
       else if (/^!\[([^\]]*)\]\(([^)]+)\)$/.test(trimmed)) {
         const m = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        slide.images.push({ alt: m[1], src: m[2] });
+        const ytId = extractYouTubeId(m[2]);
+        if (ytId) {
+          slide.videos.push({ title: m[1] || "", id: ytId, url: m[2] });
+        } else {
+          slide.images.push({ alt: m[1], src: m[2] });
+        }
       }
       // Bullets with nesting (detect indent from original line)
       else if (/^\s*[-*]\s+/.test(line)) {
@@ -379,10 +396,22 @@ function parseMarkdown(md) {
       else if (trimmed.startsWith("> ")) {
         slide.blockquote = (slide.blockquote || "") + trimmed.replace(/^>\s*/, "") + "\n";
       }
-      // Standalone links
+      // Standalone links (YouTube URLs become videos)
       else if (/^\[.*\]\(.*\)$/.test(trimmed)) {
         const m = trimmed.match(/\[([^\]]*)\]\(([^)]*)\)/);
-        if (m) slide.links.push({ text: m[1], url: m[2] });
+        if (m) {
+          const ytId = extractYouTubeId(m[2]);
+          if (ytId) {
+            slide.videos.push({ title: m[1] || "", id: ytId, url: m[2] });
+          } else {
+            slide.links.push({ text: m[1], url: m[2] });
+          }
+        }
+      }
+      // Bare YouTube URL on its own line
+      else if (YT_REGEX.test(trimmed) && /^https?:\/\//.test(trimmed)) {
+        const ytId = extractYouTubeId(trimmed);
+        if (ytId) slide.videos.push({ title: "", id: ytId, url: trimmed });
       }
       // Body text
       else if (!trimmed.startsWith("```")) {
@@ -422,12 +451,13 @@ function detectLayout(slide, index, total) {
 
   // Has title + subtitle but little else → section
   if (slide.title && slide.subtitle && slide.bullets.length === 0 &&
-      slide.body.length <= 1 && slide.images.length === 0 &&
+      slide.body.length <= 1 && slide.images.length === 0 && slide.videos.length === 0 &&
       slide.tables.length === 0 && slide.codeBlocks.length === 0) {
     _layoutHistory.push("section"); return "section";
   }
 
   // New content types
+  if (slide.videos.length > 0) { _layoutHistory.push("video"); return "video"; }
   if (slide.images.length > 0) { _layoutHistory.push("image"); return "image"; }
   if (slide.tables.length > 0) { _layoutHistory.push("table"); return "table"; }
   if (slide.codeBlocks.length > 0) { _layoutHistory.push("code"); return "code"; }
@@ -1207,6 +1237,61 @@ const LAYOUTS = {
     addSlideNumber(s, g, num, theme);
   },
 
+  // ─── VIDEO (PPTX fallback — clickable thumbnail placeholder) ───
+  video(s, slide, g, theme, pres, num, opts) {
+    const ff = opts.fontFace;
+    s.background = { color: theme.bgAlt };
+
+    if (slide.sectionLabel) {
+      s.addText(slide.sectionLabel.toUpperCase(), {
+        x: g.cx(0), y: g.cy(0), w: g.cw(30), h: g.ch(3),
+        fontSize: 8, fontFace: ff,
+        color: theme.accent, bold: true, margin: 0, charSpacing: 3,
+      });
+    }
+
+    if (slide.title) {
+      s.addText(slide.title, {
+        x: g.cx(0), y: g.cy(slide.sectionLabel ? 3 : 0),
+        w: g.cw(40), h: g.ch(7),
+        fontSize: 28, fontFace: ff,
+        color: theme.text, bold: true, margin: 0,
+      });
+    }
+
+    // Render each video as a dark placeholder box with a play icon and link
+    const startRow = slide.title ? 10 : 2;
+    const rowSpan = slide.title ? 26 : 34;
+    slide.videos.forEach((v, i) => {
+      const perVideo = Math.floor(rowSpan / slide.videos.length);
+      const row = startRow + i * perVideo;
+      // Dark background box
+      s.addShape(pres.ShapeType.rect, {
+        x: g.cx(4), y: g.cy(row), w: g.cw(50), h: g.ch(perVideo - 2),
+        fill: { color: "1A1A1A" }, rectRadius: 0.08,
+      });
+      // Play triangle + label
+      const label = v.title || "YouTube Video";
+      s.addText([
+        { text: "\u25B6  ", options: { fontSize: 28, color: "FF0000" } },
+        { text: label, options: { fontSize: 14, fontFace: ff, color: "FFFFFF", hyperlink: { url: v.url } } },
+      ], {
+        x: g.cx(4), y: g.cy(row), w: g.cw(50), h: g.ch(perVideo - 2),
+        align: "center", valign: "middle",
+      });
+    });
+
+    if (slide.body.length > 0) {
+      s.addText(slide.body.join(" "), {
+        x: g.cx(0), y: g.cy(36), w: g.cw(58), h: g.ch(3),
+        fontSize: 9, fontFace: ff,
+        color: theme.textLight, italic: true, margin: 0,
+      });
+    }
+
+    addSlideNumber(s, g, num, theme);
+  },
+
   // ─── TABLE ───
   table(s, slide, g, theme, pres, num, opts) {
     const ff = opts.fontFace;
@@ -1441,6 +1526,17 @@ function imagesHTML(images) {
     '</div>';
 }
 
+function videosHTML(videos) {
+  if (!videos.length) return "";
+  const cls = videos.length === 1 ? "videos single" : "videos grid";
+  return `<div class="${cls}">` +
+    videos.map(v => {
+      const caption = v.title ? `<figcaption>${esc(v.title)}</figcaption>` : "";
+      return `<figure class="video-wrap"><div class="video-responsive"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${caption}</figure>`;
+    }).join("\n") +
+    '</div>';
+}
+
 function slideLabel(slide) {
   return slide.sectionLabel ? `<span class="label">${esc(slide.sectionLabel.toUpperCase())}</span>` : "";
 }
@@ -1545,6 +1641,11 @@ const HTML_LAYOUTS = {
     return `${slideLabel(slide)}${slideTitle(slide, "h1")}${imagesHTML(slide.images)}${caption}`;
   },
 
+  video(slide) {
+    const caption = slide.body.length ? `<p class="image-caption">${esc(slide.body.join(" "))}</p>` : "";
+    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${videosHTML(slide.videos)}${caption}`;
+  },
+
   table(slide) {
     const tables = slide.tables.map(t => tableToHTML(t)).join("\n");
     return `${slideLabel(slide)}${slideTitle(slide, "h1")}${tables}${bodyHTML(slide.body)}`;
@@ -1643,6 +1744,22 @@ function renderDesigned(slide) {
         content = slide.blockquote ? `<blockquote style="${typoStyle}">${esc(slide.blockquote)}</blockquote>` : "";
         break;
       }
+      case "video": {
+        content = videosHTML(slide.videos);
+        break;
+      }
+      case "image": {
+        content = imagesHTML(slide.images);
+        break;
+      }
+      case "links": {
+        content = linksHTML(slide.links);
+        break;
+      }
+      case "code": {
+        content = slide.codeBlocks.map(cb => codeToHTML(cb)).join("\n");
+        break;
+      }
       default:
         break;
     }
@@ -1650,7 +1767,23 @@ function renderDesigned(slide) {
     return `<div class="zone zone-${zone.role}" style="${style};padding:${gapVal}">${content}</div>`;
   }).join("\n");
 
-  return `${accentsHTML}\n${zonesHTML}`;
+  // Append unzoned content: videos/images/links that have no matching zone in the design
+  const zonedRoles = new Set((design.zones || []).map(z => z.role));
+  let extras = "";
+  if (slide.videos.length && !zonedRoles.has("video")) {
+    extras += videosHTML(slide.videos);
+  }
+  if (slide.images.length && !zonedRoles.has("image")) {
+    extras += imagesHTML(slide.images);
+  }
+  if (slide.links.length && !zonedRoles.has("links")) {
+    extras += linksHTML(slide.links);
+  }
+  const extrasHTML = extras
+    ? `<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto">${extras}</div>`
+    : "";
+
+  return `${accentsHTML}\n${zonesHTML}\n${extrasHTML}`;
 }
 
 function renderDesignedPPTX(s, slide, g, theme, pres, fontFace) {
@@ -1811,6 +1944,15 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .images.single figure{max-height:100%;max-width:100%}
 .images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
 .images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Videos */
+.videos{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.videos.grid{flex-wrap:wrap}
+.videos figure.video-wrap{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;flex:1;max-width:100%;min-width:0}
+.videos.single figure.video-wrap{max-width:85%;width:85%}
+.video-responsive{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.5vmin}
+.video-responsive iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.videos figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
 
 /* Links */
 .links{display:flex;flex-direction:column;gap:0.8vmin}
@@ -2042,7 +2184,7 @@ function generateHTMLJS() {
 
   // Click left/right halves
   document.addEventListener('click',function(e){
-    if(e.target.tagName==='A')return;
+    if(e.target.tagName==='A'||e.target.closest('a'))return;
     if(e.clientX>window.innerWidth*0.65)go(cur+1);
     else if(e.clientX<window.innerWidth*0.35)go(cur-1);
   });
@@ -2364,7 +2506,7 @@ function validateSlide(slide, layout) {
   // Content checks
   if (!slide.title && !slide.subtitle && !slide.body.length && !slide.bullets.length &&
       !slide.tables.length && !slide.codeBlocks.length && !slide.images.length &&
-      !slide.blockquote && layout !== "blank") {
+      !slide.videos.length && !slide.blockquote && layout !== "blank") {
     issues.push("Empty slide — no content detected");
   }
   if (slide.bullets.length > 8 && layout === "stagger") {
@@ -2410,6 +2552,7 @@ function validateSlide(slide, layout) {
   if (slide.tables.length) content.push(slide.tables.length + " table");
   if (slide.codeBlocks.length) content.push(slide.codeBlocks.length + " code");
   if (slide.images.length) content.push(slide.images.length + " image");
+  if (slide.videos.length) content.push(slide.videos.length + " video");
   if (slide.links.length) content.push(slide.links.length + " link");
   if (slide.notes) content.push("notes");
   if (slide.fontOverride) content.push("font:" + slide.fontOverride);
