@@ -155,6 +155,56 @@ function findMarkdownFiles(dir) {
   } catch { return []; }
 }
 
+// ═══════════════════════════════════════════════════════
+// IMAGE DIRECTORY FINDER — searches broadly for matching images
+// ═══════════════════════════════════════════════════════
+
+function findImagesDir(inputPath) {
+  const inputDir = path.dirname(path.resolve(inputPath));
+  const inputBase = path.basename(inputPath, ".md").replace(".composed", "").replace(".masters", "").replace(".paced", "");
+
+  // Search locations in priority order
+  const candidates = [];
+
+  // 1. Exact match: <base>-images/ in same directory
+  candidates.push(path.join(inputDir, `${inputBase}-images`));
+
+  // 2. Strip trailing letters/numbers for variant names (week-1a → week-1)
+  const stripped = inputBase.replace(/[a-z]$/, "");
+  if (stripped !== inputBase) {
+    candidates.push(path.join(inputDir, `${stripped}-images`));
+  }
+
+  // 3. Strip version suffixes (week-1-v2 → week-1, week-1-fresh → week-1)
+  const noSuffix = inputBase.replace(/[-_](v\d+|fresh|radical|paced|composed|default|merged).*$/, "");
+  if (noSuffix !== inputBase) {
+    candidates.push(path.join(inputDir, `${noSuffix}-images`));
+  }
+
+  // 4. Search parent directory (decks/ → project root)
+  const parentDir = path.dirname(inputDir);
+  candidates.push(path.join(parentDir, `${inputBase}-images`));
+  if (stripped !== inputBase) candidates.push(path.join(parentDir, `${stripped}-images`));
+  if (noSuffix !== inputBase) candidates.push(path.join(parentDir, `${noSuffix}-images`));
+
+  // 5. Search sibling directories for any *-images/ with slide PNGs
+  try {
+    fs.readdirSync(inputDir, { withFileTypes: true })
+      .filter(e => e.isDirectory() && e.name.endsWith("-images"))
+      .forEach(e => candidates.push(path.join(inputDir, e.name)));
+  } catch {}
+
+  // Find first candidate that has slide-*.png files
+  for (const dir of candidates) {
+    if (fs.existsSync(dir)) {
+      const pngs = fs.readdirSync(dir).filter(f => /^slide-\d+\.png$/.test(f));
+      if (pngs.length > 0) return { dir, count: pngs.length };
+    }
+  }
+
+  return null;
+}
+
 async function selectInput() {
   const cwd = process.cwd();
   const decksDir = path.join(cwd, "decks");
@@ -366,16 +416,15 @@ async function interactive(preselectedInput) {
     const brief = await getBrief(input);
 
     // Image generation option
-    // Check for existing images
-    const existingImgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
-    const hasExistingImages = fs.existsSync(existingImgDir) &&
-      fs.readdirSync(existingImgDir).some(f => /^slide-\d+\.png$/.test(f));
-    const existingCount = hasExistingImages
-      ? fs.readdirSync(existingImgDir).filter(f => /^slide-\d+\.png$/.test(f)).length : 0;
+    // Search for existing images (checks multiple directory patterns)
+    const foundImages = findImagesDir(input);
+    const hasExistingImages = !!foundImages;
+    const existingImgDir = foundImages ? foundImages.dir : null;
+    const existingCount = foundImages ? foundImages.count : 0;
 
     const imgItems = [];
     if (hasExistingImages) {
-      imgItems.push({ key: "e", label: `existing        use ${existingCount} images in ${inputBase}-images/` });
+      imgItems.push({ key: "e", label: `existing        use ${existingCount} images in ${path.basename(existingImgDir)}/` });
     }
     imgItems.push({ key: "n", label: "none            no images" });
     imgItems.push({ key: "s", label: "strategic       generate for key slides (Midjourney)" });
@@ -478,14 +527,14 @@ async function interactive(preselectedInput) {
     const brief = await getBrief(input);
 
     // Image option for compare
-    const cmpImgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
-    const cmpHasImages = fs.existsSync(cmpImgDir) &&
-      fs.readdirSync(cmpImgDir).some(f => /^slide-\d+\.png$/.test(f));
+    const cmpFoundImages = findImagesDir(input);
+    const cmpImgDir = cmpFoundImages ? cmpFoundImages.dir : null;
+    const cmpHasImages = !!cmpFoundImages;
     let cmpImagesDir = null;
     if (cmpHasImages) {
-      const cmpImgCount = fs.readdirSync(cmpImgDir).filter(f => /^slide-\d+\.png$/.test(f)).length;
+      const cmpImgCount = cmpFoundImages.count;
       const cmpImgChoice = await select("IMAGES", [
-        { key: "e", label: `existing        use ${cmpImgCount} images in ${inputBase}-images/` },
+        { key: "e", label: `existing        use ${cmpImgCount} images in ${path.basename(cmpImgDir)}/` },
         { key: "n", label: "none            no images" },
       ], { autoSelect: true });
       if (cmpImgChoice.key === "e") cmpImagesDir = cmpImgDir;
@@ -542,10 +591,12 @@ async function interactive(preselectedInput) {
     if (slideRange) imagineArgs.push("--slides", slideRange);
     run("imagine.js", imagineArgs);
 
-    const imgDir = path.join(path.dirname(path.resolve(input)), `${inputBase}-images`);
-    const galleryPath = path.join(imgDir, "gallery.md");
-    if (fs.existsSync(galleryPath)) {
-      console.log(`\n  ${sage("✓")} Gallery: ${teal(galleryPath)}`);
+    const imgFound = findImagesDir(input);
+    if (imgFound) {
+      const galleryPath = path.join(imgFound.dir, "gallery.md");
+      if (fs.existsSync(galleryPath)) {
+        console.log(`\n  ${sage("✓")} Gallery: ${teal(galleryPath)}`);
+      }
     }
     process.exit(0);
 
@@ -766,10 +817,10 @@ async function interactive(preselectedInput) {
         const imgOk = run("imagine.js", imagineArgs);
 
         if (imgOk && fs.existsSync(htmlPath)) {
-          const imgDir = path.join(path.dirname(path.resolve(composedPath || input)), `${inputBase}-images`);
-          if (fs.existsSync(imgDir)) {
-            process.stderr.write(`  ${amber("○")} Splicing images...\n`);
-            run("splice-images.js", [htmlPath, imgDir, "--model", modelName]);
+          const spliceFound = findImagesDir(composedPath || input);
+          if (spliceFound) {
+            process.stderr.write(`  ${amber("○")} Splicing ${spliceFound.count} images from ${path.basename(spliceFound.dir)}...\n`);
+            run("splice-images.js", [htmlPath, spliceFound.dir, "--model", modelName]);
           }
         }
         break;
