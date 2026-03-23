@@ -16,6 +16,7 @@
     "diff": "node diff-slides.js",
     "design": "node design-system.js",
     "pdf": "node export-pdf.js",
+    "reveal": "node export-reveal.js",
     "serve": "python3 -m http.server 8701",
     "explorer": "node explorer.js",
     "refresh": "node refresh.js",
