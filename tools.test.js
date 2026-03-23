@@ -317,6 +317,79 @@ describe("compose.js — directives", () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// BEST PICK
+// ═══════════════════════════════════════════════════════
+
+describe("bestPick", () => {
+  const { bestPick } = require("./compare.js");
+
+  const variants = [
+    { label: "minimal-light", intensity: "minimal", theme: "light" },
+    { label: "moderate-light", intensity: "moderate", theme: "light" },
+    { label: "maximal-light", intensity: "maximal", theme: "light" },
+  ];
+
+  it("picks the highest scoring variant", () => {
+    const evals = [
+      { totalScore: 72, scores: {}, strengths: [], weaknesses: [] },
+      { totalScore: 85, scores: {}, strengths: ["good pacing"], weaknesses: [] },
+      { totalScore: 68, scores: {}, strengths: [], weaknesses: ["too aggressive"] },
+    ];
+    const pick = bestPick(variants, evals);
+    assert.equal(pick.label, "moderate-light");
+    assert.equal(pick.score, 85);
+  });
+
+  it("reports margin over runner-up", () => {
+    const evals = [
+      { totalScore: 70, scores: {}, strengths: [], weaknesses: [] },
+      { totalScore: 90, scores: {}, strengths: [], weaknesses: [] },
+      { totalScore: 75, scores: {}, strengths: [], weaknesses: [] },
+    ];
+    const pick = bestPick(variants, evals);
+    assert.equal(pick.margin, 15);
+    assert.equal(pick.runnerUp.label, "maximal-light");
+  });
+
+  it("handles tie gracefully", () => {
+    const evals = [
+      { totalScore: 80, scores: {}, strengths: [], weaknesses: [] },
+      { totalScore: 80, scores: {}, strengths: [], weaknesses: [] },
+      { totalScore: 60, scores: {}, strengths: [], weaknesses: [] },
+    ];
+    const pick = bestPick(variants, evals);
+    assert.equal(pick.score, 80);
+    assert.equal(pick.margin, 0);
+    assert.ok(pick.reasoning.includes("tied"));
+  });
+
+  it("returns null when no evaluations", () => {
+    const pick = bestPick(variants, [null, null, null]);
+    assert.equal(pick, null);
+  });
+
+  it("handles partial evaluations (some null)", () => {
+    const evals = [
+      null,
+      { totalScore: 82, scores: {}, strengths: ["clear"], weaknesses: [] },
+      null,
+    ];
+    const pick = bestPick(variants, evals);
+    assert.equal(pick.label, "moderate-light");
+    assert.equal(pick.score, 82);
+  });
+
+  it("includes reasoning with top criteria", () => {
+    const evals = [
+      { totalScore: 75, scores: { contentCompleteness: { score: 18 }, designQuality: { score: 12 } }, strengths: [], weaknesses: ["missing labels"] },
+    ];
+    const pick = bestPick([variants[0]], evals);
+    assert.ok(pick.reasoning.length > 10);
+    assert.ok(pick.reasoning.includes("watch:"));
+  });
+});
+
+// ═══════════════════════════════════════════════════════
 // GRID-COMPOSE
 // ═══════════════════════════════════════════════════════
 

@@ -1199,7 +1199,90 @@ async function compare(sourcePath, options = {}) {
   process.stderr.write(`\n  ${sage("✓")} Report → ${teal(reportPath)} ${amber(tReport())}\n`);
   process.stderr.write(`  ${sage("✓")} ${chalk.white.bold("Total pipeline")} ${amber(tPipeline())}\n`);
 
-  return { variants, evaluations, reportPath, outputDir };
+  // 4. Best pick
+  const pick = bestPick(variants, evaluations);
+  if (pick) {
+    process.stderr.write(`\n  ${accent("■")} ${chalk.white.bold("BEST PICK:")} ${teal(pick.label)} ${amber(pick.score + "/100")}${pick.margin > 0 ? dim(` (+${pick.margin} over next)`) : ""}\n`);
+    process.stderr.write(`  ${dim(pick.reasoning)}\n`);
+  }
+
+  return { variants, evaluations, reportPath, outputDir, pick };
+}
+
+// ═══════════════════════════════════════════════════════
+// BEST PICK — automated variant recommendation
+// ═══════════════════════════════════════════════════════
+
+function bestPick(variants, evaluations) {
+  if (!evaluations || evaluations.every(e => !e || e.totalScore == null)) return null;
+
+  // Score each variant
+  const scored = variants.map((v, i) => {
+    const ev = evaluations[i];
+    if (!ev || ev.totalScore == null) return null;
+    return {
+      label: v.label || v.intensity,
+      intensity: v.intensity,
+      theme: v.theme,
+      score: ev.totalScore,
+      scores: ev.scores || {},
+      strengths: ev.strengths || [],
+      weaknesses: ev.weaknesses || [],
+      recommendation: ev.recommendation || "",
+    };
+  }).filter(Boolean);
+
+  if (scored.length === 0) return null;
+
+  // Sort by total score descending
+  scored.sort((a, b) => b.score - a.score);
+
+  const winner = scored[0];
+  const runnerUp = scored[1];
+  const margin = runnerUp ? winner.score - runnerUp.score : 0;
+
+  // Build reasoning
+  const parts = [];
+
+  // What it excels at
+  if (winner.scores) {
+    const criteria = Object.entries(winner.scores)
+      .filter(([, v]) => v && v.score != null)
+      .sort((a, b) => {
+        const aMax = RUBRIC[a[0]]?.weight || 20;
+        const bMax = RUBRIC[b[0]]?.weight || 20;
+        return (b[1].score / bMax) - (a[1].score / aMax);
+      });
+    const topCriteria = criteria.slice(0, 2).map(([k]) => k.replace(/([A-Z])/g, " $1").trim().toLowerCase());
+    if (topCriteria.length > 0) {
+      parts.push(`Strongest in ${topCriteria.join(" and ")}`);
+    }
+  }
+
+  // Margin assessment
+  if (margin === 0 && runnerUp) {
+    parts.push(`tied with ${runnerUp.label} — consider audience and context`);
+  } else if (margin <= 5 && runnerUp) {
+    parts.push(`narrow margin over ${runnerUp.label} (${margin}pts) — either is viable`);
+  } else if (margin > 15 && runnerUp) {
+    parts.push(`clear winner over ${runnerUp.label} by ${margin}pts`);
+  }
+
+  // Weaknesses to note
+  if (winner.weaknesses.length > 0) {
+    parts.push(`watch: ${winner.weaknesses[0].toLowerCase()}`);
+  }
+
+  return {
+    label: winner.label,
+    intensity: winner.intensity,
+    theme: winner.theme,
+    score: winner.score,
+    margin,
+    runnerUp: runnerUp ? { label: runnerUp.label, score: runnerUp.score } : null,
+    reasoning: parts.join(". ") + ".",
+    all: scored,
+  };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1267,4 +1350,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, generateCompareReport, RUBRIC };
+module.exports = { compare, runVariants, evaluateVariant, buildEvalPrompt, parseEvaluation, generateCompareReport, bestPick, RUBRIC };
