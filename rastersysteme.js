@@ -40,17 +40,45 @@ function select(label, items, opts = {}) {
 
     let cursor = opts.defaultIndex || 0;
     const n = items.length;
+    const cols = process.stdout.columns || 80;
+
+    // Strip ANSI codes to measure visible width
+    function visibleLen(s) { return s.replace(/\x1b\[[0-9;]*m/g, "").length; }
+
+    // Truncate a styled string to fit within maxCols visible characters
+    function truncate(s, maxCols) {
+      let vis = 0, i = 0;
+      while (i < s.length && vis < maxCols) {
+        if (s[i] === "\x1b") {
+          const end = s.indexOf("m", i);
+          if (end >= 0) { i = end + 1; continue; }
+        }
+        vis++; i++;
+      }
+      return s.slice(0, i);
+    }
+
+    function buildLine(i) {
+      const sel = i === cursor;
+      const marker = sel ? accent("▸") : " ";
+      const key = items[i].key ? (sel ? accent(items[i].key) : dim(items[i].key)) : "";
+      const text = sel ? highlight(` ${items[i].label} `) : dim(items[i].label);
+      const sep = key ? dim(".") : " ";
+      const line = `    ${marker} ${key}${sep}${text}`;
+      // Truncate to terminal width to prevent wrapping (reserve 1 col for safety)
+      return truncate(line, cols - 1) + "\x1b[K";
+    }
 
     function render(initial) {
-      if (!initial) process.stdout.write(`\x1b[${n}A`);
-      items.forEach((item, i) => {
-        const sel = i === cursor;
-        const marker = sel ? accent("▸") : " ";
-        const key = item.key ? (sel ? accent(item.key) : dim(item.key)) : "";
-        const text = sel ? highlight(` ${item.label} `) : dim(item.label);
-        const sep = key ? dim(".") : " ";
-        process.stdout.write(`    ${marker} ${key}${sep}${text}\x1b[K\n`);
-      });
+      const lines = [];
+      for (let i = 0; i < n; i++) lines.push(buildLine(i));
+      const menu = lines.join("\n") + "\n";
+
+      if (initial) {
+        process.stdout.write(menu);
+      } else {
+        process.stdout.write(`\x1b[${n}A` + menu);
+      }
     }
 
     process.stdout.write(`\n  ${dim(label)}\n`);
@@ -84,15 +112,14 @@ function select(label, items, opts = {}) {
 
     function finish() {
       cleanup();
-      // Replace list with just the selection
-      process.stdout.write(`\x1b[${n}A`);
-      for (let i = 0; i < n; i++) {
-        if (i === cursor) {
-          process.stdout.write(`    ${sage("✓")} ${bright(items[i].label)}\x1b[K\n`);
-        } else {
-          process.stdout.write(`\x1b[K\n`);
-        }
-      }
+      // Collapse menu to just the selected item — single atomic write
+      const clearLines = Array(n - 1).fill("\x1b[K").join("\n");
+      process.stdout.write(
+        `\x1b[${n}A` +
+        `    ${sage("✓")} ${bright(items[cursor].label)}\x1b[K\n` +
+        clearLines +
+        (n > 2 ? `\x1b[${n - 2}A` : "")
+      );
       resolve(items[cursor]);
     }
 
