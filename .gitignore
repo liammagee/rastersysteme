@@ -2,6 +2,7 @@ node_modules/
 *.pptx
 *.html
 !index.html
+!ballistic-computer-sim.html
 *.composed.md
 .DS_Store
 logs/

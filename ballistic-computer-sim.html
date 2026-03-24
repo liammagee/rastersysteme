@@ -1,0 +1,2170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Early Ballistic Computer Simulation</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Space+Grotesk:wght@400;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0a0e14;
+    color: #c8d6e5;
+    font-family: 'Space Grotesk', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .scanline-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: repeating-linear-gradient(
+      0deg, transparent, transparent 2px, rgba(0,255,80,0.015) 2px, rgba(0,255,80,0.015) 4px
+    );
+    pointer-events: none; z-index: 1000;
+  }
+
+  header {
+    text-align: center;
+    padding: 28px 20px 18px;
+    border-bottom: 1px solid rgba(0,255,120,0.15);
+    background: linear-gradient(180deg, rgba(0,255,100,0.04) 0%, transparent 100%);
+  }
+
+  header h1 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #00ff80;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(0,255,80,0.3);
+  }
+
+  header p {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.78rem;
+    color: #5a7a6a;
+    margin-top: 6px;
+    letter-spacing: 0.05em;
+  }
+
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: calc(100vh - 90px);
+    max-height: 700px;
+  }
+
+  /* LEFT: Trajectory canvas */
+  .trajectory-panel {
+    padding: 20px;
+    border-right: 1px solid rgba(0,255,120,0.1);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .trajectory-panel h2 {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: #00ff80;
+    margin-bottom: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  canvas#trajectoryCanvas {
+    width: 100%;
+    flex: 1;
+    background: #060a10;
+    border: 1px solid rgba(0,255,120,0.12);
+    border-radius: 4px;
+  }
+
+  .legend {
+    display: flex;
+    gap: 18px;
+    margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #5a7a6a;
+  }
+  .legend span::before {
+    content: '';
+    display: inline-block;
+    width: 12px; height: 3px;
+    margin-right: 6px;
+    vertical-align: middle;
+    border-radius: 1px;
+  }
+  .legend .l-pos::before { background: #00ff80; }
+  .legend .l-vel::before { background: #ffaa00; }
+  .legend .l-acc::before { background: #ff4466; }
+  .legend .l-missile::before { background: #00ccff; }
+
+  /* RIGHT: Controls + readout */
+  .control-panel {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow-y: auto;
+  }
+
+  .panel-section {
+    background: rgba(0,255,100,0.03);
+    border: 1px solid rgba(0,255,120,0.1);
+    border-radius: 6px;
+    padding: 14px;
+  }
+
+  .panel-section h3 {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #00cc66;
+    margin-bottom: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .control-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .control-row label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #7a9a8a;
+  }
+
+  .control-row input[type="range"] {
+    width: 130px;
+    accent-color: #00ff80;
+  }
+
+  .control-row .val {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #00ff80;
+    min-width: 48px;
+    text-align: right;
+  }
+
+  .btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid rgba(0,255,120,0.3);
+    background: rgba(0,255,100,0.08);
+    color: #00ff80;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+  }
+  .btn:hover {
+    background: rgba(0,255,100,0.18);
+    box-shadow: 0 0 12px rgba(0,255,80,0.15);
+  }
+  .btn.active {
+    background: rgba(0,255,100,0.2);
+    box-shadow: 0 0 16px rgba(0,255,80,0.25);
+  }
+
+  /* Computation readout */
+  .readout {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    line-height: 1.7;
+  }
+  .readout .row {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(0,255,120,0.06);
+    padding: 3px 0;
+  }
+  .readout .lbl { color: #5a7a6a; }
+  .readout .v { color: #00ff80; }
+  .readout .v.warn { color: #ffaa00; }
+  .readout .v.crit { color: #ff4466; }
+
+  /* Equation display */
+  .equation-box {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,255,120,0.08);
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #5a9a7a;
+    line-height: 1.8;
+    white-space: pre;
+    max-height: 140px;
+    overflow-y: auto;
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #00ff80;
+  }
+  .step-indicator .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #00ff80;
+    animation: blink 1s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .info-text {
+    font-size: 0.72rem;
+    color: #4a6a5a;
+    line-height: 1.6;
+    margin-top: 6px;
+  }
+
+  /* Derivative overlay */
+  .deriv-overlay {
+    display: none;
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 310px;
+    background: rgba(6,10,16,0.94);
+    border: 1px solid rgba(255,170,0,0.25);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #ccaa66;
+    line-height: 1.7;
+    z-index: 10;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+  .deriv-overlay.visible { display: block; }
+  .deriv-overlay h4 {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ffaa00;
+    margin-bottom: 8px;
+  }
+  .deriv-overlay .calc-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+    border-bottom: 1px solid rgba(255,170,0,0.08);
+  }
+  .deriv-overlay .calc-lbl { color: #887744; }
+  .deriv-overlay .calc-val { color: #ffcc44; }
+  .deriv-overlay .calc-op { color: #aa8833; font-size: 0.65rem; }
+  .deriv-overlay .section-head {
+    color: #ffaa00;
+    margin-top: 10px;
+    margin-bottom: 4px;
+    font-weight: 600;
+    font-size: 0.68rem;
+    border-bottom: 1px solid rgba(255,170,0,0.15);
+    padding-bottom: 3px;
+  }
+  .deriv-overlay .arrow { color: #ff8844; }
+  .deriv-overlay .hint {
+    color: #776633;
+    font-size: 0.62rem;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* Target mode HUD */
+  .target-hud {
+    display: none;
+    background: rgba(255,68,102,0.06);
+    border: 1px solid rgba(255,68,102,0.25);
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #ff8899;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .target-hud.visible { display: flex; }
+  .target-hud .score { color: #00ff80; font-weight: 600; }
+  .target-hud .miss-dist { color: #ffaa00; }
+  .target-hud .hit-msg { color: #00ffcc; font-weight: 600; text-shadow: 0 0 8px rgba(0,255,200,0.4); }
+
+  /* Notes section below simulation */
+  .notes-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    border-top: 1px solid rgba(0,255,120,0.15);
+  }
+
+  .notes-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(0,255,120,0.1);
+    overflow-x: auto;
+  }
+
+  .notes-tab {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 14px 22px;
+    background: transparent;
+    color: #5a7a6a;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .notes-tab:hover { color: #00cc66; background: rgba(0,255,100,0.03); }
+  .notes-tab.active {
+    color: #00ff80;
+    border-bottom-color: #00ff80;
+    background: rgba(0,255,100,0.05);
+  }
+
+  .notes-content {
+    display: none;
+    padding: 28px 32px 40px;
+    max-width: 860px;
+    animation: fadeIn 0.3s ease;
+  }
+  .notes-content.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+  .notes-content h4 {
+    font-size: 1.05rem;
+    color: #00ff80;
+    margin: 28px 0 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .notes-content h4:first-child { margin-top: 0; }
+
+  .notes-content p {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: #a0b8b0;
+    margin-bottom: 14px;
+  }
+
+  .notes-content .note-highlight {
+    background: rgba(0,255,100,0.05);
+    border-left: 3px solid rgba(0,255,120,0.25);
+    padding: 12px 16px;
+    margin: 16px 0;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .notes-content .note-highlight p { margin-bottom: 0; color: #b0d0c0; }
+
+  .notes-content .math-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,255,120,0.08);
+    border-radius: 4px;
+    padding: 16px 20px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    color: #6aaa8a;
+    line-height: 2;
+    white-space: pre;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+
+  .notes-content .timeline {
+    position: relative;
+    padding-left: 24px;
+    margin: 18px 0;
+  }
+  .notes-content .timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px; top: 6px; bottom: 6px;
+    width: 1px;
+    background: rgba(0,255,120,0.15);
+  }
+  .notes-content .timeline-entry {
+    position: relative;
+    margin-bottom: 18px;
+  }
+  .notes-content .timeline-entry::before {
+    content: '';
+    position: absolute;
+    left: -22px; top: 7px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: #00ff80;
+    box-shadow: 0 0 6px rgba(0,255,80,0.4);
+  }
+  .notes-content .timeline-entry .year {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.75rem;
+    color: #00cc66;
+    font-weight: 600;
+  }
+  .notes-content .timeline-entry p {
+    font-size: 0.82rem;
+    margin-top: 3px;
+    margin-bottom: 0;
+  }
+
+  .notes-content .ref-list {
+    list-style: none;
+    padding: 0;
+    margin: 12px 0;
+  }
+  .notes-content .ref-list li {
+    font-size: 0.8rem;
+    color: #7a9a8a;
+    line-height: 1.7;
+    margin-bottom: 10px;
+    padding-left: 28px;
+    position: relative;
+  }
+  .notes-content .ref-list li::before {
+    content: attr(data-n);
+    position: absolute;
+    left: 0;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #00cc66;
+    font-weight: 600;
+  }
+  .notes-content .ref-list li em { color: #90b0a0; font-style: italic; }
+  .notes-content .ref-list li a { color: #00aa66; text-decoration: none; border-bottom: 1px solid rgba(0,170,100,0.3); }
+  .notes-content .ref-list li a:hover { color: #00ff80; }
+
+  .notes-content .figure-caption {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #4a6a5a;
+    margin-top: 6px;
+    text-align: center;
+  }
+
+  .sup { font-size: 0.65em; vertical-align: super; color: #00cc66; }
+
+  /* Column timeline */
+  .col-timeline {
+    display: grid;
+    grid-template-columns: 60px 1fr 1fr 1fr 1fr;
+    gap: 0;
+    margin: 18px 0;
+    font-size: 0.8rem;
+    line-height: 1.6;
+    border: 1px solid rgba(0,255,120,0.1);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .col-timeline .col-head {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,255,120,0.12);
+    background: rgba(0,255,100,0.06);
+  }
+  .col-timeline .col-head.usa { color: #00ff80; }
+  .col-timeline .col-head.ger { color: #ff8844; }
+  .col-timeline .col-head.eng { color: #44aaff; }
+  .col-timeline .col-head.intl { color: #cc88ff; }
+  .col-timeline .col-head.year-h { color: #5a7a6a; }
+  .col-timeline .yr {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.68rem;
+    color: #00cc66;
+    font-weight: 600;
+    padding: 8px 6px;
+    border-bottom: 1px solid rgba(0,255,120,0.06);
+    border-right: 1px solid rgba(0,255,120,0.06);
+    background: rgba(0,255,100,0.02);
+    text-align: center;
+  }
+  .col-timeline .cell {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(0,255,120,0.04);
+    border-right: 1px solid rgba(0,255,120,0.04);
+    color: #8aaa9a;
+    font-size: 0.78rem;
+  }
+  .col-timeline .cell:last-child { border-right: none; }
+  .col-timeline .cell.active { color: #c0e0d0; }
+  .col-timeline .cell .evt {
+    display: block;
+    margin-bottom: 2px;
+  }
+  .col-timeline .cell .evt-title { font-weight: 600; }
+  .col-timeline .cell.usa-c.active { border-left: 2px solid rgba(0,255,80,0.3); }
+  .col-timeline .cell.ger-c.active { border-left: 2px solid rgba(255,136,68,0.3); }
+  .col-timeline .cell.eng-c.active { border-left: 2px solid rgba(68,170,255,0.3); }
+  .col-timeline .cell.intl-c.active { border-left: 2px solid rgba(204,136,255,0.3); }
+  @media (max-width: 800px) {
+    .col-timeline { grid-template-columns: 50px 1fr; font-size: 0.72rem; }
+    .col-timeline .col-head:nth-child(n+3),
+    .col-timeline .cell:nth-child(5n+3),
+    .col-timeline .cell:nth-child(5n+4),
+    .col-timeline .cell:nth-child(5n+5) { display: none; }
+  }
+
+  /* Firing table */
+  .firing-table-wrap { overflow-x: auto; margin: 16px 0; }
+  .firing-table {
+    border-collapse: collapse;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    width: 100%;
+    min-width: 600px;
+  }
+  .firing-table th {
+    background: rgba(0,255,100,0.08);
+    color: #00cc66;
+    padding: 6px 10px;
+    text-align: right;
+    border: 1px solid rgba(0,255,120,0.12);
+    font-weight: 600;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .firing-table th:first-child { text-align: left; }
+  .firing-table td {
+    padding: 5px 10px;
+    text-align: right;
+    border: 1px solid rgba(0,255,120,0.06);
+    color: #7aaa8a;
+  }
+  .firing-table td:first-child { text-align: left; color: #00cc66; font-weight: 600; }
+  .firing-table tr:hover td { background: rgba(0,255,100,0.04); }
+  .firing-table td.computing {
+    color: #ffaa00;
+    animation: blink 0.6s ease-in-out infinite;
+  }
+  .firing-table td.computed { color: #00ff80; }
+
+  .ft-controls {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .ft-controls label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    color: #5a7a6a;
+  }
+  .ft-controls select, .ft-controls input {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(0,255,120,0.2);
+    color: #00ff80;
+    padding: 4px 8px;
+    border-radius: 3px;
+  }
+  .ft-status {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: #5a7a6a;
+    margin-top: 10px;
+  }
+  .ft-status .count { color: #00ff80; }
+
+  @media (max-width: 800px) {
+    .main-grid {
+      grid-template-columns: 1fr;
+    }
+    .trajectory-panel { border-right: none; border-bottom: 1px solid rgba(0,255,120,0.1); min-height: 350px; }
+    .notes-content { padding: 20px 16px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scanline-overlay"></div>
+
+<header>
+  <h1>Ballistic Research Laboratory — Firing Table Computer</h1>
+  <p>Numerical integration of projectile equations of motion · c. 1943–1946</p>
+</header>
+
+<div class="main-grid">
+  <!-- Trajectory visualization -->
+  <div class="trajectory-panel" style="position:relative;">
+    <h2>Trajectory Plot — Altitude vs. Range</h2>
+    <canvas id="trajectoryCanvas"></canvas>
+    <!-- Derivative calculation overlay -->
+    <div class="deriv-overlay" id="derivOverlay">
+      <h4>How the Derivative Is Computed</h4>
+      <div id="derivContent">
+        <p style="color:#887744; margin:0;">Fire a projectile, then hover over the trajectory to inspect any computation step.</p>
+      </div>
+      <div class="hint">The computer cannot compute a true derivative (an infinitesimal limit). Instead it uses <span style="color:#ffcc44">finite differences</span> — the change in a quantity divided by the time step Δt. This is exactly what Euler's method does at each step.</div>
+    </div>
+    <div class="legend">
+      <span class="l-pos">Position (y)</span>
+      <span class="l-vel">Velocity vector</span>
+      <span class="l-acc">Gravity + drag</span>
+      <span class="l-missile">Projectile</span>
+    </div>
+  </div>
+
+  <!-- Controls and readout -->
+  <div class="control-panel">
+    <div class="panel-section">
+      <h3>Initial Conditions</h3>
+      <div class="control-row">
+        <label>Launch angle</label>
+        <input type="range" id="angle" min="5" max="90" value="45" step="1">
+        <span class="val" id="angleVal">45°</span>
+      </div>
+      <div class="control-row">
+        <label>Muzzle velocity</label>
+        <input type="range" id="velocity" min="200" max="1500" value="500" step="10">
+        <span class="val" id="velocityVal">500 m/s</span>
+      </div>
+      <div class="control-row">
+        <label>Drag coeff.</label>
+        <input type="range" id="drag" min="0" max="50" value="2" step="1">
+        <span class="val" id="dragVal">0.002</span>
+      </div>
+      <div class="control-row">
+        <label>Time step (Δt)</label>
+        <input type="range" id="dt" min="1" max="50" value="10" step="1">
+        <span class="val" id="dtVal">0.10 s</span>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <button class="btn" id="fireBtn">▶ Fire</button>
+      <button class="btn" id="resetBtn">↺ Reset</button>
+    </div>
+
+    <div style="display:flex; gap:8px;">
+      <button class="btn" id="overlayBtn" style="background:rgba(255,170,0,0.08); border-color:rgba(255,170,0,0.3); color:#ffaa00;">◈ Derivatives</button>
+      <button class="btn" id="targetBtn" style="background:rgba(255,68,102,0.08); border-color:rgba(255,68,102,0.3); color:#ff4466;">⊕ Target Mode</button>
+    </div>
+
+    <div class="target-hud" id="targetHud">
+      <span>TARGET: <span id="targetDist">—</span>m</span>
+      <span class="miss-dist" id="missInfo">—</span>
+      <span>Score: <span class="score" id="scoreVal">0</span></span>
+    </div>
+
+    <div class="panel-section">
+      <h3>Numerical Computation (Euler's Method)</h3>
+      <div class="equation-box" id="equationBox">
+Waiting for launch...
+
+The computer solves step-by-step:
+
+  vₓ(t+Δt) = vₓ(t) − (k·|v|·vₓ)·Δt
+  vᵧ(t+Δt) = vᵧ(t) − (g + k·|v|·vᵧ)·Δt
+  x(t+Δt)  = x(t)  + vₓ·Δt
+  y(t+Δt)  = y(t)  + vᵧ·Δt
+
+where g=9.81 m/s², k=drag coeff.</div>
+    </div>
+
+    <div class="panel-section">
+      <h3>Live Readout</h3>
+      <div class="readout" id="readout">
+        <div class="row"><span class="lbl">Time</span><span class="v" id="rTime">0.00 s</span></div>
+        <div class="row"><span class="lbl">Step #</span><span class="v" id="rStep">0</span></div>
+        <div class="row"><span class="lbl">x (range)</span><span class="v" id="rX">0 m</span></div>
+        <div class="row"><span class="lbl">y (altitude)</span><span class="v" id="rY">0 m</span></div>
+        <div class="row"><span class="lbl">vₓ</span><span class="v" id="rVx">— m/s</span></div>
+        <div class="row"><span class="lbl">vᵧ</span><span class="v" id="rVy">— m/s</span></div>
+        <div class="row"><span class="lbl">|v| (speed)</span><span class="v" id="rSpeed">— m/s</span></div>
+        <div class="row"><span class="lbl">dy/dx</span><span class="v" id="rDydx">—</span></div>
+        <div class="row"><span class="lbl">d²y/dx²</span><span class="v" id="rD2y">—</span></div>
+        <div class="row"><span class="lbl">Status</span><span class="v" id="rStatus">READY</span></div>
+      </div>
+    </div>
+
+    <div class="panel-section">
+      <h3>About This Simulation</h3>
+      <p class="info-text">
+        This interactive model recreates the core computation that early electronic
+        computers like ENIAC performed: solving differential equations of projectile
+        motion using numerical integration. Scroll down for detailed historical
+        and mathematical notes with references.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- DETAILED EXPLANATORY NOTES                             -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="notes-section">
+  <div class="notes-tabs">
+    <button class="notes-tab active" data-tab="history">Historical Background</button>
+    <button class="notes-tab" data-tab="math">The Mathematics</button>
+    <button class="notes-tab" data-tab="method">Numerical Methods</button>
+    <button class="notes-tab" data-tab="machines">The Machines</button>
+    <button class="notes-tab" data-tab="legacy">Legacy &amp; Impact</button>
+    <button class="notes-tab" data-tab="firingtable">Firing Table Sim</button>
+    <button class="notes-tab" data-tab="refs">References</button>
+  </div>
+
+  <!-- TAB 1: Historical Background -->
+  <div class="notes-content active" id="tab-history">
+    <h4>The Problem: Firing Tables</h4>
+    <p>
+      During World War II, every artillery piece required a <strong style="color:#c0e0d0">firing table</strong> — a booklet
+      of pre-calculated trajectories telling gunners what angle to set for a given target distance,
+      wind speed, air density, and elevation. A single firing table for one weapon could contain
+      thousands of trajectories, and each individual trajectory required the numerical solution of
+      a second-order nonlinear differential equation.<span class="sup">[1]</span>
+    </p>
+
+    <p>
+      The U.S. Army's <strong style="color:#c0e0d0">Ballistic Research Laboratory</strong> (BRL) at Aberdeen Proving Ground, Maryland,
+      was the centre of this effort. By 1943, the backlog of uncomputed firing tables was so severe
+      that new weapons were being shipped to the front without them — gunners had to estimate
+      trajectories by trial and error, with lethal consequences for accuracy.<span class="sup">[2]</span>
+    </p>
+
+    <h4>The Human Computers</h4>
+    <p>
+      Before electronic machines, "computers" were people. The BRL employed approximately 100
+      women — many recruited from mathematics departments at colleges like the University of
+      Pennsylvania — who worked in teams using desk calculators to solve trajectory equations
+      by hand. Each trajectory required roughly 750 individual multiplications, and a
+      single trajectory took about 40 hours of human labour to complete. The Bush differential
+      analyser, an analog mechanical computer, could reduce this to about 15 minutes, but the
+      machine was imprecise and frequently broke down.<span class="sup">[3]</span>
+    </p>
+
+    <div class="note-highlight">
+      <p>
+        Six of these women "computers" — Kay McNulty, Betty Jennings, Betty Snyder, Marlyn Meltzer,
+        Fran Bilas, and Ruth Lichterman — were later selected to become the first programmers of
+        ENIAC, translating the very equations they had calculated by hand into wired
+        machine instructions.<span class="sup">[4]</span>
+      </p>
+    </div>
+
+    <h4>International Timeline</h4>
+    <p>Computing for ballistics developed in parallel across multiple nations. Each column tracks a country's contributions:</p>
+
+    <div class="col-timeline">
+      <!-- Header row -->
+      <div class="col-head year-h">Year</div>
+      <div class="col-head usa">USA</div>
+      <div class="col-head ger">Germany</div>
+      <div class="col-head eng">England</div>
+      <div class="col-head intl">Other</div>
+
+      <!-- 1931 -->
+      <div class="yr">1931</div>
+      <div class="cell usa-c active"><span class="evt"><span class="evt-title">Bush's Differential Analyser</span> at MIT — room-sized mechanical analog computer for ODEs. Copies built at UPenn and Aberdeen for ballistic work.<span class="sup">[5]</span></span></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1935 -->
+      <div class="yr">1935</div>
+      <div class="cell usa-c">BRL adopts the differential analyser for trajectory calculations.</div>
+      <div class="cell ger-c active"><span class="evt"><span class="evt-title">Konrad Zuse begins the Z1</span> — mechanical binary computer built in his parents' Berlin flat. By 1941, the Z3 becomes the first programmable automatic digital computer, used for aerodynamics.<span class="sup">[17]</span></span></div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1937 -->
+      <div class="yr">1937</div>
+      <div class="cell usa-c"></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c active"><span class="evt"><span class="evt-title">Turing's "On Computable Numbers"</span> establishes theoretical foundations. Douglas Hartree builds a differential analyser from Meccano, later replaced by a full machine for Ministry of Supply ballistic work.<span class="sup">[18]</span></span></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1939 -->
+      <div class="yr">1939</div>
+      <div class="cell usa-c"></div>
+      <div class="cell ger-c active"><span class="evt"><span class="evt-title">Peenemünde V-2 programme</span> begins trajectory computation — far more complex than artillery: supersonic flight through varying atmospheric layers over 300 km ranges.<span class="sup">[19]</span></span></div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1941 -->
+      <div class="yr">1941</div>
+      <div class="cell usa-c"></div>
+      <div class="cell ger-c">Zuse's Z3 operational — 2,600 relays, floating-point arithmetic.</div>
+      <div class="cell eng-c active"><span class="evt"><span class="evt-title">Bletchley Park</span> — Tommy Flowers designs electronic valve circuits for codebreaking, proving vacuum-tube logic at scale. Leads to Colossus (1943).<span class="sup">[20]</span></span></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1942 -->
+      <div class="yr">1942</div>
+      <div class="cell usa-c active"><span class="evt"><span class="evt-title">Mauchly's proposal</span> — an electronic machine to compute a trajectory in 30s instead of 40 hours. BRL's firing-table backlog is now critical.<span class="sup">[6]</span></span></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1943 -->
+      <div class="yr">1943</div>
+      <div class="cell usa-c active"><span class="evt"><span class="evt-title">ENIAC construction begins</span> at Moore School, UPenn, under Project PX.<span class="sup">[1]</span></span></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c active"><span class="evt"><span class="evt-title">Colossus Mark 1</span> operational at Bletchley — 1,600 valves. Secret until the 1970s.<span class="sup">[20]</span></span></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1944 -->
+      <div class="yr">1944</div>
+      <div class="cell usa-c"></div>
+      <div class="cell ger-c active"><span class="evt"><span class="evt-title">V-2 deployed</span> — first guided ballistic missile. Mischgerät analog computer integrates accelerometer data in real time during flight.<span class="sup">[19]</span></span></div>
+      <div class="cell eng-c active"><span class="evt"><span class="evt-title">Kerrison Predictor</span> and fire-control systems solve differential equations mechanically to aim anti-aircraft guns.<span class="sup">[16]</span></span></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1945 -->
+      <div class="yr">1945</div>
+      <div class="cell usa-c active"><span class="evt"><span class="evt-title">ENIAC's first run</span> — H-bomb feasibility, not ballistics. Von Neumann writes the EDVAC report, outlining stored-program architecture.<span class="sup">[7][14]</span></span></div>
+      <div class="cell ger-c">War ends. V-2 scientists captured by USA (Operation Paperclip) and USSR.</div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1946 -->
+      <div class="yr">1946</div>
+      <div class="cell usa-c active"><span class="evt"><span class="evt-title">ENIAC unveiled Feb 14</span> — computes trajectory faster than the shell flies. V-2 rockets tested at White Sands with ENIAC-era computing.<span class="sup">[1]</span></span></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c"></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1948 -->
+      <div class="yr">1948</div>
+      <div class="cell usa-c"></div>
+      <div class="cell ger-c"></div>
+      <div class="cell eng-c active"><span class="evt"><span class="evt-title">Manchester Baby</span> — first stored-program. EDSAC (1949) at Cambridge is the first practical stored-program machine, used for table computation.<span class="sup">[18]</span></span></div>
+      <div class="cell intl-c"></div>
+
+      <!-- 1950s -->
+      <div class="yr">1950s</div>
+      <div class="cell usa-c">ENIAC runs firing tables until decommissioned Oct 1955 (80,000+ hours). ICBM guidance computers designed.<span class="sup">[8]</span></div>
+      <div class="cell ger-c">Zuse founds Zuse KG, builds Z22 (1955) — one of the first commercial computers in continental Europe.</div>
+      <div class="cell eng-c">Ferranti Mark 1 (1951), LEO (1951) — early commercial and scientific machines.</div>
+      <div class="cell intl-c active"><span class="evt"><span class="evt-title">USSR: MESM (1950), BESM</span> for nuclear/ballistic work. <span class="evt-title">France: CUBA (1951)</span> at the Laboratoire Central de l'Armement. Cold War drives global investment.<span class="sup">[21]</span></span></div>
+    </div>
+  </div>
+
+  <!-- TAB 2: The Mathematics -->
+  <div class="notes-content" id="tab-math">
+    <h4>Equations of Motion</h4>
+    <p>
+      The fundamental problem is Newton's second law applied to a projectile moving through air.
+      The projectile experiences two forces: gravity (constant, downward) and aerodynamic drag
+      (opposing the direction of motion, proportional to the square of speed). In two dimensions,
+      the equations of motion are:<span class="sup">[9]</span>
+    </p>
+
+    <div class="math-block">
+  m · (d²x/dt²) = −D · (dx/dt)         ... horizontal
+  m · (d²y/dt²) = −D · (dy/dt) − m·g   ... vertical
+
+  where D = ½ · ρ · Cd · A · |v|
+
+  and |v| = √( (dx/dt)² + (dy/dt)² )</div>
+
+    <p>
+      Here <strong style="color:#c0e0d0">m</strong> is the projectile mass, <strong style="color:#c0e0d0">ρ</strong> is air density (which varies with
+      altitude — a complication the full BRL calculations accounted for), <strong style="color:#c0e0d0">Cd</strong> is the drag
+      coefficient (dependent on Mach number, shell shape, and spin), <strong style="color:#c0e0d0">A</strong> is the cross-sectional
+      area, and <strong style="color:#c0e0d0">g</strong> is gravitational acceleration.
+    </p>
+
+    <h4>Why Derivatives Matter</h4>
+    <p>
+      The entire problem is expressed in terms of <strong style="color:#c0e0d0">derivatives</strong> — rates of change.
+      Position's first derivative with respect to time is velocity; velocity's first
+      derivative is acceleration. The drag force itself depends on velocity, making
+      the equation <em>nonlinear</em>: you cannot solve it with a simple closed-form
+      formula as you can for basic projectile motion without air resistance.
+    </p>
+
+    <div class="note-highlight">
+      <p>
+        This is the key insight: without drag, the trajectory is a perfect parabola and can be
+        solved on paper with algebra. With drag, you get a coupled nonlinear system of
+        ordinary differential equations (ODEs) that can only be solved numerically — step by
+        step, computing the derivative at each point to find the next point. This is exactly
+        what the dashed "no-drag" reference curve and the solid "with-drag" computed
+        curve in the simulation illustrate.
+      </p>
+    </div>
+
+    <h4>The Role of the First and Second Derivatives</h4>
+    <p>
+      At each integration step, the computer must evaluate:
+    </p>
+
+    <div class="math-block">
+  1st derivative of position → velocity:
+     vₓ = dx/dt,  vᵧ = dy/dt
+
+  1st derivative of velocity → acceleration:
+     aₓ = dvₓ/dt = −(k·|v|)·vₓ
+     aᵧ = dvᵧ/dt = −g − (k·|v|)·vᵧ
+
+  where k = D/m = (ρ·Cd·A) / (2m)
+
+  The trajectory's curvature (d²y/dx²) indicates
+  how sharply the path bends — visible in the
+  readout panel as the shell arcs downward.</div>
+
+    <p>
+      In the simulation's live readout, <strong style="color:#c0e0d0">dy/dx</strong> shows the slope of the trajectory
+      (the first derivative of the path curve), and <strong style="color:#c0e0d0">d²y/dx²</strong> shows how rapidly that
+      slope is changing (the curvature). When dy/dx passes through zero, the projectile
+      has reached its apex. When d²y/dx² grows large and negative, the shell is diving
+      steeply — this is when drag has its greatest effect on the descent trajectory.
+    </p>
+
+    <h4>Simplifications in This Simulation</h4>
+    <p>
+      The real BRL calculations included additional factors that this simulation omits
+      for clarity: altitude-dependent air density (the atmosphere gets thinner higher up),
+      the Coriolis effect from Earth's rotation, Mach-dependent drag coefficients
+      (drag changes dramatically around the speed of sound), wind profiles at different
+      altitudes, and the Magnus effect from projectile spin. The BRL's "Siacci method"
+      and later the "3-degree-of-freedom" and "6-degree-of-freedom" models added these
+      corrections progressively.<span class="sup">[10]</span>
+    </p>
+  </div>
+
+  <!-- TAB 3: Numerical Methods -->
+  <div class="notes-content" id="tab-method">
+    <h4>Euler's Method — The Simplest Numerical Integrator</h4>
+    <p>
+      This simulation uses <strong style="color:#c0e0d0">Euler's method</strong> (also called the forward Euler method),
+      the most elementary technique for numerically solving ordinary differential equations.
+      Given a current state (position, velocity) and the ability to compute the derivative
+      (acceleration), we simply step forward by a small time increment Δt:<span class="sup">[11]</span>
+    </p>
+
+    <div class="math-block">
+  Given:  y'(t) = f(t, y)    (the ODE)
+          y(t₀) = y₀         (initial condition)
+
+  Euler step:
+          y(t + Δt) ≈ y(t) + Δt · f(t, y(t))
+
+  Applied to ballistics:
+          vₓ(t+Δt) = vₓ(t) + aₓ(t) · Δt
+          vᵧ(t+Δt) = vᵧ(t) + aᵧ(t) · Δt
+          x(t+Δt)  = x(t)  + vₓ(t) · Δt
+          y(t+Δt)  = y(t)  + vᵧ(t) · Δt</div>
+
+    <p>
+      The method is intuitive: evaluate the slope (derivative) at the current point,
+      then walk in that direction for a small step. Repeat. The green dots on the
+      trajectory plot represent these discrete computation steps — you can see how
+      the computer "feels its way" along the curve, one step at a time.
+    </p>
+
+    <h4>Step Size and Accuracy</h4>
+    <p>
+      The <strong style="color:#c0e0d0">Δt slider</strong> in the simulation controls step size. Try changing it:
+      with a very large Δt (0.50s), the trajectory becomes visibly coarser and less
+      accurate. With a tiny Δt (0.01s), the result is smooth and precise but requires
+      many more computation steps. Euler's method has <em>first-order</em> accuracy, meaning
+      halving the step size halves the error per step (but doubles the number of steps
+      and thus the total computation time).<span class="sup">[11]</span>
+    </p>
+
+    <div class="note-highlight">
+      <p>
+        This trade-off was deeply practical for the early computers. Each arithmetic
+        operation took real time — about 200 microseconds for a multiplication on ENIAC.
+        Choosing the right Δt was a balance between accuracy requirements (gunners needed
+        trajectories correct to within a few metres) and the hours of machine time available.<span class="sup">[1]</span>
+      </p>
+    </div>
+
+    <h4>Better Methods Used Historically</h4>
+    <p>
+      While Euler's method illustrates the principle, the BRL and subsequent computing
+      centres typically used higher-order methods for production calculations:
+    </p>
+
+    <div class="math-block">
+  Runge-Kutta (4th order, "RK4"):
+  ─────────────────────────────────
+  k₁ = Δt · f(tₙ, yₙ)
+  k₂ = Δt · f(tₙ + Δt/2, yₙ + k₁/2)
+  k₃ = Δt · f(tₙ + Δt/2, yₙ + k₂/2)
+  k₄ = Δt · f(tₙ + Δt, yₙ + k₃)
+
+  yₙ₊₁ = yₙ + (k₁ + 2k₂ + 2k₃ + k₄) / 6
+
+  Error per step: O(Δt⁵) — far more
+  accurate than Euler for the same step size.</div>
+
+    <p>
+      The Runge-Kutta method evaluates the derivative at four points within each step,
+      effectively "sampling" the curve more thoroughly. This was the workhorse method for
+      ballistic computation from the 1940s onward and remains widely used today.<span class="sup">[12]</span> The
+      Adams-Bashforth and Adams-Moulton predictor-corrector methods were also employed,
+      reusing derivative evaluations from previous steps to improve efficiency.<span class="sup">[11]</span>
+    </p>
+
+    <h4>What "Solving with Derivatives" Actually Means</h4>
+    <p>
+      When we say early computers "used derivatives to solve missile problems," the precise
+      meaning is this: at each moment in time, the computer evaluates the forces acting
+      on the projectile (gravity, drag) to compute the <em>rate of change</em> (derivative) of
+      velocity. It then uses that derivative to update velocity, and uses velocity (the
+      derivative of position) to update position. The entire trajectory emerges from this
+      chain of derivative evaluations — thousands of tiny steps, each dependent on the last.
+    </p>
+  </div>
+
+  <!-- TAB 4: The Machines -->
+  <div class="notes-content" id="tab-machines">
+    <h4>ENIAC (1945)</h4>
+    <p>
+      The <strong style="color:#c0e0d0">Electronic Numerical Integrator and Computer</strong> was the first
+      general-purpose electronic digital computer. Designed by J. Presper Eckert and
+      John Mauchly at the University of Pennsylvania's Moore School of Electrical
+      Engineering, it was funded by the U.S. Army specifically to compute ballistic
+      firing tables.<span class="sup">[1]</span>
+    </p>
+    <p>
+      ENIAC contained 17,468 vacuum tubes, 7,200 crystal diodes, 1,500 relays, 70,000
+      resistors, 10,000 capacitors, and roughly 5 million hand-soldered joints. It weighed
+      27 tonnes, occupied 167 square metres, and consumed 150 kilowatts of power. It could
+      perform about 5,000 additions per second — roughly 1,000 times faster than the
+      electromechanical relay calculators that preceded it.<span class="sup">[1]</span>
+    </p>
+
+    <div class="note-highlight">
+      <p>
+        ENIAC was programmed by physically rewiring its patch cables and setting its 3,000
+        function-table switches. "Programming" a new problem could take days of recabling.
+        The six women programmers (the "ENIAC girls") had to understand both the differential
+        equations and the machine's physical architecture to translate mathematics into
+        wire connections.<span class="sup">[4]</span>
+      </p>
+    </div>
+
+    <h4>Before ENIAC: Analog Computers</h4>
+    <p>
+      Before digital electronic computing, the BRL relied on Vannevar Bush's
+      <strong style="color:#c0e0d0">differential analyser</strong> (1931) — a room-sized mechanical analog computer
+      that used rotating shafts, gears, and wheel-and-disc integrators to solve
+      differential equations continuously. The output was drawn directly as a curve
+      on paper by a pen attached to the mechanism. The analyser could solve a trajectory
+      in about 15 minutes, but its accuracy was limited to about 0.1%, and it required
+      physical reconfiguration (changing gear trains) for each new equation.<span class="sup">[5]</span>
+    </p>
+    <p>
+      The key conceptual difference: analog computers represented mathematical quantities
+      as physical measurements (shaft rotations, voltages), computing derivatives through
+      the physical process of integration. Digital computers like ENIAC represented numbers
+      as discrete digits and computed derivatives through arithmetic — subtraction, multiplication,
+      and division — step by step. The digital approach was slower per operation but far
+      more precise and flexible.<span class="sup">[13]</span>
+    </p>
+
+    <h4>After ENIAC: The Stored-Program Revolution</h4>
+    <p>
+      ENIAC's successor at the BRL was <strong style="color:#c0e0d0">EDVAC</strong> (Electronic Discrete Variable
+      Automatic Computer, 1949), which implemented John von Neumann's stored-program
+      architecture — instructions and data shared the same memory, eliminating the need
+      for physical rewiring. This made changing from one trajectory problem to another
+      a matter of minutes rather than days.<span class="sup">[14]</span> The stored-program concept, outlined
+      in von Neumann's famous 1945 "First Draft of a Report on the EDVAC," was directly
+      inspired by his work with ENIAC on ballistic and nuclear calculations.<span class="sup">[7]</span>
+    </p>
+  </div>
+
+  <!-- TAB 5: Legacy & Impact -->
+  <div class="notes-content" id="tab-legacy">
+    <h4>From Firing Tables to General Computing</h4>
+    <p>
+      The trajectory calculation problem was the original "killer app" that justified the
+      enormous expense of building the first electronic computers. But once these machines
+      existed, their generality became apparent. ENIAC's very first real computation was not
+      a firing table but a simulation of nuclear chain reactions for the hydrogen bomb,
+      run in late 1945 at the request of Los Alamos physicist Edward Teller.<span class="sup">[7]</span>
+    </p>
+    <p>
+      The numerical methods developed for ballistic computation — finite difference schemes,
+      Runge-Kutta integration, predictor-corrector algorithms — became the foundation of
+      <strong style="color:#c0e0d0">computational science</strong> as a whole. The same techniques are used today in
+      weather forecasting, structural engineering, orbital mechanics, fluid dynamics,
+      and countless other fields where differential equations must be solved
+      numerically.<span class="sup">[12]</span>
+    </p>
+
+    <h4>The Derivative as a Computational Primitive</h4>
+    <p>
+      What made these early computers revolutionary was not that they could add or
+      multiply — desk calculators could do that. It was that they could <em>chain together
+      thousands of arithmetic operations</em> fast enough to approximate continuous
+      mathematical processes. The derivative — the instantaneous rate of change — is
+      inherently a concept about continuity and limits. A digital computer can never
+      compute a true derivative; it can only approximate one through finite differences.
+      But by making those approximations fast enough and with small enough steps, the
+      results become indistinguishable from exact solutions for all practical purposes.
+    </p>
+
+    <div class="note-highlight">
+      <p>
+        This philosophical shift — from exact analytical solutions to "good enough" numerical
+        approximations — was one of the most important intellectual transitions in 20th-century
+        applied mathematics. The ballistic computing programme was where that transition first
+        happened at scale, and it reshaped how science and engineering engage with
+        differential equations to this day.<span class="sup">[15]</span>
+      </p>
+    </div>
+
+    <h4>Guided Missiles and Control Theory</h4>
+    <p>
+      As rocketry advanced through the 1950s, the problem evolved from <em>predicting</em>
+      trajectories (firing tables for unguided shells) to <em>controlling</em> them in real
+      time (guided missiles). This required solving the same differential equations
+      not once for a table, but continuously during flight — computing derivatives of
+      position from radar tracking data, comparing the actual trajectory to the desired
+      one, and sending correction signals. This real-time derivative computation was
+      the birth of modern <strong style="color:#c0e0d0">digital control theory</strong> and led directly to the
+      guidance computers used in ICBMs, the Apollo programme's spacecraft navigation,
+      and today's autonomous systems.<span class="sup">[16]</span>
+    </p>
+  </div>
+
+  <!-- TAB: Firing Table Simulation -->
+  <div class="notes-content" id="tab-firingtable">
+    <h4>ENIAC Firing Table Generator</h4>
+    <p>
+      This simulates what ENIAC actually produced: a <strong style="color:#c0e0d0">firing table</strong> — a systematic
+      grid showing the range achieved for every combination of launch angle and muzzle
+      velocity. A gunner would look up the row matching their target distance and read
+      off the required elevation. Each cell requires a full numerical integration of the
+      trajectory equations. Click "Compute Table" to watch the machine work through
+      every entry, one by one.
+    </p>
+
+    <div class="ft-controls">
+      <label>Drag coeff:</label>
+      <input type="number" id="ftDrag" value="0.002" step="0.001" min="0" max="0.05" style="width:70px;">
+      <label>Angles:</label>
+      <select id="ftAngleRange">
+        <option value="5,10,15,20,25,30,35,40,45,50,55,60,65,70">5° – 70° (by 5°)</option>
+        <option value="10,20,30,40,45,50,60,70">Selected angles</option>
+        <option value="30,35,40,45,50,55,60">30° – 60° (fine)</option>
+      </select>
+      <label>Velocities:</label>
+      <select id="ftVelRange">
+        <option value="200,300,400,500,600,700,800">200–800 m/s</option>
+        <option value="300,400,500,600">300–600 m/s</option>
+        <option value="472">M2 Howitzer (472 m/s)</option>
+        <option value="808">M1 Long Tom (808 m/s)</option>
+      </select>
+      <button class="btn" id="ftComputeBtn" style="width:auto; padding:6px 16px;">▶ Compute Table</button>
+    </div>
+
+    <div class="firing-table-wrap">
+      <table class="firing-table" id="firingTable">
+        <thead id="ftHead"><tr><th>Angle \ Vel.</th></tr></thead>
+        <tbody id="ftBody"></tbody>
+      </table>
+    </div>
+
+    <div class="ft-status" id="ftStatus">
+      Ready. Select parameters and click Compute Table.
+    </div>
+
+    <div class="note-highlight" style="margin-top:18px;">
+      <p>
+        A real WWII firing table for a single weapon might contain 3,000+ entries covering
+        different charge levels, elevations, wind conditions, and air temperatures. Before
+        ENIAC, the BRL's human computers could produce roughly 1 trajectory per 40 hours of
+        work. ENIAC could compute one in 30 seconds — making it approximately 4,800 times
+        faster. The table above, at default settings, contains ~100 trajectories. A human
+        team would need about 6 months; ENIAC could finish it in under an hour.
+      </p>
+    </div>
+  </div>
+
+  <!-- TAB 6: References -->
+  <div class="notes-content" id="tab-refs">
+    <h4>Primary and Secondary Sources</h4>
+    <ul class="ref-list">
+      <li data-n="[1]">
+        Goldstine, Herman H. <em>The Computer from Pascal to von Neumann</em>.
+        Princeton University Press, 1972. — The definitive account by a key participant;
+        Goldstine was the Army liaison who secured funding for ENIAC.
+      </li>
+      <li data-n="[2]">
+        Polachek, Harry. "Before the ENIAC: Ballistic-Table Computations at the
+        Ballistic Research Laboratory." <em>IEEE Annals of the History of Computing</em>,
+        vol. 19, no. 2, 1997, pp. 18–30.
+      </li>
+      <li data-n="[3]">
+        Grier, David Alan. <em>When Computers Were Human</em>. Princeton University Press,
+        2005. — A comprehensive history of human computation, including the women
+        of the BRL.
+      </li>
+      <li data-n="[4]">
+        Light, Jennifer S. "When Computers Were Women." <em>Technology and Culture</em>,
+        vol. 40, no. 3, 1999, pp. 455–483. — The landmark paper recovering the history
+        of the ENIAC programmers.
+      </li>
+      <li data-n="[5]">
+        Bush, Vannevar. "The Differential Analyzer: A New Machine for Solving
+        Differential Equations." <em>Journal of the Franklin Institute</em>, vol. 212,
+        no. 4, 1931, pp. 447–488.
+      </li>
+      <li data-n="[6]">
+        Mauchly, John W. "The Use of High Speed Vacuum Tube Devices for
+        Calculating." Memo to the Moore School, August 1942. Reprinted in
+        Randell, Brian, ed. <em>The Origins of Digital Computers</em>, 3rd ed.,
+        Springer, 1982.
+      </li>
+      <li data-n="[7]">
+        Haigh, Thomas, Mark Priestley, and Crispin Rope. <em>ENIAC in Action:
+        Making and Remaking the Modern Computer</em>. MIT Press, 2016. — The most
+        thorough modern re-examination of ENIAC's actual use, including the
+        Los Alamos computation.
+      </li>
+      <li data-n="[8]">
+        U.S. Army Research Laboratory. "ENIAC: The Army-Funded Machine that
+        Changed the World." ARL Technical Report, 1996.
+      </li>
+      <li data-n="[9]">
+        McCoy, Robert L. <em>Modern Exterior Ballistics: The Launch and Flight
+        Dynamics of Symmetric Projectiles</em>. Schiffer Publishing, 1999. — The
+        standard modern reference on the physics of projectile flight.
+      </li>
+      <li data-n="[10]">
+        Siacci, Francesco. "Balistica." <em>Rivista di Artiglieria e Genio</em>, 1880.
+        — The original development of the Siacci method for simplified exterior
+        ballistics, used by the BRL until electronic computation made the full
+        equations tractable.
+      </li>
+      <li data-n="[11]">
+        Hairer, Ernst, Syvert P. Nørsett, and Gerhard Wanner. <em>Solving Ordinary
+        Differential Equations I: Nonstiff Problems</em>. Springer, 1993. — The
+        standard graduate reference on ODE numerical methods, including Euler
+        and Runge-Kutta.
+      </li>
+      <li data-n="[12]">
+        Butcher, John C. <em>Numerical Methods for Ordinary Differential Equations</em>.
+        3rd ed., Wiley, 2016.
+      </li>
+      <li data-n="[13]">
+        Mindell, David A. <em>Between Human and Machine: Feedback, Control, and
+        Computing Before Cybernetics</em>. Johns Hopkins University Press, 2002.
+        — Traces the interplay between analog and digital approaches.
+      </li>
+      <li data-n="[14]">
+        Von Neumann, John. "First Draft of a Report on the EDVAC." Contract
+        No. W-670-ORD-4926, Moore School of Electrical Engineering, June 30,
+        1945. Reprinted in <em>IEEE Annals of the History of Computing</em>, vol. 15,
+        no. 4, 1993, pp. 27–75.
+      </li>
+      <li data-n="[15]">
+        Aspray, William. <em>John von Neumann and the Origins of Modern Computing</em>.
+        MIT Press, 1990.
+      </li>
+      <li data-n="[16]">
+        Mackenzie, Donald. <em>Inventing Accuracy: A Historical Sociology of Nuclear
+        Missile Guidance</em>. MIT Press, 1990. — How ballistic computation evolved
+        into real-time guidance systems.
+      </li>
+    </ul>
+
+      <li data-n="[17]">
+        Rojas, Raúl, and Ulf Hashagen, eds. <em>The First Computers: History and
+        Architectures</em>. MIT Press, 2000. — Includes detailed accounts of Zuse's
+        Z1–Z4 machines and their use in aerodynamic calculations.
+      </li>
+      <li data-n="[18]">
+        Lavington, Simon. <em>A History of Manchester Computers</em>. 2nd ed., British
+        Computer Society, 1998. — Covers Hartree's differential analysers,
+        the Manchester Baby, and early British computing.
+      </li>
+      <li data-n="[19]">
+        Neufeld, Michael J. <em>The Rocket and the Reich: Peenemünde and the Coming
+        of the Ballistic Missile Era</em>. Free Press, 1995. — The definitive account
+        of V-2 development, including its computational challenges.
+      </li>
+      <li data-n="[20]">
+        Copeland, B. Jack, ed. <em>Colossus: The Secrets of Bletchley Park's
+        Codebreaking Computers</em>. Oxford University Press, 2006. — The authoritative
+        account of the world's first large-scale electronic computing devices.
+      </li>
+      <li data-n="[21]">
+        Trogemann, Georg, Alexander Y. Nitussov, and Wolfgang Ernst, eds.
+        <em>Computing in Russia: The History of Computer Devices and Information
+        Technology Revealed</em>. Vieweg+Teubner, 2001. — Covers the MESM, BESM,
+        and early Soviet computing for military applications.
+      </li>
+    </ul>
+
+    <h4>Further Reading</h4>
+    <ul class="ref-list">
+      <li data-n="•">
+        Fritz, W. Barkley. "The Women of ENIAC." <em>IEEE Annals of the History of
+        Computing</em>, vol. 18, no. 3, 1996, pp. 13–28.
+      </li>
+      <li data-n="•">
+        Ceruzzi, Paul E. <em>A History of Modern Computing</em>. 2nd ed., MIT Press, 2003.
+      </li>
+      <li data-n="•">
+        The Smithsonian National Museum of American History holds four of ENIAC's
+        original 40 panels:
+        <a href="https://americanhistory.si.edu/collections/search/object/nmah_334564" target="_blank">americanhistory.si.edu</a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('trajectoryCanvas');
+const ctx = canvas.getContext('2d');
+
+// Controls
+const angleSlider = document.getElementById('angle');
+const velSlider = document.getElementById('velocity');
+const dragSlider = document.getElementById('drag');
+const dtSlider = document.getElementById('dt');
+const fireBtn = document.getElementById('fireBtn');
+const resetBtn = document.getElementById('resetBtn');
+
+// Display values
+const angleVal = document.getElementById('angleVal');
+const velocityVal = document.getElementById('velocityVal');
+const dragVal = document.getElementById('dragVal');
+const dtVal = document.getElementById('dtVal');
+
+// Readout
+const rTime = document.getElementById('rTime');
+const rStep = document.getElementById('rStep');
+const rX = document.getElementById('rX');
+const rY = document.getElementById('rY');
+const rVx = document.getElementById('rVx');
+const rVy = document.getElementById('rVy');
+const rSpeed = document.getElementById('rSpeed');
+const rDydx = document.getElementById('rDydx');
+const rD2y = document.getElementById('rD2y');
+const rStatus = document.getElementById('rStatus');
+const equationBox = document.getElementById('equationBox');
+
+let trajectory = [];
+let newTargetTimer = null;
+let animFrame = null;
+let currentStep = 0;
+let isRunning = false;
+let showOverlay = false;
+let targetMode = false;
+let targetX = 0;
+let score = 0;
+let targetFixedMaxX = 0;  // locked x-axis extent for target mode
+let hoveredStep = -1;
+
+const derivOverlay = document.getElementById('derivOverlay');
+const derivContent = document.getElementById('derivContent');
+const overlayBtn = document.getElementById('overlayBtn');
+const targetBtn = document.getElementById('targetBtn');
+const targetHud = document.getElementById('targetHud');
+const targetDist = document.getElementById('targetDist');
+const missInfo = document.getElementById('missInfo');
+const scoreVal = document.getElementById('scoreVal');
+
+// Slider listeners
+angleSlider.addEventListener('input', () => angleVal.textContent = angleSlider.value + '°');
+velSlider.addEventListener('input', () => velocityVal.textContent = velSlider.value + ' m/s');
+dragSlider.addEventListener('input', () => dragVal.textContent = (dragSlider.value / 1000).toFixed(3));
+dtSlider.addEventListener('input', () => dtVal.textContent = (dtSlider.value / 100).toFixed(2) + ' s');
+
+function resizeCanvas() {
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+  if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+}
+window.addEventListener('resize', resizeCanvas);
+setTimeout(resizeCanvas, 50);
+
+function computeTrajectory() {
+  const angle = parseFloat(angleSlider.value) * Math.PI / 180;
+  const v0 = parseFloat(velSlider.value);
+  const k = parseFloat(dragSlider.value) / 1000;
+  const dt = parseFloat(dtSlider.value) / 100;
+  const g = 9.81;
+
+  let x = 0, y = 0;
+  let vx = v0 * Math.cos(angle);
+  let vy = v0 * Math.sin(angle);
+
+  const initDydx = Math.abs(vx) > 0.001 ? vy / vx : (vy > 0 ? 999 : -999);
+  const points = [{ x, y, vx, vy, t: 0, speed: v0, dydx: initDydx, d2y: 0 }];
+
+  let prevDydx = initDydx;
+
+  for (let step = 1; step < 10000; step++) {
+    const speed = Math.sqrt(vx * vx + vy * vy);
+    const ax = -k * speed * vx;
+    const ay = -g - k * speed * vy;
+
+    vx += ax * dt;
+    vy += ay * dt;
+    x += vx * dt;
+    y += vy * dt;
+
+    const t = step * dt;
+    const dydx = Math.abs(vx) > 0.001 ? vy / vx : (vy > 0 ? 999 : -999);
+    const d2y = (dydx - prevDydx) / (Math.abs(vx) > 0.001 ? vx * dt : dt);
+    prevDydx = dydx;
+
+    points.push({ x, y, vx, vy, t, speed: Math.sqrt(vx*vx + vy*vy), dydx, d2y, ax, ay });
+
+    if (y < 0 && step > 1) break;
+  }
+
+  return points;
+}
+
+function drawTrajectory(upTo) {
+  const w = canvas.width / devicePixelRatio;
+  const h = canvas.height / devicePixelRatio;
+  const pad = { top: 20, right: 20, bottom: 40, left: 55 };
+
+  ctx.clearRect(0, 0, w, h);
+
+  // Find extents
+  let maxX = 0, maxY = 0;
+  for (const p of trajectory) {
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  }
+  // In target mode, use the locked axis extent from when target mode was activated
+  if (targetMode && targetFixedMaxX > 0) {
+    maxX = Math.max(targetFixedMaxX, 100);
+    maxY = Math.max(maxY * 1.15, targetFixedMaxX * 0.45, 100);
+  } else {
+    maxX = Math.max(maxX * 1.1, 100);
+    maxY = Math.max(maxY * 1.15, 100);
+  }
+
+  const plotW = w - pad.left - pad.right;
+  const plotH = h - pad.top - pad.bottom;
+
+  function toScreen(px, py) {
+    return [
+      pad.left + (px / maxX) * plotW,
+      pad.top + plotH - (py / maxY) * plotH
+    ];
+  }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(0,255,120,0.06)';
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= 5; i++) {
+    const [gx0, gy] = toScreen(0, (maxY / 5) * i);
+    const [gx1] = toScreen(maxX, 0);
+    ctx.beginPath(); ctx.moveTo(gx0, gy); ctx.lineTo(gx1, gy); ctx.stroke();
+    const [gx, gy0] = toScreen((maxX / 5) * i, 0);
+    const [, gy1] = toScreen(0, maxY);
+    ctx.beginPath(); ctx.moveTo(gx, gy0); ctx.lineTo(gx, gy1); ctx.stroke();
+  }
+
+  // Axis labels
+  ctx.fillStyle = '#3a5a4a';
+  ctx.font = '10px "IBM Plex Mono", monospace';
+  ctx.textAlign = 'center';
+  for (let i = 0; i <= 5; i++) {
+    const xv = ((maxX / 5) * i).toFixed(0);
+    const [lx, ly] = toScreen((maxX / 5) * i, 0);
+    ctx.fillText(xv + 'm', lx, ly + 16);
+    const yv = ((maxY / 5) * i).toFixed(0);
+    const [lx2, ly2] = toScreen(0, (maxY / 5) * i);
+    ctx.textAlign = 'right';
+    ctx.fillText(yv + 'm', lx2 - 6, ly2 + 4);
+    ctx.textAlign = 'center';
+  }
+
+  // Axis titles
+  ctx.fillStyle = '#4a7a6a';
+  ctx.font = '11px "IBM Plex Mono", monospace';
+  ctx.textAlign = 'center';
+  const [axMidX, axMidY] = toScreen(maxX / 2, 0);
+  ctx.fillText('Range (m)', axMidX, axMidY + 30);
+  ctx.save();
+  const [ayX, ayY] = toScreen(0, maxY / 2);
+  ctx.translate(ayX - 36, ayY);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText('Altitude (m)', 0, 0);
+  ctx.restore();
+
+  // Launch angle indicator at origin (drawn in screen space)
+  const angleRad = parseFloat(angleSlider.value) * Math.PI / 180;
+  const indicatorLen = 50;
+  const [ox, oy] = toScreen(0, 0);
+  ctx.strokeStyle = 'rgba(0,255,200,0.3)';
+  ctx.setLineDash([3, 4]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(ox, oy);
+  ctx.lineTo(ox + indicatorLen * Math.cos(angleRad), oy - indicatorLen * Math.sin(angleRad));
+  ctx.stroke();
+  ctx.setLineDash([]);
+  // Angle arc
+  ctx.beginPath();
+  ctx.arc(ox, oy, 20, 0, -angleRad, true);
+  ctx.strokeStyle = 'rgba(0,255,200,0.2)';
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(0,255,200,0.45)';
+  ctx.font = '9px "IBM Plex Mono", monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText(angleSlider.value + '°', ox + 26, oy - 10);
+
+  // No-drag reference (dashed parabola)
+  const angle = parseFloat(angleSlider.value) * Math.PI / 180;
+  const v0 = parseFloat(velSlider.value);
+  ctx.strokeStyle = 'rgba(0,255,120,0.1)';
+  ctx.setLineDash([4, 6]);
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  let first = true;
+  for (let t = 0; t < 200; t += 0.5) {
+    const rx = v0 * Math.cos(angle) * t;
+    const ry = v0 * Math.sin(angle) * t - 0.5 * 9.81 * t * t;
+    if (ry < 0 && t > 0) break;
+    const [sx, sy] = toScreen(rx, ry);
+    if (first) { ctx.moveTo(sx, sy); first = false; } else ctx.lineTo(sx, sy);
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Trajectory path (computed with drag)
+  ctx.strokeStyle = '#00ff80';
+  ctx.lineWidth = 2;
+  ctx.shadowColor = 'rgba(0,255,80,0.4)';
+  ctx.shadowBlur = 6;
+  ctx.beginPath();
+  for (let i = 0; i <= upTo && i < trajectory.length; i++) {
+    const [sx, sy] = toScreen(trajectory[i].x, Math.max(trajectory[i].y, 0));
+    if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+  }
+  ctx.stroke();
+  ctx.shadowBlur = 0;
+
+  // Computation dots at each step
+  for (let i = 0; i <= upTo && i < trajectory.length; i++) {
+    if (i % Math.max(1, Math.floor(trajectory.length / 40)) !== 0 && i !== upTo) continue;
+    const [sx, sy] = toScreen(trajectory[i].x, Math.max(trajectory[i].y, 0));
+    ctx.fillStyle = i === upTo ? '#00ffcc' : 'rgba(0,255,128,0.5)';
+    ctx.beginPath();
+    ctx.arc(sx, sy, i === upTo ? 5 : 2.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Current point: velocity + acceleration vectors
+  if (upTo > 0 && upTo < trajectory.length) {
+    const p = trajectory[upTo];
+    const [sx, sy] = toScreen(p.x, Math.max(p.y, 0));
+
+    // Velocity vector (orange)
+    const vScale = 0.15;
+    ctx.strokeStyle = '#ffaa00';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + p.vx * vScale, sy - p.vy * vScale);
+    ctx.stroke();
+    // arrowhead
+    const va = Math.atan2(-p.vy, p.vx);
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath();
+    const atx = sx + p.vx * vScale, aty = sy - p.vy * vScale;
+    ctx.moveTo(atx, aty);
+    ctx.lineTo(atx - 8 * Math.cos(va - 0.35), aty + 8 * Math.sin(va - 0.35));
+    ctx.lineTo(atx - 8 * Math.cos(va + 0.35), aty + 8 * Math.sin(va + 0.35));
+    ctx.fill();
+
+    // Acceleration vector (red) — gravity + drag
+    if (p.ax !== undefined) {
+      const aScale = 2.0;
+      ctx.strokeStyle = '#ff4466';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx + p.ax * aScale, sy - p.ay * aScale);
+      ctx.stroke();
+    }
+
+    // Projectile glow
+    ctx.fillStyle = '#00ccff';
+    ctx.shadowColor = 'rgba(0,200,255,0.6)';
+    ctx.shadowBlur = 12;
+    ctx.beginPath();
+    ctx.arc(sx, sy, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+  }
+
+  // Ground line
+  const [g0x, g0y] = toScreen(0, 0);
+  const [g1x] = toScreen(maxX, 0);
+  ctx.strokeStyle = 'rgba(0,255,120,0.25)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(g0x, g0y);
+  ctx.lineTo(g1x, g0y);
+  ctx.stroke();
+
+  // Target marker
+  if (targetMode && targetX > 0) {
+    const [tx, ty] = toScreen(targetX, 0);
+    // Vertical dashed line
+    ctx.strokeStyle = 'rgba(255,68,102,0.35)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx, pad.top);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Target crosshair on ground
+    ctx.fillStyle = '#ff4466';
+    ctx.shadowColor = 'rgba(255,68,100,0.5)';
+    ctx.shadowBlur = 8;
+    ctx.beginPath();
+    ctx.arc(tx, ty, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Inner ring
+    ctx.strokeStyle = '#ff8899';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(tx, ty, 12, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(tx, ty, 18, 0, Math.PI * 2);
+    ctx.stroke();
+    // Label
+    ctx.fillStyle = '#ff8899';
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('TARGET', tx, ty + 28);
+    ctx.fillText(targetX.toFixed(0) + 'm', tx, ty + 40);
+  }
+
+  // Derivative overlay: draw tangent line and Δ markers at hovered step
+  if (showOverlay && hoveredStep > 0 && hoveredStep < trajectory.length - 1) {
+    const i = hoveredStep;
+    const p = trajectory[i];
+    const pp = trajectory[i - 1];
+    const [cx, cy] = toScreen(p.x, Math.max(p.y, 0));
+    const [px, py_] = toScreen(pp.x, Math.max(pp.y, 0));
+
+    // Horizontal and vertical delta lines (the finite difference triangle)
+    ctx.strokeStyle = 'rgba(255,204,68,0.6)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    // Horizontal: from prev to (current.x, prev.y)
+    ctx.beginPath();
+    ctx.moveTo(px, py_);
+    ctx.lineTo(cx, py_);
+    ctx.stroke();
+    // Vertical: from (current.x, prev.y) to current
+    ctx.beginPath();
+    ctx.moveTo(cx, py_);
+    ctx.lineTo(cx, cy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Label Δx and Δy
+    ctx.fillStyle = '#ffcc44';
+    ctx.font = '10px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    const dx = p.x - pp.x;
+    const dy = p.y - pp.y;
+    ctx.fillText('Δx=' + dx.toFixed(1), (px + cx) / 2, py_ + 14);
+    ctx.textAlign = 'left';
+    ctx.fillText('Δy=' + dy.toFixed(1), cx + 5, (py_ + cy) / 2);
+
+    // Tangent line through the point
+    const tangentLen = 60;
+    const slope = p.dydx;
+    const slopeScreen = -(slope * (plotH / maxY)) / (plotW / maxX); // convert to screen slope
+    const mag = Math.sqrt(1 + slopeScreen * slopeScreen);
+    const tdx = tangentLen / mag;
+    const tdy = tangentLen * slopeScreen / mag;
+    ctx.strokeStyle = 'rgba(255,170,0,0.7)';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(cx - tdx, cy - tdy);
+    ctx.lineTo(cx + tdx, cy + tdy);
+    ctx.stroke();
+
+    // Highlight dot
+    ctx.fillStyle = '#ffcc44';
+    ctx.beginPath();
+    ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── 2nd-order derivative visualization ──
+    // Show acceleration (Δv/Δt) as vectors at the hovered point
+    if (i >= 2) {
+      const pn = trajectory[i + 1 < trajectory.length ? i + 1 : i];
+      const dt = p.t - pp.t;
+
+      // Draw velocity vectors at previous and current points to show change
+      const vScale2 = 0.08;
+      // Previous velocity vector (dimmed)
+      ctx.strokeStyle = 'rgba(255,100,100,0.35)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + pp.vx * vScale2, cy - pp.vy * vScale2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Current velocity vector (bright)
+      ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + p.vx * vScale2, cy - p.vy * vScale2);
+      ctx.stroke();
+
+      // Δv vector (the acceleration direction) — from tip of old v to tip of new v
+      const oldTipX = cx + pp.vx * vScale2, oldTipY = cy - pp.vy * vScale2;
+      const newTipX = cx + p.vx * vScale2, newTipY = cy - p.vy * vScale2;
+      ctx.strokeStyle = '#ff4466';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(oldTipX, oldTipY);
+      ctx.lineTo(newTipX, newTipY);
+      ctx.stroke();
+      // Arrowhead for Δv
+      const dvAngle = Math.atan2(newTipY - oldTipY, newTipX - oldTipX);
+      ctx.fillStyle = '#ff4466';
+      ctx.beginPath();
+      ctx.moveTo(newTipX, newTipY);
+      ctx.lineTo(newTipX - 6 * Math.cos(dvAngle - 0.4), newTipY - 6 * Math.sin(dvAngle - 0.4));
+      ctx.lineTo(newTipX - 6 * Math.cos(dvAngle + 0.4), newTipY - 6 * Math.sin(dvAngle + 0.4));
+      ctx.fill();
+
+      // Label
+      const ax = (p.vx - pp.vx) / dt;
+      const ay = (p.vy - pp.vy) / dt;
+      ctx.fillStyle = '#ff6688';
+      ctx.font = '9px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('Δv/Δt (a=' + Math.sqrt(ax*ax + ay*ay).toFixed(1) + ' m/s²)', newTipX + 4, newTipY - 4);
+    }
+  }
+}
+
+function updateReadout(i) {
+  const p = trajectory[i];
+  rTime.textContent = p.t.toFixed(2) + ' s';
+  rStep.textContent = i;
+  rX.textContent = p.x.toFixed(1) + ' m';
+  rY.textContent = Math.max(p.y, 0).toFixed(1) + ' m';
+  rVx.textContent = p.vx.toFixed(1) + ' m/s';
+  rVy.textContent = p.vy.toFixed(1) + ' m/s';
+  rSpeed.textContent = p.speed.toFixed(1) + ' m/s';
+
+  const dyEl = rDydx;
+  dyEl.textContent = p.dydx.toFixed(4);
+  dyEl.className = 'v' + (Math.abs(p.dydx) > 2 ? ' warn' : '');
+
+  const d2El = rD2y;
+  d2El.textContent = p.d2y.toFixed(6);
+  d2El.className = 'v' + (Math.abs(p.d2y) > 0.001 ? ' warn' : '');
+
+  // Update equation box with current computation
+  const dt = parseFloat(dtSlider.value) / 100;
+  const k = parseFloat(dragSlider.value) / 1000;
+  equationBox.textContent =
+`Step ${i}: t = ${p.t.toFixed(2)}s
+────────────────────────────
+  speed |v| = ${p.speed.toFixed(2)} m/s
+
+  Derivatives (rates of change):
+  dvₓ/dt = −k·|v|·vₓ = ${(p.ax||0).toFixed(3)}
+  dvᵧ/dt = −g−k·|v|·vᵧ = ${(p.ay||0).toFixed(3)}
+
+  Euler integration (Δt=${dt.toFixed(2)}):
+  vₓ → ${p.vx.toFixed(2)} m/s
+  vᵧ → ${p.vy.toFixed(2)} m/s
+  x  → ${p.x.toFixed(1)} m
+  y  → ${Math.max(p.y,0).toFixed(1)} m
+
+  dy/dx = vᵧ/vₓ = ${p.dydx.toFixed(4)}`;
+}
+
+function animate() {
+  if (currentStep >= trajectory.length - 1) {
+    isRunning = false;
+    rStatus.textContent = 'IMPACT';
+    rStatus.className = 'v crit';
+    fireBtn.classList.remove('active');
+
+    const lastP = trajectory[trajectory.length - 1];
+    let targetMsg = '';
+    if (targetMode && targetX > 0) {
+      const miss = Math.abs(lastP.x - targetX);
+      if (miss < 50) {
+        score += 3;
+        missInfo.innerHTML = '<span class="hit-msg">DIRECT HIT! (' + miss.toFixed(0) + 'm)</span>';
+        targetMsg = `\n  ★ DIRECT HIT! (within ${miss.toFixed(0)}m)`;
+      } else if (miss < 150) {
+        score += 1;
+        missInfo.textContent = 'Near miss: ' + miss.toFixed(0) + 'm off';
+        targetMsg = `\n  ◆ Near miss: ${miss.toFixed(0)}m off target`;
+      } else {
+        const dir = lastP.x < targetX ? 'SHORT' : 'LONG';
+        missInfo.textContent = dir + ' by ' + miss.toFixed(0) + 'm';
+        targetMsg = `\n  ✗ ${dir} by ${miss.toFixed(0)}m`;
+      }
+      scoreVal.textContent = score;
+      // Only generate new target after a direct hit: wait 3s, reset, new target
+      if (miss < 50) {
+        if (newTargetTimer) clearTimeout(newTargetTimer);
+        newTargetTimer = setTimeout(() => { reset(); newTarget(); }, 3000);
+      }
+    }
+    equationBox.textContent +=
+`\n\n  ══ COMPUTATION COMPLETE ══
+  Range: ${lastP.x.toFixed(1)} m
+  ${trajectory.length} integration steps
+  Total time: ${lastP.t.toFixed(2)} s${targetMsg}`;
+    return;
+  }
+
+  // Advance a few steps per frame depending on total length
+  const stepsPerFrame = Math.max(1, Math.floor(trajectory.length / 200));
+  currentStep = Math.min(currentStep + stepsPerFrame, trajectory.length - 1);
+
+  drawTrajectory(currentStep);
+  updateReadout(currentStep);
+
+  animFrame = requestAnimationFrame(animate);
+}
+
+function fire() {
+  // Auto-reset if a previous animation is still running or finished
+  if (isRunning) {
+    cancelAnimationFrame(animFrame);
+    isRunning = false;
+  }
+  // Cancel any pending target relocation
+  if (newTargetTimer) { clearTimeout(newTargetTimer); newTargetTimer = null; }
+
+  trajectory = computeTrajectory();
+  currentStep = 0;
+  isRunning = true;
+  rStatus.textContent = 'COMPUTING...';
+  rStatus.className = 'v warn';
+  fireBtn.classList.add('active');
+
+  resizeCanvas();
+  animate();
+}
+
+function reset() {
+  isRunning = false;
+  if (animFrame) cancelAnimationFrame(animFrame);
+  trajectory = [];
+  currentStep = 0;
+  fireBtn.classList.remove('active');
+
+  rTime.textContent = '0.00 s';
+  rStep.textContent = '0';
+  rX.textContent = '0 m';
+  rY.textContent = '0 m';
+  rVx.textContent = '— m/s';
+  rVy.textContent = '— m/s';
+  rSpeed.textContent = '— m/s';
+  rDydx.textContent = '—';
+  rD2y.textContent = '—';
+  rStatus.textContent = 'READY';
+  rStatus.className = 'v';
+
+  equationBox.textContent =
+`Waiting for launch...
+
+The computer solves step-by-step:
+
+  vₓ(t+Δt) = vₓ(t) − (k·|v|·vₓ)·Δt
+  vᵧ(t+Δt) = vᵧ(t) − (g + k·|v|·vᵧ)·Δt
+  x(t+Δt)  = x(t)  + vₓ·Δt
+  y(t+Δt)  = y(t)  + vᵧ·Δt
+
+where g=9.81 m/s², k=drag coeff.`;
+
+  resizeCanvas();
+  // Clear canvas
+  const w = canvas.width / devicePixelRatio;
+  const h = canvas.height / devicePixelRatio;
+  ctx.clearRect(0, 0, w, h);
+}
+
+fireBtn.addEventListener('click', fire);
+resetBtn.addEventListener('click', reset);
+
+// Initial draw
+resizeCanvas();
+
+// ── Derivative overlay toggle ──
+overlayBtn.addEventListener('click', () => {
+  showOverlay = !showOverlay;
+  derivOverlay.classList.toggle('visible', showOverlay);
+  overlayBtn.classList.toggle('active', showOverlay);
+  overlayBtn.textContent = showOverlay ? '◈ Hide Derivatives' : '◈ Derivatives';
+  if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+});
+
+// ── Canvas hover for derivative overlay ──
+canvas.addEventListener('mousemove', (e) => {
+  if (!showOverlay || !trajectory.length || trajectory.length < 3) return;
+
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left;
+
+  // Find extents (same logic as drawTrajectory)
+  let maxX = 0, maxY = 0;
+  for (const p of trajectory) {
+    if (p.x > maxX) maxX = p.x;
+    if (p.y > maxY) maxY = p.y;
+  }
+  maxX = Math.max(maxX * 1.1, 100);
+
+  const padLeft = 55, padRight = 20;
+  const plotW = rect.width - padLeft - padRight;
+  const worldX = ((mx - padLeft) / plotW) * maxX;
+
+  // Find closest step
+  let closest = 0;
+  let bestDist = Infinity;
+  for (let i = 0; i < trajectory.length; i++) {
+    const d = Math.abs(trajectory[i].x - worldX);
+    if (d < bestDist) { bestDist = d; closest = i; }
+  }
+
+  if (closest !== hoveredStep) {
+    hoveredStep = Math.max(1, closest);
+    if (!isRunning) drawTrajectory(trajectory.length - 1);
+    updateDerivOverlay(hoveredStep);
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  if (showOverlay) {
+    hoveredStep = -1;
+    if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+  }
+});
+
+function updateDerivOverlay(i) {
+  if (i < 1 || i >= trajectory.length) return;
+  const p = trajectory[i];
+  const pp = trajectory[i - 1];
+  const dt = p.t - pp.t;
+
+  const deltaVx = p.vx - pp.vx;
+  const deltaVy = p.vy - pp.vy;
+  const deltaX = p.x - pp.x;
+  const deltaY = p.y - pp.y;
+
+  derivContent.innerHTML = `
+    <div class="section-head">Step ${i} → ${i} (t = ${pp.t.toFixed(2)}s → ${p.t.toFixed(2)}s)</div>
+    <div class="calc-row"><span class="calc-lbl">Δt</span><span class="calc-val">${dt.toFixed(4)} s</span></div>
+
+    <div class="section-head">1st Derivative: Velocity = Δposition / Δt</div>
+    <div class="calc-row"><span class="calc-lbl">Δx = ${p.x.toFixed(1)} − ${pp.x.toFixed(1)}</span><span class="calc-val">${deltaX.toFixed(2)} m</span></div>
+    <div class="calc-row"><span class="calc-lbl">Δy = ${p.y.toFixed(1)} − ${pp.y.toFixed(1)}</span><span class="calc-val">${deltaY.toFixed(2)} m</span></div>
+    <div class="calc-row"><span class="calc-op">vₓ = Δx/Δt</span><span class="calc-val arrow">${(deltaX/dt).toFixed(2)} m/s</span></div>
+    <div class="calc-row"><span class="calc-op">vᵧ = Δy/Δt</span><span class="calc-val arrow">${(deltaY/dt).toFixed(2)} m/s</span></div>
+
+    <div class="section-head">2nd Derivative: Acceleration = Δvelocity / Δt</div>
+    <div class="calc-row"><span class="calc-lbl">Δvₓ = ${p.vx.toFixed(2)} − ${pp.vx.toFixed(2)}</span><span class="calc-val">${deltaVx.toFixed(3)} m/s</span></div>
+    <div class="calc-row"><span class="calc-lbl">Δvᵧ = ${p.vy.toFixed(2)} − ${pp.vy.toFixed(2)}</span><span class="calc-val">${deltaVy.toFixed(3)} m/s</span></div>
+    <div class="calc-row"><span class="calc-op">aₓ = Δvₓ/Δt</span><span class="calc-val arrow">${(deltaVx/dt).toFixed(3)} m/s²</span></div>
+    <div class="calc-row"><span class="calc-op">aᵧ = Δvᵧ/Δt</span><span class="calc-val arrow">${(deltaVy/dt).toFixed(3)} m/s²</span></div>
+
+    <div class="section-head">Trajectory Slope: dy/dx = vᵧ / vₓ</div>
+    <div class="calc-row"><span class="calc-op">dy/dx = ${p.vy.toFixed(2)} / ${p.vx.toFixed(2)}</span><span class="calc-val arrow">${p.dydx.toFixed(4)}</span></div>
+  `;
+}
+
+// ── Target mode toggle ──
+function estimateMaxRange() {
+  // Quick simulation at 45° to find achievable range with current drag
+  const v0 = parseFloat(velSlider.value);
+  const k = parseFloat(dragSlider.value) / 1000;
+  const dt = 0.1;
+  const g = 9.81;
+  const angle = Math.PI / 4;
+  let x = 0, y = 0, vx = v0 * Math.cos(angle), vy = v0 * Math.sin(angle);
+  for (let i = 0; i < 20000; i++) {
+    const speed = Math.sqrt(vx * vx + vy * vy);
+    vx += (-k * speed * vx) * dt;
+    vy += (-g - k * speed * vy) * dt;
+    x += vx * dt;
+    y += vy * dt;
+    if (y < 0 && i > 1) break;
+  }
+  return x;
+}
+
+function newTarget() {
+  // Use the actual achievable range (not theoretical) and pick a target
+  // at 40–90% of it — realistic WWII engagement distances
+  const maxRange = estimateMaxRange();
+  const minDist = maxRange * 0.35;
+  const maxDist = maxRange * 0.85;
+  targetX = Math.round(minDist + Math.random() * (maxDist - minDist));
+  // Round to nearest 50m (artillery ranges given in increments)
+  targetX = Math.round(targetX / 50) * 50;
+  targetDist.textContent = targetX.toFixed(0);
+  missInfo.textContent = 'Adjust angle & velocity, then FIRE!';
+}
+
+targetBtn.addEventListener('click', () => {
+  targetMode = !targetMode;
+  targetHud.classList.toggle('visible', targetMode);
+  targetBtn.classList.toggle('active', targetMode);
+  targetBtn.textContent = targetMode ? '⊕ Exit Target' : '⊕ Target Mode';
+  if (targetMode) {
+    score = 0;
+    scoreVal.textContent = '0';
+    targetFixedMaxX = estimateMaxRange() * 1.05;  // lock axis NOW
+    newTarget();
+  } else {
+    targetX = 0;
+    targetFixedMaxX = 0;
+  }
+  if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+});
+
+// Generate new target after each fire in target mode
+const origFire = fire;
+fire = function() {
+  origFire();
+};
+// After impact, if target mode, generate new target after a short delay
+const origAnimate = animate;
+
+// ── Firing Table simulation ──
+const ftComputeBtn = document.getElementById('ftComputeBtn');
+const ftHead = document.getElementById('ftHead');
+const ftBody = document.getElementById('ftBody');
+const ftStatus = document.getElementById('ftStatus');
+let ftRunning = false;
+
+function ftComputeRange(angleDeg, v0, k) {
+  const angle = angleDeg * Math.PI / 180;
+  const dt = 0.05; // fine step for accuracy
+  const g = 9.81;
+  let x = 0, y = 0;
+  let vx = v0 * Math.cos(angle), vy = v0 * Math.sin(angle);
+  let maxAlt = 0, flightTime = 0;
+  for (let step = 1; step < 50000; step++) {
+    const speed = Math.sqrt(vx * vx + vy * vy);
+    vx += (-k * speed * vx) * dt;
+    vy += (-g - k * speed * vy) * dt;
+    x += vx * dt;
+    y += vy * dt;
+    if (y > maxAlt) maxAlt = y;
+    if (y < 0 && step > 1) { flightTime = step * dt; break; }
+  }
+  return { range: x, maxAlt, flightTime };
+}
+
+ftComputeBtn.addEventListener('click', async () => {
+  if (ftRunning) return;
+  ftRunning = true;
+  ftComputeBtn.textContent = '⏳ Computing...';
+  ftComputeBtn.classList.add('active');
+
+  const k = parseFloat(document.getElementById('ftDrag').value) || 0.002;
+  const angles = document.getElementById('ftAngleRange').value.split(',').map(Number);
+  const vels = document.getElementById('ftVelRange').value.split(',').map(Number);
+
+  // Build header
+  ftHead.innerHTML = '<tr><th>Angle \\ Vel.</th>' +
+    vels.map(v => '<th>' + v + ' m/s</th>').join('') + '</tr>';
+
+  // Build empty rows
+  ftBody.innerHTML = angles.map(a =>
+    '<tr><td>' + a + '°</td>' + vels.map((_, vi) =>
+      '<td id="ft-' + a + '-' + vi + '">—</td>'
+    ).join('') + '</tr>'
+  ).join('');
+
+  let computed = 0;
+  const total = angles.length * vels.length;
+  ftStatus.innerHTML = 'Computing: <span class="count">0</span> / ' + total + ' trajectories...';
+
+  // Compute cells one by one with animation delay (simulating ENIAC's sequential computation)
+  for (let ai = 0; ai < angles.length; ai++) {
+    for (let vi = 0; vi < vels.length; vi++) {
+      const cell = document.getElementById('ft-' + angles[ai] + '-' + vi);
+      cell.className = 'computing';
+      cell.textContent = '...';
+
+      // Yield to browser for animation
+      await new Promise(r => setTimeout(r, 30));
+
+      const result = ftComputeRange(angles[ai], vels[vi], k);
+      cell.className = 'computed';
+      cell.textContent = result.range.toFixed(0) + 'm';
+      cell.title = 'Range: ' + result.range.toFixed(1) + 'm | Max alt: ' +
+        result.maxAlt.toFixed(0) + 'm | Flight: ' + result.flightTime.toFixed(1) + 's';
+
+      computed++;
+      ftStatus.innerHTML = 'Computing: <span class="count">' + computed + '</span> / ' + total +
+        ' trajectories... (' + angles[ai] + '° @ ' + vels[vi] + ' m/s → ' + result.range.toFixed(0) + 'm)';
+    }
+  }
+
+  ftStatus.innerHTML = '✓ Complete: <span class="count">' + total + '</span> trajectories computed. ' +
+    'Hover cells for altitude and flight time. A human computer would need ~' +
+    (total * 40).toLocaleString() + ' hours for this table.';
+  ftComputeBtn.textContent = '▶ Compute Table';
+  ftComputeBtn.classList.remove('active');
+  ftRunning = false;
+});
+
+// ── Notes tab switching ──
+document.querySelectorAll('.notes-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.notes-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.notes-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
