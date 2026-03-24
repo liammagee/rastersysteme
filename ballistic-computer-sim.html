@@ -131,29 +131,39 @@
   }
 
   .control-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3px;
+    margin-bottom: 12px;
+  }
+
+  .control-row .slider-line {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 8px;
   }
 
   .control-row label {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: #7a9a8a;
+    white-space: nowrap;
   }
 
   .control-row input[type="range"] {
-    width: 130px;
+    flex: 1;
+    min-width: 0;
     accent-color: #00ff80;
+    height: 18px;
   }
 
   .control-row .val {
     font-family: 'IBM Plex Mono', monospace;
     font-size: 0.72rem;
     color: #00ff80;
-    min-width: 48px;
+    min-width: 58px;
     text-align: right;
+    white-space: nowrap;
   }
 
   .btn {
@@ -243,7 +253,7 @@
     position: absolute;
     top: 12px; right: 12px;
     width: 310px;
-    background: rgba(6,10,16,0.94);
+    background: rgba(6,10,16,0.55);
     border: 1px solid rgba(255,170,0,0.25);
     border-radius: 6px;
     padding: 14px 16px;
@@ -254,8 +264,35 @@
     z-index: 10;
     backdrop-filter: blur(6px);
     box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    cursor: default;
+    transition: opacity 0.15s;
   }
   .deriv-overlay.visible { display: block; }
+  .deriv-overlay .drag-handle {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: grab;
+    user-select: none;
+    margin: -14px -16px 10px -16px;
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(255,170,0,0.12);
+    border-radius: 6px 6px 0 0;
+    background: rgba(255,170,0,0.06);
+  }
+  .deriv-overlay .drag-handle:active { cursor: grabbing; }
+  .deriv-overlay .drag-handle h4 {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #ffaa00;
+    margin: 0;
+  }
+  .deriv-overlay .drag-handle .grip {
+    color: rgba(255,170,0,0.35);
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+  }
   .deriv-overlay h4 {
     font-size: 0.68rem;
     text-transform: uppercase;
@@ -619,7 +656,10 @@
     <canvas id="trajectoryCanvas"></canvas>
     <!-- Derivative calculation overlay -->
     <div class="deriv-overlay" id="derivOverlay">
-      <h4>How the Derivative Is Computed</h4>
+      <div class="drag-handle" id="derivDragHandle">
+        <h4>How the Derivative Is Computed</h4>
+        <span class="grip">⠿</span>
+      </div>
       <div id="derivContent">
         <p style="color:#887744; margin:0;">Fire a projectile, then hover over the trajectory to inspect any computation step.</p>
       </div>
@@ -639,23 +679,31 @@
       <h3>Initial Conditions</h3>
       <div class="control-row">
         <label>Launch angle</label>
-        <input type="range" id="angle" min="5" max="90" value="45" step="1">
-        <span class="val" id="angleVal">45°</span>
+        <div class="slider-line">
+          <input type="range" id="angle" min="5" max="90" value="45" step="1">
+          <span class="val" id="angleVal">45°</span>
+        </div>
       </div>
       <div class="control-row">
         <label>Muzzle velocity</label>
-        <input type="range" id="velocity" min="200" max="1500" value="500" step="10">
-        <span class="val" id="velocityVal">500 m/s</span>
+        <div class="slider-line">
+          <input type="range" id="velocity" min="200" max="1500" value="500" step="10">
+          <span class="val" id="velocityVal">500 m/s</span>
+        </div>
       </div>
       <div class="control-row">
         <label>Drag coeff.</label>
-        <input type="range" id="drag" min="0" max="50" value="2" step="1">
-        <span class="val" id="dragVal">0.002</span>
+        <div class="slider-line">
+          <input type="range" id="drag" min="0" max="50" value="2" step="1">
+          <span class="val" id="dragVal">0.002</span>
+        </div>
       </div>
       <div class="control-row">
         <label>Time step (Δt)</label>
-        <input type="range" id="dt" min="1" max="50" value="10" step="1">
-        <span class="val" id="dtVal">0.10 s</span>
+        <div class="slider-line">
+          <input type="range" id="dt" min="1" max="50" value="10" step="1">
+          <span class="val" id="dtVal">0.10 s</span>
+        </div>
       </div>
     </div>
 
@@ -1381,6 +1429,7 @@ let targetMode = false;
 let targetX = 0;
 let score = 0;
 let targetFixedMaxX = 0;  // locked x-axis extent for target mode
+let targetFixedMaxY = 0;  // locked y-axis extent for target mode
 let hoveredStep = -1;
 
 const derivOverlay = document.getElementById('derivOverlay');
@@ -1425,21 +1474,31 @@ function computeTrajectory() {
   let prevDydx = initDydx;
 
   for (let step = 1; step < 10000; step++) {
-    const speed = Math.sqrt(vx * vx + vy * vy);
-    const ax = -k * speed * vx;
-    const ay = -g - k * speed * vy;
+    // Subdivide for numerical stability: ensure drag doesn't reverse velocity
+    const speed0 = Math.sqrt(vx * vx + vy * vy);
+    const maxDragAccel = k * speed0 * speed0;
+    // Choose substeps so each sub-dt changes velocity by at most 20% of speed
+    const nSub = Math.max(1, Math.ceil(maxDragAccel * dt / (0.2 * speed0 + 0.01)));
+    const subDt = dt / nSub;
 
-    vx += ax * dt;
-    vy += ay * dt;
-    x += vx * dt;
-    y += vy * dt;
+    let stepAx = 0, stepAy = 0;
+    for (let s = 0; s < nSub; s++) {
+      const speed = Math.sqrt(vx * vx + vy * vy);
+      const sax = -k * speed * vx;
+      const say = -g - k * speed * vy;
+      if (s === 0) { stepAx = sax; stepAy = say; }
+      vx += sax * subDt;
+      vy += say * subDt;
+      x += vx * subDt;
+      y += vy * subDt;
+    }
 
     const t = step * dt;
     const dydx = Math.abs(vx) > 0.001 ? vy / vx : (vy > 0 ? 999 : -999);
     const d2y = (dydx - prevDydx) / (Math.abs(vx) > 0.001 ? vx * dt : dt);
     prevDydx = dydx;
 
-    points.push({ x, y, vx, vy, t, speed: Math.sqrt(vx*vx + vy*vy), dydx, d2y, ax, ay });
+    points.push({ x, y, vx, vy, t, speed: Math.sqrt(vx*vx + vy*vy), dydx, d2y, ax: stepAx, ay: stepAy });
 
     if (y < 0 && step > 1) break;
   }
@@ -1463,7 +1522,7 @@ function drawTrajectory(upTo) {
   // In target mode, use the locked axis extent from when target mode was activated
   if (targetMode && targetFixedMaxX > 0) {
     maxX = Math.max(targetFixedMaxX, 100);
-    maxY = Math.max(maxY * 1.15, targetFixedMaxX * 0.45, 100);
+    maxY = Math.max(targetFixedMaxY, 100);
   } else {
     maxX = Math.max(maxX * 1.1, 100);
     maxY = Math.max(maxY * 1.15, 100);
@@ -1849,7 +1908,12 @@ function animate() {
       // Only generate new target after a direct hit: wait 3s, reset, new target
       if (miss < 50) {
         if (newTargetTimer) clearTimeout(newTargetTimer);
-        newTargetTimer = setTimeout(() => { reset(); newTarget(); }, 3000);
+        newTargetTimer = setTimeout(() => {
+          reset();
+          newTarget();
+          trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
+          drawTrajectory(0);
+        }, 3000);
       }
     }
     equationBox.textContent +=
@@ -1943,6 +2007,38 @@ overlayBtn.addEventListener('click', () => {
   if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
 });
 
+// ── Draggable derivative overlay ──
+(function() {
+  const handle = document.getElementById('derivDragHandle');
+  const panel = derivOverlay;
+  let dragging = false, startX, startY, startLeft, startTop;
+
+  handle.addEventListener('mousedown', (e) => {
+    dragging = true;
+    startX = e.clientX;
+    startY = e.clientY;
+    const rect = panel.getBoundingClientRect();
+    const parentRect = panel.offsetParent.getBoundingClientRect();
+    startLeft = rect.left - parentRect.left;
+    startTop = rect.top - parentRect.top;
+    // Switch from right-positioned to left-positioned for dragging
+    panel.style.right = 'auto';
+    panel.style.left = startLeft + 'px';
+    panel.style.top = startTop + 'px';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    panel.style.left = (startLeft + dx) + 'px';
+    panel.style.top = (startTop + dy) + 'px';
+  });
+
+  document.addEventListener('mouseup', () => { dragging = false; });
+})();
+
 // ── Canvas hover for derivative overlay ──
 canvas.addEventListener('mousemove', (e) => {
   if (!showOverlay || !trajectory.length || trajectory.length < 3) return;
@@ -2017,23 +2113,39 @@ function updateDerivOverlay(i) {
 }
 
 // ── Target mode toggle ──
-function estimateMaxRange() {
-  // Quick simulation at 45° to find achievable range with current drag
+function stableSimulate(angleDeg) {
+  // Stable Euler simulation with adaptive substeps
   const v0 = parseFloat(velSlider.value);
   const k = parseFloat(dragSlider.value) / 1000;
-  const dt = 0.1;
+  const outerDt = 0.1;
   const g = 9.81;
-  const angle = Math.PI / 4;
-  let x = 0, y = 0, vx = v0 * Math.cos(angle), vy = v0 * Math.sin(angle);
+  const angle = angleDeg * Math.PI / 180;
+  let x = 0, y = 0, maxAlt = 0;
+  let vx = v0 * Math.cos(angle), vy = v0 * Math.sin(angle);
   for (let i = 0; i < 20000; i++) {
     const speed = Math.sqrt(vx * vx + vy * vy);
-    vx += (-k * speed * vx) * dt;
-    vy += (-g - k * speed * vy) * dt;
-    x += vx * dt;
-    y += vy * dt;
+    const maxDrag = k * speed * speed;
+    const nSub = Math.max(1, Math.ceil(maxDrag * outerDt / (0.2 * speed + 0.01)));
+    const subDt = outerDt / nSub;
+    for (let s = 0; s < nSub; s++) {
+      const sp = Math.sqrt(vx * vx + vy * vy);
+      vx += (-k * sp * vx) * subDt;
+      vy += (-g - k * sp * vy) * subDt;
+      x += vx * subDt;
+      y += vy * subDt;
+    }
+    if (y > maxAlt) maxAlt = y;
     if (y < 0 && i > 1) break;
   }
-  return x;
+  return { range: x, maxAlt };
+}
+
+function estimateMaxRange() {
+  return stableSimulate(45).range;
+}
+
+function estimateMaxAltitude() {
+  return stableSimulate(75).maxAlt;
 }
 
 function newTarget() {
@@ -2057,13 +2169,20 @@ targetBtn.addEventListener('click', () => {
   if (targetMode) {
     score = 0;
     scoreVal.textContent = '0';
-    targetFixedMaxX = estimateMaxRange() * 1.05;  // lock axis NOW
+    targetFixedMaxX = estimateMaxRange() * 1.05;  // lock axes NOW
+    targetFixedMaxY = estimateMaxAltitude() * 1.15;
     newTarget();
+    // Show target on canvas immediately (even with no trajectory yet)
+    reset();
+    // Draw an empty plot with just the target marker
+    trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
+    drawTrajectory(0);
   } else {
     targetX = 0;
     targetFixedMaxX = 0;
+    targetFixedMaxY = 0;
+    reset();
   }
-  if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
 });
 
 // Generate new target after each fire in target mode
@@ -2083,19 +2202,25 @@ let ftRunning = false;
 
 function ftComputeRange(angleDeg, v0, k) {
   const angle = angleDeg * Math.PI / 180;
-  const dt = 0.05; // fine step for accuracy
+  const outerDt = 0.05; // fine step for accuracy
   const g = 9.81;
   let x = 0, y = 0;
   let vx = v0 * Math.cos(angle), vy = v0 * Math.sin(angle);
   let maxAlt = 0, flightTime = 0;
   for (let step = 1; step < 50000; step++) {
     const speed = Math.sqrt(vx * vx + vy * vy);
-    vx += (-k * speed * vx) * dt;
-    vy += (-g - k * speed * vy) * dt;
-    x += vx * dt;
-    y += vy * dt;
+    const maxDrag = k * speed * speed;
+    const nSub = Math.max(1, Math.ceil(maxDrag * outerDt / (0.2 * speed + 0.01)));
+    const subDt = outerDt / nSub;
+    for (let s = 0; s < nSub; s++) {
+      const sp = Math.sqrt(vx * vx + vy * vy);
+      vx += (-k * sp * vx) * subDt;
+      vy += (-g - k * sp * vy) * subDt;
+      x += vx * subDt;
+      y += vy * subDt;
+    }
     if (y > maxAlt) maxAlt = y;
-    if (y < 0 && step > 1) { flightTime = step * dt; break; }
+    if (y < 0 && step > 1) { flightTime = step * outerDt; break; }
   }
   return { range: x, maxAlt, flightTime };
 }
