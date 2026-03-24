@@ -1,0 +1,56 @@
+{
+  "aesthetic": "Mineral Archive — A system derived from geological cross-section: strata as layout zones, precision as excavation. Every slide feels unearthed, not assembled.",
+  "palette": [
+    {
+      "hex": "18160F",
+      "name": "Graphite Seam",
+      "role": "dominant"
+    },
+    {
+      "hex": "EDE8DC",
+      "name": "Limestone Dust",
+      "role": "ground"
+    },
+    {
+      "hex": "B8553A",
+      "name": "Kiln Ember",
+      "role": "accent"
+    },
+    {
+      "hex": "647D8E",
+      "name": "Cinder Pool",
+      "role": "signal"
+    },
+    {
+      "hex": "C4922A",
+      "name": "Sinter Gold",
+      "role": "accent"
+    },
+    {
+      "hex": "3B4840",
+      "name": "Copper Patina",
+      "role": "ground"
+    }
+  ],
+  "chromaticArc": "Slides 1–6 open on Graphite Seam grounds — heavy, mineral, authoritative. Slides 7–20 invert to Limestone Dust as content lightens; Kiln Ember appears only at section breaks as single-line underscores, never as fill. Slides 21–34 introduce Cinder Pool and Sinter Gold exclusively for data encoding and callout numerals. The final 4–6 slides return to Graphite Seam, closing the arc at the same weight it opened — the deck completes a lithic loop.",
+  "gridStrategy": "12-column grid at 1920×1080, fixed 64px left gutter that never breaks. Titles anchor bottom-left on section openers at the 68% vertical mark — a low horizon line, not a header. On content slides, titles move top-left at 10% from top with a 3px Kiln Ember rule below. The rightmost column is a permanent dead zone — never populated, always breathing. Two-column layouts split at cols 1–5 and 7–12, leaving col 6 as a gutter canyon. Full-bleed image slides push all content into a lower-third overlay band at Graphite Seam 88% opacity.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      44
+    ],
+    "bodySize": 15,
+    "labelSize": 9,
+    "titleWeightRange": [
+      300,
+      600
+    ]
+  },
+  "fontStrategy": {
+    "default": "Neue Haas Grotesk Display — the Swiss workhorse, set at -2% tracking; carries all body, labels, and navigation text at weights 300–500",
+    "secondary": "Cormorant Garamond — high-contrast editorial serif deployed only on section openers, pull quotes, and large numerals; creates tectonic contrast against the grotesque",
+    "tertiary": "IBM Plex Mono — for data labels, axis ticks, and tabular figures; its clinical register marks the shift from rhetoric to evidence",
+    "secondarySlides": "Cormorant Garamond appears when the deck pauses to breathe — section openers, full-bleed quotes, key statistics at 72–96pt. It signals: this slide is not an argument, it is a landscape."
+  },
+  "accentStrategy": "One rule applied with discipline: a single 3px horizontal bar in Kiln Ember — never more than one per slide, never decorative, only as semantic divider between zones of fundamentally different register. Dot accents (6px circles) in Sinter Gold mark active data points only. No borders, no drop shadows, no gradient overlays. Where structure is needed, use negative space — the absence of content as a compositional element. On Graphite Seam backgrounds, a 1px Cinder Pool vertical rule at col 6 anchors two-column layouts without framing them."
+}

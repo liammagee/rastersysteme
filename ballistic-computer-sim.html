@@ -51,7 +51,7 @@
 
   .main-grid {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 360px;
     gap: 0;
     max-width: 1200px;
     margin: 0 auto;
@@ -100,10 +100,41 @@
     vertical-align: middle;
     border-radius: 1px;
   }
-  .legend .l-pos::before { background: #00ff80; }
+  .legend .l-angle::before { background: #00ffc8; }
   .legend .l-vel::before { background: #ffaa00; }
-  .legend .l-acc::before { background: #ff4466; }
+  .legend .l-drag::before { background: #66aaff; }
+  .legend .l-gravity::before { background: #ff6688; }
   .legend .l-missile::before { background: #00ccff; }
+  .legend .l-1st::before { background: #ffaa00; border-style: dashed; }
+  .legend .l-2nd::before { background: #cc66ff; border-style: dashed; }
+
+  /* Zoom bar */
+  .zoom-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+  }
+  .zoom-btn {
+    background: rgba(0,255,100,0.06);
+    border: 1px solid rgba(0,255,120,0.15);
+    color: #5a9a7a;
+    padding: 3px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    transition: all 0.15s;
+  }
+  .zoom-btn:hover { background: rgba(0,255,100,0.12); color: #00ff80; }
+  .zoom-btn.active { background: rgba(0,255,100,0.15); color: #00ff80; border-color: rgba(0,255,120,0.4); }
+  .zoom-level {
+    color: #5a9a7a;
+    min-width: 50px;
+    text-align: center;
+  }
 
   /* RIGHT: Controls + readout */
   .control-panel {
@@ -221,6 +252,39 @@
     overflow-y: auto;
   }
 
+  /* Visual guide toggles */
+  .vis-toggles { padding: 10px 14px; }
+  .vis-toggles h3 { margin-bottom: 8px; }
+  .toggle-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+  .vis-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.04em;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: #556;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .vis-btn:hover { background: rgba(255,255,255,0.06); }
+  .vis-btn.active { color: #ccc; border-color: rgba(255,255,255,0.2); }
+  .vis-btn .viz-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    opacity: 0.3;
+    transition: opacity 0.15s;
+  }
+  .vis-btn.active .viz-dot { opacity: 1; }
+
   .step-indicator {
     display: flex;
     align-items: center;
@@ -318,6 +382,13 @@
     border-bottom: 1px solid rgba(255,170,0,0.15);
     padding-bottom: 3px;
   }
+  .deriv-overlay .deriv-group {
+    border-left: 3px solid;
+    padding-left: 10px;
+    margin: 8px 0;
+  }
+  .deriv-overlay .deriv-1st { border-color: #ffaa00; }
+  .deriv-overlay .deriv-2nd { border-color: #cc66ff; }
   .deriv-overlay .arrow { color: #ff8844; }
   .deriv-overlay .hint {
     color: #776633;
@@ -600,7 +671,9 @@
     color: #ffaa00;
     animation: blink 0.6s ease-in-out infinite;
   }
-  .firing-table td.computed { color: #00ff80; }
+  .firing-table td.computed { color: #00ff80; cursor: pointer; }
+  .firing-table td.computed:hover { background: rgba(0,255,100,0.15); box-shadow: inset 0 0 0 1px rgba(0,255,120,0.4); }
+  .firing-table td.active-cell { background: rgba(0,255,100,0.2); box-shadow: inset 0 0 0 2px #00ff80; }
 
   .ft-controls {
     display: flex;
@@ -666,10 +739,20 @@
       <div class="hint">The computer cannot compute a true derivative (an infinitesimal limit). Instead it uses <span style="color:#ffcc44">finite differences</span> — the change in a quantity divided by the time step Δt. This is exactly what Euler's method does at each step.</div>
     </div>
     <div class="legend">
-      <span class="l-pos">Position (y)</span>
-      <span class="l-vel">Velocity vector</span>
-      <span class="l-acc">Gravity + drag</span>
+      <span class="l-angle">Angle</span>
+      <span class="l-vel">Velocity</span>
+      <span class="l-drag">Drag</span>
+      <span class="l-gravity">Gravity</span>
+      <span class="l-1st">vx (1st deriv)</span>
+      <span class="l-2nd">ax (2nd deriv)</span>
       <span class="l-missile">Projectile</span>
+    </div>
+    <div class="zoom-bar">
+      <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
+      <span class="zoom-level" id="zoomLabel">Auto</span>
+      <button class="zoom-btn" id="zoomIn" title="Zoom in">+</button>
+      <button class="zoom-btn zoom-lock" id="zoomLock" title="Lock/unlock axes">🔓 Lock Axes</button>
+      <button class="zoom-btn" id="zoomReset" title="Reset to auto">↺ Auto</button>
     </div>
   </div>
 
@@ -715,6 +798,16 @@
     <div style="display:flex; gap:8px;">
       <button class="btn" id="overlayBtn" style="background:rgba(255,170,0,0.08); border-color:rgba(255,170,0,0.3); color:#ffaa00;">◈ Derivatives</button>
       <button class="btn" id="targetBtn" style="background:rgba(255,68,102,0.08); border-color:rgba(255,68,102,0.3); color:#ff4466;">⊕ Target Mode</button>
+    </div>
+
+    <div class="panel-section vis-toggles">
+      <h3>Visual Guides</h3>
+      <div class="toggle-grid">
+        <button class="vis-btn active" id="vizAngle" data-viz="angle"><span class="viz-dot" style="background:#00ffc8;"></span> Angle</button>
+        <button class="vis-btn active" id="vizVelocity" data-viz="velocity"><span class="viz-dot" style="background:#ffaa00;"></span> Velocity</button>
+        <button class="vis-btn active" id="vizDrag" data-viz="drag"><span class="viz-dot" style="background:#66aaff;"></span> Drag</button>
+        <button class="vis-btn active" id="vizGravity" data-viz="gravity"><span class="viz-dot" style="background:#ff6688;"></span> Gravity</button>
+      </div>
     </div>
 
     <div class="target-hud" id="targetHud">
@@ -1420,16 +1513,22 @@ const rStatus = document.getElementById('rStatus');
 const equationBox = document.getElementById('equationBox');
 
 let trajectory = [];
+let fineTrajectory = [];  // cached "true" trajectory at very small dt
 let newTargetTimer = null;
 let animFrame = null;
 let currentStep = 0;
 let isRunning = false;
 let showOverlay = false;
+let vizAngle = true, vizVelocity = true, vizDrag = true, vizGravity = true;
+let zoomLevel = 1.0;       // 1.0 = auto, >1 = zoomed in, <1 = zoomed out
+let axesLocked = false;     // when true, axes don't change between shots
+let lockedMaxX = 0, lockedMaxY = 0;  // saved axis extents when locked
 let targetMode = false;
 let targetX = 0;
 let score = 0;
 let targetFixedMaxX = 0;  // locked x-axis extent for target mode
 let targetFixedMaxY = 0;  // locked y-axis extent for target mode
+let awaitingNewTarget = false;  // true after a direct hit, waiting for user to click New Target
 let hoveredStep = -1;
 
 const derivOverlay = document.getElementById('derivOverlay');
@@ -1441,11 +1540,22 @@ const targetDist = document.getElementById('targetDist');
 const missInfo = document.getElementById('missInfo');
 const scoreVal = document.getElementById('scoreVal');
 
-// Slider listeners
-angleSlider.addEventListener('input', () => angleVal.textContent = angleSlider.value + '°');
-velSlider.addEventListener('input', () => velocityVal.textContent = velSlider.value + ' m/s');
-dragSlider.addEventListener('input', () => dragVal.textContent = (dragSlider.value / 1000).toFixed(3));
-dtSlider.addEventListener('input', () => dtVal.textContent = (dtSlider.value / 100).toFixed(2) + ' s');
+// Slider listeners — update labels and redraw canvas for live preview of visual guides
+function redrawIfIdle() {
+  if (!isRunning) {
+    // Redraw existing trajectory + updated visual guides (which read current slider values)
+    if (trajectory.length > 1) {
+      drawTrajectory(trajectory.length - 1);
+    } else {
+      trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
+      drawTrajectory(0);
+    }
+  }
+}
+angleSlider.addEventListener('input', () => { angleVal.textContent = angleSlider.value + '°'; redrawIfIdle(); });
+velSlider.addEventListener('input', () => { velocityVal.textContent = velSlider.value + ' m/s'; redrawIfIdle(); });
+dragSlider.addEventListener('input', () => { dragVal.textContent = (dragSlider.value / 1000).toFixed(3); redrawIfIdle(); });
+dtSlider.addEventListener('input', () => { dtVal.textContent = (dtSlider.value / 100).toFixed(2) + ' s'; redrawIfIdle(); });
 
 function resizeCanvas() {
   const rect = canvas.getBoundingClientRect();
@@ -1458,10 +1568,17 @@ window.addEventListener('resize', resizeCanvas);
 setTimeout(resizeCanvas, 50);
 
 function computeTrajectory() {
-  const angle = parseFloat(angleSlider.value) * Math.PI / 180;
-  const v0 = parseFloat(velSlider.value);
-  const k = parseFloat(dragSlider.value) / 1000;
-  const dt = parseFloat(dtSlider.value) / 100;
+  const rawAngle = parseFloat(angleSlider.value);
+  const rawVel = parseFloat(velSlider.value);
+  const rawDrag = parseFloat(dragSlider.value);
+  const rawDt = parseFloat(dtSlider.value);
+
+  // Validate and clamp inputs
+  const angleDeg = Math.max(1, Math.min(90, isNaN(rawAngle) ? 45 : rawAngle));
+  const v0 = Math.max(1, Math.min(2000, isNaN(rawVel) ? 500 : rawVel));
+  const k = Math.max(0, Math.min(0.1, isNaN(rawDrag) ? 0.002 : rawDrag / 1000));
+  const dt = Math.max(0.005, Math.min(1.0, isNaN(rawDt) ? 0.1 : rawDt / 100));
+  const angle = angleDeg * Math.PI / 180;
   const g = 9.81;
 
   let x = 0, y = 0;
@@ -1507,11 +1624,18 @@ function computeTrajectory() {
 }
 
 function drawTrajectory(upTo) {
+  if (!trajectory || trajectory.length === 0) return;
+  upTo = Math.max(0, Math.min(upTo, trajectory.length - 1));
+
   const w = canvas.width / devicePixelRatio;
   const h = canvas.height / devicePixelRatio;
-  const pad = { top: 20, right: 20, bottom: 40, left: 55 };
+  if (w < 1 || h < 1) return;  // canvas not yet laid out
+  const pad = { top: 20, right: 20, bottom: 45, left: 60 };
 
   ctx.clearRect(0, 0, w, h);
+
+  const plotW = w - pad.left - pad.right;
+  const plotH = h - pad.top - pad.bottom;
 
   // Find extents
   let maxX = 0, maxY = 0;
@@ -1520,16 +1644,29 @@ function drawTrajectory(upTo) {
     if (p.y > maxY) maxY = p.y;
   }
   // In target mode, use the locked axis extent from when target mode was activated
-  if (targetMode && targetFixedMaxX > 0) {
+  if (axesLocked && lockedMaxX > 0) {
+    maxX = lockedMaxX;
+    maxY = lockedMaxY;
+  } else if (targetMode && targetFixedMaxX > 0) {
     maxX = Math.max(targetFixedMaxX, 100);
     maxY = Math.max(targetFixedMaxY, 100);
   } else {
     maxX = Math.max(maxX * 1.1, 100);
     maxY = Math.max(maxY * 1.15, 100);
   }
+  // Enforce 1:1 aspect ratio so visual angles match real angles.
+  // Expand whichever axis is too small — this ensures meters-per-pixel
+  // is equal on both axes, so a 36° trajectory looks like 36° on screen.
+  const equalX = maxY * (plotW / plotH);
+  const equalY = maxX * (plotH / plotW);
+  if (maxX < equalX) maxX = equalX;
+  if (maxY < equalY) maxY = equalY;
 
-  const plotW = w - pad.left - pad.right;
-  const plotH = h - pad.top - pad.bottom;
+  // Apply zoom level
+  if (zoomLevel !== 1.0) {
+    maxX = maxX / zoomLevel;
+    maxY = maxY / zoomLevel;
+  }
 
   function toScreen(px, py) {
     return [
@@ -1578,31 +1715,88 @@ function drawTrajectory(upTo) {
   ctx.fillText('Altitude (m)', 0, 0);
   ctx.restore();
 
-  // Launch angle indicator at origin (drawn in screen space)
+  // Common values used by multiple visual guides
   const angleRad = parseFloat(angleSlider.value) * Math.PI / 180;
-  const indicatorLen = 50;
   const [ox, oy] = toScreen(0, 0);
-  ctx.strokeStyle = 'rgba(0,255,200,0.3)';
-  ctx.setLineDash([3, 4]);
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(ox, oy);
-  ctx.lineTo(ox + indicatorLen * Math.cos(angleRad), oy - indicatorLen * Math.sin(angleRad));
-  ctx.stroke();
-  ctx.setLineDash([]);
-  // Angle arc
-  ctx.beginPath();
-  ctx.arc(ox, oy, 20, 0, -angleRad, true);
-  ctx.strokeStyle = 'rgba(0,255,200,0.2)';
-  ctx.stroke();
-  ctx.fillStyle = 'rgba(0,255,200,0.45)';
-  ctx.font = '9px "IBM Plex Mono", monospace';
-  ctx.textAlign = 'left';
-  ctx.fillText(angleSlider.value + '°', ox + 26, oy - 10);
+  const v0draw = parseFloat(velSlider.value);
+  const kDraw = parseFloat(dragSlider.value) / 1000;
+
+  // Axis scales (px per metre) — with 1:1 aspect these are equal
+  const xScale = plotW / maxX;
+  const yScale = plotH / maxY;
+
+  // (a) Launch angle indicator at origin
+  if (vizAngle) {
+    const arcRadius = 55;
+    const indicatorLen = 70;
+    // Dashed line along launch direction
+    ctx.strokeStyle = 'rgba(0,255,200,0.4)';
+    ctx.setLineDash([4, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.lineTo(ox + indicatorLen * Math.cos(angleRad), oy - indicatorLen * Math.sin(angleRad));
+    ctx.stroke();
+    // Horizontal reference line
+    ctx.strokeStyle = 'rgba(0,255,200,0.15)';
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.lineTo(ox + indicatorLen, oy);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Filled wedge
+    ctx.fillStyle = 'rgba(0,255,200,0.08)';
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.arc(ox, oy, arcRadius, 0, -angleRad, true);
+    ctx.closePath();
+    ctx.fill();
+    // Arc outline
+    ctx.beginPath();
+    ctx.arc(ox, oy, arcRadius, 0, -angleRad, true);
+    ctx.strokeStyle = 'rgba(0,255,200,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+    // Degree label
+    const midAngle = angleRad / 2;
+    const labelR = arcRadius + 12;
+    ctx.fillStyle = 'rgba(0,255,200,0.7)';
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(angleSlider.value + '°', ox + labelR * Math.cos(midAngle), oy - labelR * Math.sin(midAngle));
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  // (b) Muzzle velocity arrow at origin
+  if (vizVelocity) {
+    const vLen = Math.min(90, 30 + v0draw * 0.04);  // scale arrow 30-90px
+    const vEndX = ox + vLen * Math.cos(angleRad);
+    const vEndY = oy - vLen * Math.sin(angleRad);
+    ctx.strokeStyle = 'rgba(255,170,0,0.6)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.lineTo(vEndX, vEndY);
+    ctx.stroke();
+    // Arrowhead
+    const va = Math.atan2(-(vEndY - oy), vEndX - ox);
+    ctx.fillStyle = '#ffaa00';
+    ctx.beginPath();
+    ctx.moveTo(vEndX, vEndY);
+    ctx.lineTo(vEndX - 10 * Math.cos(va - 0.35), vEndY + 10 * Math.sin(va - 0.35));
+    ctx.lineTo(vEndX - 10 * Math.cos(va + 0.35), vEndY + 10 * Math.sin(va + 0.35));
+    ctx.fill();
+    // Label
+    ctx.fillStyle = 'rgba(255,170,0,0.6)';
+    ctx.font = '9px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'left';
+    ctx.fillText(v0draw + ' m/s', vEndX + 6, vEndY - 4);
+  }
 
   // No-drag reference (dashed parabola)
-  const angle = parseFloat(angleSlider.value) * Math.PI / 180;
-  const v0 = parseFloat(velSlider.value);
+  const angle = angleRad;
+  const v0 = v0draw;
   ctx.strokeStyle = 'rgba(0,255,120,0.1)';
   ctx.setLineDash([4, 6]);
   ctx.lineWidth = 1;
@@ -1618,7 +1812,40 @@ function drawTrajectory(upTo) {
   ctx.stroke();
   ctx.setLineDash([]);
 
-  // Trajectory path (computed with drag)
+  // "True" trajectory reference — cached from fire(), shown as thin bright line
+  // This is the curve the Euler method is trying to approximate
+  const userDt = parseFloat(dtSlider.value) / 100;
+  if (fineTrajectory.length > 2) {
+    ctx.strokeStyle = 'rgba(0,255,180,0.25)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 3]);
+    ctx.beginPath();
+    for (let i = 0; i < fineTrajectory.length; i++) {
+      const [fsx, fsy] = toScreen(fineTrajectory[i].x, fineTrajectory[i].y);
+      if (i === 0) ctx.moveTo(fsx, fsy); else ctx.lineTo(fsx, fsy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Error region: shade area between Euler trajectory and true trajectory
+  if (fineTrajectory.length > 2 && upTo >= trajectory.length - 1 && trajectory.length > 2) {
+    ctx.fillStyle = 'rgba(255,100,50,0.07)';
+    ctx.beginPath();
+    for (let i = 0; i < trajectory.length; i++) {
+      const [sx, sy] = toScreen(trajectory[i].x, Math.max(trajectory[i].y, 0));
+      if (i === 0) ctx.moveTo(sx, sy); else ctx.lineTo(sx, sy);
+    }
+    for (let i = fineTrajectory.length - 1; i >= 0; i--) {
+      const [sx, sy] = toScreen(fineTrajectory[i].x, fineTrajectory[i].y);
+      ctx.lineTo(sx, sy);
+    }
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  // Trajectory path — drawn as straight-line SEGMENTS between Euler steps
+  // With large dt these segments are visibly angular; with small dt they look smooth
   ctx.strokeStyle = '#00ff80';
   ctx.lineWidth = 2;
   ctx.shadowColor = 'rgba(0,255,80,0.4)';
@@ -1631,48 +1858,125 @@ function drawTrajectory(upTo) {
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Computation dots at each step
+  // Computation step dots — show ALL steps up to a reasonable cap
+  // Every dot is a place where the computer recalculated derivatives
+  const maxDots = 200;  // cap for rendering performance
+  const dotSkip = Math.max(1, Math.ceil(trajectory.length / maxDots));
+  const dotRadius = Math.min(4, Math.max(1.5, 20 / Math.sqrt(trajectory.length)));
   for (let i = 0; i <= upTo && i < trajectory.length; i++) {
-    if (i % Math.max(1, Math.floor(trajectory.length / 40)) !== 0 && i !== upTo) continue;
+    if (i % dotSkip !== 0 && i !== upTo && i !== 0) continue;
     const [sx, sy] = toScreen(trajectory[i].x, Math.max(trajectory[i].y, 0));
-    ctx.fillStyle = i === upTo ? '#00ffcc' : 'rgba(0,255,128,0.5)';
+    ctx.fillStyle = i === upTo ? '#00ffcc' : 'rgba(0,255,128,0.6)';
     ctx.beginPath();
-    ctx.arc(sx, sy, i === upTo ? 5 : 2.5, 0, Math.PI * 2);
+    ctx.arc(sx, sy, i === upTo ? 5 : dotRadius, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // Current point: velocity + acceleration vectors
+  // Step count label (shows how many Euler steps were needed)
+  if (upTo >= trajectory.length - 1 && trajectory.length > 2) {
+    const lastPt = trajectory[trajectory.length - 1];
+    const [labelX, labelY] = toScreen(lastPt.x * 0.5, maxY * 0.92);
+    ctx.fillStyle = 'rgba(0,255,120,0.35)';
+    ctx.font = '11px "IBM Plex Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(trajectory.length + ' steps (Δt = ' + userDt.toFixed(2) + 's)', labelX, labelY);
+    if (userDt > 0.05) {
+      ctx.fillStyle = 'rgba(255,100,50,0.35)';
+      ctx.fillText('Shaded area = discretization error', labelX, labelY + 14);
+    }
+  }
+
+  // Current point: velocity, drag, gravity vectors
   if (upTo > 0 && upTo < trajectory.length) {
     const p = trajectory[upTo];
     const [sx, sy] = toScreen(p.x, Math.max(p.y, 0));
 
-    // Velocity vector (orange)
-    const vScale = 0.15;
-    ctx.strokeStyle = '#ffaa00';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(sx, sy);
-    ctx.lineTo(sx + p.vx * vScale, sy - p.vy * vScale);
-    ctx.stroke();
-    // arrowhead
-    const va = Math.atan2(-p.vy, p.vx);
-    ctx.fillStyle = '#ffaa00';
-    ctx.beginPath();
-    const atx = sx + p.vx * vScale, aty = sy - p.vy * vScale;
-    ctx.moveTo(atx, aty);
-    ctx.lineTo(atx - 8 * Math.cos(va - 0.35), aty + 8 * Math.sin(va - 0.35));
-    ctx.lineTo(atx - 8 * Math.cos(va + 0.35), aty + 8 * Math.sin(va + 0.35));
-    ctx.fill();
-
-    // Acceleration vector (red) — gravity + drag
-    if (p.ax !== undefined) {
-      const aScale = 2.0;
-      ctx.strokeStyle = '#ff4466';
-      ctx.lineWidth = 1.5;
+    // (b) Velocity vector at current position (orange) — screen-space direction
+    if (vizVelocity) {
+      // With 1:1 aspect ratio, real velocity direction = screen direction
+      const vScale = 0.15;
+      const atx = sx + p.vx * vScale, aty = sy - p.vy * vScale;
+      ctx.strokeStyle = '#ffaa00';
+      ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(sx, sy);
-      ctx.lineTo(sx + p.ax * aScale, sy - p.ay * aScale);
+      ctx.lineTo(atx, aty);
       ctx.stroke();
+      // arrowhead
+      const va = Math.atan2(-p.vy, p.vx);
+      ctx.fillStyle = '#ffaa00';
+      ctx.beginPath();
+      ctx.moveTo(atx, aty);
+      ctx.lineTo(atx - 8 * Math.cos(va - 0.35), aty + 8 * Math.sin(va - 0.35));
+      ctx.lineTo(atx - 8 * Math.cos(va + 0.35), aty + 8 * Math.sin(va + 0.35));
+      ctx.fill();
+    }
+
+    // (c) Drag (wind resistance) — arrow opposing velocity direction
+    if (vizDrag && p.speed > 1) {
+      const dragMag = kDraw * p.speed * p.speed;  // |F_drag/m|
+      const dragScale = Math.min(60, dragMag * 0.08);  // visual scale, capped
+      // Drag opposes velocity
+      const dragDirX = -p.vx / p.speed;
+      const dragDirY = -p.vy / p.speed;
+      const dEndX = sx + dragDirX * dragScale;
+      const dEndY = sy - dragDirY * dragScale;
+      ctx.strokeStyle = 'rgba(102,170,255,0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(dEndX, dEndY);
+      ctx.stroke();
+      // arrowhead
+      const da = Math.atan2(-(dEndY - sy), dEndX - sx);
+      ctx.fillStyle = 'rgba(102,170,255,0.8)';
+      ctx.beginPath();
+      ctx.moveTo(dEndX, dEndY);
+      ctx.lineTo(dEndX - 7 * Math.cos(da - 0.4), dEndY + 7 * Math.sin(da - 0.4));
+      ctx.lineTo(dEndX - 7 * Math.cos(da + 0.4), dEndY + 7 * Math.sin(da + 0.4));
+      ctx.fill();
+      // Wind streaks behind projectile (screen-space direction)
+      const streakBaseX = sx + dragDirX * 14;
+      const streakBaseY = sy - dragDirY * 14;
+      ctx.strokeStyle = 'rgba(102,170,255,0.25)';
+      ctx.lineWidth = 1;
+      const perpX = -dragDirY, perpY = dragDirX;
+      for (let si = -1; si <= 1; si++) {
+        const ssx = streakBaseX + perpX * si * 6;
+        const ssy = streakBaseY - perpY * si * 6;
+        ctx.beginPath();
+        ctx.moveTo(ssx, ssy);
+        ctx.lineTo(ssx + dragDirX * (12 + dragScale * 0.3), ssy - dragDirY * (12 + dragScale * 0.3));
+        ctx.stroke();
+      }
+      // Label
+      ctx.fillStyle = 'rgba(102,170,255,0.6)';
+      ctx.font = '8px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('drag ' + dragMag.toFixed(1) + ' m/s²', dEndX, dEndY + (dragDirY > 0 ? -8 : 12));
+    }
+
+    // (d) Gravity — constant downward arrow
+    if (vizGravity) {
+      const gLen = 30;  // fixed visual length (gravity is constant)
+      ctx.strokeStyle = 'rgba(255,102,136,0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(sx, sy);
+      ctx.lineTo(sx, sy + gLen);  // straight down in screen space
+      ctx.stroke();
+      // arrowhead
+      ctx.fillStyle = 'rgba(255,102,136,0.8)';
+      ctx.beginPath();
+      ctx.moveTo(sx, sy + gLen);
+      ctx.lineTo(sx - 5, sy + gLen - 7);
+      ctx.lineTo(sx + 5, sy + gLen - 7);
+      ctx.fill();
+      // Label
+      ctx.fillStyle = 'rgba(255,102,136,0.6)';
+      ctx.font = '8px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('g = 9.81', sx + 8, sy + gLen - 2);
     }
 
     // Projectile glow
@@ -1732,6 +2036,78 @@ function drawTrajectory(upTo) {
     ctx.fillText(targetX.toFixed(0) + 'm', tx, ty + 40);
   }
 
+  // ── Derivative curves (when overlay is active) ──
+  // Draw vx (1st deriv, x only) as orange and ax (2nd deriv) as purple across the trajectory
+  if (showOverlay && trajectory.length > 3) {
+    // Find min/max for vx and ax to scale them into the plot
+    let minVx = Infinity, maxVx = -Infinity;
+    let minAx = Infinity, maxAx = -Infinity;
+    for (let i = 1; i < trajectory.length; i++) {
+      const vx_i = trajectory[i].vx;
+      if (vx_i < minVx) minVx = vx_i;
+      if (vx_i > maxVx) maxVx = vx_i;
+      if (i >= 2) {
+        const dt_i = trajectory[i].t - trajectory[i-1].t;
+        if (dt_i > 0) {
+          const ax_i = (trajectory[i].vx - trajectory[i-1].vx) / dt_i;
+          if (ax_i < minAx) minAx = ax_i;
+          if (ax_i > maxAx) maxAx = ax_i;
+        }
+      }
+    }
+    const vxRange = maxVx - minVx || 1;
+    const axRange = maxAx - minAx || 1;
+
+    // Draw 1st derivative (vx) — orange, mapped to upper 40% of plot
+    ctx.strokeStyle = 'rgba(255,170,0,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([4, 3]);
+    ctx.beginPath();
+    let started = false;
+    for (let i = 1; i <= upTo && i < trajectory.length; i++) {
+      const [sx] = toScreen(trajectory[i].x, 0);
+      const norm = (trajectory[i].vx - minVx) / vxRange; // 0..1
+      const sy = pad.top + plotH * 0.1 + (1 - norm) * plotH * 0.35;
+      if (!started) { ctx.moveTo(sx, sy); started = true; }
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    if (started) {
+      ctx.fillStyle = 'rgba(255,170,0,0.7)';
+      ctx.font = '9px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('vx (1st deriv)', pad.left + 4, pad.top + plotH * 0.08);
+    }
+
+    // Draw 2nd derivative (ax) — purple, mapped to upper 40% of plot, offset down
+    ctx.strokeStyle = 'rgba(204,102,255,0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    started = false;
+    for (let i = 2; i <= upTo && i < trajectory.length; i++) {
+      const dt_i = trajectory[i].t - trajectory[i-1].t;
+      if (dt_i <= 0) continue;
+      const ax_i = (trajectory[i].vx - trajectory[i-1].vx) / dt_i;
+      const [sx] = toScreen(trajectory[i].x, 0);
+      const norm = (ax_i - minAx) / axRange; // 0..1
+      const sy = pad.top + plotH * 0.5 + (1 - norm) * plotH * 0.35;
+      if (!started) { ctx.moveTo(sx, sy); started = true; }
+      else ctx.lineTo(sx, sy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    if (started) {
+      ctx.fillStyle = 'rgba(204,102,255,0.7)';
+      ctx.font = '9px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'left';
+      ctx.fillText('ax (2nd deriv)', pad.left + 4, pad.top + plotH * 0.48);
+    }
+  }
+
   // Derivative overlay: draw tangent line and Δ markers at hovered step
   if (showOverlay && hoveredStep > 0 && hoveredStep < trajectory.length - 1) {
     const i = hoveredStep;
@@ -1786,7 +2162,7 @@ function drawTrajectory(upTo) {
     ctx.arc(cx, cy, 5, 0, Math.PI * 2);
     ctx.fill();
 
-    // ── 2nd-order derivative visualization ──
+    // ── 2nd-order derivative visualization (magenta/violet) ──
     // Show acceleration (Δv/Δt) as vectors at the hovered point
     if (i >= 2) {
       const pn = trajectory[i + 1 < trajectory.length ? i + 1 : i];
@@ -1794,8 +2170,8 @@ function drawTrajectory(upTo) {
 
       // Draw velocity vectors at previous and current points to show change
       const vScale2 = 0.08;
-      // Previous velocity vector (dimmed)
-      ctx.strokeStyle = 'rgba(255,100,100,0.35)';
+      // Previous velocity vector (dimmed violet)
+      ctx.strokeStyle = 'rgba(170,68,221,0.35)';
       ctx.lineWidth = 1;
       ctx.setLineDash([2, 2]);
       ctx.beginPath();
@@ -1804,8 +2180,8 @@ function drawTrajectory(upTo) {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Current velocity vector (bright)
-      ctx.strokeStyle = 'rgba(255,100,100,0.7)';
+      // Current velocity vector (bright violet)
+      ctx.strokeStyle = 'rgba(204,102,255,0.7)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(cx, cy);
@@ -1815,7 +2191,7 @@ function drawTrajectory(upTo) {
       // Δv vector (the acceleration direction) — from tip of old v to tip of new v
       const oldTipX = cx + pp.vx * vScale2, oldTipY = cy - pp.vy * vScale2;
       const newTipX = cx + p.vx * vScale2, newTipY = cy - p.vy * vScale2;
-      ctx.strokeStyle = '#ff4466';
+      ctx.strokeStyle = '#cc66ff';
       ctx.lineWidth = 2;
       ctx.beginPath();
       ctx.moveTo(oldTipX, oldTipY);
@@ -1823,7 +2199,7 @@ function drawTrajectory(upTo) {
       ctx.stroke();
       // Arrowhead for Δv
       const dvAngle = Math.atan2(newTipY - oldTipY, newTipX - oldTipX);
-      ctx.fillStyle = '#ff4466';
+      ctx.fillStyle = '#cc66ff';
       ctx.beginPath();
       ctx.moveTo(newTipX, newTipY);
       ctx.lineTo(newTipX - 6 * Math.cos(dvAngle - 0.4), newTipY - 6 * Math.sin(dvAngle - 0.4));
@@ -1833,7 +2209,7 @@ function drawTrajectory(upTo) {
       // Label
       const ax = (p.vx - pp.vx) / dt;
       const ay = (p.vy - pp.vy) / dt;
-      ctx.fillStyle = '#ff6688';
+      ctx.fillStyle = '#dd88ff';
       ctx.font = '9px "IBM Plex Mono", monospace';
       ctx.textAlign = 'left';
       ctx.fillText('Δv/Δt (a=' + Math.sqrt(ax*ax + ay*ay).toFixed(1) + ' m/s²)', newTipX + 4, newTipY - 4);
@@ -1842,6 +2218,7 @@ function drawTrajectory(upTo) {
 }
 
 function updateReadout(i) {
+  if (!trajectory || i < 0 || i >= trajectory.length) return;
   const p = trajectory[i];
   rTime.textContent = p.t.toFixed(2) + ' s';
   rStep.textContent = i;
@@ -1905,15 +2282,10 @@ function animate() {
         targetMsg = `\n  ✗ ${dir} by ${miss.toFixed(0)}m`;
       }
       scoreVal.textContent = score;
-      // Only generate new target after a direct hit: wait 3s, reset, new target
+      // After a direct hit, switch button to "New Target" and wait for click
       if (miss < 50) {
-        if (newTargetTimer) clearTimeout(newTargetTimer);
-        newTargetTimer = setTimeout(() => {
-          reset();
-          newTarget();
-          trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
-          drawTrajectory(0);
-        }, 3000);
+        awaitingNewTarget = true;
+        targetBtn.textContent = '⊕ New Target';
       }
     }
     equationBox.textContent +=
@@ -1944,6 +2316,43 @@ function fire() {
   if (newTargetTimer) { clearTimeout(newTargetTimer); newTargetTimer = null; }
 
   trajectory = computeTrajectory();
+
+  // Guard: trajectory must have at least 2 points
+  if (!trajectory || trajectory.length < 2) {
+    rStatus.textContent = 'ERROR: Invalid parameters';
+    rStatus.className = 'v crit';
+    return;
+  }
+
+  // Cache fine-dt "true" trajectory for reference line
+  const userDt = parseFloat(dtSlider.value) / 100;
+  if (userDt > 0.03) {
+    const fAngle = parseFloat(angleSlider.value) * Math.PI / 180;
+    const fV0 = parseFloat(velSlider.value);
+    const fK = parseFloat(dragSlider.value) / 1000;
+    const fineDt = 0.005;
+    let fx = 0, fy = 0, fvx = fV0 * Math.cos(fAngle), fvy = fV0 * Math.sin(fAngle);
+    fineTrajectory = [{ x: 0, y: 0 }];
+    for (let fi = 0; fi < 100000; fi++) {
+      const sp = Math.sqrt(fvx * fvx + fvy * fvy);
+      const maxDrag = fK * sp * sp;
+      const nSub = Math.max(1, Math.ceil(maxDrag * fineDt / (0.2 * sp + 0.01)));
+      const sDt = fineDt / nSub;
+      for (let s = 0; s < nSub; s++) {
+        const sp2 = Math.sqrt(fvx * fvx + fvy * fvy);
+        fvx += (-fK * sp2 * fvx) * sDt;
+        fvy += (-9.81 - fK * sp2 * fvy) * sDt;
+        fx += fvx * sDt;
+        fy += fvy * sDt;
+      }
+      if (fi % 4 === 0) fineTrajectory.push({ x: fx, y: Math.max(fy, 0) });
+      if (fy < 0 && fi > 1) break;
+    }
+    fineTrajectory.push({ x: fx, y: 0 });
+  } else {
+    fineTrajectory = [];
+  }
+
   currentStep = 0;
   isRunning = true;
   rStatus.textContent = 'COMPUTING...';
@@ -2005,6 +2414,19 @@ overlayBtn.addEventListener('click', () => {
   overlayBtn.classList.toggle('active', showOverlay);
   overlayBtn.textContent = showOverlay ? '◈ Hide Derivatives' : '◈ Derivatives';
   if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+});
+
+// ── Visual guide toggles ──
+document.querySelectorAll('.vis-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    btn.classList.toggle('active');
+    const viz = btn.dataset.viz;
+    if (viz === 'angle') vizAngle = btn.classList.contains('active');
+    else if (viz === 'velocity') vizVelocity = btn.classList.contains('active');
+    else if (viz === 'drag') vizDrag = btn.classList.contains('active');
+    else if (viz === 'gravity') vizGravity = btn.classList.contains('active');
+    if (!isRunning && trajectory.length) drawTrajectory(trajectory.length - 1);
+  });
 });
 
 // ── Draggable derivative overlay ──
@@ -2080,6 +2502,81 @@ canvas.addEventListener('mouseleave', () => {
   }
 });
 
+// --- Zoom controls ---
+const zoomInBtn = document.getElementById('zoomIn');
+const zoomOutBtn = document.getElementById('zoomOut');
+const zoomLockBtn = document.getElementById('zoomLock');
+const zoomResetBtn = document.getElementById('zoomReset');
+const zoomLabelEl = document.getElementById('zoomLabel');
+
+function updateZoomLabel() {
+  if (zoomLevel === 1.0) zoomLabelEl.textContent = 'Auto';
+  else zoomLabelEl.textContent = Math.round(zoomLevel * 100) + '%';
+}
+
+zoomInBtn.addEventListener('click', () => {
+  zoomLevel = Math.min(zoomLevel * 1.3, 10);
+  updateZoomLabel();
+  if (!isRunning && trajectory.length > 1) drawTrajectory(trajectory.length - 1);
+});
+
+zoomOutBtn.addEventListener('click', () => {
+  zoomLevel = Math.max(zoomLevel / 1.3, 0.1);
+  updateZoomLabel();
+  if (!isRunning && trajectory.length > 1) drawTrajectory(trajectory.length - 1);
+});
+
+zoomLockBtn.addEventListener('click', () => {
+  axesLocked = !axesLocked;
+  if (axesLocked) {
+    // Save current extents
+    let mx = 0, my = 0;
+    for (const p of trajectory) {
+      if (p.x > mx) mx = p.x;
+      if (p.y > my) my = p.y;
+    }
+    const cw = canvas.width / devicePixelRatio;
+    const ch = canvas.height / devicePixelRatio;
+    const cpW = cw - 80; // approximate pad.left + pad.right
+    const cpH = ch - 65; // approximate pad.top + pad.bottom
+    lockedMaxX = Math.max(mx * 1.1, 100);
+    lockedMaxY = Math.max(my * 1.15, 100);
+    const aspectY = lockedMaxX * (cpH / cpW) / 3;
+    if (lockedMaxY < aspectY) lockedMaxY = aspectY;
+    zoomLockBtn.textContent = '🔒 Locked';
+    zoomLockBtn.style.background = 'rgba(0,255,120,0.2)';
+  } else {
+    lockedMaxX = 0;
+    lockedMaxY = 0;
+    zoomLockBtn.textContent = '🔓 Lock Axes';
+    zoomLockBtn.style.background = '';
+  }
+  if (!isRunning && trajectory.length > 1) drawTrajectory(trajectory.length - 1);
+});
+
+zoomResetBtn.addEventListener('click', () => {
+  zoomLevel = 1.0;
+  axesLocked = false;
+  lockedMaxX = 0;
+  lockedMaxY = 0;
+  zoomLockBtn.textContent = '🔓 Lock Axes';
+  zoomLockBtn.style.background = '';
+  updateZoomLabel();
+  if (!isRunning && trajectory.length > 1) drawTrajectory(trajectory.length - 1);
+});
+
+// Mouse wheel zoom on canvas
+canvas.addEventListener('wheel', (e) => {
+  e.preventDefault();
+  if (e.deltaY < 0) {
+    zoomLevel = Math.min(zoomLevel * 1.15, 10);
+  } else {
+    zoomLevel = Math.max(zoomLevel / 1.15, 0.1);
+  }
+  updateZoomLabel();
+  if (!isRunning && trajectory.length > 1) drawTrajectory(trajectory.length - 1);
+}, { passive: false });
+
 function updateDerivOverlay(i) {
   if (i < 1 || i >= trajectory.length) return;
   const p = trajectory[i];
@@ -2095,17 +2592,21 @@ function updateDerivOverlay(i) {
     <div class="section-head">Step ${i} → ${i} (t = ${pp.t.toFixed(2)}s → ${p.t.toFixed(2)}s)</div>
     <div class="calc-row"><span class="calc-lbl">Δt</span><span class="calc-val">${dt.toFixed(4)} s</span></div>
 
-    <div class="section-head">1st Derivative: Velocity = Δposition / Δt</div>
-    <div class="calc-row"><span class="calc-lbl">Δx = ${p.x.toFixed(1)} − ${pp.x.toFixed(1)}</span><span class="calc-val">${deltaX.toFixed(2)} m</span></div>
-    <div class="calc-row"><span class="calc-lbl">Δy = ${p.y.toFixed(1)} − ${pp.y.toFixed(1)}</span><span class="calc-val">${deltaY.toFixed(2)} m</span></div>
-    <div class="calc-row"><span class="calc-op">vₓ = Δx/Δt</span><span class="calc-val arrow">${(deltaX/dt).toFixed(2)} m/s</span></div>
-    <div class="calc-row"><span class="calc-op">vᵧ = Δy/Δt</span><span class="calc-val arrow">${(deltaY/dt).toFixed(2)} m/s</span></div>
+    <div class="deriv-group deriv-1st">
+      <div class="section-head" style="color:#ffaa00; border-color:rgba(255,170,0,0.3);">1st Derivative: Velocity = Δposition / Δt</div>
+      <div class="calc-row"><span class="calc-lbl">Δx = ${p.x.toFixed(1)} − ${pp.x.toFixed(1)}</span><span class="calc-val" style="color:#ffcc44;">${deltaX.toFixed(2)} m</span></div>
+      <div class="calc-row"><span class="calc-lbl">Δy = ${p.y.toFixed(1)} − ${pp.y.toFixed(1)}</span><span class="calc-val" style="color:#ffcc44;">${deltaY.toFixed(2)} m</span></div>
+      <div class="calc-row"><span class="calc-op" style="color:#aa8833;">vₓ = Δx/Δt</span><span class="calc-val arrow" style="color:#ff8844;">${(deltaX/dt).toFixed(2)} m/s</span></div>
+      <div class="calc-row"><span class="calc-op" style="color:#aa8833;">vᵧ = Δy/Δt</span><span class="calc-val arrow" style="color:#ff8844;">${(deltaY/dt).toFixed(2)} m/s</span></div>
+    </div>
 
-    <div class="section-head">2nd Derivative: Acceleration = Δvelocity / Δt</div>
-    <div class="calc-row"><span class="calc-lbl">Δvₓ = ${p.vx.toFixed(2)} − ${pp.vx.toFixed(2)}</span><span class="calc-val">${deltaVx.toFixed(3)} m/s</span></div>
-    <div class="calc-row"><span class="calc-lbl">Δvᵧ = ${p.vy.toFixed(2)} − ${pp.vy.toFixed(2)}</span><span class="calc-val">${deltaVy.toFixed(3)} m/s</span></div>
-    <div class="calc-row"><span class="calc-op">aₓ = Δvₓ/Δt</span><span class="calc-val arrow">${(deltaVx/dt).toFixed(3)} m/s²</span></div>
-    <div class="calc-row"><span class="calc-op">aᵧ = Δvᵧ/Δt</span><span class="calc-val arrow">${(deltaVy/dt).toFixed(3)} m/s²</span></div>
+    <div class="deriv-group deriv-2nd">
+      <div class="section-head" style="color:#cc66ff; border-color:rgba(204,102,255,0.3);">2nd Derivative: Acceleration = Δvelocity / Δt</div>
+      <div class="calc-row"><span class="calc-lbl" style="color:#8866aa;">Δvₓ = ${p.vx.toFixed(2)} − ${pp.vx.toFixed(2)}</span><span class="calc-val" style="color:#cc88ff;">${deltaVx.toFixed(3)} m/s</span></div>
+      <div class="calc-row"><span class="calc-lbl" style="color:#8866aa;">Δvᵧ = ${p.vy.toFixed(2)} − ${pp.vy.toFixed(2)}</span><span class="calc-val" style="color:#cc88ff;">${deltaVy.toFixed(3)} m/s</span></div>
+      <div class="calc-row"><span class="calc-op" style="color:#9966bb;">aₓ = Δvₓ/Δt</span><span class="calc-val arrow" style="color:#dd88ff;">${(deltaVx/dt).toFixed(3)} m/s²</span></div>
+      <div class="calc-row"><span class="calc-op" style="color:#9966bb;">aᵧ = Δvᵧ/Δt</span><span class="calc-val arrow" style="color:#dd88ff;">${(deltaVy/dt).toFixed(3)} m/s²</span></div>
+    </div>
 
     <div class="section-head">Trajectory Slope: dy/dx = vᵧ / vₓ</div>
     <div class="calc-row"><span class="calc-op">dy/dx = ${p.vy.toFixed(2)} / ${p.vx.toFixed(2)}</span><span class="calc-val arrow">${p.dydx.toFixed(4)}</span></div>
@@ -2162,6 +2663,17 @@ function newTarget() {
 }
 
 targetBtn.addEventListener('click', () => {
+  // If awaiting new target after a hit, generate one
+  if (awaitingNewTarget) {
+    awaitingNewTarget = false;
+    targetBtn.textContent = '⊕ Exit Target';
+    reset();
+    newTarget();
+    trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
+    drawTrajectory(0);
+    return;
+  }
+
   targetMode = !targetMode;
   targetHud.classList.toggle('visible', targetMode);
   targetBtn.classList.toggle('active', targetMode);
@@ -2169,18 +2681,18 @@ targetBtn.addEventListener('click', () => {
   if (targetMode) {
     score = 0;
     scoreVal.textContent = '0';
+    awaitingNewTarget = false;
     targetFixedMaxX = estimateMaxRange() * 1.05;  // lock axes NOW
     targetFixedMaxY = estimateMaxAltitude() * 1.15;
     newTarget();
-    // Show target on canvas immediately (even with no trajectory yet)
     reset();
-    // Draw an empty plot with just the target marker
     trajectory = [{ x: 0, y: 0, vx: 0, vy: 0, t: 0, speed: 0, dydx: 0, d2y: 0 }];
     drawTrajectory(0);
   } else {
     targetX = 0;
     targetFixedMaxX = 0;
     targetFixedMaxY = 0;
+    awaitingNewTarget = false;
     reset();
   }
 });
@@ -2201,6 +2713,7 @@ const ftStatus = document.getElementById('ftStatus');
 let ftRunning = false;
 
 function ftComputeRange(angleDeg, v0, k) {
+  if (isNaN(angleDeg) || isNaN(v0) || isNaN(k)) return { range: 0, maxAlt: 0, flightTime: 0 };
   const angle = angleDeg * Math.PI / 180;
   const outerDt = 0.05; // fine step for accuracy
   const g = 9.81;
@@ -2231,18 +2744,27 @@ ftComputeBtn.addEventListener('click', async () => {
   ftComputeBtn.textContent = '⏳ Computing...';
   ftComputeBtn.classList.add('active');
 
-  const k = parseFloat(document.getElementById('ftDrag').value) || 0.002;
-  const angles = document.getElementById('ftAngleRange').value.split(',').map(Number);
-  const vels = document.getElementById('ftVelRange').value.split(',').map(Number);
+  const rawK = parseFloat(document.getElementById('ftDrag').value);
+  const k = isNaN(rawK) || rawK < 0 || rawK > 0.1 ? 0.002 : rawK;
+  const angles = document.getElementById('ftAngleRange').value.split(',').map(Number).filter(a => a >= 1 && a <= 90 && !isNaN(a));
+  const vels = document.getElementById('ftVelRange').value.split(',').map(Number).filter(v => v > 0 && v <= 3000 && !isNaN(v));
+
+  if (angles.length === 0 || vels.length === 0) {
+    ftStatus.innerHTML = '<span style="color:#ff4466;">Error: Invalid angle or velocity values.</span>';
+    ftComputeBtn.textContent = '▶ Compute Table';
+    ftComputeBtn.classList.remove('active');
+    ftRunning = false;
+    return;
+  }
 
   // Build header
   ftHead.innerHTML = '<tr><th>Angle \\ Vel.</th>' +
     vels.map(v => '<th>' + v + ' m/s</th>').join('') + '</tr>';
 
-  // Build empty rows
+  // Build empty rows with data attributes for click-to-simulate
   ftBody.innerHTML = angles.map(a =>
-    '<tr><td>' + a + '°</td>' + vels.map((_, vi) =>
-      '<td id="ft-' + a + '-' + vi + '">—</td>'
+    '<tr><td>' + a + '°</td>' + vels.map((v, vi) =>
+      '<td id="ft-' + a + '-' + vi + '" data-angle="' + a + '" data-vel="' + v + '">—</td>'
     ).join('') + '</tr>'
   ).join('');
 
@@ -2273,11 +2795,62 @@ ftComputeBtn.addEventListener('click', async () => {
   }
 
   ftStatus.innerHTML = '✓ Complete: <span class="count">' + total + '</span> trajectories computed. ' +
-    'Hover cells for altitude and flight time. A human computer would need ~' +
+    '<strong style="color:#00ff80;">Click any cell to simulate that trajectory.</strong> ' +
+    'Hover for altitude and flight time. A human computer would need ~' +
     (total * 40).toLocaleString() + ' hours for this table.';
   ftComputeBtn.textContent = '▶ Compute Table';
   ftComputeBtn.classList.remove('active');
   ftRunning = false;
+
+  // Add click handlers to computed cells
+  ftBody.querySelectorAll('td.computed').forEach(cell => {
+    cell.addEventListener('click', () => {
+      const angle = cell.dataset.angle;
+      const vel = cell.dataset.vel;
+      if (!angle || !vel) return;
+
+      // Highlight the clicked cell
+      ftBody.querySelectorAll('td.active-cell').forEach(c => c.classList.remove('active-cell'));
+      cell.classList.add('active-cell');
+
+      // Set sliders using native setter for proper React-style updates
+      const nativeSetter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set;
+
+      // Clamp angle to slider range
+      const clampedAngle = Math.max(5, Math.min(90, parseInt(angle)));
+      nativeSetter.call(angleSlider, clampedAngle);
+      angleSlider.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Clamp velocity to slider range
+      const clampedVel = Math.max(200, Math.min(1500, parseInt(vel)));
+      nativeSetter.call(velSlider, clampedVel);
+      velSlider.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Set drag to match the firing table's drag value
+      const ftDragVal = parseFloat(document.getElementById('ftDrag').value) || 0.002;
+      const dragSliderVal = Math.round(ftDragVal * 1000);
+      nativeSetter.call(dragSlider, Math.max(0, Math.min(50, dragSliderVal)));
+      dragSlider.dispatchEvent(new Event('input', { bubbles: true }));
+
+      // Exit target mode if active
+      if (targetMode) {
+        targetMode = false;
+        awaitingNewTarget = false;
+        targetHud.classList.remove('visible');
+        targetBtn.classList.remove('active');
+        targetBtn.textContent = '⊕ Target Mode';
+        targetX = 0;
+        targetFixedMaxX = 0;
+        targetFixedMaxY = 0;
+      }
+
+      // Scroll to the simulation
+      document.querySelector('.main-grid').scrollIntoView({ behavior: 'smooth' });
+
+      // Fire after a brief delay to let scroll complete
+      setTimeout(() => fire(), 300);
+    });
+  });
 });
 
 // ── Notes tab switching ──

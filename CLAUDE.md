@@ -22,6 +22,8 @@ Usage: `/qa-fix-loop decks/week-1.html`
 
 - `raster.js` — core renderer (PPTX + HTML), themes, layouts, grid system
 - `compose.js` — Claude-directed composition (JSON directives approach)
+- `pipeline.js` — staged pipeline: split → design → compose → render (`node pipeline.js`)
+- `server.js` — web dashboard UI (`npm run ui` or `node server.js`)
 - `compare.js` — multi-variant comparison with rubric evaluation
 - `rastersysteme.js` — interactive CLI wizard (`npm start`)
 - `qa.js` — markdown-level QA (WCAG, design scoring, validation)

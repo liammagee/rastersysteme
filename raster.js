@@ -2423,6 +2423,29 @@ setInterval(function(){
 `;
 }
 
+// ═══════════════════════════════════════════════════════
+// EXTERNAL CSS — write standalone stylesheet for reuse
+// ═══════════════════════════════════════════════════════
+
+function generateExternalCSS(outputPath) {
+  const css = `/* rastersysteme.css — Swiss 60-column grid slide system
+ * Standalone stylesheet — link from any HTML slideshow.
+ *
+ * Theme variables must be set via :root in your HTML:
+ *   :root {
+ *     --bg:#F8F5F0; --bg-alt:#F0EDE8; --bg-dark:#2D2D2D; --code-bg:#2D2D2D;
+ *     --text:#1A1A1A; --text-mid:#4A4A4A; --text-light:#888;
+ *     --accent:#B7311A; --accent-light:#D4654E; --accent2:#2D5A7B; --accent3:#6B8E5A; --accent4:#8B6B4A;
+ *     --white:#FFFFFF; --black:#1A1A1A; --grey:#CCCCCC;
+ *     --font:'Helvetica Neue','Helvetica',Arial,sans-serif;
+ *   }
+ */
+${generateHTMLCSS()}
+`;
+  fs.writeFileSync(outputPath, css, "utf-8");
+  return outputPath;
+}
+
 async function generateHTML(inputPath, outputPath, options = {}) {
   const themeName = options.theme || "light";
   const theme = THEMES[themeName] || THEMES.light;
@@ -2511,6 +2534,12 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 
   const title = esc(path.basename(inputPath, ".md"));
 
+  // External CSS mode: link to standalone stylesheet instead of inlining
+  const cssFileName = options.cssFileName || "rastersysteme.css";
+  const styleBlock = options.externalCSS
+    ? `<style>\n:root{${cssVars};--font:'${globalFont}','Helvetica Neue',Helvetica,Arial,sans-serif}\n</style>\n<link rel="stylesheet" href="${cssFileName}">`
+    : `<style>\n:root{${cssVars};--font:'${globalFont}','Helvetica Neue',Helvetica,Arial,sans-serif}\n${generateHTMLCSS()}\n</style>`;
+
   const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -2520,10 +2549,7 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 <title>${title}</title>
-<style>
-:root{${cssVars};--font:'${globalFont}','Helvetica Neue',Helvetica,Arial,sans-serif}
-${generateHTMLCSS()}
-</style>
+${styleBlock}
 </head>
 <body>
 <div class="deck">
@@ -2537,6 +2563,14 @@ ${generateHTMLJS()}
 </script>
 </body>
 </html>`;
+
+  // Write external CSS file alongside HTML if needed
+  if (options.externalCSS) {
+    const cssPath = path.join(path.dirname(outputPath), cssFileName);
+    if (!fs.existsSync(cssPath)) {
+      generateExternalCSS(cssPath);
+    }
+  }
 
   fs.writeFileSync(outputPath, html, "utf-8");
   return { slides: slides.length, output: outputPath, theme: themeName };
@@ -3019,4 +3053,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned };
+module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, generateHTMLJS, generateExternalCSS, renderDesigned };

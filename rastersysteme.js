@@ -155,6 +155,26 @@ function findMarkdownFiles(dir) {
   } catch { return []; }
 }
 
+function findContentFiles(dir) {
+  if (!fs.existsSync(dir)) return [];
+  const results = [];
+  function walk(d) {
+    try {
+      for (const entry of fs.readdirSync(d, { withFileTypes: true })) {
+        if (entry.isDirectory() && !entry.name.startsWith(".")) {
+          walk(path.join(d, entry.name));
+        } else if (entry.isFile() && entry.name.endsWith(".md")
+                   && !entry.name.includes(".composed.")
+                   && !entry.name.startsWith("README")) {
+          results.push(path.join(d, entry.name));
+        }
+      }
+    } catch {}
+  }
+  walk(dir);
+  return results.sort();
+}
+
 // ═══════════════════════════════════════════════════════
 // IMAGE DIRECTORY FINDER — searches broadly for matching images
 // ═══════════════════════════════════════════════════════
@@ -208,9 +228,11 @@ function findImagesDir(inputPath) {
 async function selectInput() {
   const cwd = process.cwd();
   const decksDir = path.join(cwd, "decks");
+  const contentDir = path.join(cwd, "content");
   const mdFiles = [
     ...findMarkdownFiles(cwd),
     ...(fs.existsSync(decksDir) ? findMarkdownFiles(decksDir) : []),
+    ...findContentFiles(contentDir),
   ];
 
   if (mdFiles.length === 0) {
@@ -339,6 +361,7 @@ async function interactive(preselectedInput) {
   // 2. Mode
   const mode = await select("MODE", [
     { key: "c", label: "compose         Claude → slides" },
+    { key: "l", label: "pipeline        staged: split → design → compose → render" },
     { key: "r", label: "render          markdown → PPTX/HTML" },
     { key: "v", label: "compare         3-way A/B evaluation" },
     { key: "x", label: "explosive       12-way: all themes × intensities" },
@@ -381,7 +404,69 @@ async function interactive(preselectedInput) {
 
   let composedPath, pptxPath, htmlPath;
 
-  if (mode.key === "c") {
+  if (mode.key === "l") {
+    // ── PIPELINE (staged) ──────────────────────────────
+    const { runPipeline } = require("./pipeline.js");
+
+    const stageChoice = await select("RUN FROM", [
+      { key: "1", label: "split           full pipeline from source" },
+      { key: "2", label: "design          skip split, use existing slides" },
+      { key: "3", label: "compose         skip split+design, use existing" },
+      { key: "4", label: "render          render only from composed" },
+    ], { autoSelect: true });
+    const fromStage = { "1": "split", "2": "design", "3": "compose", "4": "render" }[stageChoice.key];
+
+    const intensity = await select("INTENSITY", [
+      { key: "n", label: "minimal         Müller-Brockmann: clean grid" },
+      { key: "m", label: "moderate        Gerstner: restructure for impact" },
+      { key: "x", label: "maximal         Weingart: full chromatic arc" },
+    ], { autoSelect: true });
+    const intensityName = intensity.label.split(/\s+/)[0];
+
+    // Design system
+    const { listSystems } = require("./design-system.js");
+    const systems = listSystems();
+    let designSystemName = null;
+    if (systems.length > 0) {
+      const dsItems = [
+        { key: "n", label: "none            generate fresh design" },
+        ...systems.map((s, i) => ({ key: String(i + 1), label: `${s.name.padEnd(16)} ${s.aesthetic.slice(0, 40)}`, value: s.name })),
+      ];
+      const dsChoice = await select("DESIGN SYSTEM", dsItems, { autoSelect: true });
+      if (dsChoice.value) designSystemName = dsChoice.value;
+    }
+
+    const cssChoice = await select("CSS OUTPUT", [
+      { key: "e", label: "external        separate rastersysteme.css (default)" },
+      { key: "i", label: "inline          self-contained HTML" },
+    ], { autoSelect: true });
+
+    try {
+      const results = await runPipeline(input, {
+        from: fromStage,
+        theme: themeName,
+        intensity: intensityName,
+        model: modelName,
+        externalCSS: cssChoice.key === "e",
+        designSystem: designSystemName,
+      });
+
+      if (results.render) {
+        htmlPath = results.render.htmlPath;
+        pptxPath = results.render.pptxPath;
+      }
+    } catch (err) {
+      process.stderr.write(`  ${accent("✗")} Pipeline failed: ${err.message}\n`);
+    }
+
+    // Open HTML in browser if rendered
+    if (htmlPath && fs.existsSync(htmlPath)) {
+      const { exec } = require("child_process");
+      exec(`open "${htmlPath}"`);
+    }
+
+    return;
+  } else if (mode.key === "c") {
     // ── COMPOSE ──────────────────────────────
     const intensity = await select("INTENSITY", [
       { key: "n", label: "minimal         Müller-Brockmann: clean grid, no rewrites" },
