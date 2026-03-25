@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>rastersysteme — demos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Fira+Code:wght@400;500;600&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8F5F0; --bg-panel: #FFFFFF; --bg-inset: #F0ECE6;
+  --bg-hover: #EDE9E3;
+  --border: #D8D3CB; --border-light: #E8E4DD;
+  --text: #1A1714; --text-mid: #5C564D; --text-light: #918A7E; --text-inverse: #F0EBE3;
+  --red: #B7311A; --teal: #1B5E80; --green: #2B7038; --amber: #876512;
+  --font-heading: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; --font-data: 'Fira Code', monospace;
+  --topbar-h: 52px; --radius: 3px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:var(--font-body); font-size:14px; color:var(--text); background:var(--bg); -webkit-font-smoothing:antialiased; }
+
+.topbar { height:var(--topbar-h); background:var(--text); color:var(--text-inverse); display:flex; align-items:center; padding:0 24px; gap:16px; user-select:none; position:sticky; top:0; z-index:100; }
+.topbar-brand { display:flex; align-items:center; gap:10px; font-family:var(--font-heading); font-weight:700; font-size:15px; text-decoration:none; color:var(--text-inverse); }
+.topbar-brand .square { width:16px; height:16px; background:var(--red); }
+.topbar-sep { width:1px; height:24px; background:rgba(255,255,255,0.15); }
+.topbar a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; transition:color 0.15s; }
+.topbar a:hover { color:rgba(255,255,255,0.9); }
+.topbar a.active { color:white; border-bottom:2px solid var(--red); padding-bottom:2px; }
+.topbar-right { margin-left:auto; display:flex; gap:12px; align-items:center; }
+.topbar-stat { font-family:var(--font-data); font-size:11px; color:rgba(255,255,255,0.4); }
+.topbar-stat b { color:rgba(255,255,255,0.75); }
+
+.page-header { padding:48px 24px 16px; max-width:960px; margin:0 auto; }
+.page-title { font-family:var(--font-heading); font-weight:700; font-size:28px; letter-spacing:-0.02em; }
+.page-subtitle { font-size:15px; color:var(--text-mid); margin-top:8px; line-height:1.5; }
+
+.demos { display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:20px; padding:24px; max-width:960px; margin:0 auto; }
+
+.demo-card { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:border-color 0.15s, box-shadow 0.2s, transform 0.15s; display:flex; flex-direction:column; }
+.demo-card:hover { border-color:var(--text-light); box-shadow:0 4px 16px rgba(0,0,0,0.08); transform:translateY(-1px); }
+.demo-card a { text-decoration:none; color:inherit; display:flex; flex-direction:column; height:100%; }
+.demo-preview { height:220px; position:relative; overflow:hidden; background:var(--bg-inset); border-bottom:1px solid var(--border-light); }
+.demo-preview iframe { width:1600px; height:900px; border:none; transform-origin:0 0; transform:scale(0.23); pointer-events:none; position:absolute; top:0; left:0; }
+.demo-preview-overlay { position:absolute; inset:0; }
+.demo-info { padding:16px 18px; display:flex; flex-direction:column; gap:6px; flex:1; }
+.demo-name { font-family:var(--font-heading); font-weight:600; font-size:16px; color:var(--text); }
+.demo-desc { font-size:13px; color:var(--text-mid); line-height:1.5; }
+.demo-tags { display:flex; gap:6px; margin-top:auto; padding-top:8px; }
+.demo-tag { font-family:var(--font-data); font-size:10px; text-transform:uppercase; letter-spacing:0.06em; padding:2px 8px; border-radius:2px; background:var(--bg-inset); border:1px solid var(--border-light); color:var(--text-light); }
+
+.empty { padding:60px 24px; text-align:center; color:var(--text-light); font-size:14px; }
+.empty code { background:var(--bg-inset); padding:2px 6px; border-radius:2px; font-family:var(--font-data); font-size:12px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a href="../index.html" class="topbar-brand"><span class="square"></span> rastersysteme</a>
+  <div class="topbar-sep"></div>
+  <a href="../index.html">Home</a>
+  <a href="../gallery.html">Gallery</a>
+  <a href="index.html" class="active">Demos</a>
+  <a href="https://github.com/liammagee/rastersysteme" target="_blank" rel="noopener">GitHub</a>
+  <div class="topbar-right">
+    <span class="topbar-stat" id="total-stat"></span>
+  </div>
+</header>
+
+<div class="page-header">
+  <h1 class="page-title">Interactive Demos</h1>
+  <p class="page-subtitle">Standalone interactive pages linked from slide decks. Simulations, visualisations, and exploratory tools.</p>
+</div>
+
+<div class="demos" id="demos">
+  <div class="empty">Loading...</div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  async function load() {
+    let pages;
+    try {
+      const resp = await fetch('manifest.json');
+      if (!resp.ok) throw new Error();
+      pages = await resp.json();
+    } catch {
+      document.getElementById('demos').innerHTML =
+        '<div class="empty">Could not load <code>pages/manifest.json</code>.</div>';
+      return;
+    }
+
+    if (pages.length === 0) {
+      document.getElementById('demos').innerHTML =
+        '<div class="empty">No demos yet. Add entries to <code>pages/manifest.json</code>.</div>';
+      return;
+    }
+
+    document.getElementById('total-stat').innerHTML = '<b>' + pages.length + '</b> demo' + (pages.length !== 1 ? 's' : '');
+
+    let html = '';
+    pages.forEach(p => {
+      html += '<div class="demo-card"><a href="' + esc(p.file) + '">'
+        + '<div class="demo-preview">'
+        + '<iframe src="' + esc(p.file) + '" loading="lazy" tabindex="-1"></iframe>'
+        + '<div class="demo-preview-overlay"></div>'
+        + '</div>'
+        + '<div class="demo-info">'
+        + '<div class="demo-name">' + esc(p.name) + '</div>'
+        + (p.description ? '<div class="demo-desc">' + esc(p.description) + '</div>' : '');
+      if (p.tags && p.tags.length) {
+        html += '<div class="demo-tags">';
+        p.tags.forEach(t => { html += '<span class="demo-tag">' + esc(t) + '</span>'; });
+        html += '</div>';
+      }
+      html += '</div></a></div>';
+    });
+
+    document.getElementById('demos').innerHTML = html;
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>
