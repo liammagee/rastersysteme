@@ -20,6 +20,7 @@
     "masters": "node masters.js",
     "ui": "node server.js",
     "serve": "python3 -m http.server 8701",
+    "gallery": "node build-manifest.js && echo 'Gallery ready: open gallery.html'",
     "explorer": "node explorer.js",
     "refresh": "node refresh.js",
     "qa": "node qa.js",

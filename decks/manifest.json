@@ -1,0 +1,890 @@
+[
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1l.html",
+    "name": "week-1l",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "126K",
+    "modified": "2026-03-25T17:04:56.523Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1k.html",
+    "name": "week-1k",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "123K",
+    "modified": "2026-03-25T14:51:34.531Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-1l.spliced.html",
+    "name": "week-1l.spliced",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "126K",
+    "modified": "2026-03-25T14:44:42.043Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-1k.spliced.html",
+    "name": "week-1k.spliced",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "123K",
+    "modified": "2026-03-25T14:31:29.950Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1i.html",
+    "name": "week-1i",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "96K",
+    "modified": "2026-03-25T12:25:39.993Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1.compare.html",
+    "name": "week-1.compare",
+    "slides": 1,
+    "theme": "dark",
+    "firstTitle": "week-1",
+    "size": "296K",
+    "modified": "2026-03-23T22:23:08.259Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1h.html",
+    "name": "week-1h",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "107K",
+    "modified": "2026-03-23T20:18:24.183Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1e.html",
+    "name": "week-1e",
+    "slides": 8,
+    "theme": "dark",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "52K",
+    "modified": "2026-03-23T05:27:07.115Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-1e.spliced.html",
+    "name": "week-1e.spliced",
+    "slides": 8,
+    "theme": "dark",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "52K",
+    "modified": "2026-03-23T05:26:33.239Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1g.html",
+    "name": "week-1g",
+    "slides": 8,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "46K",
+    "modified": "2026-03-23T05:19:28.657Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1.html",
+    "name": "week-1",
+    "slides": 5,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "38K",
+    "modified": "2026-03-23T05:17:22.090Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1f.html",
+    "name": "week-1f",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "82K",
+    "modified": "2026-03-23T05:13:55.086Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1d.html",
+    "name": "week-1d",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "109K",
+    "modified": "2026-03-23T05:00:07.250Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1c.html",
+    "name": "week-1c",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "102K",
+    "modified": "2026-03-23T04:46:51.700Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-paced.html",
+    "name": "week-1-paced",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "End of Week 1! Questions, Comments?",
+    "size": "67K",
+    "modified": "2026-03-23T04:45:43.599Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-radical.html",
+    "name": "week-1-radical",
+    "slides": 26,
+    "theme": "light",
+    "firstTitle": "In 2026 we no longer need this course.",
+    "size": "44K",
+    "modified": "2026-03-23T04:41:29.506Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1b.html",
+    "name": "week-1b",
+    "slides": 38,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "114K",
+    "modified": "2026-03-23T04:41:28.212Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1a.html",
+    "name": "week-1a",
+    "slides": 44,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "113K",
+    "modified": "2026-03-23T04:34:39.722Z"
+  },
+  {
+    "type": "qa",
+    "category": "decks",
+    "path": "decks/week-1.audit.html",
+    "name": "week-1.audit",
+    "slides": 44,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "113K",
+    "modified": "2026-03-23T02:31:00.786Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-default.html",
+    "name": "week-1-default",
+    "slides": 44,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "64K",
+    "modified": "2026-03-23T00:07:29.164Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-v6.html",
+    "name": "week-1-v6",
+    "slides": 32,
+    "theme": "light",
+    "firstTitle": "Six Lens. Seven Weeks. One Intervention.",
+    "size": "44K",
+    "modified": "2026-03-22T21:41:59.933Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-v5.html",
+    "name": "week-1-v5",
+    "slides": 25,
+    "theme": "light",
+    "firstTitle": "In 2026 we no longer need an introduction to AI",
+    "size": "45K",
+    "modified": "2026-03-22T21:41:59.869Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-v4.html",
+    "name": "week-1-v4",
+    "slides": 24,
+    "theme": "light",
+    "firstTitle": "Why does this course exist?",
+    "size": "40K",
+    "modified": "2026-03-22T21:41:59.807Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-v3.html",
+    "name": "week-1-v3",
+    "slides": 26,
+    "theme": "light",
+    "firstTitle": "In 2026 we no longer need an introduction to AI.",
+    "size": "39K",
+    "modified": "2026-03-22T21:41:59.750Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-v2.html",
+    "name": "week-1-v2",
+    "slides": 37,
+    "theme": "light",
+    "firstTitle": "Why does this course exist in 2026?",
+    "size": "48K",
+    "modified": "2026-03-22T21:41:59.684Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-radical-v2.html",
+    "name": "week-1-radical-v2",
+    "slides": 28,
+    "theme": "light",
+    "firstTitle": "In 2026, do we still need this course?",
+    "size": "47K",
+    "modified": "2026-03-22T21:41:59.623Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-light.html",
+    "name": "week-1-light",
+    "slides": 32,
+    "theme": "light",
+    "firstTitle": "Why does this course exist?",
+    "size": "38K",
+    "modified": "2026-03-22T21:41:59.558Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-fresh.html",
+    "name": "week-1-fresh",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "A Note on AI use for this course",
+    "size": "52K",
+    "modified": "2026-03-22T21:41:59.494Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-1-composed.html",
+    "name": "week-1-composed",
+    "slides": 39,
+    "theme": "light",
+    "firstTitle": "We no longer need this course.",
+    "size": "39K",
+    "modified": "2026-03-22T21:41:59.426Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/test-mood.html",
+    "name": "test-mood",
+    "slides": 29,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "53K",
+    "modified": "2026-03-22T21:41:59.361Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/showcase-test.html",
+    "name": "showcase-test",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "I. Das Raster",
+    "size": "60K",
+    "modified": "2026-03-22T21:41:59.157Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-1-fresh.spliced.html",
+    "name": "week-1-fresh.spliced",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "A Note on AI use for this course",
+    "size": "52K",
+    "modified": "2026-03-21T19:27:13.945Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-1-fresh.merged.html",
+    "name": "week-1-fresh.merged",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "25K",
+    "modified": "2026-03-21T19:19:15.450Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "show-bauhaus.html",
+    "name": "show-bauhaus",
+    "slides": 34,
+    "theme": "light",
+    "firstTitle": "DAS RASTER",
+    "size": "39K",
+    "modified": "2026-03-19T18:35:50.294Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "week-1-v6.html",
+    "name": "week-1-v6",
+    "slides": 32,
+    "theme": "light",
+    "firstTitle": "Six Lens. Seven Weeks. One Intervention.",
+    "size": "29K",
+    "modified": "2026-03-19T18:35:50.239Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "week-1-radical.html",
+    "name": "week-1-radical",
+    "slides": 26,
+    "theme": "dark",
+    "firstTitle": "In 2026 we no longer need this course.",
+    "size": "26K",
+    "modified": "2026-03-19T13:58:59.603Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "test-features.html",
+    "name": "test-features",
+    "slides": 8,
+    "theme": "dark",
+    "firstTitle": "Thank you",
+    "size": "16K",
+    "modified": "2026-03-19T13:58:59.552Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "showcase.html",
+    "name": "showcase",
+    "slides": 30,
+    "theme": "dark",
+    "firstTitle": "I. Das Raster",
+    "size": "45K",
+    "modified": "2026-03-19T13:58:59.501Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "rastersysteme-README.html",
+    "name": "rastersysteme-README",
+    "slides": 8,
+    "theme": "dark",
+    "firstTitle": "Credits",
+    "size": "14K",
+    "modified": "2026-03-19T13:58:59.445Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "example.html",
+    "name": "example",
+    "slides": 5,
+    "theme": "dark",
+    "firstTitle": "Machine Spirits",
+    "size": "13K",
+    "modified": "2026-03-19T13:58:59.394Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "showcase-blue.html",
+    "name": "showcase-blue",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "I. Das Raster",
+    "size": "45K",
+    "modified": "2026-03-19T04:24:19.480Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "showcase-red.html",
+    "name": "showcase-red",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "I. Das Raster",
+    "size": "45K",
+    "modified": "2026-03-19T04:24:19.433Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "showcase-light.html",
+    "name": "showcase-light",
+    "slides": 30,
+    "theme": "light",
+    "firstTitle": "I. Das Raster",
+    "size": "45K",
+    "modified": "2026-03-19T04:24:19.383Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "showcase-dark.html",
+    "name": "showcase-dark",
+    "slides": 30,
+    "theme": "dark",
+    "firstTitle": "I. Das Raster",
+    "size": "45K",
+    "modified": "2026-03-19T04:24:19.251Z"
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-23-14-27",
+    "date": "2026-03-23-14-27",
+    "path": "decks/compare-week-1-2026-03-23-14-27",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-23-14-27/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-14-27/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-14-27/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-23-07-47",
+    "date": "2026-03-23-07-47",
+    "path": "decks/compare-week-1-2026-03-23-07-47",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-23-07-47/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-07-47/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-07-47/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-23-00-25",
+    "date": "2026-03-23-00-25",
+    "path": "decks/compare-week-1-2026-03-23-00-25",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-25/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-25/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-25/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-23-00-00",
+    "date": "2026-03-23-00-00",
+    "path": "decks/compare-week-1-2026-03-23-00-00",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-00/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-00/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-23-00-00/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-22-22-55",
+    "date": "2026-03-22-22-55",
+    "path": "decks/compare-week-1-2026-03-22-22-55",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-22-22-55/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-22-55/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-22-55/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-22-19-00",
+    "date": "2026-03-22-19-00",
+    "path": "decks/compare-week-1-2026-03-22-19-00",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-22-19-00/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-19-00/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-19-00/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-22-18-51",
+    "date": "2026-03-22-18-51",
+    "path": "decks/compare-week-1-2026-03-22-18-51",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-22-18-51/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-22-18-33",
+    "date": "2026-03-22-18-33",
+    "path": "decks/compare-week-1-2026-03-22-18-33",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-22-18-33/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-18-33/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-18-33/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-22-08-26",
+    "date": "2026-03-22-08-26",
+    "path": "decks/compare-week-1-2026-03-22-08-26",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-22-08-26/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-08-26/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-22-08-26/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-15-17-",
+    "date": "2026-03-21-15-17",
+    "path": "decks/compare-week-1-2026-03-21-15-17-",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-15-17-/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-15-17-/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-15-17-/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-14-26",
+    "date": "2026-03-21-14-26",
+    "path": "decks/compare-week-1-2026-03-21-14-26",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-26/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-26/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-26/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-14-11",
+    "date": "2026-03-21-14-11",
+    "path": "decks/compare-week-1-2026-03-21-14-11",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-11/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-11/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-14-11/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-13-00",
+    "date": "2026-03-21-13-00",
+    "path": "decks/compare-week-1-2026-03-21-13-00",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-13-00/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-13-00/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-13-00/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-12-46",
+    "date": "2026-03-21-12-46",
+    "path": "decks/compare-week-1-2026-03-21-12-46",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-46/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-46/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-46/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-12-31",
+    "date": "2026-03-21-12-31",
+    "path": "decks/compare-week-1-2026-03-21-12-31",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-31/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-31/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-31/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-12-19",
+    "date": "2026-03-21-12-19",
+    "path": "decks/compare-week-1-2026-03-21-12-19",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-19/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-19/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-12-19/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-11-09",
+    "date": "2026-03-21-11-09",
+    "path": "decks/compare-week-1-2026-03-21-11-09",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-11-09/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-11-09/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-11-09/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  },
+  {
+    "type": "compare",
+    "name": "compare-week-1-2026-03-21-10-45",
+    "date": "2026-03-21-10-45",
+    "path": "decks/compare-week-1-2026-03-21-10-45",
+    "variants": [
+      {
+        "path": "decks/compare-week-1-2026-03-21-10-45/maximal-light/week-1.maximal-light.html",
+        "variant": "maximal-light",
+        "name": "week-1.maximal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-10-45/minimal-light/week-1.minimal-light.html",
+        "variant": "minimal-light",
+        "name": "week-1.minimal-light.html"
+      },
+      {
+        "path": "decks/compare-week-1-2026-03-21-10-45/moderate-light/week-1.moderate-light.html",
+        "variant": "moderate-light",
+        "name": "week-1.moderate-light.html"
+      }
+    ]
+  }
+]
