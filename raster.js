@@ -218,7 +218,7 @@ function normaliseDesign(raw) {
   return d;
 }
 
-function parseMarkdownTable(lines) {
+function parseMarkdownTable(lines, slide) {
   if (lines.length < 2) return null;
   const parseCells = (row) => row.split("|").slice(1, -1).map(c => c.trim());
 
@@ -234,6 +234,41 @@ function parseMarkdownTable(lines) {
   });
 
   const rows = lines.slice(2).map(parseCells);
+
+  // Extract images and body text from table cells (handles PowerPoint export format)
+  if (slide) {
+    const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+    const allCells = [...headers, ...rows.flat()];
+    for (const cell of allCells) {
+      // Extract images
+      let m;
+      while ((m = imgRegex.exec(cell)) !== null) {
+        const ytId = extractYouTubeId(m[2]);
+        if (ytId) {
+          slide.videos.push({ title: m[1] || "", id: ytId, url: m[2] });
+        } else {
+          slide.images.push({ alt: m[1], src: m[2] });
+        }
+      }
+      // Extract text content from cells with <br> separators (PowerPoint export)
+      const textContent = cell
+        .replace(/!\[([^\]]*)\]\(([^)]+)\)/g, "")  // strip images
+        .replace(/<br\s*\/?>/gi, "\n")               // <br> → newlines
+        .replace(/\n{2,}/g, "\n")                    // collapse multiple newlines
+        .trim();
+      if (textContent.length > 3) {
+        // Split on newlines to get paragraphs
+        const lines = textContent.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+        lines.forEach(line => {
+          // Don't duplicate content already captured as title/subtitle/sectionLabel
+          if (line !== slide.title && line !== slide.subtitle && line !== slide.sectionLabel) {
+            slide.body.push(line);
+          }
+        });
+      }
+    }
+  }
+
   return { headers, alignments, rows };
 }
 
@@ -343,7 +378,7 @@ function parseMarkdown(md) {
 
     const flushTable = () => {
       if (tableBuffer.length >= 2) {
-        const table = parseMarkdownTable(tableBuffer);
+        const table = parseMarkdownTable(tableBuffer, slide);
         if (table) slide.tables.push(table);
       }
       tableBuffer = [];
@@ -366,23 +401,57 @@ function parseMarkdown(md) {
         flushTable();
       }
 
-      // Headings
-      if (trimmed.startsWith("# ") && !trimmed.startsWith("## ")) {
-        slide.title = trimmed.replace(/^#\s+/, "");
-      } else if (trimmed.startsWith("## ") && !trimmed.startsWith("### ")) {
-        slide.subtitle = trimmed.replace(/^##\s+/, "");
-      } else if (trimmed.startsWith("### ")) {
-        slide.sectionLabel = trimmed.replace(/^###\s+/, "");
-      }
-      // Images or YouTube videos: ![alt](path)
-      else if (/^!\[([^\]]*)\]\(([^)]+)\)$/.test(trimmed)) {
-        const m = trimmed.match(/^!\[([^\]]*)\]\(([^)]+)\)$/);
-        const ytId = extractYouTubeId(m[2]);
-        if (ytId) {
-          slide.videos.push({ title: m[1] || "", id: ytId, url: m[2] });
-        } else {
-          slide.images.push({ alt: m[1], src: m[2] });
+      // Helper: extract inline ![alt](src) images from a string, return cleaned text
+      function extractInlineImages(text) {
+        const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
+        let m;
+        while ((m = imgRegex.exec(text)) !== null) {
+          const ytId = extractYouTubeId(m[2]);
+          if (ytId) {
+            slide.videos.push({ title: m[1] || "", id: ytId, url: m[2] });
+          } else {
+            slide.images.push({ alt: m[1], src: m[2] });
+          }
         }
+        return text.replace(/!\[([^\]]*)\]\(([^)]+)\)\s*/g, "").trim();
+      }
+
+      // Headings — also extract any embedded images
+      // Skip PowerPoint export counters like "## Slide 1", "## Slide 12"
+      if (trimmed.startsWith("# ") && !trimmed.startsWith("## ")) {
+        const raw = trimmed.replace(/^#\s+/, "");
+        slide.title = extractInlineImages(raw) || slide.title;
+      } else if (trimmed.startsWith("## ") && !trimmed.startsWith("### ")) {
+        const raw = trimmed.replace(/^##\s+/, "");
+        const cleaned = extractInlineImages(raw);
+        // Skip PowerPoint export slide counters
+        if (cleaned && !/^Slide\s+\d+$/i.test(cleaned)) {
+          slide.subtitle = cleaned;
+        }
+      } else if (trimmed.startsWith("### ")) {
+        const raw = trimmed.replace(/^###\s+/, "");
+        const cleaned = extractInlineImages(raw);
+        if (cleaned) {
+          // Long ### content (>150 chars) is body text from PowerPoint export, not a section label
+          if (cleaned.length > 150) {
+            // Split on double-space or **bold** section headers to create body paragraphs
+            const paragraphs = cleaned
+              .split(/\s{2,}/)
+              .map(p => p.trim())
+              .filter(p => p.length > 0);
+            // Use first short segment as title if none set
+            if (!slide.title && !slide.subtitle && paragraphs[0].length < 100) {
+              slide.subtitle = paragraphs.shift();
+            }
+            paragraphs.forEach(p => slide.body.push(p));
+          } else {
+            slide.sectionLabel = cleaned;
+          }
+        }
+      }
+      // Images or YouTube videos: ![alt](path) — standalone line
+      else if (/^!\[([^\]]*)\]\(([^)]+)\)/.test(trimmed)) {
+        extractInlineImages(trimmed);
       }
       // Bullets with nesting (detect indent from original line)
       else if (/^\s*[-*]\s+/.test(line)) {
