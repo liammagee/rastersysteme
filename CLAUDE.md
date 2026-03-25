@@ -48,14 +48,38 @@ Themes: `light` (default), `dark`, `red`, `blue`
 
 ## Skills
 
+**Composition & rendering:**
+
 | Skill | Description |
 |-------|-------------|
-| `/qa-visual <deck.html>` | Visual a11y audit via Chrome — contrast, overflow, fonts |
-| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle |
 | `/compose <source.md>` | Claude-directed composition with design directives |
 | `/render <deck.composed.md>` | Re-render HTML from composed markdown |
-| `/splice-images <deck.html>` | Merge generated images into HTML deck |
-| `/insert-slide <deck.composed.md> after N` | Add a new slide at position N |
-| `/edit-slide <deck.composed.md> slide N` | Edit slide content or design |
-| `/delete-slide <deck.composed.md> slide N` | Remove slide(s) |
-| `/preview <deck.html> slide N` | Open/navigate to a slide in Chrome |
+| `/compare <source.md>` | Multi-variant comparison (3-way or 12-way explosive) with rubric |
+| `/design-system list\|show\|generate` | Manage saved design systems |
+
+**Slide editing:**
+
+| Skill | Description |
+|-------|-------------|
+| `/insert-slide <deck> after N` | Add a new slide with context-aware design |
+| `/edit-slide <deck> slide N` | Edit content, design, bg, font, typography |
+| `/delete-slide <deck> slide N` | Remove slide(s) with re-render |
+| `/diff <before> <after>` | Visual diff between deck versions |
+
+**Images:**
+
+| Skill | Description |
+|-------|-------------|
+| `/imagine <source.md>` | Generate image prompts with visual thread |
+| `/splice-images <deck.html>` | Merge images with collision-aware placement |
+
+**QA & presentation:**
+
+| Skill | Description |
+|-------|-------------|
+| `/qa-visual <deck.html>` | A11y + design consistency audit via Chrome |
+| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle |
+| `/preview <deck.html> slide N` | Interactive slide browsing in Chrome |
+| `/studio <deck.html>` | Open studio viewer (present + grid + QA) |
+| `/pace <deck> --duration N` | Add timing cues to speaker notes |
+| `/export <deck> --pdf\|--pptx` | Export to PDF or PowerPoint |
