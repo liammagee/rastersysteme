@@ -50,5 +50,5 @@ Briefly describe what you see: layout type, whether the image placement looks go
 After showing the screenshot, the user can say:
 - **"next" / "prev"** — step through slides
 - **"slide 20"** — jump to a specific slide
-- **"looks off"** → offer to run `/edit-slide`
+- **"looks off"** → offer to run `/rs:edit-slide`
 - **"audit this"** → run the QA checks on just this slide

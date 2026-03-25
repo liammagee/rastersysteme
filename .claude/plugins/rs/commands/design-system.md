@@ -54,9 +54,9 @@ Open the preview in Chrome and screenshot a few slides to show the user.
 
 ### 5. Apply to a deck
 
-Use the system with `/compose`:
+Use the system with `/rs:compose`:
 ```bash
-/compose content/week-2/week-2.md --design-system <name>
+/rs:compose content/week-2/week-2.md --design-system <name>
 ```
 
 ### 6. Save from an existing deck

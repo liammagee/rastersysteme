@@ -99,10 +99,10 @@ Images directory: infer from deck name (e.g., `week-1k.html` → `week-1-images/
 Skip if no matching images directory exists.
 
 **qa-visual:**
-Run the `/qa-visual` skill for each file, collecting results.
+Run the `/rs:qa-visual` skill for each file, collecting results.
 
 **qa-fix-loop:**
-Run the `/qa-fix-loop` skill for each file.
+Run the `/rs:qa-fix-loop` skill for each file.
 
 **compose:**
 ```bash

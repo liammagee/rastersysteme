@@ -16,7 +16,7 @@ Autonomous cycle: **audit → analyze → fix → re-render → verify → repea
 
 ### 1. Audit (Chrome)
 
-Run the `/qa-visual` audit scripts (both a11y and design consistency) on the deck.
+Run the `/rs:qa-visual` audit scripts (both a11y and design consistency) on the deck.
 Capture the results.
 
 ### 2. Analyze findings

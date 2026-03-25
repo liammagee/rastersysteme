@@ -63,4 +63,4 @@ Run a quick audit:
 
 Report a summary: "40 slides composed. Design: 'Papier Gris'. Palette: cream/umber/ink. 3 dark dividers at slides 15, 27, 38."
 
-Offer to run `/qa-visual` for a full accessibility audit.
+Offer to run `/rs:qa-visual` for a full accessibility audit.

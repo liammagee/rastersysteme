@@ -226,6 +226,6 @@ Group issues by cause:
 ### 8. Recommend fixes
 
 Suggest concrete fixes for each issue. Offer to:
-- Run `/qa-fix-loop` to apply fixes automatically
-- Run `/edit-slide` for specific slide fixes
+- Run `/rs:qa-fix-loop` to apply fixes automatically
+- Run `/rs:edit-slide` for specific slide fixes
 - Re-splice images with adjusted collision settings

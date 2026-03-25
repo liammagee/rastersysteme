@@ -65,6 +65,6 @@ If `--generate` was passed, the tool creates images via API. This is slow (30-60
 ### 6. Next steps
 
 After prompts are generated, offer:
-- `/splice-images` to merge generated images into the HTML deck
+- `/rs:splice-images` to merge generated images into the HTML deck
 - Adjust style/abstraction and re-generate if prompts don't feel right
 - Generate for specific slides only with `--slides`

@@ -57,8 +57,8 @@ Open the compare page and the winning variant in Chrome. Screenshot key slides f
 
 If the user wants to iterate:
 - Pick the best variant as the new baseline
-- Run `/compose` with a targeted `--brief` to refine
-- Or run `/edit-slide` on specific slides that need adjustment
+- Run `/rs:compose` with a targeted `--brief` to refine
+- Or run `/rs:edit-slide` on specific slides that need adjustment
 
 ### 5. Report
 
@@ -73,6 +73,6 @@ Winner: moderate-light → decks/compare-week-2-.../moderate-light/week-2.modera
 ```
 
 Offer to:
-- Open the winner in Chrome (`/preview`)
-- Run `/qa-visual` on the winner
+- Open the winner in Chrome (`/rs:preview`)
+- Run `/rs:qa-visual` on the winner
 - Copy the winner's composed markdown as the canonical deck
