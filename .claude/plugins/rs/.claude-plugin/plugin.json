@@ -1,4 +1,7 @@
 {
   "name": "rs",
-  "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more"
+  "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more",
+  "author": {
+    "name": "machinespirits"
+  }
 }

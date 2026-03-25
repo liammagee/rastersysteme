@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Codex Marginalia — a typographic system modelled on the illuminated manuscript page, where cream fields, ink accents, and ruled left-margins create the book as interface",
+  "palette": [
+    {
+      "hex": "F8F3E6",
+      "name": "Vellum Cream",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE0C4",
+      "name": "Warm Parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "B89B72",
+      "name": "Antique Gold",
+      "role": "accent"
+    },
+    {
+      "hex": "2A1F14",
+      "name": "India Ink",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Opens on vellum cream (slides 1–4), drops to ink-dark for the first section divider (slide 5), resurfaces through warm parchment for the development run (slides 6–9), pauses on antique-gold mid-tone (slide 10), returns to cream through the closing arc (slides 11–13), drops again to ink for the penultimate divider (slide 14), and resolves on vellum cream — four light/dark crossings across fifteen pages.",
+  "gridStrategy": "Every title anchors at col 6 with span varying between 22 and 36 to shift gravitational weight; body text migrates vertically between row 18 and row 26 while never exceeding span 36, preserving col 42–60 as structural silence — compositional variety comes from title span width, row drop, and occasional body offset to col 10, not from abandoning the left-margin discipline.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Palatino",
+    "secondary": "Georgia",
+    "tertiary": "Helvetica Neue",
+    "secondarySlides": "Georgia appears on slides 7 and 12 — aphorism or pull-quote slides where a single large italic phrase at weight 400 and generous tracking occupies most of the field, exploiting Georgia's compressed letterforms for maximum editorial warmth"
+  },
+  "accentStrategy": "A thin vertical rule (type: line, col 5, rowSpan full) anchors the left gutter as a running chapter margin on roughly 45% of slides; on the two ink-dark section dividers this rule is replaced by a 3-column antique-gold bar at col 6 acting as a folio marker, and on five light slides a short horizontal rule at row 14 separates title zone from body zone with calligraphic restraint."
+}
