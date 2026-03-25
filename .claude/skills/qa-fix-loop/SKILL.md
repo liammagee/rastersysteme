@@ -1,6 +1,6 @@
 ---
 name: qa-fix-loop
-description: Autonomous a11y fix cycle — audit via Chrome, analyze, fix code, re-render, verify. Loops until clean or user stops.
+description: Autonomous cycle that audits a deck for accessibility and design issues, fixes them, re-renders, and verifies. Loops until clean or the user stops.
 user_invocable: true
 ---
 
@@ -10,81 +10,72 @@ Autonomous cycle: **audit → analyze → fix → re-render → verify → repea
 
 ## Arguments
 
-`/qa-fix-loop decks/week-1.html`
-If no argument, ask which HTML file. Also need the source `.composed.md` to re-render.
+`/qa-fix-loop decks/week-1k.html`
 
-## Steps
+## How to work
 
 ### 1. Audit (Chrome)
 
-Connect to Chrome and run the audit JavaScript from the `/qa-visual` skill.
-Use the **exact same audit script** from qa-visual Step 4.
-Capture the JSON results.
+Run the `/qa-visual` audit scripts (both a11y and design consistency) on the deck.
+Capture the results.
 
 ### 2. Analyze findings
 
-Parse the JSON. Categorize each issue by fix location:
+Categorize each issue by fix location:
 
 | Category | Where to fix | Example |
 |----------|-------------|---------|
-| **Theme-level** | `raster.js` THEMES object | `textMid` contrast too low on light bg |
-| **Slide-level** | `*.composed.md` directives | Dark `<!-- bg: -->` with light-theme text |
+| **Theme-level** | `raster.js` THEMES or CSS | `textMid` contrast, bullet clamp sizes |
+| **Slide-level** | `*.composed.md` design directives | Dark bg with light-theme text colors |
 | **CSS-level** | `raster.js` generateHTMLCSS() | Hardcoded color instead of CSS variable |
 | **Content-level** | `*.composed.md` content | Too many bullets causing overflow |
+| **Image-level** | Re-run splice-images | Image-text collision at high opacity |
 
 ### 3. Apply fixes
 
-**Theme fixes** — edit the THEMES object in `raster.js`:
-```javascript
-// Example: darken textMid for better contrast
-textMid: '#4A4540',  // was #5C5549
-```
+**Theme fixes** — edit `raster.js` directly:
+- Adjust THEMES object colors
+- Fix CSS clamp values for bullet/body sizes
+- Add `adaptThemeForBg` handling for new edge cases
 
 **Slide fixes** — edit the composed markdown:
-- Change `<!-- bg: #HEX -->` to a better-contrasting color
-- Switch `<!-- layout: -->` to avoid overflow
-- Remove excess content
+- Change `bg` in design directives
+- Adjust typography colors and sizes
+- Reposition zones to fix overflow
+- Reduce content on overloaded slides
 
-**CSS fixes** — replace hardcoded colors with CSS variables in `raster.js`.
+**Image fixes** — re-splice with lower opacity or different placement.
 
 ### 4. Re-render
 
 ```bash
-node raster.js <source.composed.md> <output.html> --theme light --format html
+node raster.js <source.composed.md> <output.html> --format html --theme light
 ```
 
-If the source markdown isn't obvious, check the deck filename pattern:
-- `decks/week-1.html` → look for `content/week-1/*.composed.md` or `decks/week-1.composed.md`
+If images need re-splicing:
+```bash
+node splice-images.js <output.html> <images-dir> --output <output.html>
+```
 
 ### 5. Verify (Chrome)
 
-Reload the tab:
-```javascript
-location.reload()
-```
+Reload the tab. Re-run the audit scripts. Compare before/after.
 
-Wait 2 seconds for fonts/images to load, then re-run the audit JS from Step 1.
+### 6. Report or loop
 
-### 6. Report
+If issues remain, loop back to step 2 (ask the user first if they want another cycle).
 
-Compare before and after:
+If clean:
 ```
 Fix cycle complete
 ──────────────────
-Before: 13 slides with issues (2 errors, 18 warnings)
-After:  0 issues
+Before: 11 slides with issues (3 errors, 16 warnings)
+After:  0 errors, 8 minor overflow warnings
 
 Changes made:
-  - raster.js: darkened textMid #5C5549 → #4A4540
-  - week-1.composed.md: changed bg on slide 12
+  raster.js: added adaptThemeForBg for design-directive slides
+  week-1k.composed.md: changed bg on slides 27, 38 to 1C1A16
+  splice-images.js: density-scaled bg opacity (0.04-0.08)
 ```
 
-If issues remain (after > 0), ask the user if they want another cycle.
-
-### 7. Commit (optional)
-
-If all clean, offer to commit:
-```bash
-git add raster.js <composed.md> <output.html>
-git commit -m "Fix a11y: [summary]"
-```
+Offer to commit the changes.

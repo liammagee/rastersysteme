@@ -45,3 +45,17 @@ node -e "require('./raster.js').generateHTML('input.composed.md', 'output.html',
 ```
 
 Themes: `light` (default), `dark`, `red`, `blue`
+
+## Skills
+
+| Skill | Description |
+|-------|-------------|
+| `/qa-visual <deck.html>` | Visual a11y audit via Chrome — contrast, overflow, fonts |
+| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle |
+| `/compose <source.md>` | Claude-directed composition with design directives |
+| `/render <deck.composed.md>` | Re-render HTML from composed markdown |
+| `/splice-images <deck.html>` | Merge generated images into HTML deck |
+| `/insert-slide <deck.composed.md> after N` | Add a new slide at position N |
+| `/edit-slide <deck.composed.md> slide N` | Edit slide content or design |
+| `/delete-slide <deck.composed.md> slide N` | Remove slide(s) |
+| `/preview <deck.html> slide N` | Open/navigate to a slide in Chrome |

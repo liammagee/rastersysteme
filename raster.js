@@ -1925,7 +1925,7 @@ blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmi
 .bullet{display:flex;align-items:baseline;gap:1.2vmin}
 .bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
 .bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
-.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.8rem,1.6vmin,1rem);color:var(--text-light);padding-left:6vmin}
 .dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
   font-size:clamp(0.7rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
   justify-content:center;flex-shrink:0}

@@ -27,8 +27,8 @@ const amber = chalk.yellow;
 
 // Image presence levels: subtle (watermark), visible (clear but not dominant), bold (prominent)
 const IMAGE_SCALES = {
-  subtle:  { panel: 0.13, strip: 0.10, inset: 0.20, bg: 0.10, overlay: 0.15, insetCap: 18 },
-  visible: { panel: 0.35, strip: 0.25, inset: 0.55, bg: 0.20, overlay: 0.35, insetCap: 22 },
+  subtle:  { panel: 0.13, strip: 0.10, inset: 0.20, bg: 0.08, overlay: 0.15, insetCap: 18 },
+  visible: { panel: 0.35, strip: 0.25, inset: 0.55, bg: 0.18, overlay: 0.35, insetCap: 22 },
   bold:    { panel: 0.70, strip: 0.50, inset: 0.85, bg: 0.35, overlay: 0.60, insetCap: 28 },
 };
 
@@ -76,7 +76,7 @@ function placementCSS(mode, imgPath, opts = {}) {
     case "background":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${scale.bg};overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${opts.bgOpacity || scale.bg};overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
         after: ``,
       };
     case "overlay":
@@ -251,10 +251,23 @@ function contentAwarePlan(html) {
       pick = candidates[1];
     }
 
+    // Calculate text density — how much of the slide is occupied by content
+    const totalCells = ROWS * COLS;
+    const occupiedCells = occupied.flat().filter(Boolean).length;
+    const density = occupiedCells / totalCells;
+
     // Only fall back to background if ALL options have >75% overlap
     if (pick.overlap / pick.max > 0.75) {
       lastMode = "background";
-      return { slide: idx + 1, mode: "background", size: 100 };
+      // Scale background opacity inversely with text density:
+      // dense slides (>60% occupied) get very low opacity
+      const bgOpacity = density > 0.6 ? 0.04 : density > 0.4 ? 0.06 : 0.08;
+      return { slide: idx + 1, mode: "background", size: 100, bgOpacity };
+    }
+
+    // If the best placement still overlaps text, prefer zero-overlap alternatives
+    if (pick.overlap > 0 && candidates.some(c => c.overlap === 0 && c.mode !== lastMode)) {
+      pick = candidates.find(c => c.overlap === 0 && c.mode !== lastMode) || pick;
     }
 
     lastMode = pick.mode;
@@ -333,6 +346,7 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
       const css = placementCSS(placement.mode, imgPath, {
         size: placement.size || 40,
         imageScale: options.imageScale || "subtle",
+        bgOpacity: placement.bgOpacity,
       });
 
       if (!css.wrapper && !css.before && !css.after) return match;
