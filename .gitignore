@@ -3,6 +3,7 @@ node_modules/
 *.html
 !index.html
 !ballistic-computer-sim.html
+!decks/**/*.html
 *.composed.md
 .DS_Store
 logs/
