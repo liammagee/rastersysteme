@@ -1,0 +1,8 @@
+# Slide 36: Workshop 6: Showcase
+
+All five palette colors appear simultaneously: Prussian blue #1A2744, vermillion #C8361F, cream #F0EAD6, graphite #2D2D2D, and ochre gold #D4B84A — each occupying a distinct geometric region determined by the Swiss modular grid. At exact center: a small circle where all regions converge, containing all five colors in concentric rings. Proportions vary by the grid's logic but harmonize. The visual coda — the series made fully explicit and complete. Swiss poster, Müller-Brockmann, flat vector, screen print, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, collage, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, screen print, culminating

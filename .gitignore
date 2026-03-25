@@ -6,7 +6,6 @@ node_modules/
 *.composed.md
 .DS_Store
 logs/
-decks/
 .env
 
 # Build artifacts

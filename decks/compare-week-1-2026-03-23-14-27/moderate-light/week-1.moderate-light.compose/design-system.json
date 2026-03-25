@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Epistemic Tension — Swiss editorial rigour staged against its own undoing; a warm, paper-like ground where competing type scales and right-anchored asymmetry enact the collision between institutional authority and the course's opening provocation that it may already be obsolete",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Foolscap",
+      "role": "ground"
+    },
+    {
+      "hex": "E2D9CC",
+      "name": "Linen Vellum",
+      "role": "dominant"
+    },
+    {
+      "hex": "B85C38",
+      "name": "Burnt Sienna",
+      "role": "accent"
+    },
+    {
+      "hex": "1C1917",
+      "name": "Warm Charcoal",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Opens on bare foolscap with sienna accents sparking disorientation, deepens through linen midtones at the first structural turn (slides 10–14), hits two charcoal dividers at slides 13 and 26 to mark epistemological thresholds, then progressively clarifies back to open white ground with tighter, more restrained accent marks — mirroring the course's arc from noise to structured curiosity",
+  "gridStrategy": "A six-column modular grid (cols 0/10/20/30/40/50) underlies every slide but titles are pushed right to col 30–38 on 60% of slides so the left half breathes as negative space; the remaining 40% deliberately break this pattern — centred pull-quotes that span four columns, sidebar-body splits at col 0/22, and full-width statements at row 18 — so that each slide reads as a different page from the same magazine while the rightward gravity holds the sequence together",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on approximately 6 slides (15%) — the opening provocation, key pull-quotes from theorists, and the closing reflection — to inject editorial warmth and signal a shift from institutional voice to contemplative register"
+  },
+  "accentStrategy": "Thin 1px horizontal rules in Burnt Sienna or Warm Charcoal divide title from body zones on 40% of slides; small vertical bars (span 1 × rowSpan 3–6) appear as visual punctuation at column boundaries on another 15%; accent elements thin and recede across the sequence so the final third feels resolved and quiet"
+}

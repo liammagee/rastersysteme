@@ -1,0 +1,6 @@
+<!-- design: {"zones":[{"role":"label","col":38,"span":18,"row":2,"rowSpan":3},{"role":"title","col":3,"span":36,"row":12,"rowSpan":14},{"role":"body","col":3,"span":30,"row":28,"rowSpan":6}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"2B5EA7"},{"type":"dot","col":56,"span":3,"row":36,"rowSpan":3,"color":"D4A017"}],"typography":{"title":{"size":52,"weight":100,"tracking":"0.12em","color":"1A1A1A"},"body":{"size":14,"leading":"1.8","color":"3D3D3D"},"label":{"size":8,"tracking":"0.4em","transform":"uppercase","color":"2B5EA7"}},"bg":"FAF8F4","font":"Georgia"} -->
+### ACCESSIBILITY
+## A Note on Accessibility
+
+This course is aimed at providing wide exposure to range of tools as well as readings. Parts of these tools - including these presentations - will be using AI as a way to exemplify some of what we can do with AI. That does raise issues though. 
+I will be checking content for WCAG 2.1 Level AA compliance, but please let me know if any materials are inaccessible.

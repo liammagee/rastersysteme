@@ -1,0 +1,8 @@
+# Slide 9: Assessment Criteria
+
+A precise measurement grid: fine horizontal rules at equal intervals across a cream #F0EAD6 ground. Small vermillion #C8361F circles on the left margin mark each criterion row. Three thicker graphite #2D2D2D vertical rules divide the composition into formative and summative column zones. Ochre gold #D4B84A diagonal accent lines cross the upper-right quadrant. A Prussian blue #1A2744 band fills the left column header. A calibration chart stripped to essential geometry. Swiss poster, clinical, flat, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, actual text, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, flat vector illustration, screen print, technical diagram

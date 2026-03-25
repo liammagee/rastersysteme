@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"body","col":6,"span":28,"row":18,"rowSpan":4}],"typography":{"body":{"size":15,"weight":400,"tracking":"0.02em","leading":"1.6","align":"left","color":"2B2B2B"}},"bg":"F8F5F0","font":"Helvetica Neue"} -->
+![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)

@@ -1,0 +1,8 @@
+# Slide 1: Introduction to Generative AI for Education
+
+A large open circle bisected by a 12-column Swiss grid, centered on a Prussian blue #1A2744 field. Circle arc in vermillion #C8361F, interior cream #F0EAD6. Fine ochre gold #D4B84A grid lines radiate from center outward to the frame edges, suggesting welcome and expansion. References Müller-Brockmann concert poster geometry — mathematical precision married to invitation. Flat vector, no gradient, no shadow. The circle opens at the right edge, implying beginning. Swiss poster, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, organic decorative forms, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, screen print

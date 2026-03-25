@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Gerstner Fracture — Swiss editorial rigour applied to a dissolving syllabus: clean typographic columns that deliberately crack open at the seams, admitting New Wave warmth through asymmetric zone anchors and a tonal arc that mirrors the course's own productive ambivalence.",
+  "palette": [
+    {
+      "hex": "F9F5EF",
+      "name": "Warm Ivory",
+      "role": "ground"
+    },
+    {
+      "hex": "DDD0B8",
+      "name": "Flax",
+      "role": "dominant"
+    },
+    {
+      "hex": "5C6B7A",
+      "name": "Steel Slate",
+      "role": "accent"
+    },
+    {
+      "hex": "1D1D1B",
+      "name": "Graphite",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Deck opens on two Graphite section dividers generating maximum typographic density; Steel Slate pulses in at each of the six lens transitions as cool mid-tone bars; Flax warms the mid-deck as method consolidates; final eight slides return to pure Warm Ivory — crossing the light/dark threshold at slides 1, 13, 25, and 35 to trace the emotional arc from vertigo to orientation.",
+  "gridStrategy": "Title zones rotate through four named patterns — full-bleed (col 0 span 58), hard-right offset (col 30 span 28), narrow sidebar (col 0 span 18 with body at col 22 span 36), and centred column (col 12 span 36) — cycling roughly every six slides in alignment with the six content lenses, ensuring no two consecutive slides share the same zone anchor.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on the historical and pedagogical lens slides (approx. 6 slides total) where editorial warmth signals the receding tradition — paired with tracking at 0.06–0.10em to evoke period-text atmosphere against the otherwise cool Swiss grid."
+  },
+  "accentStrategy": "Thin 1px horizontal lines divide title from body zones on 40% of slides; 1–3 column-wide filled bars in Steel Slate or Flax serve as visual punctuation on section openers, intensifying through the middle third and dissolving entirely to bare Warm Ivory in the resolution arc."
+}

@@ -1,0 +1,8 @@
+# Slide 5: Structure
+
+Six vertical rectangular columns of equal width on a cream #F0EAD6 ground, alternating Prussian blue #1A2744 and graphite #2D2D2D, heights varying slightly to suggest progression. Fine vermillion #C8361F horizontal rules cut across all columns at a shared height — a common learning horizon. Ochre gold #D4B84A circles cap each column. The composition is a bar chart dematerialized into pure Swiss structural form. Flat vector, screen print, Müller-Brockmann, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, data labels, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, screen print

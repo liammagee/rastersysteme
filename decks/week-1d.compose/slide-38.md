@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":10,"span":20,"row":8,"rowSpan":2},{"role":"body","col":10,"span":40,"row":16,"rowSpan":6}],"accents":[{"type":"bar","col":0,"span":6,"row":0,"rowSpan":40,"color":"F2C12E"},{"type":"line","col":10,"span":40,"row":14,"rowSpan":1,"color":"1A1A18"},{"type":"dot","col":52,"span":4,"row":32,"rowSpan":4,"color":"F2C12E"}],"typography":{"body":{"size":22,"weight":200},"label":{"size":9,"weight":500}},"bg":"F8F5F0","font":"Palatino"} -->
+### CODA
+End of Week 1! Questions, Comments?

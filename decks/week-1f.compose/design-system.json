@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Leitstand — a Swiss-editorial control room rendered in warm parchment and navy signal ink, where vertical stacking creates calm authority and thin rule lines evoke instrument panel dividers",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Parchment",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Warm Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "1B2A4A",
+      "name": "Command Navy",
+      "role": "signal"
+    },
+    {
+      "hex": "C4553A",
+      "name": "Alert Vermillion",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Opens on Parchment ground, introduces Warm Linen panels at slide 6, crosses into Command Navy for section dividers at slides 13 and 26, with Alert Vermillion accent bars surfacing at slides 9, 18, 31, and 37 — the deck breathes light-dark-light-dark across four uneven acts.",
+  "gridStrategy": "Title zones migrate vertically from row 2–8 and horizontally between col 0–35 across slides, alternating narrow sidebar-plus-wide-body splits (col 0 span 16 / col 20 span 38) with centred columns (col 10 span 40) and right-offset dramatic voids (col 32 span 26), so no two consecutive slides share the same zone anchor.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on slides 5, 14, 19, 28, 34, and 38 — roughly 15% — used for pull-quote titles and section epigraphs to introduce editorial warmth against the Helvetica Neue instrument-panel tone"
+  },
+  "accentStrategy": "Thin 1px horizontal rule lines in Command Navy divide title and body zones on 40% of slides, while small vertical bars (span 1 × rowSpan 6–10) in Alert Vermillion mark section entry points and key data callouts on another 10% of slides."
+}

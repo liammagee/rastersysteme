@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Terminal Print — a cold-phosphor editorial system where Gutenberg-era typographic authority interrogates the machine that threatens to replace it: warm paper grounds, ink-black reversals, and a phosphor thread that marks the boundary between the human record and the computed one",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Press White",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE5D8",
+      "name": "Parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "1BA894",
+      "name": "Phosphor Teal",
+      "role": "accent"
+    },
+    {
+      "hex": "0D0C14",
+      "name": "Ink Night",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Opens on Press White for slides 1–7, drops to Ink Night at slide 8 (first section divider), resurfaces on Parchment through the structural middle (slides 9–19), reverses again to Ink Night at slide 20 (dialectical pivot), returns to Press White for slides 21–31, final Ink Night reversal at slide 32 before the deck closes on Parchment — three full light/dark crossings, with Phosphor Teal accent persisting as a cold thread throughout and concentrating on the critical-warning slides of the final quarter.",
+  "gridStrategy": "Centred-axis compositions (cols 12–48) serve as the rational default — Müller-Brockmann calm for structural and assessment slides — interrupted by full-bleed wide titles (col 0, span 58) on dark section dividers, right-offset statements (col 30, span 28) on philosophical/Hegelian slides, and narrow-sidebar splits (title col 12 span 16, body col 30 span 28) on the dialectical comparison slides, so the centred axis reads as the voice of institutional reason that the content repeatedly destabilises.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia on ~6 slides: the Geist-in-the-Machine case study, the Hegelian underpinning slide, and any slide where the body text functions as discursive argument rather than structured information — sites where print-culture authority needs warmth and grain against the cold rationalism of Helvetica"
+  },
+  "accentStrategy": "Thin horizontal rules (type: line, weight 1px, Phosphor Teal on light slides, Press White on dark slides) divide title from body zones on 40% of slides; on the remaining accented slides, a narrow vertical bar (span 1, height 6–8 rows, col 12 or col 47) acts as a silent structural pillar — the mark of the grid insisting on itself even as the content questions its authority."
+}

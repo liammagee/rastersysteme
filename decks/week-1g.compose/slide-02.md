@@ -1,0 +1,8 @@
+<!-- design: {"zones":[{"role":"label","col":6,"span":20,"row":4,"rowSpan":2},{"role":"title","col":6,"span":32,"row":7,"rowSpan":4},{"role":"quote","col":6,"span":46,"row":14,"rowSpan":14},{"role":"body","col":6,"span":36,"row":32,"rowSpan":3}],"typography":{"label":{"size":11,"weight":400,"tracking":"0.12em","color":"7A6048","transform":"uppercase"},"title":{"size":30,"weight":300,"color":"2C1A0E"},"quote":{"size":20,"weight":300,"leading":1.55,"color":"2C1A0E","tracking":"0.02em"},"body":{"size":14,"weight":400,"color":"7A6048","leading":1.5}},"bg":"F8F5F0","font":"Helvetica Neue"} -->
+## Course Description
+
+From the course description: https://ldlprogram.web.illinois.edu/overview/course-descriptions/
+
+> Explores applications of Generative AI in Education. Topics include: AI predecessors (symbolic, data-driven, and connectionist AI); Large Language Models and statistical approaches to meaning in text; machine learning (supervised, unsupervised and reinforcement learning, including deep learning and neural nets); chatbot architectures and prompt engineering; fine-tuning for domain-specific applications; multimodal AI; guardrails (including managing AI bias, “jailbreaks,” “hallucinations,” explainability, intellectual property, privacy and security); and applications of Generative AI in education
+
+> All required material (video lectures, readings etc.) will be provided to students, as per the tentative schedule below.

@@ -1,0 +1,8 @@
+# Slide 4: Course Information
+
+Three equal horizontal bands stack across the full 16:9 frame: Prussian blue #1A2744 top (theory), cream #F0EAD6 middle (discussion), vermillion #C8361F bottom (practice). Each band contains a centered geometric marker — a circle, a cluster of three small circles, a single point. Fine graphite #2D2D2D rules separate bands. Ochre gold #D4B84A accent circles echo the modular grid. Equal weight, equal time — a score abstracted to three-part structure. Müller-Brockmann, flat, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, screen print

@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":2,"span":20,"row":1,"rowSpan":2},{"role":"title","col":0,"span":58,"row":4,"rowSpan":24},{"role":"body","col":36,"span":22,"row":34,"rowSpan":4}],"accents":[{"type":"bar","col":0,"span":58,"row":30,"rowSpan":1,"color":"F0C020"},{"type":"dot","col":56,"span":2,"row":1,"rowSpan":2,"color":"F0C020"}],"typography":{"title":{"size":96,"weight":700,"tracking":"0.02em","color":"F8F5F0"},"body":{"size":13,"color":"F8F5F0","leading":1.6},"label":{"size":9,"tracking":"0.4em","transform":"uppercase","color":"F0C020"}},"bg":"F8F5F0","font":"Courier New"} -->
+### UNTITLED
+Break - 10 minutes

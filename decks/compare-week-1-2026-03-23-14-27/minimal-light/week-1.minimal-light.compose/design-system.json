@@ -1,0 +1,51 @@
+{
+  "aesthetic": "Helvetica Stillness — warm-white ground with ink-black type and a single muted clay accent, held in tension by asymmetric Swiss margins that widen as the deck progresses from provocation to structure",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "warm paper",
+      "role": "ground"
+    },
+    {
+      "hex": "1A1A1A",
+      "name": "dense ink",
+      "role": "accent"
+    },
+    {
+      "hex": "B8A089",
+      "name": "clay whisper",
+      "role": "accent"
+    },
+    {
+      "hex": "E8E3DA",
+      "name": "parchment veil",
+      "role": "ground"
+    },
+    {
+      "hex": "6B6054",
+      "name": "warm graphite",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–8 sit on pure warm paper with ink type only; slides 9–10 and 25–26 introduce parchment-veil backgrounds as quiet chapter breaks; clay whisper appears solely in two pull-quote rule lines at slides 14 and 30; the remaining thirty-four slides hold to warm paper ground, so the deck reads as a single sheet of good stock interrupted by two breaths of tonal shift",
+  "gridStrategy": "All titles anchor at column 6 with span 24–30; body text begins at column 6 with span 34–36; the right third of every slide remains empty; early slides pack content higher (row 8–10) to create density and disorientation, while later slides drop content to row 14–18 with more leading, enacting the arc from compression to clarity",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font is used; all type is Helvetica Neue at regular weight throughout"
+  },
+  "accentStrategy": "No decorative elements; the only accent marks are two thin horizontal rules in clay whisper on slides 14 and 30, each 1px tall spanning columns 6–12, used to quietly demarcate the lens-taxonomy pull quotes from surrounding body text"
+}

@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"body","col":10,"span":38,"row":17,"rowSpan":6}],"accents":[{"type":"line","col":10,"span":36,"row":14,"rowSpan":1,"color":"6B5340"},{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"6B5340"}],"typography":{"body":{"size":22,"weight":400,"align":"center","leading":1.5,"color":"1C1A16"}},"bg":"F8F5F0","font":"Helvetica Neue"} -->
+[The End of Coding: Andrej Karpathy on Agents, AutoResearch, and the Loopy Era of AI - YouTube](https://www.youtube.com/watch?v=kwSVtQ7dziU)

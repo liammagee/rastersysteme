@@ -1,0 +1,76 @@
+{
+  "aesthetic": "Verdant Paper — a Swiss-modernist system where warm pressed-cotton grounds meet ink-black type and botanical accent pigments, evoking field notebooks and growth charts",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Cotton",
+      "role": "ground"
+    },
+    {
+      "hex": "FFF8E7",
+      "name": "Aged Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Ash Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "F2EDE3",
+      "name": "Cream Wash",
+      "role": "dominant"
+    },
+    {
+      "hex": "4A7C59",
+      "name": "Moss Canopy",
+      "role": "accent"
+    },
+    {
+      "hex": "8B5E3C",
+      "name": "Burnt Umber",
+      "role": "accent"
+    },
+    {
+      "hex": "C9932A",
+      "name": "Solar Ochre",
+      "role": "accent"
+    },
+    {
+      "hex": "C4522A",
+      "name": "Terracotta Flare",
+      "role": "accent"
+    },
+    {
+      "hex": "A8B89A",
+      "name": "Sage Mist",
+      "role": "accent"
+    },
+    {
+      "hex": "1A3A2A",
+      "name": "Deep Forest",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–8 breathe in pure Warm Cotton with hairline Moss accents, slides 9–20 introduce Solar Ochre bars and Burnt Umber labels as organic complexity grows, slides 21–36 oscillate between Ash Linen grounds and vivid Terracotta blocks at climactic moments, and slides 37–44 resolve back to Aged Vellum with a single Deep Forest signal slide marking the final section break.",
+  "gridStrategy": "Progressive reveal drives the architecture: slides 1–6 are single-zone title-only compositions with extreme positional variety, slides 7–18 add one zone per beat (label, then body, then bar), slides 19–32 reach full four-zone density with inverted hierarchies and body-above-title arrangements, and slides 33–44 strip back to two-zone tension as a compositional exhale.",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 9,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia replaces Futura on reflective or narrative body-text slides (approximately slides 11, 18, 24, 31, 38–41) and on any title where weight is set to 100 ultra-light, reinforcing the organic-warmth direction; Courier New appears on data-dense slides (slides 15, 22, 29) for tabular or metric content"
+  },
+  "accentStrategy": "Thick vertical bars (span 3–6 columns, full row-height) in Solar Ochre or Terracotta anchor the right or left edge on 55% of slides, with horizontal color-block zones (type 'block', rowSpan 2–4) used as visual punctuation between label and title zones on a further 20%, ensuring every other slide carries a bold chromatic anchor against the warm white ground."
+}

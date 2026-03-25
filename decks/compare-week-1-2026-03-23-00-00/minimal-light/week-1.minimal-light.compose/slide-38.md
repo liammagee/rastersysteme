@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":6,"span":16,"row":3,"rowSpan":2},{"role":"body","col":10,"span":38,"row":17,"rowSpan":5}],"accents":[{"type":"block","col":2,"span":56,"row":4,"rowSpan":32,"color":"C8631A","opacity":0.12},{"type":"line","col":10,"span":38,"row":23,"rowSpan":1,"color":"C8631A"}],"typography":{"body":{"size":18,"weight":400},"label":{"size":12,"weight":400,"tracking":"0.15em"}},"bg":"EDE8E0","font":"Helvetica Neue"} -->
+### —
+End of Week 1! Questions, Comments?

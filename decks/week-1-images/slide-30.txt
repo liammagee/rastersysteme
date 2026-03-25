@@ -1,0 +1,8 @@
+# Slide 30: (untitled — section transition)
+
+A pure Swiss modular grid on cream #F0EAD6 — the grid itself as subject and content. Fine Prussian blue #1A2744 lines at exact intervals fill the 16:9 frame. At every fourth intersection: a small ochre gold #D4B84A cross. A single thin vermillion #C8361F horizontal rule crosses at the golden section. Graphite #2D2D2D corner registration marks. The underlying system made visible before content fills it — the beginning before the beginning. Flat vector, Müller-Brockmann, minimal, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, minimal grid

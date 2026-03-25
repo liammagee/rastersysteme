@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Concrete Ledger — a Swiss-editorial system built on raw tension: warm-white paper stock carries near-black concrete type, titles are anchored hard to the right margin while the left half breathes as deliberate vacancy.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Bone Stock",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Raw Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "1C1C1A",
+      "name": "Pressed Concrete",
+      "role": "signal"
+    },
+    {
+      "hex": "C03A2B",
+      "name": "Single Shard",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–11 hold on Bone Stock; slide 12 drops to Pressed Concrete (first divider); slides 13–23 shift to Raw Linen warmth; slide 24 returns to Pressed Concrete (second divider); slides 25–34 revert to Bone Stock with the Single Shard red fired exactly once on slide 28; slides 35–36 close on a final Pressed Concrete divider before slides 37–38 surface back to Bone Stock — three full light/dark crossings.",
+  "gridStrategy": "Titles default to col 32–58 (right-anchored hard edge) on 70% of slides; every fifth slide rotates to a narrow col 0–18 sidebar or a centred col 14–44 column, providing rhythmic relief while the left half of the grid functions as load-bearing white space throughout.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 5–6 slides (~15%) carrying long-form pull quotes or dense analytical body text — set at weight 400 with tracking 0.04em — introducing tactile warmth against the otherwise clinical Swiss grid."
+  },
+  "accentStrategy": "Thin 1px horizontal rule lines (type: 'line') divide title and body zones on 40% of slides; a single full-bleed accent bar in Single Shard red (#C03A2B, span 60, rowSpan 1) appears exactly once as a horizontal slash on the central thesis slide."
+}

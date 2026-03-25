@@ -1,0 +1,66 @@
+{
+  "aesthetic": "Terminal Manuscript — Swiss grid discipline applied to a phosphor-lit interrogation of print culture vs. machine intelligence, where the warmth of paper fights the cold glow of the terminal",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "warm paper",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "aged parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "FFF8E7",
+      "name": "warm cream",
+      "role": "dominant"
+    },
+    {
+      "hex": "1A1A18",
+      "name": "printing ink",
+      "role": "signal"
+    },
+    {
+      "hex": "00B4A6",
+      "name": "phosphor terminal",
+      "role": "accent"
+    },
+    {
+      "hex": "D4790A",
+      "name": "cautionary amber",
+      "role": "accent"
+    },
+    {
+      "hex": "1E3A8A",
+      "name": "institutional blue",
+      "role": "accent"
+    },
+    {
+      "hex": "C8C0B4",
+      "name": "cool slate",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Opens on warm paper (#F8F5F0) for the course introduction, pulses with phosphor teal accents through the six-lens dialectical sequence, burns to cautionary amber on the critical and prophetic slides, hits two ink-black (#1A1A18) section dividers at the major structural breaks (slides 13 and 27), then returns to warm cream for the closing — the deck's luminance arc mirrors a terminal session that begins and ends in daylight",
+  "gridStrategy": "Accent bars traverse the full 60-column field across the deck — beginning at col:2 on slide 1 and advancing in a staggered, non-linear sequence to col:54 by slide 38 — while title zones alternate between four extreme anchors (full-bleed, bottom-weighted, right-pushed, left-narrow) in a cycle that never repeats within any five consecutive slides, and body columns oscillate between span:14 (narrow) and span:48 (near-full) to sustain perpetual compositional surprise",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 8,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia appears on the 8–10 philosophical and reflective slides — the Hegelian underpinning, Geist case study, open-source dialectic — where its serif warmth introduces a ghost of humanist uncertainty against Futura's cold declarations; Courier New surfaces on data-heavy slides, assessment tables, and any slide where the machine's own voice is being quoted or interrogated"
+  },
+  "accentStrategy": "Every slide carries exactly one coloured accent element — a vertical or horizontal bar (span 2–6, deployed at a unique column position), a filled block, or a ruled line — cycling through phosphor teal on structural slides, cautionary amber on critical or prophetic slides, and institutional blue on assessment and course-architecture slides, so that reading the deck's thumbnails in sequence reveals the bar migrating like a typographic pulse across the grid"
+}

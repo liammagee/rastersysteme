@@ -1,0 +1,66 @@
+{
+  "aesthetic": "Vellum & Voltage — warm Swiss formalism cracked open by Weingart force: cream paper grounds, electric accent strikes, and a grid that strains against its own discipline as the course argument moves from maximum tension to earned legibility",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Antique Paper",
+      "role": "dominant"
+    },
+    {
+      "hex": "FFF8E7",
+      "name": "Butter Cream",
+      "role": "dominant"
+    },
+    {
+      "hex": "D4380D",
+      "name": "Confrontation Red",
+      "role": "accent"
+    },
+    {
+      "hex": "0A4C96",
+      "name": "Structural Blue",
+      "role": "accent"
+    },
+    {
+      "hex": "F0C020",
+      "name": "Signal Amber",
+      "role": "accent"
+    },
+    {
+      "hex": "1C1C2E",
+      "name": "Near-Black Indigo",
+      "role": "signal"
+    },
+    {
+      "hex": "8B2252",
+      "name": "Deep Carmine",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–12 open on Warm Vellum grounds fractured by Confrontation Red and Deep Carmine accent strikes — maximum typographic density enacting the course's initial vertigo; slides 13–26 shift to Antique Paper and Butter Cream as Structural Blue takes taxonomic hold across the six lenses, the grid cooling into method; slides 27–38 strip back to pure Warm Vellum with Signal Amber fading to near-silence, white space earning its authority — two Near-Black Indigo section dividers punctuate the arc at slides 7 and 22 as dark caesurae",
+  "gridStrategy": "Each slide draws from a rotation of nine master zone patterns — full-bleed title, bottom-heavy inversion, right-anchor with breathing left half, stacked vertical rhythm, wide-narrow body pair, centred monolith, label-dominant with micro-title, off-axis fragment, and diagonal split — cycling with deliberate displacement so no pattern recurs within any span of four consecutive slides and body-above-title inversions appear on at least six slides to enforce compositional surprise",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 9,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia appears on reflective, critical-lens, and ambivalence slides — roughly 22% of the deck — where the argument turns inward and the speaker's own doubt bleeds through; Courier New is reserved for technological-lens and data-forward slides, lending an archival machine-age affect that marks the historical and futurological moments"
+  },
+  "accentStrategy": "Accent elements appear on at least 20 of 38 slides as thick horizontal bars (4–6 columns wide, 1–2 rows tall) in Confrontation Red, Structural Blue, or Signal Amber — never two hues on the same slide — with single dot anchors placed at off-grid intersections on high-tension slides and full colour blocks behind isolated pull-words on three slides to create scale rupture against the surrounding typographic field"
+}

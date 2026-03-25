@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Meridian Editorial — a warm-press magazine system where right-anchored type floats against breathing cream fields, disciplined by Swiss grid logic but warmed by analogue paper tones",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Antique Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "C9A447",
+      "name": "Burnished Gold",
+      "role": "dominant"
+    },
+    {
+      "hex": "7A9BB5",
+      "name": "Steel Mist",
+      "role": "accent"
+    },
+    {
+      "hex": "1E3A52",
+      "name": "Twilight Ink",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–12 are grounded in Antique Paper with Burnished Gold accents to evoke a warm editorial opening; slides 13–26 cool progressively as Steel Mist enters the body zones and accent bars; slides 27–38 shift toward Twilight Ink tinting borders and secondary text; slides 39–40 close on two Twilight Ink dark dividers, completing the golden-to-deep-blue arc with exactly three light-to-dark crossings.",
+  "gridStrategy": "The dominant mode is right-anchored: titles sit at col 30–50 with the left half breathing; every 5–6 slides a full-width or centred composition resets rhythm, and section dividers flip to a left-sidebar layout (title col 0 span 18, body col 22 span 36) to mark transitions.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 6 slides (approx. 15%): the 3 warm-gold editorial opening slides and 3 reflective closing slides where the analogue warmth of serif type echoes the paper ground"
+  },
+  "accentStrategy": "Thin single-column vertical bars (span 1, height 6–10 rows) in Burnished Gold or Steel Mist act as zone dividers or marginal punctuation on 18 of the 40 slides; 4 slides additionally use a full-width hairline rule (type: line, row height 1) to cleave title from body with Swiss precision."
+}

@@ -1,0 +1,66 @@
+{
+  "aesthetic": "Humus — a Swiss-organic visual system where Weingart's typographic confrontation grows from warm earth, treating each slide as a soil cross-section: compressed strata of scale, weight, and silence",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Parchment",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE4D3",
+      "name": "Dried Reed",
+      "role": "dominant"
+    },
+    {
+      "hex": "D4DDC8",
+      "name": "Pale Sage",
+      "role": "dominant"
+    },
+    {
+      "hex": "4A6741",
+      "name": "Moss Canopy",
+      "role": "accent"
+    },
+    {
+      "hex": "C4780A",
+      "name": "Amber Resin",
+      "role": "accent"
+    },
+    {
+      "hex": "B5522A",
+      "name": "Fired Terracotta",
+      "role": "accent"
+    },
+    {
+      "hex": "1C3A2B",
+      "name": "Deep Forest Floor",
+      "role": "signal"
+    },
+    {
+      "hex": "2A2421",
+      "name": "Charred Root",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–10 breathe on pure Warm Parchment; slides 11–22 introduce Dried Reed and Pale Sage grounds as warmth deepens; slides 23–30 inject Amber Resin and Terracotta accents as tension mounts; slides 31–32 and 40–41 strike with Deep Forest Floor dark grounds as two section-divider confrontations; the final three slides return to Warm Parchment, now weighted with accumulated earth tones in their accents.",
+  "gridStrategy": "Every slide rotates its dominant axis: a full-bleed vertical title is followed by a hard horizontal split, then a right-anchored fragment with breathing left void, then a bottom-heavy inversion — each new slide's primary zone origin point must differ from the prior slide's by at least 20 columns or 12 rows, ensuring no two consecutive compositions share a spatial signature.",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 8,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia replaces Futura on any slide carrying reflective or testimonial body text (approx. slides 8, 15, 22, 28, 35, 42), signalling a shift from declaration to contemplation; Courier New appears on data-dense or process slides where monospace rhythm reinforces enumeration"
+  },
+  "accentStrategy": "Amber Resin and Terracotta thick bars (span 4–6, full row height) anchor the left or right edge on 55% of slides as a structural spine; Moss Canopy colour blocks (type block, span 8–14) appear mid-composition on section-opening slides to signal growth; single dot elements at col:58 or row:39 act as terminal punctuation on minimalist slides, preserving visual tension without added complexity."
+}

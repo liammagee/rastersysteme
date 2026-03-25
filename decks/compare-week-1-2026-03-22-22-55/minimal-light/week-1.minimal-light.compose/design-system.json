@@ -1,0 +1,51 @@
+{
+  "aesthetic": "Helvetica Grid — a Swiss typographic system where alignment tension and whitespace density carry all visual weight, the page itself as the only ornament",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "FAFAF8",
+      "name": "Cool White",
+      "role": "dominant"
+    },
+    {
+      "hex": "E8E3DB",
+      "name": "Warm Ash",
+      "role": "accent"
+    },
+    {
+      "hex": "3C3C3A",
+      "name": "Graphite",
+      "role": "signal"
+    },
+    {
+      "hex": "8A8680",
+      "name": "Steel Warm",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "All 44 slides rest on Warm Paper (#F8F5F0); exactly 3 structural chapter-break slides shift to Warm Ash (#E8E3DB) as a mid-tone ground, signalling section transitions without breaking the luminous, paper-like register of the deck.",
+  "gridStrategy": "Titles anchor at col 6 span 26–28 on all slides; body text runs col 6 span 34–36; the right third (cols 42–60) is permanent whitespace — the only zone variation is vertical: title rows drop from row 10 on openers to row 8 on data-heavy slides to create a tighter top margin for denser content.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      300,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font is used; all slides render in Helvetica Neue at varying weights (300–400) and sizes — typographic hierarchy is achieved through scale and tracking alone, never through typeface switching"
+  },
+  "accentStrategy": "No decorative elements; the sole structural mark is a 1px horizontal rule in Steel Warm (#8A8680) used once per chapter-break slide as a baseline separator below the section label — never decorative, always load-bearing."
+}

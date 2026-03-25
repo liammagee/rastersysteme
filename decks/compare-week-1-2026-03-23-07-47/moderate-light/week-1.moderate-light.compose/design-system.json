@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Neue Sachlichkeit Press — Swiss grid rigor on a warm press-white ground: carbon typography, geometric silence, and a single vermillion bar as the deck's sole chromatic event.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Press White",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8DC",
+      "name": "Laid Paper",
+      "role": "dominant"
+    },
+    {
+      "hex": "1C1C1A",
+      "name": "Carbon Black",
+      "role": "signal"
+    },
+    {
+      "hex": "CC2200",
+      "name": "Bauhaus Vermillion",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–3 open on pure Warm Press White; slides 4–6 shift to Laid Paper with Carbon Black section dividers at slides 3 and 7; Bauhaus Vermillion fires once at slide 5 as a structural interrupt; slides 8–10 resolve back to White.",
+  "gridStrategy": "Each slide rotates through five archetypes — wide-statement (col 0 span 58), right-offset (col 30 span 28), sidebar-content (col 0 span 18 / body col 22 span 36), centred column (col 12 span 36), stacked-narrow (col 4 span 24) — with no two consecutive slides sharing the same archetype.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on slides 6 and 9 — body-heavy analytical pages where editorial warmth counterpoints the geometric grid, tracking set to 0.04em."
+  },
+  "accentStrategy": "Thin horizontal rules (type 'line', 1–2px) divide title from body zones on 40% of slides; the single bold vertical bar (col 0 span 1, full row height) in Bauhaus Vermillion appears only on slide 5 as the deck's sole chromatic punctuation."
+}

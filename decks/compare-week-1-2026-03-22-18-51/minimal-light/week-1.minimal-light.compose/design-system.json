@@ -1,0 +1,61 @@
+{
+  "aesthetic": "Papier Suisse — a warm-ground Swiss grid system that moves from amber morning light to cool evening blue across 44 slides, speaking entirely through alignment, measure, and a single migrating accent bar",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm White",
+      "role": "ground"
+    },
+    {
+      "hex": "FAFAF8",
+      "name": "Cool White",
+      "role": "dominant"
+    },
+    {
+      "hex": "E5C76B",
+      "name": "Morning Amber",
+      "role": "accent"
+    },
+    {
+      "hex": "B8975A",
+      "name": "Aged Gold",
+      "role": "accent"
+    },
+    {
+      "hex": "7EA4B4",
+      "name": "Slate Horizon",
+      "role": "accent"
+    },
+    {
+      "hex": "3A6680",
+      "name": "Evening Blue",
+      "role": "signal"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Warm Linen",
+      "role": "dominant"
+    }
+  ],
+  "chromaticArc": "Slides 1–14 carry Morning Amber accent bars on a Warm White ground; slides 15–28 transition through Slate Horizon as the ground shifts subtly to Cool White; slides 29–44 settle into Evening Blue accents, with the three chapter-break slides (roughly 11, 23, 37) using Warm Linen as a mid-tone bg to mark the arc's seams without ever going dark",
+  "gridStrategy": "The accent bar's column position increments by +3 cols every ~11 slides — opening at col 4, advancing to col 7, then col 10, then col 13 — so the bar drifts rightward across the deck as a spatial echo of the warm-to-cool gradient, while title and body zones hold their left anchor at col 4–6 throughout, making the bar the sole dynamic element in the grid",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font is used; all typographic hierarchy is achieved through size, tracking (0.12em on labels, 0.02em on body), and spatial separation within Helvetica Neue alone"
+  },
+  "accentStrategy": "Each slide carries a single 2-col-wide × 5-row-tall coloured bar whose column position advances rightward in four stages (cols 4, 7, 10, 13) and whose colour is drawn from the current arc phase — Morning Amber on slides 1–14, Aged Gold on transitional slides, Slate Horizon mid-deck, Evening Blue on slides 29–44 — so the bar functions simultaneously as a page anchor, a progress index, and the deck's only decorative element"
+}

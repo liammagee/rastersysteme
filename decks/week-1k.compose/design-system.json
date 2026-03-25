@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Papier Gris — a Swiss-editorial system grounded in warm cream fields with umber ink and precise typographic geometry, evoking a high-end architecture monograph printed on uncoated stock",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Cream Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "E8DDD0",
+      "name": "Warm Sand",
+      "role": "dominant"
+    },
+    {
+      "hex": "6B5340",
+      "name": "Burnt Umber",
+      "role": "accent"
+    },
+    {
+      "hex": "1C1A16",
+      "name": "Warm Ink",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–10 anchor in Cream Paper with Burnt Umber text and hairlines; slides 11–14 shift to Warm Sand grounds for section warmth; slide 15 drops to Warm Ink (first dark divider); slides 16–26 return to Cream Paper with intensifying Burnt Umber accents; slide 27 hits Warm Ink again (second dark divider); slides 28–37 cycle between Cream Paper and Warm Sand as tonal counterpoint; slide 38 closes with a final Warm Ink divider; slides 39–40 resolve back to Cream Paper — three full light-to-dark crossings across the arc.",
+  "gridStrategy": "Each slide draws from a rotating quartet of zone archetypes — Wide Statement (title col:0 span:58, body col:4 span:48), Sidebar Column (title col:0 span:16, body col:20 span:38), Offset Right (title col:30 span:28, body col:2 span:24), and Centred Editorial (title col:10 span:38, body col:14 span:32) — cycling with deliberate irregularity so no two adjacent slides share the same archetype.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 6 slides (roughly slides 8, 15, 22, 27, 33, 39) — section-opening or reflective text slides where warmth and editorial authority outweigh structural clarity; always in weight 400, tracking 0."
+  },
+  "accentStrategy": "Thin 1px horizontal lines (type: line) span 20–40 columns to bisect title and body zones on approximately 18 of 40 slides, while small filled bars (col-span 1–2, row-span 2) in Burnt Umber punctuate the left or right gutter on 6 additional slides, giving the deck a rhythm of restrained editorial marks."
+}

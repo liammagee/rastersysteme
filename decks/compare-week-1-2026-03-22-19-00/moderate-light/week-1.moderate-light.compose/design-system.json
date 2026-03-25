@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Gerstner Editorial — a warm-paper Swiss system where parchment white is the unbroken ground, vermillion delivers Bauhaus precision in bars and rules, and carbon ink marks the three section thresholds like ink stamps on newsprint.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Parchment",
+      "role": "ground"
+    },
+    {
+      "hex": "D4C9B8",
+      "name": "Aged Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "C23B1A",
+      "name": "Vermillion Press",
+      "role": "accent"
+    },
+    {
+      "hex": "1C1712",
+      "name": "Carbon Ink",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Opens on pure parchment for slides 1–10, shifts to linen mid-tones for slides 11–18, breaks hard to carbon ink on section dividers at slides 19, 30, and 41, then returns each time to warm parchment ground, closing on a bright cream finale at slide 44.",
+  "gridStrategy": "Each slide cycles through five canonical archetypes — wide-title, sidebar-body, centred-column, offset-right, and two-column-split — assigned with editorial irregularity so no two consecutive slides share the same composition, with title zones migrating between col 0, col 18, col 30, and col 35 across the deck.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 7 slides (~15%) — the three carbon-ink section dividers and four editorial feature spreads distributed at slides 6, 17, 33, and 44 — where its classical warmth counterpoints the surrounding Swiss rationalism"
+  },
+  "accentStrategy": "Thin 1px vermillion horizontal rules divide title from body zones on 40% of slides, with 1–2 column vermillion bar elements used as left-margin or top-edge punctuation on section-entry and key-statement slides."
+}

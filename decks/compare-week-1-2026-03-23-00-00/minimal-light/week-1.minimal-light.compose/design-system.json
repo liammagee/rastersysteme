@@ -1,0 +1,51 @@
+{
+  "aesthetic": "Archiv — a paper-white Swiss typographic system where cold phosphor and cautionary amber surface only as semantic markers against an unwavering warm ground, the grid itself carrying all expressive weight",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Warm Stone",
+      "role": "dominant"
+    },
+    {
+      "hex": "1C1C1C",
+      "name": "Ink Black",
+      "role": "signal"
+    },
+    {
+      "hex": "5BBFB5",
+      "name": "Cold Phosphor",
+      "role": "accent"
+    },
+    {
+      "hex": "C8631A",
+      "name": "Cautionary Amber",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–12 hold pure warm paper (#F8F5F0) throughout the framing and context sections; three chapter-break slides shift to warm stone (#EDE8E0) with ink-black type for structural punctuation; cold phosphor teal surfaces only on the Geist/philosophical slides (2–3 instances) as a ghost-pale overprint trace; cautionary amber emerges in the critical and prophetic closing sequence (slides 30–38), the palette arc moving from paper-white intellectual calm toward a muted terminal warmth without ever breaking into darkness.",
+  "gridStrategy": "Title-only slides anchor text to col 6 span 26 row 10–16, leaving the right third and bottom quarter as measured silence; body slides run a primary zone col 4 span 36 with generous top margin; dialectical slides (consolidation vs. open-source, pros vs. cons) split into two narrow columns col 4 span 24 and col 34 span 22 that approach but never resolve; tabular assessment slides use a strict three-column grid col 4/22/40 for Müller-Brockmann modular precision.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 12,
+    "titleWeightRange": [
+      400,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font — all typographic registers are achieved through size (12–36px), tracking (0em on titles to 0.15em on labels), and weight (400 regular throughout) within Helvetica Neue alone"
+  },
+  "accentStrategy": "The sole structural accent is a 0.5px hairline rule in ink-black used once per chapter-break slide as a horizontal separator at the grid baseline; on philosophical slides a cold phosphor tint (#5BBFB5 at 15% opacity) washes the text zone only, producing the ghost-pale overprint effect without introducing a decorative element — no icons, bars, or ornaments appear anywhere in the deck."
+}

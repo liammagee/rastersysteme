@@ -1,0 +1,86 @@
+{
+  "aesthetic": "Rasterbruch — Swiss institutional precision fractured by New Wave disruption; a modular grid system that visibly destabilizes as provocative AI questions strain against rational structure",
+  "palette": [
+    {
+      "hex": "1A1A1A",
+      "name": "Void Ground",
+      "role": "dominant"
+    },
+    {
+      "hex": "111111",
+      "name": "Deep Black",
+      "role": "ground"
+    },
+    {
+      "hex": "E8E3D9",
+      "name": "Bone White",
+      "role": "accent"
+    },
+    {
+      "hex": "D42B2B",
+      "name": "Signal Red",
+      "role": "signal"
+    },
+    {
+      "hex": "2E5BFF",
+      "name": "Electric Cobalt",
+      "role": "accent"
+    },
+    {
+      "hex": "F5C623",
+      "name": "Alarm Gold",
+      "role": "signal"
+    },
+    {
+      "hex": "0D0D0D",
+      "name": "Near Absolute",
+      "role": "ground"
+    },
+    {
+      "hex": "3DFFA2",
+      "name": "Synthetic Green",
+      "role": "accent"
+    },
+    {
+      "hex": "FF5E1A",
+      "name": "Disruption Orange",
+      "role": "signal"
+    },
+    {
+      "hex": "C4B8FF",
+      "name": "Spectral Violet",
+      "role": "accent"
+    },
+    {
+      "hex": "F0ECE2",
+      "name": "Warm Cream",
+      "role": "accent"
+    },
+    {
+      "hex": "2A2A2A",
+      "name": "Dark Steel",
+      "role": "ground"
+    }
+  ],
+  "chromaticArc": "Opens in near-black monotone with sharp red punctuation, bleeds through electric cobalt and alarm gold in the turbulent middle sections, then resolves into cleaner bone-white-on-black compositions with spectral violet and synthetic green as quiet final accents — mirroring the arc from disorientation to structured curiosity.",
+  "gridStrategy": "Early slides use fragmented, overlapping zones with extreme asymmetry and competing type scales to create density; middle slides deploy aggressive split compositions and diagonal visual weight; final third progressively resolves into breathable, centred or single-anchor layouts — the grid literally calms as the course framework crystallises.",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 8,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia appears on reflective or philosophical slides — questions about AI's nature, the singularity, human displacement — where italic serif humanises the provocation against Futura's institutional clarity. Courier New surfaces on data-driven or technical-framework slides to signal systematic classification."
+  },
+  "accentStrategy": "Dot accents (span 2 circles) form a constellation motif across the deck, appearing at shifting grid coordinates to create a connect-the-dots subliminal pattern; thick bars (span 4–8) bisect compositions on 50%+ of slides as visual caesuras; colour blocks anchor corners or bleed off-grid on signal slides to rupture the Swiss scaffold."
+}

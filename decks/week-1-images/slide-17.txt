@@ -1,0 +1,8 @@
+# Slide 17: Rise of Open Source Models
+
+A large Prussian blue #1A2744 circle on the left third of the frame — a single dominant form. To its right: twenty-three small circles of varying sizes scatter across a cream #F0EAD6 grid, in vermillion #C8361F and graphite #2D2D2D. Fine graphite lines connect clusters of small circles to each other but not to the large one. Ochre gold #D4B84A dots mark key intersection nodes. Decentralized challenge to centralized power. Swiss poster, flat, screen print, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, flags, national symbols, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, flat vector illustration, screen print, network diagram

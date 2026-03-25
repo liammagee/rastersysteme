@@ -1,0 +1,66 @@
+{
+  "aesthetic": "Palatino Press — Swiss grid discipline married to the illuminated manuscript: every slide a recto page, type set with calligraphic intentionality against warm vellum ground, Bauhaus primary bars punctuating like rubrics in the margin.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Vellum Ground",
+      "role": "ground"
+    },
+    {
+      "hex": "FDF8EE",
+      "name": "Cream Leaf",
+      "role": "dominant"
+    },
+    {
+      "hex": "EDE4D6",
+      "name": "Warm Écru",
+      "role": "dominant"
+    },
+    {
+      "hex": "D42B1A",
+      "name": "Bauhaus Red",
+      "role": "accent"
+    },
+    {
+      "hex": "1B4DD4",
+      "name": "Primary Blue",
+      "role": "accent"
+    },
+    {
+      "hex": "F2C12E",
+      "name": "Golden Yellow",
+      "role": "accent"
+    },
+    {
+      "hex": "1A1A18",
+      "name": "Press Black",
+      "role": "signal"
+    },
+    {
+      "hex": "2E2720",
+      "name": "Ink Brown",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "35 slides breathe on vellum and cream with Bauhaus Red, Blue, and Yellow appearing as bar and block accents in escalating density — Red dominates slides 1–14, Blue displaces it in slides 15–26, Yellow warms the close in slides 27–38 — while exactly 3 section-divider slides use Press Black as a full-stop ground, each immediately flanked by a return to warm light.",
+  "gridStrategy": "Eight compositional archetypes — full-bleed title, right-anchor breathing left, bottom-heavy inversion, stacked marginalia column, centred narrow pillar, wide-body floating label, left-anchor split-bar, and diagonal offset — cycle in a non-repeating rotation with row and column positions perturbed on every recurrence so no two slides share identical zone geometry.",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 9,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Palatino",
+    "secondary": "Futura",
+    "tertiary": "Courier New",
+    "secondarySlides": "Futura replaces Palatino on the 3 Press Black section-divider slides and any declarative headline slide carrying a Bauhaus-primary bar accent — roughly 28–32% of the deck; Courier New appears on data-dense or system-referencing slides where monospace cadence reinforces the content's precision, typically 4–6 slides."
+  },
+  "accentStrategy": "Thick orthogonal bars (4–8 column spans, 1–4 row height) in Bauhaus Red, Primary Blue, or Golden Yellow anchor at least 21 of 38 slides as counterweights to the title zone, with solid colour blocks used on 7 slides to create ground-within-ground panels that echo the illuminated manuscript's rubricated tradition."
+}

@@ -1,0 +1,76 @@
+{
+  "aesthetic": "Papier Confronté — warm cotton stock as ground, every zone collision deliberate, every white breath earned against a press-ink signal that migrates from left to right across 44 individually composed pages",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Cotton Ground",
+      "role": "ground"
+    },
+    {
+      "hex": "FFF8E7",
+      "name": "Warm Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "F0ECE4",
+      "name": "Aged Ivory",
+      "role": "dominant"
+    },
+    {
+      "hex": "FAFAF8",
+      "name": "Cold White",
+      "role": "dominant"
+    },
+    {
+      "hex": "C8391A",
+      "name": "Signal Vermillion",
+      "role": "signal"
+    },
+    {
+      "hex": "E8A020",
+      "name": "Amber Declaration",
+      "role": "accent"
+    },
+    {
+      "hex": "1B3D6F",
+      "name": "Prussian Night",
+      "role": "signal"
+    },
+    {
+      "hex": "4A6FA5",
+      "name": "Atlas Blue",
+      "role": "accent"
+    },
+    {
+      "hex": "2C2825",
+      "name": "Press Ink",
+      "role": "signal"
+    },
+    {
+      "hex": "7A9E8B",
+      "name": "Verdigris Mist",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–11 breathe in amber and cotton white with golden accent bars; slides 12–24 introduce vermillion signal elements against warm vellum; slides 25–35 shift to atlas-blue bars and cold white grounds; slides 36–44 close in prussian night accents on aged ivory, the warmth drained to a cool, considered finish — two section-divider slides (near slide 14 and slide 28) flip to press-ink backgrounds as tonal shocks.",
+  "gridStrategy": "Every slide invents a unique gravitational axis — title may anchor bottom-left at row 28 while a label floats top-right, or a full-bleed column occupies only col 38–57 while the left 38 columns hold negative space; no two consecutive slides share the same dominant zone quadrant, forcing the eye to re-orient at every turn.",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 8,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia appears on reflective or narrative slides (roughly every 4th–5th slide) where body text carries emotional weight and the title drops to weight 300; Courier New is reserved for data-dense, list, or measurement slides where monospace rhythm signals precision over declaration"
+  },
+  "accentStrategy": "Every slide carries exactly one structural accent bar (width 4–8 col, height 1–5 rows) whose column position advances by approximately 1.3 columns per slide — a slow left-to-right diagonal migration across all 44 slides — supplemented on 55% of slides by a secondary colour block or 12px dot anchoring the compositionally opposite corner to create cross-slide visual counterpoint."
+}

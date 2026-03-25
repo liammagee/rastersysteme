@@ -1,0 +1,8 @@
+# Slide 32: Workshop 2: Technological Lens
+
+A circuit-diagram rendered in pure Swiss geometry: fine Prussian blue #1A2744 right-angle lines connect cream #F0EAD6 rectangles and circles at node points across a graphite #2D2D2D ground. Ochre gold #D4B84A lines trace signal paths between nodes. A single large vermillion #C8361F circle at upper center marks the central processing node. Simultaneously a neural network diagram and a Müller-Brockmann grid — technological structure made elegant and apprehensible. Flat, screen print, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, chip photography, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Müller-Brockmann, flat vector illustration, screen print, circuit

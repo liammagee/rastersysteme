@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":2,"span":14,"row":2,"rowSpan":2},{"role":"body","col":6,"span":46,"row":28,"rowSpan":6}],"accents":[{"type":"line","col":6,"span":46,"row":26,"rowSpan":1,"color":"8C8780"},{"type":"bar","col":56,"span":2,"row":0,"rowSpan":40,"color":"2E2A26"}],"typography":{"body":{"size":14},"label":{"size":10}},"bg":"E3DDD6","font":"Helvetica Neue"} -->
+### CONTINUED
+Break - 10 minutes

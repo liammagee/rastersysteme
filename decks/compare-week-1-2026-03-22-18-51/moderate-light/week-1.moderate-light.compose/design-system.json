@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Scriptorium — a manuscript-folio editorial system where each slide reads as a freshly inked page from the same codex, reconciling Swiss grid precision with the warmth of calligraphic tradition.",
+  "palette": [
+    {
+      "hex": "F8F4EC",
+      "name": "Warm Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "E5D5B0",
+      "name": "Golden Parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "9B8B73",
+      "name": "Antique Gilt",
+      "role": "accent"
+    },
+    {
+      "hex": "1E140A",
+      "name": "Colophon Black",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "The deck breathes from Warm Vellum through Golden Parchment across its three acts, with Colophon Black section dividers at slides 11, 23, and 36 acting as chapter ornaments before each act resolves back to cream — the arc crosses the light/dark threshold exactly three times.",
+  "gridStrategy": "Slides cycle through four canonical folio patterns — full-bleed title (col 0 span 58), left-sidebar with wide body (col 0 span 18 / col 22 span 36), right-anchored offset (col 30 span 28), and centred narrow column (col 12 span 34) — ensuring no two consecutive slides share the same compositional schema.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      72
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Palatino",
+    "tertiary": null,
+    "secondarySlides": "Palatino appears on roughly every 6th slide (~7 total): full-bleed opening statements, pull-quote folios, and the three Colophon Black section dividers — wherever the deck's calligraphic warmth must assert itself over the grid's neutrality."
+  },
+  "accentStrategy": "A 1px horizontal rule in Antique Gilt bisects the layout zone on 40% of slides, and narrow vertical bars (col-span 2, row-span 8–12) in Golden Parchment punctuate the entry column on sidebar layouts, providing rhythmic breath without crowding the vellum ground."
+}

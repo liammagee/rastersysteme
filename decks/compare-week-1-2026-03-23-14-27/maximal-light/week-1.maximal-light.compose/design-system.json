@@ -1,0 +1,76 @@
+{
+  "aesthetic": "Epistemic Fracture — warm-ground Swiss modernism shattered by Weingart-scale collisions; institutional order meets its own obsolescence on cream paper",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Parchment",
+      "role": "ground"
+    },
+    {
+      "hex": "FAF8F4",
+      "name": "Bone White",
+      "role": "ground"
+    },
+    {
+      "hex": "1A1A1A",
+      "name": "Near Black",
+      "role": "signal"
+    },
+    {
+      "hex": "C83228",
+      "name": "Crisis Vermillion",
+      "role": "accent"
+    },
+    {
+      "hex": "2B5EA7",
+      "name": "Institutional Blue",
+      "role": "accent"
+    },
+    {
+      "hex": "D4A017",
+      "name": "Provocation Gold",
+      "role": "accent"
+    },
+    {
+      "hex": "E8E2D8",
+      "name": "Linen Mist",
+      "role": "dominant"
+    },
+    {
+      "hex": "3D3D3D",
+      "name": "Charcoal Lecture",
+      "role": "signal"
+    },
+    {
+      "hex": "F0E6D0",
+      "name": "Aged Foolscap",
+      "role": "dominant"
+    },
+    {
+      "hex": "8B4513",
+      "name": "Archive Sienna",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Opens on stark warm white with vermillion shock accents for the provocation, settles into blue-and-gold institutional tones through the middle taxonomy, then progressively tightens toward clean parchment-and-charcoal as the course structure clarifies — two signal-dark divider slides at positions 12 and 28 punctuate the arc like caesuras",
+  "gridStrategy": "Zones migrate rightward as default anchor (titles at col 30–42) but each slide inverts or disrupts differently — full-bleed titles collapse to narrow-right whispers, body text leaps above titles, accent bars wander from left gutter to mid-grid, and vertical stacking alternates with aggressive horizontal splits so no two slides share a zone fingerprint",
+  "typeScale": {
+    "titleRange": [
+      18,
+      96
+    ],
+    "bodySize": 14,
+    "labelSize": 8,
+    "titleWeightRange": [
+      100,
+      900
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia on reflective/philosophical slides (roughly every 3rd-4th slide and pull quotes) where the content shifts from declaration to contemplation; Courier New on data-heavy or taxonomic slides presenting the lens framework and course mechanics"
+  },
+  "accentStrategy": "Thick colour bars (span 4–8) on 55% of slides alternate between vermillion and gold, colour blocks anchor corners or bisect the grid as counterweights to title mass, small dots mark label zones, and on provocation slides the accent deliberately breaks the column grid by spanning across gutters to enact the epistemic rupture the content describes"
+}

@@ -1,0 +1,8 @@
+# Slide 35: Workshop 5: Pedagogical Lens
+
+Two grids of different scales overlap in the same 16:9 space: one fine (Prussian blue #1A2744, small cells) and one coarse (cream #F0EAD6, large cells), each at equal visual presence. Where they intersect, ochre gold #D4B84A nodes appear. A single vermillion #C8361F arc crosses from the fine grid's territory into the coarse — translation between levels of understanding. Graphite #2D2D2D baseline anchors both grids. The pedagogical act of making complexity accessible. Swiss poster, Hofmann, flat, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, classroom illustration, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Armin Hofmann, flat vector illustration, screen print, dual scale

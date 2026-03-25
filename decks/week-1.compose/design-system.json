@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Gerstner Pressprint — warm paper materiality underpins an exposed editorial grid where steel-grey type and hairline rules carry all the visual weight",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "E3DDD6",
+      "name": "Grid Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "8C8780",
+      "name": "Steel Dust",
+      "role": "mid-tone"
+    },
+    {
+      "hex": "2E2A26",
+      "name": "Carbon",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–2 sit on Warm Paper; slide 3 (section divider) drops to Carbon for the one dark beat; slides 4–5 resurface through Grid Linen back to Warm Paper, crossing light/dark three times in five frames.",
+  "gridStrategy": "Title zones migrate across the column axis — full-width col 0 span 58 on slide 1, right-offset col 35 span 23 on slide 2, narrow sidebar col 0 span 15 on slides 3–4, and centred col 12 span 36 on slide 5 — so the visual anchor shifts with each page turn.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 10,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": "Courier New",
+    "secondarySlides": "Georgia appears on the editorial pull-quote slide (slide 4) to introduce warmth against the steel-dust accent bar; Courier New is reserved for data-label elements and running captions to enforce the 'monospace as texture' directive"
+  },
+  "accentStrategy": "Thin horizontal rules (type: line, span 40–58) cleave title zones from body columns on slides 1, 3, and 5; a vertical accent bar (span 2, full row height) anchors the sidebar edge on slides 2 and 4 — touching roughly 40% of slides with Steel Dust or Carbon geometry."
+}

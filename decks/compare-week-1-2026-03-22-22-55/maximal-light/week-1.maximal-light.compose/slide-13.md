@@ -1,0 +1,5 @@
+<!-- design: {"zones":[{"role":"label","col":4,"span":10,"row":1,"rowSpan":2},{"role":"title","col":6,"span":48,"row":16,"rowSpan":12},{"role":"body","col":6,"span":40,"row":31,"rowSpan":6}],"accents":[{"type":"bar","col":16,"span":42,"row":0,"rowSpan":4,"color":"C8391A"},{"type":"dot","col":4,"span":2,"row":35,"rowSpan":2,"color":"C8391A"}],"typography":{"title":{"size":52,"weight":300},"body":{"size":14},"label":{"size":8}},"bg":"FFF8E7","font":"Georgia"} -->
+### AI USE
+## A Note on AI use for this course
+
+AI use with *acknowledgement* is *encouraged* for the intervention artefact [1] itself. We will be discussing how this might work as we progress through the course. For weekly activities, and for reflection [2] and assessment [3] parts of the final project, it shouldn't be necessary or desirable.

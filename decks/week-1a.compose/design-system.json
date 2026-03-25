@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Neue Pressroom — Swiss-editorial system built on warm paper stock with red as typographic alarm signal and press-black for authority; every slide reads like a pulled proof.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE6DB",
+      "name": "Aged Vellum",
+      "role": "dominant"
+    },
+    {
+      "hex": "1A1714",
+      "name": "Press Black",
+      "role": "signal"
+    },
+    {
+      "hex": "C8190F",
+      "name": "Editorial Red",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides 1–10 anchor on Warm Paper with black type; slides 11–14 introduce Aged Vellum grounds and the first red accent bars; slides 15–17 flip to Press Black section dividers (3 slides total); slides 18–32 return to Warm Paper with red used only as typographic punctuation; slides 33–36 revisit Aged Vellum for a mid-deck tonal rest; slides 37–40 introduce a second Press Black divider sequence; slides 41–44 resolve on Warm Paper, red withdrawn, leaving black-on-white as a closing statement.",
+  "gridStrategy": "All titles anchor at col 6 per left-margin discipline; row position cycles low (row 24–30), mid (row 14–18), and high (row 4–8) across every three slides so no two consecutive slides share the same vertical placement; body text is always constrained to col 6–42 leaving the right 18 columns as structural whitespace.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 7 slides (≈15%): pull-quote slides, the two narrative-heavy section intros, and the closing reflection slide — wherever the tone shifts from declarative to reflective"
+  },
+  "accentStrategy": "A 1-column-wide Editorial Red bar (rowSpan 2–4) is placed at col 4 on slides carrying bold statements, acting as a left-gutter alarm; thin Press Black horizontal lines (type: line, span 38, col 6) divide title from body on information-dense slides — together covering roughly 40% of the deck."
+}

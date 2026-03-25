@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"label","col":8,"span":20,"row":6,"rowSpan":3},{"role":"body","col":8,"span":44,"row":16,"rowSpan":8}],"accents":[{"type":"line","col":8,"span":36,"row":13,"rowSpan":1,"color":"6B5340"},{"type":"bar","col":0,"span":2,"row":14,"rowSpan":6,"color":"6B5340"}],"typography":{"body":{"size":28,"weight":300,"leading":1.4,"tracking":0.02,"color":"1C1A16","align":"left"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":0.15,"color":"6B5340"}},"bg":"F8F5F0","font":"Helvetica Neue"} -->
+Break - 10 minutes

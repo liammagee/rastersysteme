@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Papier Rouge — a Swiss-Bauhaus hybrid where warm paper-white ground anchors rigorous Müller-Brockmann grid structure, punctuated by surgical red for hierarchy and urgency",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "warm paper",
+      "role": "ground"
+    },
+    {
+      "hex": "1C1C1C",
+      "name": "deep charcoal",
+      "role": "accent"
+    },
+    {
+      "hex": "D42222",
+      "name": "Bauhaus red",
+      "role": "accent"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "warm grey parchment",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–44 hold paper-white ground throughout; red surfaces only at the title, 3 chapter-break slides (using warm grey parchment bg, never dark), and the closing call-to-action — black type carries the full structural load across the remaining 39 slides.",
+  "gridStrategy": "Title-only slides anchor type at col 6 spanning 28 cols in the upper third; body slides shift the title left to col 4 and drop body copy to row 18–30 at span 36; chapter dividers invert the measure with a single oversized numeral at col 38 and a label at col 6, creating rhythmic counterpoint every 8–10 slides.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font is used; weight (400 vs 700) and tracking variation within Helvetica Neue alone establish all hierarchy"
+  },
+  "accentStrategy": "Red is used exclusively as a 1px horizontal rule beneath slide section labels and as the title-slide logotype colour — never as fill, background, or decoration — so its three appearances read as a sharp editorial signal against the white field."
+}

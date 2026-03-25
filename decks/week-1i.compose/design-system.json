@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Kritische Distanz — Swiss International restraint enacted as epistemological skepticism; paper-white ground, asymmetric right-anchored type, and modular six-column tension that refuses visual resolution",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Archival Warm White",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "Vellum Cream",
+      "role": "dominant"
+    },
+    {
+      "hex": "B8B0A4",
+      "name": "Concrete Warm Gray",
+      "role": "accent"
+    },
+    {
+      "hex": "2B2B2B",
+      "name": "Lecture Black",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "The deck breathes almost entirely on Archival Warm White, with Vellum Cream surfacing on three chapter-break dividers at slides 1, 20, and 40; Concrete Warm Gray appears only in ###-label tracking and thin rule lines; Lecture Black is reserved for title text and two signal moments where the course confronts technological determinism.",
+  "gridStrategy": "Titles anchor right at col 30–38 with 400-weight type, body text occupies a narrow 30-col measure starting at col 4–6, and the left third of every slide remains deliberately empty — chapter dividers invert this by centering a single word at massive scale, while the six-lens modules use staggered column starts (col 4, 8, 12) that never align, enacting the productive irresolution of competing perspectives.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font; all typographic hierarchy achieved through size, tracking, and position within the grid"
+  },
+  "accentStrategy": "No decorative accent elements; hierarchy is communicated exclusively through spatial position, letterspacing (0.12em on labels, 0.02em on body), and the occasional New Wave rotation of a single ### label at 90° to mark conceptual friction points between lenses."
+}

@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"body","col":20,"span":34,"row":17,"rowSpan":6},{"role":"label","col":20,"span":14,"row":12,"rowSpan":3}],"accents":[{"type":"bar","col":0,"span":6,"row":0,"rowSpan":40,"color":"C83228"},{"type":"dot","col":11,"span":2,"row":35,"rowSpan":2,"color":"D4A017"}],"typography":{"body":{"size":24,"weight":300,"tracking":"0.03em","leading":"1.9","color":"E8E2D8","align":"left"},"label":{"size":8,"tracking":"0.4em","transform":"uppercase","color":"C83228"}},"bg":"F8F5F0","font":"Georgia"} -->
+### INTERLUDE
+Break - 10 minutes

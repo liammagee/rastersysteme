@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Gerstner Folio — a warm-paper editorial system where Swiss grid rigour meets golden-age magazine warmth, progressing from sunlit openings to ink-blue conclusions across 44 pages",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Parchment",
+      "role": "ground"
+    },
+    {
+      "hex": "C4956A",
+      "name": "Amber Ochre",
+      "role": "accent"
+    },
+    {
+      "hex": "8FA8B8",
+      "name": "Slate Mist",
+      "role": "dominant"
+    },
+    {
+      "hex": "1E3A52",
+      "name": "Prussian Dusk",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–14 rest on Warm Parchment with Amber Ochre accent bars (golden warmth); slides 15–30 layer Slate Mist into lines and tint zones as temperature cools toward blue-grey; exactly 3 section-divider slides (at positions 11, 25, and 40) flip to full Prussian Dusk backgrounds, creating three emphatic light-to-dark crossings that arc the deck from gold to dusk.",
+  "gridStrategy": "Every cluster of 4–5 slides rotates through a distinct zone grammar — wide full-bleed title (col 0 span 58), right-offset drama (col 30 span 28), narrow sidebar with wide body (col 0 span 18 / col 22 span 36), and centred column (col 12 span 36) — so no two consecutive slides share the same compositional axis, while all belong to the same underlying 60-column field.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 7 slides — roughly every 6th slide — at editorial pivot points (section openers at slides 8, 14, 21, 28, 34, 40, and the closing summary at slide 44), where its serifs add historical gravitas and warmth against the otherwise modernist Helvetica grid"
+  },
+  "accentStrategy": "Thin horizontal rules (type: 'line', 1–2px, Amber Ochre or Slate Mist) divide title from body zones on 40% of slides; narrow vertical bars (col-span 2, full row height, Amber Ochre warming to Prussian Dusk across the deck) serve as left-margin punctuation on section openers, intensifying in density toward the climax at slide 34 before resolving to a single clean rule on the close."
+}

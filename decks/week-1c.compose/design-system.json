@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Warm Folio — a Swiss-editorial system anchored in warm-press paper tones, pairing grid precision with the tactile warmth of letterpress printing",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Paper",
+      "role": "ground"
+    },
+    {
+      "hex": "EAD9C0",
+      "name": "Parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "A07850",
+      "name": "Warm Amber",
+      "role": "accent"
+    },
+    {
+      "hex": "1E1A16",
+      "name": "Deep Ink",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Opens in full warmth on Warm Paper ground (slides 1–12), punctuated by three Deep Ink section dividers at slides ~13, ~24, and ~34, with Parchment mid-tones threading through the intervals to create a light–dark oscillation that resolves back to open warmth for the closing slides.",
+  "gridStrategy": "Each slide rotates through four compositional archetypes — full-bleed wide title (col 0 span 58), left sidebar with wide body (col 0–18 title / col 22–58 body), right-offset dramatic title (col 30 span 28), and centred column (col 12 span 36) — cycling with deliberate irregularity so no two consecutive slides share the same zone pattern.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on approximately 6 slides — used for pull-quote, definition, or body-heavy content slides where serif warmth counters the grid's clinical precision and reinforces the letterpress editorial identity; never on section dividers or data slides"
+  },
+  "accentStrategy": "Thin 1px horizontal lines in Warm Amber bisect title-from-body zones on 40% of slides, supplemented by small 1–2 column vertical bar elements as left-margin punctuation on sidebar and offset layouts to lock the asymmetric split."
+}

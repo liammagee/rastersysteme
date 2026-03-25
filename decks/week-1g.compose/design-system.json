@@ -1,0 +1,51 @@
+{
+  "aesthetic": "Scholarly Press — an aged-paper ground with measured Swiss typesetting, evoking a mid-century design annual where the silence between lines carries as much weight as the text itself",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Aged Paper White",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8DC",
+      "name": "Warm Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "C9BAA0",
+      "name": "Antique Parchment",
+      "role": "accent"
+    },
+    {
+      "hex": "2C1A0E",
+      "name": "Deep Espresso",
+      "role": "signal"
+    },
+    {
+      "hex": "7A6048",
+      "name": "Warm Sienna",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Slides open and hold on Aged Paper White through the first movement; two chapter-break slides shift to Antique Parchment mid-deck; Deep Espresso appears only as headline type on those dividers; the deck returns to warm white for the close, the ground undisturbed.",
+  "gridStrategy": "Title-only slides rest on the centred axis (cols 12–48) with a deep top margin; body slides anchor all text to col 12 in a 36-col measure leaving both flanks open; the two chapter breaks collapse to a single isolated title zone, enlarged and vertically centred.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      34
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      300,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font — all type is set in Helvetica Neue; weight and tracking variation (300 for headlines, 400 for body, 0.12em on labels) provide the sole differentiation across the deck"
+  },
+  "accentStrategy": "No decorative accents; spatial tension is created exclusively through asymmetric whitespace and measure contrast — a single 0.5px hairline rule in Warm Sienna appears only on the two chapter-break slides to demarcate the title zone from the folio number."
+}

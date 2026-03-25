@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"body","col":10,"span":40,"row":17,"rowSpan":6}],"accents":[{"type":"line","col":24,"span":12,"row":15,"rowSpan":1,"color":"B85C38"}],"typography":{"body":{"size":26,"weight":400,"align":"center","leading":1.5}},"bg":"E2D9CC","font":"Georgia"} -->
+Break - 10 minutes

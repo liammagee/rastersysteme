@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Regelbruch — A Müller-Brockmann column system held under productive tension: Swiss left-margin discipline enforced across 38 slides while a single warm-stone bar migrates columnwise across the grid, making the deck's structural seam legible as a tide withdrawing from tradition toward open white space.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "warm paper",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE8E0",
+      "name": "aged linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "2D2926",
+      "name": "warm ink",
+      "role": "signal"
+    },
+    {
+      "hex": "A89E96",
+      "name": "warm stone",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Warm paper (F8F5F0) grounds 34 of 38 slides as the persistent paper-white field; aged linen (EDE8E0) surfaces at three chapter-break slides (approximately slides 8, 20, and 32) as mid-tone relief without darkness; warm-stone accent bars are the sole chromatic migration event, advancing column by column across the full deck as a structural tide.",
+  "gridStrategy": "Each slide's accent bar occupies a unique column position advancing from col 3 (slide 1) to col 56 (slide 38) in increments of 1–2 columns, while title zones begin anchored tightly at col 4–5 in early high-density slides and loosen to col 7–9 in resolution slides, enacting the emotional arc of typographic vertigo dissolving into earned white space.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      36
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      300,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": null,
+    "tertiary": null,
+    "secondarySlides": "No secondary font used; all tonal modulation is achieved through weight (300 for section labels and chapter openings, 400 for body and running titles), tracking (0.12–0.15em on uppercase labels only, 0–0.02em on body), and size contrast within the defined scale — Helvetica Neue's internal range is the entire expressive instrument."
+  },
+  "accentStrategy": "One warm-stone vertical bar per slide (3px wide, spanning rows 4–36, positioned at a column unique to that slide in a slow rightward march from col 3 to col 56 across the 38-slide sequence) functions as a migrating architectural seam — never decorative, always load-bearing — so the deck read as a filmstrip traces a single structural line walking the full width of the grid."
+}

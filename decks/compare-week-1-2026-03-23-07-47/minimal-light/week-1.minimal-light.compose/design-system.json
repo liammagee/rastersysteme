@@ -1,0 +1,51 @@
+{
+  "aesthetic": "Vellum & Verdure — a Swiss grid system rooted in botanical restraint, where warm paper grounds and forest ink speak through alignment alone",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Warm Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE4D6",
+      "name": "Parchment",
+      "role": "dominant"
+    },
+    {
+      "hex": "3B5E44",
+      "name": "Forest Floor",
+      "role": "signal"
+    },
+    {
+      "hex": "7A9E7E",
+      "name": "Sage Field",
+      "role": "accent"
+    },
+    {
+      "hex": "C8A882",
+      "name": "Warm Loam",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "The deck breathes in pure Warm Vellum for slides 1–4, introduces Sage Field labels and Loam warmth across slides 5–8, then arrives at Forest Floor as deep ink on the two pivotal section slides (9–10), so colour density grows like rings in wood.",
+  "gridStrategy": "Odd-numbered slides anchor titles at cols 4–26 (left lean, right half open); even-numbered slides shift titles to cols 32–54 (right lean, left half open) — a left-right syncopation that keeps the eye traversing the paper-white ground across every turn.",
+  "typeScale": {
+    "titleRange": [
+      28,
+      34
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      300,
+      400
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 1–2 contemplative slides as a pull-quote or epigraph typeface only, honouring the 'serif for reflection' creative directive while Helvetica Neue carries all structural text"
+  },
+  "accentStrategy": "No decorative marks, rules, or ornaments — visual emphasis is achieved solely through column-shift rhythm, weight contrast between 300 and 400, and the measured introduction of Sage Field and Loam as ink colours on label-level text."
+}

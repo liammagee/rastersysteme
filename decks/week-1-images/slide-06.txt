@@ -1,0 +1,8 @@
+# Slide 6: Assessment
+
+Two rectangles dominate a cream #F0EAD6 ground: a smaller vermillion #C8361F rectangle (30% width) and a larger Prussian blue #1A2744 rectangle (70% width), separated by a fine graphite #2D2D2D rule. Proportions are mathematically exact at 30:70 ratio rendered as visible geometry. Ochre gold #D4B84A circles mark key intersections at the dividing line. Fine grid lines underlay without competing. Formative accumulation versus summative culmination as geometric weight. Swiss poster, Hofmann asymmetric balance, flat, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, pie charts, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Armin Hofmann, flat vector illustration, screen print

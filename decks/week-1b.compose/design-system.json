@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Warm Broadsheet — a Swiss-grid editorial system rooted in warm paper stock, where every slide reads like a spread torn from a mid-century design journal: tight columns, deliberate white space, and restrained colour used as punctuation rather than decoration.",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Press White",
+      "role": "ground"
+    },
+    {
+      "hex": "E8DFD0",
+      "name": "Newsprint Cream",
+      "role": "dominant"
+    },
+    {
+      "hex": "B8865C",
+      "name": "Burnt Sienna",
+      "role": "accent"
+    },
+    {
+      "hex": "221E17",
+      "name": "Ink Black",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–10 are almost entirely Press White with cream touches; slides 11–20 introduce Newsprint Cream as a section bg, crossing into Ink Black on slides 13 and 21 as dark dividers; slides 22–32 pulse warm with Burnt Sienna accents at the deck's climax; slides 33–38 exhale back to Press White for a quiet close — light/dark crossings at slides 13, 21, and 31.",
+  "gridStrategy": "Slides open title-only with varied anchor points (centred col 12, offset col 30, left-flush col 0); each successive section adds a body zone and shifts the title to a new quadrant, reaching 3-zone complexity (title + body + accent bar) at the climax around slides 28–32, then strips back to a single full-width zone for the closing sequence.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on 6 slides — the two dark section dividers, two mid-deck slides carrying block quotes or key statistics, and the penultimate closing slide — adding warmth and slowing the reader's pace at deliberate moments."
+  },
+  "accentStrategy": "Roughly 18 of 38 slides carry a thin 1px horizontal line (type: 'line') spanning 20–40 cols to divide the title zone from the body zone, or a narrow col-wide bar (span 2, rowSpan 8–12) placed at col 0 or col 58 in Burnt Sienna as a margin rule, echoing the gutter marks of broadsheet layout."
+}

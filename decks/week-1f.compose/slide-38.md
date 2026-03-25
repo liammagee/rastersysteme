@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"title","col":8,"span":40,"row":14,"rowSpan":6},{"role":"body","col":8,"span":36,"row":21,"rowSpan":4}],"accents":[{"type":"line","col":8,"span":36,"row":20,"rowSpan":1,"color":"1B2A4A"}],"typography":{"title":{"size":36,"weight":400},"body":{"size":14}},"bg":"EDE8E0","font":"Georgia"} -->
+End of Week 1! Questions, Comments?

@@ -1,0 +1,8 @@
+# Slide 19: ...but also: Efficiency
+
+Three geometric forms converge from frame edges toward a central small cream #F0EAD6 circle on a Prussian blue #1A2744 ground — visual inverse of Slide 18's expansion. The forms taper and compress as they approach center. Ochre gold #D4B84A compression lines radiate inward. Vermillion #C8361F marks the central convergence point. Fine graphite #2D2D2D grid underlies the composition. More from less — better algorithms, smaller footprints. Swiss poster, Hofmann, flat vector, 16:9.
+
+Negative: photorealism, photography, 3D rendering, gradients, textures, lens flare, depth of field, bokeh, shadows, natural lighting, noise, grain
+
+Aspect: 16:9
+Style: Swiss Poster, Armin Hofmann, flat vector illustration, screen print, converging

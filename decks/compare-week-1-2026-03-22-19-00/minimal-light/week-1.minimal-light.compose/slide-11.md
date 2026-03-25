@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":6,"span":18,"row":8,"rowSpan":2},{"role":"title","col":6,"span":36,"row":12,"rowSpan":14},{"role":"label","col":44,"span":12,"row":6,"rowSpan":24}],"accents":[{"type":"line","col":6,"span":18,"row":10,"rowSpan":1,"color":"D42222"}],"typography":{"title":{"size":52,"weight":700},"label":{"size":11,"weight":400,"tracking":"0.14em"}},"bg":"EDE8E0","font":"Helvetica Neue"} -->
+### EXAMPLE
+## Example:
