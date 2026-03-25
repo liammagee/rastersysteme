@@ -8,3 +8,7 @@ node_modules/
 logs/
 decks/
 .env
+
+# Claude Code — local overrides and auto-memory (not shared)
+.claude/settings.local.json
+.claude/memory/
