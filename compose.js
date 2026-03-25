@@ -1034,6 +1034,8 @@ Output ONLY valid JSON (no code fences, no commentary):
     try {
       const raw = await callClaudeAsync(designPrompt, { model, label: "design-system" });
       let json = raw.trim();
+      // Strip session prefix (added by callClaudeAsync for session tracking)
+      json = json.replace(/^__SESSION:[^_]+__/, "");
       if (/^```/.test(json)) json = json.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
       const firstBrace = json.indexOf("{");
       const lastBrace = json.lastIndexOf("}");
