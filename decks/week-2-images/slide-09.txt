@@ -1,0 +1,8 @@
+# Slide 9: Slide 9
+
+Flat isometric composition of a prompt-and-response dialogue structure — two large rectangular blocks facing each other across a brutalist concrete gray void, left block midnight navy with fine amber gold generative text-line fills, right block electric cyan with algorithmic response-pattern hatching, bold pathway arrow connecting them through center void, Müller-Brockmann asymmetric grid balance, screen-print two-color discipline, sparse node markers at block corners, 16:9
+
+Negative: photorealism, gradients, organic curves, decorative elements, naturalistic scenes, warm illustration style
+
+Aspect: 16:9
+Style: Swiss-Generative-Architectural

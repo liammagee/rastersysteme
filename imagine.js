@@ -105,6 +105,12 @@ const IMAGE_STYLES = {
     medium: "generative art, algorithmic patterns, particle systems, code-generated geometry",
     avoid: "photorealism, hand-drawn, organic textures",
   },
+  "swiss-generative-architectural": {
+    name: "Swiss-Generative-Architectural",
+    description: "A synthesis of three aesthetics: (1) Swiss poster rigor — Müller-Brockmann's mathematical grid composition and flat color fields; (2) Generative art — algorithmic patterns, particle systems, code-generated geometry evoking computation itself; (3) Architectural photography — brutalist concrete, geometric shadows, monumental perspective. The result is disciplined geometric abstraction with computational texture and architectural weight. Forms should feel both precisely composed and emergently complex.",
+    medium: "flat vector illustration with algorithmic texture, screen print meets generative code, brutalist geometry, limited palette with computational patterning, architectural perspective grids",
+    avoid: "photorealism, soft gradients, organic curves, decoration, naturalistic scenes, warm organic tones",
+  },
 };
 
 // ═══════════════════════════════════════════════════════

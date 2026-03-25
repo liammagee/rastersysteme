@@ -1,0 +1,8 @@
+# Slide 4: Slide 4
+
+Layered flat vector neural network diagram, three vertical columns of geometric circle-nodes in electric cyan and concrete white connected by fine amber gold weighted lines, midnight navy background, isometric perspective tilt gives architectural depth, node sizes vary algorithmically suggesting activation weights, generative interference pattern between layers rendered as dot-matrix texture, Otl Aicher pictogram rigor, brutalist symmetry axis, 16:9, screen-print
+
+Negative: photorealism, organic shapes, soft gradients, decorative ornamentation, naturalistic scenes, 3D CGI
+
+Aspect: 16:9
+Style: Swiss-Generative-Architectural

@@ -1,0 +1,8 @@
+# Slide 7: Slide 7
+
+Isometric cross-section of a flat vector language model — stacked horizontal transformer-block rectangles in concrete gray, electric cyan attention-line arcs connecting distant tokens, tokens represented as small amber gold squares spaced along base grid, midnight navy background, generative recursive pattern fills each block suggesting internal complexity, Müller-Brockmann modular grid, brutalist slab proportions, screen-print limited palette, fine algorithmic dot texture, 16:9
+
+Negative: photorealism, gradients, organic forms, decorative illustration, naturalistic scenes, warm photography tones
+
+Aspect: 16:9
+Style: Swiss-Generative-Architectural

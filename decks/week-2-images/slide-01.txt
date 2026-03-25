@@ -1,0 +1,8 @@
+# Slide 1: Gen AI - Week 1 - Pathways to AI
+
+Swiss poster composition, isometric grid of diverging pathways converging toward a single luminous cyan node at horizon center, flat midnight navy background, sparse amber gold pathway lines radiating from lower-left like a transit map, concrete gray node clusters at intersections, Müller-Brockmann mathematical spacing, fine algorithmic dot-matrix texture overlaid on flat color fields, brutalist perspective grid, 16:9, screen-print aesthetic, Otl Aicher pictogram language, no gradients
+
+Negative: photorealism, organic curves, soft gradients, warm tones, decorative flourishes, naturalistic imagery, lens flare, 3D render
+
+Aspect: 16:9
+Style: Swiss-Generative-Architectural

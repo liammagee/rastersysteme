@@ -1,0 +1,8 @@
+# Slide 8: Slide 8
+
+Swiss poster composition of four isometric geometric forms arranged in quadrant grid — cube, cylinder, triangular prism, sphere — each rendered flat in electric cyan, amber gold, concrete gray, and concrete white on midnight navy, each form wrapped in distinct generative texture pattern suggesting different output modalities, bold Swiss grid lines dividing quadrants, Otl Aicher systematic pictogram clarity, pathway lines connecting all four forms to central node, 16:9
+
+Negative: photorealism, soft gradients, organic curves, decorative illustration, naturalistic imagery, 3D render shading
+
+Aspect: 16:9
+Style: Swiss-Generative-Architectural
