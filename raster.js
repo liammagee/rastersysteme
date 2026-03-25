@@ -100,25 +100,25 @@ function createGrid(slideWidth, slideHeight, cols = 60, rows = 40, margin = 0.5,
 const THEMES = {
   light: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "1A1A1A",
-    text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
+    text: "1A1A1A", textMid: "5C5549", textLight: "65594E",
     accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   dark: {
     bg: "1A1A1A", bgAlt: "242424", bgDark: "111111",
-    text: "F0EBE3", textMid: "B8B0A2", textLight: "A09890",
+    text: "F0EBE3", textMid: "C4BDB0", textLight: "A09890",
     accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "F0EBE3", black: "1A1A1A", grey: "3A3A3A",
   },
   red: {
     bg: "F8F5F0", bgAlt: "FAFAF7", bgDark: "6B1A10",
-    text: "1A1A1A", textMid: "5C5549", textLight: "7A7168",
+    text: "1A1A1A", textMid: "5C5549", textLight: "65594E",
     accent: "B7311A", accentLight: "F09080", accent2: "1B5E80", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "D4CEC4",
   },
   blue: {
     bg: "F0F4F8", bgAlt: "F7FAFB", bgDark: "0F2A4A",
-    text: "1A1A1A", textMid: "4A5568", textLight: "5E6878",
+    text: "1A1A1A", textMid: "4A5568", textLight: "4E5766",
     accent: "1B5E80", accentLight: "80C0D8", accent2: "B7311A", accent3: "2B7038", accent4: "876512",
     white: "FFFFFF", black: "1A1A1A", grey: "CBD5E0",
   },
@@ -1470,9 +1470,9 @@ function esc(str) {
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
     .replace(/\*(.+?)\*/g, "<em>$1</em>")
     // Linkify markdown [text](url) first
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" class="auto-link">$1</a>')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="auto-link">$1</a>')
     // Then auto-link remaining bare URLs (not already inside an href)
-    .replace(/(?<!href=")(https?:\/\/[^\s<>"')\]]+)/g, '<a href="$1" target="_blank" class="auto-link">$1</a>');
+    .replace(/(?<!href=")(https?:\/\/[^\s<>"')\]]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="auto-link">$1</a>');
 }
 
 function bulletsToHTML(bullets) {
@@ -1514,7 +1514,7 @@ function bodyHTML(body) {
 function linksHTML(links) {
   if (!links.length) return "";
   return '<div class="links">' +
-    links.map(l => `<a href="${esc(l.url)}" target="_blank">${esc(l.text)} \u2192</a>`).join("\n") +
+    links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.text)} \u2192</a>`).join("\n") +
     '</div>';
 }
 
@@ -1532,7 +1532,8 @@ function videosHTML(videos) {
   return `<div class="${cls}">` +
     videos.map(v => {
       const caption = v.title ? `<figcaption>${esc(v.title)}</figcaption>` : "";
-      return `<figure class="video-wrap"><div class="video-responsive"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${caption}</figure>`;
+      const iframeTitle = v.title ? esc(v.title) : "Embedded video";
+      return `<figure class="video-wrap"><div class="video-responsive"><iframe src="https://www.youtube-nocookie.com/embed/${v.id}" title="${iframeTitle}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>${caption}</figure>`;
     }).join("\n") +
     '</div>';
 }
@@ -1912,7 +1913,7 @@ h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-h
 h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
 p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
 .slide{gap:var(--slide-gap,2vmin)}
-.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+.label{font-size:clamp(0.75rem,0.9vmin,0.85rem);letter-spacing:0.25em;text-transform:uppercase;
   color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
 .layout-section .label{color:var(--accent-light,var(--accent))}
 blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
@@ -1926,7 +1927,7 @@ blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmi
 .bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
 .bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
 .dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
-  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  font-size:clamp(0.7rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
   justify-content:center;flex-shrink:0}
 .dash{color:var(--text-light);flex-shrink:0}
 
@@ -1943,7 +1944,7 @@ tbody tr:nth-child(odd){background:var(--bg-alt)}
 .code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
 .code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
   font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
-.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.75rem;color:#888;
   font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
 
 /* Images */
@@ -1990,20 +1991,20 @@ a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
 .accent-block h1{color:var(--white);font-size:clamp(1.5rem,4.5vmin,3rem)}
 .title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:var(--white)}
 .title-right .subtitle{color:rgba(255,255,255,0.7)}
-.title-right p{color:rgba(255,255,255,0.6)}
+.title-right p{color:rgba(255,255,255,0.7)}
 .pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
-.pill{padding:1.2vmin 2vmin;color:var(--white);font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+.pill{padding:1.2vmin 2vmin;color:var(--white);font-weight:700;font-size:clamp(0.75rem,1.3vmin,0.9rem)}
 
 /* === LAYOUT: section === */
 .layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
 .layout-section h1,.layout-section .section-title{color:var(--white);font-size:clamp(2rem,6vmin,4rem)}
-.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.layout-section .subtitle{color:rgba(255,255,255,0.7);margin-top:1vmin}
 .accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
 .layout-section .links a{color:var(--accent2)}
 
 /* === LAYOUT: stagger === */
 .stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
-.stagger-bar{padding:2vmin 3vmin;color:var(--white);font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+.stagger-bar{padding:2vmin 3vmin;color:var(--white);font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem)}
 
 /* === LAYOUT: split === */
 .layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
@@ -2024,7 +2025,7 @@ a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
 /* === LAYOUT: fragment === */
 .frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
 .frag-cell{display:flex;align-items:center;padding:2vmin;color:var(--white);font-weight:700;
-  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+  font-size:clamp(0.75rem,1.4vmin,0.95rem)}
 
 /* === LAYOUT: overlap === */
 .overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
@@ -2156,6 +2157,12 @@ blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
 body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.03;
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-repeat:repeat}
+
+/* ═══ ACCESSIBILITY ═══ */
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.slide:focus-visible{outline:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
 `;
 }
 
@@ -2172,10 +2179,14 @@ function generateHTMLJS() {
   function go(n){
     if(n<0||n>=slides.length)return;
     slides[cur].classList.remove('active');
+    slides[cur].removeAttribute('aria-current');
     cur=n;
     slides[cur].classList.add('active');
+    slides[cur].setAttribute('aria-current','true');
     bar.style.width=((cur+1)/slides.length*100)+'%';
     counter.textContent=(cur+1)+' / '+slides.length;
+    var prog=document.querySelector('.progress');
+    if(prog)prog.setAttribute('aria-valuenow',cur+1);
     const noteEl=slides[cur].querySelector('.slide-notes');
     notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
   }
@@ -2526,13 +2537,17 @@ async function generateHTML(inputPath, outputPath, options = {}) {
       if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
-      return `<section class="slide designed"${ds}${trans}>${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
+      const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${esc(slide.title)}"` : ` aria-roledescription="slide"`;
+      return `<section class="slide designed"${ds}${trans}${slideAria}>${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
     }
 
-    return `<section class="slide layout-${layout}"${style}${trans}>${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
+    const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${esc(slide.title)}"` : ` aria-roledescription="slide"`;
+    return `<section class="slide layout-${layout}"${style}${trans}${slideAria}>${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
   }).join("\n");
 
-  const title = esc(path.basename(inputPath, ".md"));
+  // Derive descriptive page title from first slide's h1 or filename
+  const firstTitle = slides[0] && (slides[0].title || slides[0].subtitle);
+  const title = firstTitle ? esc(firstTitle) : esc(path.basename(inputPath, ".md"));
 
   // External CSS mode: link to standalone stylesheet instead of inlining
   const cssFileName = options.cssFileName || "rastersysteme.css";
@@ -2552,11 +2567,11 @@ async function generateHTML(inputPath, outputPath, options = {}) {
 ${styleBlock}
 </head>
 <body>
-<div class="deck">
+<div class="deck" role="application" aria-roledescription="slide deck" aria-label="${title}">
 ${slidesHTML}
 </div>
-<div class="progress"><div class="progress-bar"></div></div>
-<div class="counter"></div>
+<div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="${slides.length}" aria-valuenow="1" aria-label="Slide progress"><div class="progress-bar"></div></div>
+<div class="counter" aria-live="polite" aria-atomic="true"></div>
 <div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
 <script>
 ${generateHTMLJS()}
