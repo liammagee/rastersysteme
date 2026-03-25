@@ -358,6 +358,7 @@ function callClaudeAsync(prompt, options = {}) {
     });
 
     let resultText = "";
+    let streamedText = "";
     let buffer = "";
     let chars = 0;
     let phase = "starting";
@@ -394,11 +395,14 @@ function callClaudeAsync(prompt, options = {}) {
           } else if (ev.type === "assistant" && ev.message && ev.message.content) {
             phase = "streaming";
             for (const block of ev.message.content) {
-              if (block.type === "text" && block.text) chars += block.text.length;
+              if (block.type === "text" && block.text) {
+                chars += block.text.length;
+                streamedText += block.text;
+              }
             }
           } else if (ev.type === "result") {
             phase = "done";
-            resultText = ev.result || "";
+            resultText = ev.result || streamedText;
             if (ev.session_id) resultText = `__SESSION:${ev.session_id}__` + resultText;
             if (ev.usage) {
               const inp = ev.usage.input_tokens || 0;
@@ -1035,7 +1039,7 @@ Output ONLY valid JSON (no code fences, no commentary):
       const raw = await callClaudeAsync(designPrompt, { model, label: "design-system" });
       let json = raw.trim();
       // Strip session prefix (added by callClaudeAsync for session tracking)
-      json = json.replace(/^__SESSION:[^_]+__/, "");
+      json = json.replace(/^__SESSION:.*?__/, "");
       if (/^```/.test(json)) json = json.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
       const firstBrace = json.indexOf("{");
       const lastBrace = json.lastIndexOf("}");
@@ -1409,10 +1413,10 @@ JSON objects, one per line:`;
       });
       let cleaned = raw.trim();
       // Always strip session prefix (present in both parallel and sequential modes)
-      const sessionMatch = cleaned.match(/^__SESSION:([^_]+)__/);
+      const sessionMatch = cleaned.match(/^__SESSION:(.*?)__/);
       if (sessionMatch) {
         if (useSession) sessionId = sessionMatch[1];
-        cleaned = cleaned.replace(/^__SESSION:[^_]+__/, "");
+        cleaned = cleaned.replace(/^__SESSION:.*?__/, "");
       }
       if (/^```/.test(cleaned)) cleaned = cleaned.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
 
