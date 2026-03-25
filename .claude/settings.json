@@ -16,6 +16,21 @@
     ]
   },
   "plugins": [
-    ".claude/plugins/rastersysteme-qa"
-  ]
+    ".claude/plugins/rs"
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '(.tool_input.file_path // .tool_response.filePath // .tool_input.command // \"\")' | { read -r f; echo \"$f\" | grep -q 'decks/.*\\.html' && node build-manifest.js || true; }",
+            "timeout": 10,
+            "statusMessage": "Updating gallery manifest..."
+          }
+        ]
+      }
+    ]
+  }
 }
