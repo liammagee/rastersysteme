@@ -107,6 +107,7 @@
   .legend .l-missile::before { background: #00ccff; }
   .legend .l-1st::before { background: #ffaa00; border-style: dashed; }
   .legend .l-2nd::before { background: #cc66ff; border-style: dashed; }
+  .legend .l-ghost::before { background: rgba(180,100,255,0.7); border-style: dashed; }
 
   /* Zoom bar */
   .zoom-bar {
@@ -704,6 +705,35 @@
   }
   .ft-status .count { color: #00ff80; }
 
+  .method-toggle {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .method-btn {
+    flex: 1;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(0,255,120,0.04);
+    border: 1px solid rgba(0,255,120,0.2);
+    color: #5a7a6a;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+  }
+  .method-btn.active {
+    background: rgba(0,255,120,0.12);
+    border-color: rgba(0,255,120,0.5);
+    color: #00ff80;
+  }
+  .method-btn:hover:not(.active) {
+    border-color: rgba(0,255,120,0.35);
+    color: #c8d6e5;
+  }
+
   @media (max-width: 800px) {
     .main-grid {
       grid-template-columns: 1fr;
@@ -746,6 +776,7 @@
       <span class="l-1st">vx (1st deriv)</span>
       <span class="l-2nd">ax (2nd deriv)</span>
       <span class="l-missile">Projectile</span>
+      <span class="l-ghost">Alt. method</span>
     </div>
     <div class="zoom-bar">
       <button class="zoom-btn" id="zoomOut" title="Zoom out">−</button>
@@ -817,16 +848,20 @@
     </div>
 
     <div class="panel-section">
-      <h3>Numerical Computation (Euler's Method)</h3>
+      <h3 id="methodLabel">Numerical Integration — Euler</h3>
+      <div class="method-toggle">
+        <button class="method-btn active" id="methodEuler">Euler</button>
+        <button class="method-btn" id="methodRK4">RK4</button>
+      </div>
       <div class="equation-box" id="equationBox">
 Waiting for launch...
 
-The computer solves step-by-step:
+Select Euler or RK4 above, then fire.
+Ghost overlay shows the other method.
 
-  vₓ(t+Δt) = vₓ(t) − (k·|v|·vₓ)·Δt
-  vᵧ(t+Δt) = vᵧ(t) − (g + k·|v|·vᵧ)·Δt
-  x(t+Δt)  = x(t)  + vₓ·Δt
-  y(t+Δt)  = y(t)  + vᵧ·Δt
+  Physics model (both methods):
+  dvₓ/dt = −k·|v|·vₓ
+  dvᵧ/dt = −g − k·|v|·vᵧ
 
 where g=9.81 m/s², k=drag coeff.</div>
     </div>
@@ -1530,11 +1565,16 @@ let targetFixedMaxX = 0;  // locked x-axis extent for target mode
 let targetFixedMaxY = 0;  // locked y-axis extent for target mode
 let awaitingNewTarget = false;  // true after a direct hit, waiting for user to click New Target
 let hoveredStep = -1;
+let integrationMethod = 'euler';
+let ghostTrajectory = [];
 
 const derivOverlay = document.getElementById('derivOverlay');
 const derivContent = document.getElementById('derivContent');
 const overlayBtn = document.getElementById('overlayBtn');
 const targetBtn = document.getElementById('targetBtn');
+const methodEulerBtn = document.getElementById('methodEuler');
+const methodRK4Btn   = document.getElementById('methodRK4');
+const methodLabel    = document.getElementById('methodLabel');
 const targetHud = document.getElementById('targetHud');
 const targetDist = document.getElementById('targetDist');
 const missInfo = document.getElementById('missInfo');
@@ -1616,6 +1656,71 @@ function computeTrajectory() {
     prevDydx = dydx;
 
     points.push({ x, y, vx, vy, t, speed: Math.sqrt(vx*vx + vy*vy), dydx, d2y, ax: stepAx, ay: stepAy });
+
+    if (y < 0 && step > 1) break;
+  }
+
+  return points;
+}
+
+function ballAccel(vx, vy, k, g) {
+  const speed = Math.sqrt(vx * vx + vy * vy);
+  return { ax: -k * speed * vx, ay: -g - k * speed * vy };
+}
+
+function rk4Step(x, y, vx, vy, dt, k, g) {
+  const a1 = ballAccel(vx, vy, k, g);
+  const k1x = vx,             k1y = vy,             k1vx = a1.ax, k1vy = a1.ay;
+
+  const a2 = ballAccel(vx + k1vx*dt/2, vy + k1vy*dt/2, k, g);
+  const k2x = vx+k1vx*dt/2,  k2y = vy+k1vy*dt/2,   k2vx = a2.ax, k2vy = a2.ay;
+
+  const a3 = ballAccel(vx + k2vx*dt/2, vy + k2vy*dt/2, k, g);
+  const k3x = vx+k2vx*dt/2,  k3y = vy+k2vy*dt/2,   k3vx = a3.ax, k3vy = a3.ay;
+
+  const a4 = ballAccel(vx + k3vx*dt, vy + k3vy*dt, k, g);
+  const k4x = vx+k3vx*dt,    k4y = vy+k3vy*dt,     k4vx = a4.ax, k4vy = a4.ay;
+
+  return {
+    x:  x  + (k1x  + 2*k2x  + 2*k3x  + k4x)  * dt / 6,
+    y:  y  + (k1y  + 2*k2y  + 2*k3y  + k4y)  * dt / 6,
+    vx: vx + (k1vx + 2*k2vx + 2*k3vx + k4vx) * dt / 6,
+    vy: vy + (k1vy + 2*k2vy + 2*k3vy + k4vy) * dt / 6,
+    ax: a1.ax, ay: a1.ay
+  };
+}
+
+function computeTrajectoryRK4() {
+  const rawAngle = parseFloat(angleSlider.value);
+  const rawVel   = parseFloat(velSlider.value);
+  const rawDrag  = parseFloat(dragSlider.value);
+  const rawDt    = parseFloat(dtSlider.value);
+
+  const angleDeg = Math.max(1, Math.min(90,  isNaN(rawAngle) ? 45    : rawAngle));
+  const v0       = Math.max(1, Math.min(2000, isNaN(rawVel)  ? 500   : rawVel));
+  const k        = Math.max(0, Math.min(0.1,  isNaN(rawDrag) ? 0.002 : rawDrag / 1000));
+  const dt       = Math.max(0.005, Math.min(1.0, isNaN(rawDt) ? 0.1  : rawDt / 100));
+  const angle    = angleDeg * Math.PI / 180;
+  const g        = 9.81;
+
+  let x = 0, y = 0;
+  let vx = v0 * Math.cos(angle);
+  let vy = v0 * Math.sin(angle);
+
+  const initDydx = Math.abs(vx) > 0.001 ? vy / vx : (vy > 0 ? 999 : -999);
+  const points   = [{ x, y, vx, vy, t: 0, speed: v0, dydx: initDydx, d2y: 0, ax: 0, ay: 0 }];
+  let prevDydx   = initDydx;
+
+  for (let step = 1; step < 10000; step++) {
+    const s = rk4Step(x, y, vx, vy, dt, k, g);
+    x = s.x; y = s.y; vx = s.vx; vy = s.vy;
+
+    const t    = step * dt;
+    const dydx = Math.abs(vx) > 0.001 ? vy / vx : (vy > 0 ? 999 : -999);
+    const d2y  = (dydx - prevDydx) / (Math.abs(vx) > 0.001 ? vx * dt : dt);
+    prevDydx   = dydx;
+
+    points.push({ x, y, vx, vy, t, speed: Math.sqrt(vx*vx + vy*vy), dydx, d2y, ax: s.ax, ay: s.ay });
 
     if (y < 0 && step > 1) break;
   }
@@ -1844,6 +1949,28 @@ function drawTrajectory(upTo) {
     ctx.fill();
   }
 
+  // Ghost trajectory: the alternate integration method for comparison
+  if (ghostTrajectory.length > 2) {
+    ctx.strokeStyle = 'rgba(180,100,255,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    for (let i = 0; i < ghostTrajectory.length; i++) {
+      const [gsx, gsy] = toScreen(ghostTrajectory[i].x, Math.max(ghostTrajectory[i].y, 0));
+      if (i === 0) ctx.moveTo(gsx, gsy); else ctx.lineTo(gsx, gsy);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const ghostMid = ghostTrajectory[Math.floor(ghostTrajectory.length * 0.45)];
+    if (ghostMid) {
+      const [glx, gly] = toScreen(ghostMid.x, ghostMid.y);
+      ctx.fillStyle = 'rgba(180,100,255,0.55)';
+      ctx.font = '9px "IBM Plex Mono", monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(integrationMethod === 'rk4' ? 'Euler' : 'RK4', glx, gly - 6);
+    }
+  }
+
   // Trajectory path — drawn as straight-line SEGMENTS between Euler steps
   // With large dt these segments are visibly angular; with small dt they look smooth
   ctx.strokeStyle = '#00ff80';
@@ -1879,7 +2006,7 @@ function drawTrajectory(upTo) {
     ctx.fillStyle = 'rgba(0,255,120,0.35)';
     ctx.font = '11px "IBM Plex Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(trajectory.length + ' steps (Δt = ' + userDt.toFixed(2) + 's)', labelX, labelY);
+    ctx.fillText((integrationMethod === 'rk4' ? 'RK4' : 'Euler') + ' · ' + trajectory.length + ' steps (Δt = ' + userDt.toFixed(2) + 's)', labelX, labelY);
     if (userDt > 0.05) {
       ctx.fillStyle = 'rgba(255,100,50,0.35)';
       ctx.fillText('Shaded area = discretization error', labelX, labelY + 14);
@@ -2239,6 +2366,10 @@ function updateReadout(i) {
   // Update equation box with current computation
   const dt = parseFloat(dtSlider.value) / 100;
   const k = parseFloat(dragSlider.value) / 1000;
+  const methodName = integrationMethod === 'rk4' ? 'RK4 (4th-order)' : 'Euler (1st-order)';
+  const methodNote = integrationMethod === 'rk4'
+    ? '  4 slope evals/step · error O(Δt⁵)'
+    : '  1 slope eval/step  · error O(Δt²)';
   equationBox.textContent =
 `Step ${i}: t = ${p.t.toFixed(2)}s
 ────────────────────────────
@@ -2248,7 +2379,8 @@ function updateReadout(i) {
   dvₓ/dt = −k·|v|·vₓ = ${(p.ax||0).toFixed(3)}
   dvᵧ/dt = −g−k·|v|·vᵧ = ${(p.ay||0).toFixed(3)}
 
-  Euler integration (Δt=${dt.toFixed(2)}):
+  ${methodName} (Δt=${dt.toFixed(2)}):
+${methodNote}
   vₓ → ${p.vx.toFixed(2)} m/s
   vᵧ → ${p.vy.toFixed(2)} m/s
   x  → ${p.x.toFixed(1)} m
@@ -2288,9 +2420,13 @@ function animate() {
         targetBtn.textContent = '⊕ New Target';
       }
     }
+    const ghostLabel = ghostTrajectory.length > 1
+      ? `\n  Ghost (${integrationMethod === 'rk4' ? 'Euler' : 'RK4'}): ${ghostTrajectory[ghostTrajectory.length-1].x.toFixed(1)} m`
+      : '';
     equationBox.textContent +=
 `\n\n  ══ COMPUTATION COMPLETE ══
-  Range: ${lastP.x.toFixed(1)} m
+  Method: ${integrationMethod === 'rk4' ? 'RK4 (4th-order)' : 'Euler (1st-order)'}
+  Range: ${lastP.x.toFixed(1)} m${ghostLabel}
   ${trajectory.length} integration steps
   Total time: ${lastP.t.toFixed(2)} s${targetMsg}`;
     return;
@@ -2315,7 +2451,8 @@ function fire() {
   // Cancel any pending target relocation
   if (newTargetTimer) { clearTimeout(newTargetTimer); newTargetTimer = null; }
 
-  trajectory = computeTrajectory();
+  trajectory      = integrationMethod === 'rk4' ? computeTrajectoryRK4() : computeTrajectory();
+  ghostTrajectory = integrationMethod === 'rk4' ? computeTrajectory()    : computeTrajectoryRK4();
 
   // Guard: trajectory must have at least 2 points
   if (!trajectory || trajectory.length < 2) {
@@ -2851,6 +2988,20 @@ ftComputeBtn.addEventListener('click', async () => {
       setTimeout(() => fire(), 300);
     });
   });
+});
+
+// ── Integration method toggle ──
+methodEulerBtn.addEventListener('click', () => {
+  integrationMethod = 'euler';
+  methodEulerBtn.classList.add('active');
+  methodRK4Btn.classList.remove('active');
+  methodLabel.textContent = 'Numerical Integration — Euler';
+});
+methodRK4Btn.addEventListener('click', () => {
+  integrationMethod = 'rk4';
+  methodRK4Btn.classList.add('active');
+  methodEulerBtn.classList.remove('active');
+  methodLabel.textContent = 'Numerical Integration — RK4';
 });
 
 // ── Notes tab switching ──

@@ -9,6 +9,12 @@ logs/
 decks/
 .env
 
+# Build artifacts
+test-features.build/
+
+# Editor backups
+.nightowl-backups/
+
 # Claude Code — local overrides and auto-memory (not shared)
 .claude/settings.local.json
 .claude/memory/

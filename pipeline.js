@@ -60,6 +60,39 @@ function ensureDir(dir) {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
+function findImagesDir(inputPath) {
+  const inputDir = path.dirname(path.resolve(inputPath));
+  const inputBase = path.basename(inputPath, ".md").replace(".composed", "").replace(".masters", "").replace(".paced", "");
+  const candidates = [];
+  candidates.push(path.join(inputDir, `${inputBase}-images`));
+  const stripped = inputBase.replace(/[a-z]$/, "");
+  if (stripped !== inputBase) candidates.push(path.join(inputDir, `${stripped}-images`));
+  const noSuffix = inputBase.replace(/[-_](v\d+|fresh|radical|paced|composed|default|merged).*$/, "");
+  if (noSuffix !== inputBase) candidates.push(path.join(inputDir, `${noSuffix}-images`));
+  const parentDir = path.dirname(inputDir);
+  candidates.push(path.join(parentDir, `${inputBase}-images`));
+  if (stripped !== inputBase) candidates.push(path.join(parentDir, `${stripped}-images`));
+  if (noSuffix !== inputBase) candidates.push(path.join(parentDir, `${noSuffix}-images`));
+  try {
+    fs.readdirSync(inputDir, { withFileTypes: true })
+      .filter(e => e.isDirectory() && e.name.endsWith("-images"))
+      .forEach(e => candidates.push(path.join(inputDir, e.name)));
+  } catch {}
+  // Also check parent's sibling dirs (e.g. content/week-2/ → decks/week-1-images/)
+  try {
+    fs.readdirSync(parentDir, { withFileTypes: true })
+      .filter(e => e.isDirectory() && e.name.endsWith("-images"))
+      .forEach(e => candidates.push(path.join(parentDir, e.name)));
+  } catch {}
+  for (const dir of candidates) {
+    if (fs.existsSync(dir)) {
+      const pngs = fs.readdirSync(dir).filter(f => /^slide-\d+\.png$/.test(f));
+      if (pngs.length > 0) return { dir, count: pngs.length };
+    }
+  }
+  return null;
+}
+
 // ═══════════════════════════════════════════════════════
 // STAGE 1: SPLIT — source.md → per-slide files
 // ═══════════════════════════════════════════════════════
@@ -245,7 +278,11 @@ function writeComposition(compositionPath, meta, slides) {
 }
 
 // ═══════════════════════════════════════════════════════
-// STAGE 3: COMPOSE — Claude directives → composition.md
+// STAGE 3: COMPOSE — full incremental compose via compose.js
+// Uses the same 5-stage pipeline (design system → per-slide
+// design directives → assembly → render → images) that the
+// CLI wizard uses, producing rich <!-- design: {...} --> JSON
+// directives and image splicing.
 // ═══════════════════════════════════════════════════════
 
 async function compose(context) {
@@ -268,102 +305,102 @@ async function compose(context) {
     const sourceHash = hashContent(fs.readFileSync(source, "utf-8"));
     if (comp.meta.source_hash === sourceHash) {
       process.stderr.write(`  ${dim("compose")} ${sage("✓")} using existing composition.md (source unchanged)\n`);
-
-      // Reassemble composed.md from composition directives + slide files
-      const directives = comp.slides.map(s => ({
-        slide: s.slide,
-        layout: s.layout || null,
-        bg: s.bg || null,
-        font: s.font || null,
-        label: s.label || null,
-        notes: s.notes || null,
-      }));
-
-      const sourceMd = fs.readFileSync(source, "utf-8");
-      const { assembleComposed } = require("./compose.js");
-      const composed = assembleComposed(sourceMd, directives);
-      fs.writeFileSync(composedPath, composed, "utf-8");
-
       return { compositionPath, composedPath };
     }
   }
 
-  // Reassemble slides from files (respecting order from manifest)
+  // Reassemble slides from per-slide files
   const slideTexts = manifest.slides.map(s => {
     const fp = path.join(slideDir, s.file);
     return fs.readFileSync(fp, "utf-8").trim();
   });
   const reassembled = slideTexts.join("\n\n---\n\n");
 
-  // Write reassembled to a temp file for compose.js
+  // Write reassembled source for compose.js to read
   const tempPath = path.join(buildDir, `${baseName}.reassembled.md`);
   fs.writeFileSync(tempPath, reassembled, "utf-8");
 
-  // Load design system if available
-  const designPath = path.join(buildDir, "design-system.json");
-  let designSystem = null;
-  if (fs.existsSync(designPath)) {
-    designSystem = JSON.parse(fs.readFileSync(designPath, "utf-8"));
+  // Detect images — check sibling *-images/ directories
+  let imagesDir = null;
+  const foundImages = findImagesDir(source);
+  if (foundImages) {
+    imagesDir = foundImages.dir;
+    process.stderr.write(`  ${dim("compose")} found ${foundImages.count} images in ${teal(path.basename(imagesDir))}\n`);
   }
 
-  // Call composeAsync from compose.js
-  const { composeAsync, assembleComposed, parseDirectives, buildPrompt, callClaudeWithRetry } = require("./compose.js");
+  // Use the full composeIncremental pipeline from compose.js
+  // This gives us: design system → per-slide <!-- design: {...} --> JSON
+  // directives → assembly → render → image splicing
+  const { composeIncremental } = require("./compose.js");
 
-  process.stderr.write(`  ${dim("compose")} calling Claude for directives...\n`);
+  // Output path determines format — use HTML for the incremental pipeline
+  // (it does its own rendering internally as Stage 4)
+  const htmlPath = path.join(buildDir, `${baseName}.html`);
 
-  const prompt = buildPrompt(reassembled, {
+  const result = await composeIncremental(tempPath, htmlPath, {
     intensity: options.intensity || "moderate",
-    designSystem,
+    model: options.model || "sonnet",
+    theme: options.theme || "light",
     brief: options.brief,
+    batchSize: options.batchSize || 5,
+    parallel: options.parallel || 1,
+    designSystem: options.designSystem,
+    slides: options.slides,
+    // Image options
+    withImages: !!imagesDir || options.withImages,
+    imagesDir: imagesDir || options.imagesDir,
+    imageStyle: options.imageStyle,
+    imageScale: options.imageScale || "subtle",
+    dryRun: false,
   });
 
-  const raw = await callClaudeWithRetry(prompt, {
-    model: options.model,
-    label: options.intensity || "moderate",
-    raw: true,
-  });
+  // The incremental pipeline writes its own .composed.md — copy to our build dir
+  const incrementalComposed = htmlPath.replace(/\.html$/, ".composed.md");
+  if (fs.existsSync(incrementalComposed) && incrementalComposed !== composedPath) {
+    fs.copyFileSync(incrementalComposed, composedPath);
+  }
 
-  const directives = parseDirectives(raw);
-  process.stderr.write(`  ${dim("compose")} ${sage("✓")} ${directives.length} directives received\n`);
-
-  // Write composition.md
+  // Write composition.md manifest from the composed output
   const sourceHash = hashContent(fs.readFileSync(source, "utf-8"));
+  const { parseMarkdown } = require("./raster.js");
+  const composedContent = fs.readFileSync(composedPath, "utf-8");
+  const composedSlides = parseMarkdown(composedContent);
+
   const meta = {
     source: path.basename(source),
     source_hash: sourceHash,
-    design_system: fs.existsSync(designPath) ? "design-system.json" : "none",
+    design_system: result.designSystem ? "design-system.json" : "none",
     theme: options.theme || "light",
     intensity: options.intensity || "moderate",
     generated: new Date().toISOString(),
   };
 
   const compSlides = manifest.slides.map((s, i) => {
-    const d = directives.find(x => x.slide === i + 1) || directives[i] || {};
+    const cs = composedSlides[i] || {};
     return {
       slide: i + 1,
       title: s.title,
       file: `slides/${s.file}`,
-      layout: d.layout || null,
-      bg: d.bg || null,
-      font: d.font || null,
-      transition: d.transition || null,
-      label: d.label || null,
-      notes: d.notes || null,
+      layout: cs.layoutOverride || null,
+      bg: cs.bgOverride || null,
+      font: cs.fontOverride || null,
+      notes: null,
     };
   });
 
   writeComposition(compositionPath, meta, compSlides);
   process.stderr.write(`  ${dim("compose")} → ${teal(path.relative(process.cwd(), compositionPath))}\n`);
 
-  // Also write flat .composed.md (backward compat)
-  const composed = assembleComposed(reassembled, directives);
-  fs.writeFileSync(composedPath, composed, "utf-8");
-  process.stderr.write(`  ${dim("compose")} → ${teal(path.relative(process.cwd(), composedPath))}\n`);
+  // Save the design system to the build dir if generated
+  if (result.designSystem) {
+    const designPath = path.join(buildDir, "design-system.json");
+    fs.writeFileSync(designPath, JSON.stringify(result.designSystem, null, 2), "utf-8");
+  }
 
   // Clean up temp file
   if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
 
-  return { compositionPath, composedPath };
+  return { compositionPath, composedPath, htmlPath };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -386,7 +423,8 @@ async function render(context) {
   const pptxPath = path.join(buildDir, `${baseName}.pptx`);
   const cssFileName = "rastersysteme.css";
 
-  // Render HTML
+  // composeIncremental already renders HTML (Stage 4) — re-render here
+  // only if explicitly running render stage or if HTML doesn't exist yet
   const htmlResult = await generateHTML(composedPath, htmlPath, {
     theme: options.theme,
     ratio: options.ratio,
@@ -538,6 +576,12 @@ if (require.main === module) {
     designSystem: flag("design-system"),
     brief: flag("brief"),
     recompose: hasFlag("recompose"),
+    withImages: !hasFlag("no-images"),
+    imagesDir: flag("images-dir"),
+    imageStyle: flag("image-style"),
+    imageScale: flag("image-scale"),
+    batchSize: parseInt(flag("batch-size") || "5"),
+    parallel: parseInt(flag("parallel") || "1"),
   }).catch(err => {
     console.error(`  ${accent("✗")} ${err.message}`);
     process.exit(1);

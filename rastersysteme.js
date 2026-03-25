@@ -436,6 +436,16 @@ async function interactive(preselectedInput) {
       if (dsChoice.value) designSystemName = dsChoice.value;
     }
 
+    // Images
+    const foundImages = findImagesDir(input);
+    const hasExistingImages = !!foundImages;
+    const imgItems = [];
+    if (hasExistingImages) {
+      imgItems.push({ key: "e", label: `existing        use ${foundImages.count} images in ${path.basename(foundImages.dir)}/` });
+    }
+    imgItems.push({ key: "n", label: "none            no images" });
+    const imgChoice = await select("IMAGES", imgItems, { autoSelect: true });
+
     const cssChoice = await select("CSS OUTPUT", [
       { key: "e", label: "external        separate rastersysteme.css (default)" },
       { key: "i", label: "inline          self-contained HTML" },
@@ -449,6 +459,8 @@ async function interactive(preselectedInput) {
         model: modelName,
         externalCSS: cssChoice.key === "e",
         designSystem: designSystemName,
+        withImages: imgChoice.key === "e",
+        imagesDir: imgChoice.key === "e" ? foundImages.dir : undefined,
       });
 
       if (results.render) {

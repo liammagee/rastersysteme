@@ -2533,7 +2533,19 @@ async function generateHTML(inputPath, outputPath, options = {}) {
     // Use designed renderer for slides with a design directive
     if (slide.design) {
       const designStyle = [];
-      if (slide.design.bg) designStyle.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+      if (slide.design.bg) {
+        designStyle.push(`background:#${slide.design.bg.replace(/^#/, "")}`);
+        const adapted = adaptThemeForBg(theme, slide.design.bg.replace(/^#/, ""));
+        if (adapted !== theme) {
+          designStyle.push(`--text:#${adapted.text}`);
+          designStyle.push(`--text-mid:#${adapted.textMid}`);
+          designStyle.push(`--text-light:#${adapted.textLight}`);
+          designStyle.push(`--accent:#${adapted.accent}`);
+          designStyle.push(`--accent2:#${adapted.accent2}`);
+          designStyle.push(`--accent3:#${adapted.accent3}`);
+          designStyle.push(`--accent4:#${adapted.accent4}`);
+        }
+      }
       if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";

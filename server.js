@@ -188,6 +188,140 @@ function getBuildStatus(filePath) {
 }
 
 // ═══════════════════════════════════════════════════════
+// DECK GALLERY — scan all rendered HTML slideshows
+// ═══════════════════════════════════════════════════════
+
+function findAllDecks() {
+  const decks = [];
+  const seen = new Set();
+
+  function scanHTML(dir, category, recursive = false) {
+    if (!fs.existsSync(dir)) return;
+    try {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (entry.name.startsWith(".")) continue;
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory() && recursive) {
+          // Compare run directories
+          if (entry.name.startsWith("compare-")) {
+            scanCompareDir(full);
+          } else if (!entry.name.includes("node_modules") && !entry.name.endsWith("-images")) {
+            scanHTML(full, category, true);
+          }
+          continue;
+        }
+        if (!entry.isFile() || !entry.name.endsWith(".html")) continue;
+        // Skip non-slideshow HTML
+        if (entry.name === "index.html") continue;
+        if (entry.name.includes("template")) continue;
+
+        const rel = path.relative(ROOT, full);
+        if (seen.has(rel)) continue;
+        seen.add(rel);
+
+        const meta = extractDeckMeta(full, rel, category);
+        if (meta) decks.push(meta);
+      }
+    } catch {}
+  }
+
+  function scanCompareDir(dir) {
+    // Compare dirs have structure: compare-<deck>-<date>/intensity-theme/deck.html
+    const dirName = path.basename(dir);
+    const dateMatch = dirName.match(/(\d{4}-\d{2}-\d{2}[-_]\d{2}[-_]\d{2})/);
+    const dateStr = dateMatch ? dateMatch[1].replace(/_/g, "-") : "";
+    const variants = [];
+
+    try {
+      for (const variant of fs.readdirSync(dir, { withFileTypes: true })) {
+        if (!variant.isDirectory()) continue;
+        const variantDir = path.join(dir, variant.name);
+        for (const f of fs.readdirSync(variantDir)) {
+          if (!f.endsWith(".html")) continue;
+          const full = path.join(variantDir, f);
+          const rel = path.relative(ROOT, full);
+          if (seen.has(rel)) continue;
+          seen.add(rel);
+          variants.push({
+            path: rel,
+            variant: variant.name,
+            name: f,
+          });
+        }
+      }
+    } catch {}
+
+    if (variants.length > 0) {
+      decks.push({
+        type: "compare",
+        name: dirName,
+        date: dateStr,
+        path: path.relative(ROOT, dir),
+        variants,
+      });
+    }
+  }
+
+  function extractDeckMeta(full, rel, category) {
+    try {
+      const stat = fs.statSync(full);
+      const content = fs.readFileSync(full, "utf-8");
+      const slideCount = (content.match(/<section class="slide/g) || []).length;
+      if (slideCount === 0) return null; // Not a slideshow
+
+      // Detect type from filename
+      const name = path.basename(rel, ".html");
+      let type = "deck";
+      if (name.includes(".review") || name.includes("-review")) type = "review";
+      else if (name.includes(".studio") || name.includes("-studio")) type = "studio";
+      else if (name.includes(".qa") || name.includes(".audit")) type = "qa";
+      else if (name.includes(".grid")) type = "grid";
+      else if (name.includes(".reveal")) type = "reveal";
+      else if (name.includes("diff-")) type = "diff";
+      else if (name.includes(".spliced") || name.includes(".merged")) type = "spliced";
+
+      // Detect theme from CSS vars
+      let theme = "light";
+      const bgMatch = content.match(/--bg:#([0-9A-Fa-f]{6})/);
+      if (bgMatch) {
+        const hex = bgMatch[1];
+        const lum = parseInt(hex.slice(0,2),16)*0.299 + parseInt(hex.slice(2,4),16)*0.587 + parseInt(hex.slice(4,6),16)*0.114;
+        theme = lum < 128 ? "dark" : "light";
+      }
+
+      // Extract first slide title
+      const titleMatch = content.match(/<(?:h1|div)[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)/i)
+        || content.match(/<h1[^>]*>([^<]+)/i);
+      const firstTitle = titleMatch ? titleMatch[1].trim().slice(0, 60) : "";
+
+      return {
+        type,
+        category,
+        path: rel,
+        name,
+        slides: slideCount,
+        theme,
+        firstTitle,
+        size: (stat.size / 1024).toFixed(0) + "K",
+        modified: stat.mtime.toISOString(),
+      };
+    } catch { return null; }
+  }
+
+  scanHTML(ROOT, "root", false);
+  scanHTML(path.join(ROOT, "decks"), "decks", true);
+
+  // Sort: decks first, then by modified date descending
+  decks.sort((a, b) => {
+    if (a.type === "compare" && b.type !== "compare") return 1;
+    if (a.type !== "compare" && b.type === "compare") return -1;
+    return (b.modified || b.date || "") > (a.modified || a.date || "") ? 1 : -1;
+  });
+
+  return decks;
+}
+
+// ═══════════════════════════════════════════════════════
 // PIPELINE RUNNER (with WebSocket progress)
 // ═══════════════════════════════════════════════════════
 
@@ -274,6 +408,10 @@ const server = http.createServer(async (req, res) => {
       return json(res, getBuildStatus(url.searchParams.get("file")));
     }
 
+    if (pathname === "/api/decks") {
+      return json(res, findAllDecks());
+    }
+
     if (pathname === "/api/design-systems") {
       const { listSystems } = require("./design-system.js");
       return json(res, listSystems());
@@ -317,6 +455,11 @@ const server = http.createServer(async (req, res) => {
     if (pathname === "/" || pathname === "/index.html") {
       res.writeHead(200, { "Content-Type": "text/html" });
       return res.end(getDashboardHTML());
+    }
+
+    if (pathname === "/gallery") {
+      res.writeHead(200, { "Content-Type": "text/html" });
+      return res.end(getGalleryHTML());
     }
 
     // ── STATIC FILES (serve from project root) ──
@@ -557,6 +700,7 @@ html, body { height: 100%; font-family: var(--font-body); font-size: 14px; color
     <div class="topbar-sep"></div>
     <div class="topbar-shortcuts">
       <kbd>P</kbd>ipeline <kbd>R</kbd>ender <kbd>S</kbd>plit <kbd>O</kbd>pen
+      <a href="/gallery" style="color:rgba(255,255,255,0.5);text-decoration:none;margin-left:12px;border:1px solid rgba(255,255,255,0.15);padding:2px 10px;border-radius:2px;font-size:11px">Gallery</a>
     </div>
   </div>
 </header>
@@ -1001,6 +1145,305 @@ html, body { height: 100%; font-family: var(--font-body); font-size: 14px; color
 })();
 </script>
 
+</body>
+</html>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// GALLERY HTML
+// ═══════════════════════════════════════════════════════
+
+function getGalleryHTML() {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>rastersysteme — gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Fira+Code:wght@400;500;600&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F8F5F0; --bg-panel: #FFFFFF; --bg-inset: #F0ECE6; --bg-terminal: #1A1714;
+  --bg-hover: #EDE9E3; --bg-selected: #E8E3DB;
+  --border: #D8D3CB; --border-light: #E8E4DD; --grid-line: rgba(180,172,158,0.18);
+  --text: #1A1714; --text-mid: #5C564D; --text-light: #918A7E; --text-inverse: #F0EBE3;
+  --red: #B7311A; --teal: #1B5E80; --green: #2B7038; --amber: #876512; --purple: #6B4FA0;
+  --font-heading: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif; --font-data: 'Fira Code', monospace;
+  --topbar-h: 52px; --radius: 3px;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; font-family:var(--font-body); font-size:14px; color:var(--text); background:var(--bg); -webkit-font-smoothing:antialiased; }
+
+/* Topbar */
+.topbar { height:var(--topbar-h); background:var(--text); color:var(--text-inverse); display:flex; align-items:center; padding:0 24px; gap:16px; user-select:none; position:sticky; top:0; z-index:100; }
+.topbar-brand { display:flex; align-items:center; gap:10px; font-family:var(--font-heading); font-weight:700; font-size:15px; }
+.topbar-brand .square { width:16px; height:16px; background:var(--red); }
+.topbar-sep { width:1px; height:24px; background:rgba(255,255,255,0.15); }
+.topbar a { color:rgba(255,255,255,0.6); text-decoration:none; font-size:13px; transition:color 0.15s; }
+.topbar a:hover { color:rgba(255,255,255,0.9); }
+.topbar a.active { color:white; border-bottom:2px solid var(--red); padding-bottom:2px; }
+.topbar-right { margin-left:auto; display:flex; gap:12px; align-items:center; }
+.topbar-stat { font-family:var(--font-data); font-size:11px; color:rgba(255,255,255,0.4); }
+.topbar-stat b { color:rgba(255,255,255,0.75); }
+
+/* Filter bar */
+.filters { display:flex; gap:6px; padding:16px 24px 0; flex-wrap:wrap; align-items:center; }
+.filter-btn { font-family:var(--font-data); font-size:11px; padding:4px 12px; border:1px solid var(--border); border-radius:2px; background:var(--bg-panel); cursor:pointer; color:var(--text-mid); transition:all 0.12s; }
+.filter-btn:hover { border-color:var(--text-light); }
+.filter-btn.active { background:var(--text); color:var(--text-inverse); border-color:var(--text); }
+.filter-count { font-family:var(--font-data); font-size:10px; color:var(--text-light); margin-left:2px; }
+.filter-sep { width:1px; height:20px; background:var(--border); margin:0 6px; }
+.search-input { font-family:var(--font-data); font-size:12px; padding:4px 12px; border:1px solid var(--border); border-radius:2px; background:var(--bg-panel); color:var(--text); width:200px; outline:none; }
+.search-input:focus { border-color:var(--text-light); }
+
+/* Grid */
+.gallery { display:grid; grid-template-columns:repeat(auto-fill, minmax(320px, 1fr)); gap:16px; padding:16px 24px 40px; }
+
+/* Card */
+.card { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:pointer; transition:border-color 0.15s, box-shadow 0.2s, transform 0.15s; display:flex; flex-direction:column; }
+.card:hover { border-color:var(--text-light); box-shadow:0 4px 16px rgba(0,0,0,0.08); transform:translateY(-1px); }
+.card-preview { height:180px; position:relative; overflow:hidden; background:var(--bg-inset); border-bottom:1px solid var(--border-light); }
+.card-preview iframe { width:1600px; height:900px; border:none; transform-origin:0 0; transform:scale(0.2); pointer-events:none; position:absolute; top:0; left:0; }
+.card-preview-overlay { position:absolute; inset:0; }
+.card-type { position:absolute; top:8px; right:8px; font-family:var(--font-data); font-size:9px; text-transform:uppercase; letter-spacing:0.08em; padding:2px 6px; border-radius:2px; z-index:2; }
+.card-type.deck    { background:var(--red); color:white; }
+.card-type.review  { background:var(--amber); color:white; }
+.card-type.studio  { background:var(--purple); color:white; }
+.card-type.compare { background:var(--teal); color:white; }
+.card-type.qa      { background:var(--green); color:white; }
+.card-type.grid    { background:var(--text-light); color:white; }
+.card-type.reveal  { background:var(--text-mid); color:white; }
+.card-type.diff    { background:var(--amber); color:white; }
+.card-type.spliced { background:var(--text-light); color:white; }
+.card-info { padding:12px 14px; display:flex; flex-direction:column; gap:4px; }
+.card-name { font-family:var(--font-heading); font-weight:600; font-size:14px; color:var(--text); }
+.card-title { font-size:12px; color:var(--text-mid); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.card-meta { display:flex; gap:10px; margin-top:4px; }
+.card-meta span { font-family:var(--font-data); font-size:11px; color:var(--text-light); }
+.card-meta .slides-badge { background:var(--bg-inset); border:1px solid var(--border-light); padding:0 6px; border-radius:2px; }
+.card-meta .theme-dot { width:10px; height:10px; border-radius:50%; border:1px solid var(--border); display:inline-block; vertical-align:middle; margin-right:2px; }
+
+/* Compare card */
+.card-compare { background:var(--bg-panel); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:default; }
+.card-compare-header { padding:12px 14px; border-bottom:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center; }
+.card-compare-title { font-family:var(--font-heading); font-weight:600; font-size:13px; }
+.card-compare-date { font-family:var(--font-data); font-size:11px; color:var(--text-light); }
+.card-compare-variants { display:flex; gap:1px; }
+.card-compare-variant { flex:1; padding:8px 10px; background:var(--bg-inset); cursor:pointer; transition:background 0.1s; text-align:center; }
+.card-compare-variant:hover { background:var(--bg-hover); }
+.card-compare-variant span { font-family:var(--font-data); font-size:11px; color:var(--text-mid); display:block; }
+
+/* Viewer overlay */
+.viewer { display:none; position:fixed; inset:0; z-index:200; background:rgba(0,0,0,0.85); flex-direction:column; }
+.viewer.open { display:flex; }
+.viewer-bar { height:48px; background:var(--text); display:flex; align-items:center; padding:0 20px; gap:16px; flex-shrink:0; }
+.viewer-bar-title { font-family:var(--font-heading); font-weight:600; font-size:14px; color:var(--text-inverse); flex:1; }
+.viewer-bar a, .viewer-bar button { font-family:var(--font-data); font-size:11px; color:rgba(255,255,255,0.6); background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); padding:4px 12px; border-radius:2px; cursor:pointer; text-decoration:none; transition:all 0.15s; }
+.viewer-bar a:hover, .viewer-bar button:hover { background:rgba(255,255,255,0.15); color:white; }
+.viewer-body { flex:1; }
+.viewer-body iframe { width:100%; height:100%; border:none; }
+
+/* Section headers */
+.section-header { padding:20px 24px 8px; display:flex; align-items:baseline; gap:10px; }
+.section-title { font-family:var(--font-heading); font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; color:var(--text); }
+.section-count { font-family:var(--font-data); font-size:11px; color:var(--text-light); }
+
+/* Empty state */
+.empty { padding:60px 24px; text-align:center; color:var(--text-light); font-size:14px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-brand"><span class="square"></span> rastersysteme</div>
+  <div class="topbar-sep"></div>
+  <a href="/">Pipeline</a>
+  <a href="/gallery" class="active">Gallery</a>
+  <div class="topbar-right">
+    <span class="topbar-stat" id="total-stat"></span>
+  </div>
+</header>
+
+<div class="filters" id="filters"></div>
+<div id="content"></div>
+
+<div class="viewer" id="viewer">
+  <div class="viewer-bar">
+    <span class="viewer-bar-title" id="viewer-title"></span>
+    <a id="viewer-newtab" href="#" target="_blank">open in tab</a>
+    <button onclick="closeViewer()">ESC close</button>
+  </div>
+  <div class="viewer-body">
+    <iframe id="viewer-iframe" sandbox="allow-scripts"></iframe>
+  </div>
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  let allDecks = [];
+  let activeType = 'all';
+  let searchQuery = '';
+
+  const TYPE_ORDER = ['deck','studio','review','qa','grid','reveal','diff','spliced','compare'];
+  const TYPE_LABELS = { deck:'Decks', studio:'Studio', review:'Review', qa:'QA', grid:'Grid', reveal:'Reveal', diff:'Diff', spliced:'Spliced', compare:'Compare Runs' };
+
+  async function load() {
+    allDecks = await (await fetch('/api/decks')).json();
+    const stat = document.getElementById('total-stat');
+    const deckCount = allDecks.filter(d => d.type !== 'compare').length;
+    const compareCount = allDecks.filter(d => d.type === 'compare').length;
+    stat.innerHTML = '<b>' + deckCount + '</b> decks, <b>' + compareCount + '</b> compare runs';
+    renderFilters();
+    renderGallery();
+  }
+
+  function renderFilters() {
+    const counts = {};
+    allDecks.forEach(d => { counts[d.type] = (counts[d.type] || 0) + 1; });
+
+    const el = document.getElementById('filters');
+    let html = '<button class="filter-btn' + (activeType === 'all' ? ' active' : '') + '" data-type="all">All<span class="filter-count">' + allDecks.length + '</span></button>';
+    TYPE_ORDER.forEach(t => {
+      if (!counts[t]) return;
+      html += '<button class="filter-btn' + (activeType === t ? ' active' : '') + '" data-type="' + t + '">' + (TYPE_LABELS[t] || t) + '<span class="filter-count">' + counts[t] + '</span></button>';
+    });
+    html += '<div class="filter-sep"></div>';
+    html += '<input class="search-input" placeholder="Search decks..." value="' + esc(searchQuery) + '" id="search-input">';
+    el.innerHTML = html;
+
+    el.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => { activeType = btn.dataset.type; renderFilters(); renderGallery(); });
+    });
+    document.getElementById('search-input').addEventListener('input', (e) => {
+      searchQuery = e.target.value.toLowerCase();
+      renderGallery();
+    });
+  }
+
+  function renderGallery() {
+    const filtered = allDecks.filter(d => {
+      if (activeType !== 'all' && d.type !== activeType) return false;
+      if (searchQuery) {
+        const haystack = ((d.name || '') + ' ' + (d.firstTitle || '') + ' ' + (d.path || '')).toLowerCase();
+        if (!haystack.includes(searchQuery)) return false;
+      }
+      return true;
+    });
+
+    if (filtered.length === 0) {
+      document.getElementById('content').innerHTML = '<div class="empty">No decks match the current filter.</div>';
+      return;
+    }
+
+    // Group: regular decks vs compare runs
+    const regular = filtered.filter(d => d.type !== 'compare');
+    const compares = filtered.filter(d => d.type === 'compare');
+
+    let html = '';
+
+    if (regular.length > 0) {
+      // Group by category
+      const byCategory = {};
+      regular.forEach(d => {
+        const cat = d.category || 'other';
+        if (!byCategory[cat]) byCategory[cat] = [];
+        byCategory[cat].push(d);
+      });
+
+      for (const [cat, decks] of Object.entries(byCategory)) {
+        html += '<div class="section-header"><span class="section-title">' + esc(cat) + '</span><span class="section-count">' + decks.length + '</span></div>';
+        html += '<div class="gallery">';
+        decks.forEach(d => {
+          const themeDot = d.theme === 'dark'
+            ? '<span class="theme-dot" style="background:#1A1714"></span>'
+            : '<span class="theme-dot" style="background:#F8F5F0"></span>';
+          html += '<div class="card" data-path="' + esc(d.path) + '" data-name="' + esc(d.name) + '">'
+            + '<div class="card-preview">'
+            + '<iframe src="/' + esc(d.path) + '" loading="lazy" tabindex="-1"></iframe>'
+            + '<div class="card-preview-overlay"></div>'
+            + '<span class="card-type ' + d.type + '">' + d.type + '</span>'
+            + '</div>'
+            + '<div class="card-info">'
+            + '<div class="card-name">' + esc(d.name) + '</div>'
+            + (d.firstTitle ? '<div class="card-title">' + esc(d.firstTitle) + '</div>' : '')
+            + '<div class="card-meta">'
+            + '<span class="slides-badge">' + d.slides + ' slides</span>'
+            + '<span>' + themeDot + d.theme + '</span>'
+            + '<span>' + d.size + '</span>'
+            + '<span>' + formatDate(d.modified) + '</span>'
+            + '</div></div></div>';
+        });
+        html += '</div>';
+      }
+    }
+
+    if (compares.length > 0) {
+      html += '<div class="section-header"><span class="section-title">Compare Runs</span><span class="section-count">' + compares.length + '</span></div>';
+      html += '<div class="gallery">';
+      compares.forEach(d => {
+        html += '<div class="card-compare">'
+          + '<div class="card-compare-header">'
+          + '<span class="card-compare-title">' + esc(d.name.replace('compare-', '').replace(/-\\d{4}.*/, '')) + '</span>'
+          + '<span class="card-compare-date">' + esc(d.date) + '</span>'
+          + '</div>'
+          + '<div class="card-compare-variants">';
+        d.variants.forEach(v => {
+          html += '<div class="card-compare-variant" data-path="' + esc(v.path) + '" data-name="' + esc(d.name + '/' + v.variant) + '">'
+            + '<span>' + esc(v.variant) + '</span></div>';
+        });
+        html += '</div></div>';
+      });
+      html += '</div>';
+    }
+
+    document.getElementById('content').innerHTML = html;
+
+    // Click handlers
+    document.querySelectorAll('.card[data-path]').forEach(el => {
+      el.addEventListener('click', () => openViewer(el.dataset.path, el.dataset.name));
+    });
+    document.querySelectorAll('.card-compare-variant[data-path]').forEach(el => {
+      el.addEventListener('click', () => openViewer(el.dataset.path, el.dataset.name));
+    });
+  }
+
+  function openViewer(deckPath, name) {
+    const viewer = document.getElementById('viewer');
+    viewer.classList.add('open');
+    document.getElementById('viewer-title').textContent = name;
+    document.getElementById('viewer-iframe').src = '/' + deckPath;
+    document.getElementById('viewer-newtab').href = '/' + deckPath;
+  }
+
+  window.closeViewer = function() {
+    const viewer = document.getElementById('viewer');
+    viewer.classList.remove('open');
+    document.getElementById('viewer-iframe').src = 'about:blank';
+  };
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeViewer();
+  });
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+    return m + ' ' + d.getDate();
+  }
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  load();
+})();
+</script>
 </body>
 </html>`;
 }
