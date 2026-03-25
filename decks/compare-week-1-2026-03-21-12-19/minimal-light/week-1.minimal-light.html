@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>week-1.minimal-light.composed</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:#fff;
+  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
+thead th{background:var(--accent);color:#fff;padding:1vmin 1.5vmin;font-weight:700;
+  border:1px solid var(--accent)}
+tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+
+/* Code */
+.code-block{position:relative;background:#2D2D2D;border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:#fff;font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:#fff}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.6)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:#fff;font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:#fff;font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.layout-section .label{color:var(--accent)}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:#fff;font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:#fff;font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:#fff;font-weight:700;
+  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:#fff;flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+</style>
+</head>
+<body>
+<div class="deck">
+<section class="slide layout-section" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">Introduction to Generative AI for Education</h1><h2 class="subtitle">Generative AI for Education: Overview</h2>
+<div class="accent-bar"></div><div class="slide-notes" hidden>Welcome to <em>Introduction to Generative AI for Education</em>!<br><br>What's this course about? Why does this course exist? In 2026, in some sense, we no longer need a course introducing us to Generative AI - for education or for anything else. It might even seem, for those of us following the latest developments of OpenAI's ChatGPT, Anthropic's Claude, or new agentic systems like OpenClaw, as though we are even reaching the point of <em>singularity</em> in the field of education. A point at which, at least for self-paced adult learners, the role of traditional education might be receding into the shadows of tradition itself.<br><br>This course naturally contests this characterization. But in 2026 it can seem difficult to how to approach a technology that has become so popular precisely because it is &quot;professorial&quot;. The approach we will take will lean in on the idea that &quot;generative AI&quot; is an object we need to approach from several perspectives or lens. Accordingly, each week after this one will outline one of these perspectives - historical, technological, practioner, critical, pedagogical and futurological. These lens do not comprise a single coherent doctrine of AI - and I will be encouraging you to notice and document the tensions between them. But they will help us move away from can at times appear narrow discourses of unbridled hope or hopeless fear. By the end of the course, I am hoping these different perspectives will each introduce AI in a way that adds something to your own theory and practice.<br><br>For this week there are no readings. We will be introducing ourselves - sharing something of our experiences as researchers and practitioners in AI – and I will also discuss the assessment and structure for the course in more detail. Look forward to seeing you next week!<br><br>The large number of students here already signals a strong interest all the same. It is as though despite the vast volumes of materials about Generative AI - much generated of course by generative AI itself - there is still something we wish to get out of active discussion of the topic. <br><br>The course was first run by me last year, and the approach will be largely the same. However I have expanded what was 90-120 minute sessions into a full 2 hours 50 minute session, as I felt we were frequently short of time for discussions and practice. So nominally we'll blocking out the time if we need it - with a 10 minute break roughly half way through. <br><br>Each session, including today, will be run as a workshop - a mix of theory, discussion and practice.</div></section>
+<section class="slide layout-bullets" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1>Learning Objectives</h1><p>From the course description: https://ldlprogram.web.illinois.edu/overview/course-descriptions/</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Develop an understanding of generative AI according to the six themes: Historical; Technological; Practioner; Critical; Pedagogical; Futurological</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Respond to AI with a self-styled &quot;intervention&quot; that addresses a pedagogical or social challenge</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Be prepared to address a range of scenarios raised by AI in education</span></div></div><blockquote>Explores applications of Generative AI in Education. Topics include: AI predecessors (symbolic, data-driven, and connectionist AI); Large Language Models and statistical approaches to meaning in text; machine learning (supervised, unsupervised and reinforcement learning, including deep learning and neural nets); chatbot architectures and prompt engineering; fine-tuning for domain-specific applications; multimodal AI; guardrails (including managing AI bias, &quot;jailbreaks,&quot; &quot;hallucinations,&quot; explainability, intellectual property, privacy and security); and applications of Generative AI in education<br>All required material (video lectures, readings etc.) will be provided to students, as per the tentative schedule below.</blockquote></section>
+<section class="slide layout-split" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="split-left"><span class="label">CONTACT</span></div>
+<div class="split-right"><p>Dr Liam Magee</p>
+<p>Email: lmagee@illinois.edu</p>
+<p>No office hours or TA; can meet by appointment. Will aim to be responsive.</p></div></section>
+<section class="slide layout-bullets" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1>Course Information</h1><p>Weekly Workshops: <strong>Mondays, March 23 to May 4, 5:30 - 8:20</strong></p>
+<p>Likely 2x</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Theory / Lecture - ~30 minutes</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Breakout rooms / Group Discussion / Readings - ~30 minutes</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Practice - ~30 minutes</span></div></div></section>
+<section class="slide layout-stagger" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1>Structure</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">March 23 – Week 1: Introduction</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">March 30 – Week 2: Historical Lens</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">April 6 – Week 3: Technological Lens</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">April 13 – Week 4: Practioner Lens</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">April 20 – Week 5: Critical Lens</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">April 27 – Week 6: Pedagogical Lens</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">May 4 – Week 7: Futurological Lens</div></div><div class="slide-notes" hidden>Aside from this week, each week will have a specific AI theme or &quot;lens&quot; - a way of viewing, understanding and applying AI in the context of education. I'm aware many of you are teachers, and might be undertaking this course with different motives: to think about how to improve lesson plans with AI; to teach students about AI; to develop policies to address AI plagiarism.</div></section>
+<section class="slide layout-section" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">Assessment</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-bullets"><h1>Formative Assessment Building: Weekly Tasks</h1><p>All assessments are due <strong>Sunday midnight CST</strong> of the corresponding week. Six weekly tasks x 5% per cent = 30% overall grade. Each response builds towards the final assessment. Aim to write 300-500 words per week.</p>
+<p><strong>Week 2 (due April 5 11:59PM): Brainstorming an &quot;Intervention&quot;</strong></p>
+<p>Questions: what about the history of AI has interested you? Are you surprised with where things have arrived at? What is it you feel most needs saying about AI today?</p>
+<p><strong>Week 3 (due April 12 11:59PM): Storyboarding</strong></p>
+<p>Questions: What about the technical foundations might be important to understand? How much does the non-expert need to know? What format &amp; genre are you thinking about?</p>
+<p><strong>Week 4 (due April 19 11:59PM): Practicing AI</strong></p>
+<p>Questions: what parts of AI interest you most? Text scaffolding? Code generation? Image / video / music production? Having a &quot;guide&quot;? What are emerging best practices for AI use? and what works for you?</p>
+<p><strong>Week 5 (due April 26 11:59PM): Developing an Edge</strong></p>
+<p>Questions: what criticisms of AI resonate for you? Are you optimistic some / all can or have been addressed? What, conversely, that no overnight AI update is likely to &quot;fix&quot;? And how will you communicate this in your intervention?</p>
+<p><strong>Week 6 (due April May 2 11:59PM): Consider the Teaching &quot;Moment&quot;</strong></p>
+<p>Questions: what would you want others to know about AI? Is your lesson direct (e.g. &quot;here's the lesson...&quot;) or indirect (e.g. &quot;something to think about&quot;)? What about this could you carry across to a classroom, and at what levels?</p>
+<p><strong>Week 7 (due May 9 11:59PM): Showcasing the Intervention</strong></p>
+<p>Questions: how did others respond to your intervention? What worked, and what needs worked? What does your intervention teach us about the future? What did you learn yourself?</p></section>
+<section class="slide layout-fragment"><h1>Summative Term Assessment: An &quot;Intervention&quot;</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Presentation (15-20 slides)</div>
+<div class="frag-cell" style="background:var(--accent2)">A0 Conference Poster</div>
+<div class="frag-cell" style="background:var(--accent3)">Research Experiment / Paper</div>
+<div class="frag-cell" style="background:var(--accent4)">School Curriculum</div>
+<div class="frag-cell" style="background:var(--black)">Policy Document</div>
+<div class="frag-cell" style="background:var(--accent)">Comic strip</div>
+<div class="frag-cell" style="background:var(--accent2)">Movie</div>
+<div class="frag-cell" style="background:var(--accent3)">Mock product pitch / ad campaign for a new AI service</div>
+<div class="frag-cell" style="background:var(--accent4)">Include details of: products/services; prompts; ~cost (if any - note use of free services is completely fine)</div>
+<div class="frag-cell" style="background:var(--black)">Intervention should involve use of at least 3 of the lens. Respond to a key challenge, question or issue about technology.</div></div><div class="slide-notes" hidden>Task: Develop an <strong>intervention</strong> in the field of education that employs AI in a significant but critical way.</div></section>
+<section class="slide layout-section"><h1 class="section-title">Assessment Criteria</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-split"><div class="split-left"><span class="label">SUMMATIVE</span></div>
+<div class="split-right"><p>Cite at least one of the weekly readings / materials</p>
+<p>Demonstrate critical engagement with the material</p>
+<p>Appropriate length, tone, citation practices</p>
+<p>Accumulates into <em>summative assessment</em></p>
+<p><em>Creative responsiveness</em> of intervention to challenges and opportunities of AI</p>
+<p>Evidence of <em>critical engagement</em> to course concepts and materials</p>
+<p><em>Coherence</em> and <em>rigor</em> of accompanying statement</p>
+<p>Evidence of <em>reflection</em> and <em>reflexivity</em> in your own assessment</p>
+<p>Incorporation of at least one recognizable educational or social <em>theoretical</em> orientation that anchors the intervention</p>
+<p>Use of at least <em>six</em> relevant academic references</p>
+<p>Assessed in <strong>total</strong></p></div></section>
+<section class="slide layout-section"><h1 class="section-title">Process of submission: Why a single Google Doc?</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-rotated"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">AI use with <em>acknowledgement</em> is <em>encouraged</em> for the intervention artefact itself. We will be discussing how this might work as we progress through the course. For weekly activities, and for reflection and assessment parts of the final project, it shouldn't be necessary or desirable.</p></div></section>
+<section class="slide layout-fragment"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Rotating groups: pick a reading, discuss</div>
+<div class="frag-cell" style="background:var(--accent2)">Choose a spokesperson</div>
+<div class="frag-cell" style="background:var(--accent3)">Return to the wider group: present the reading and respond</div></div></section>
+<section class="slide layout-rotated"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">1. What has been your experience of generative AI in education?<br>2. What is your level of technical expertise?<br>3. What criticisms have you had of generative AI?<br>4. How have you applied it - in teaching or elsewhere, in professional or personal life?<br>5. What are your hopes and fears about the future of AI?<br>6. What do you think is still needed for generative AI in education today?</p></div><div class="slide-notes" hidden>Introduce yourself - who you are, your professional background, your interest in education, your experience with AI.</div></section>
+<section class="slide layout-section" style="background:#0A1628;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">Break</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-section" style="background:#1A2E4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">AI in 2026: An Opinionated Take</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-bullets"><span class="label">KEY TRENDS</span><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>AI Consolidation into &quot;Big Three&quot;: OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Big names have slowed down: Xai, Meta, Microsoft Copilot</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Apple: using Google Gemini</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Amazon: investor in Anthropic, provider for OpenAI</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Shift from free / $20 per month to:</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Advertising (ChatGPT)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Higher tier models ($200 per month)</span></div></div></section>
+<section class="slide layout-stagger"><h1>Rise of open source models</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Mostly developed in China</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Xiaomi</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Alibaba Qwen</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Kimi</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Minimax</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">DeepSeek</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">Mistral (France)</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:56%">Nemotron (Nvidia)</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:64%">Estimated 3-9 months beyond commercial models</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:72%">Issues around &quot;benchmaxxing&quot;; IP theft(!); hosting / exfiltration of data</div></div></section>
+<section class="slide layout-section"><h1 class="section-title">Contradictory tendencies: Increasing demand...</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-bullets"><h1>...but also:</h1><p>In Workshop 4 we'll be examining criticisms of the environmental and social costs of AI. These differing trends make long term estimation hard to predict.</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>More efficient GPUs (see Nvidia)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Better algorithms (especially from Chinese labs)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Better hardware (Apple): Open source models run locally</span></div></div></section>
+<section class="slide layout-split"><div class="split-left"><span class="label">AGENTIVE AI</span></div>
+<div class="split-right"><p>Code automation</p>
+<p>Computer use:</p>
+<p>Design:</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>OpenAI Codex</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Claude Code</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Google Gemini</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>OpenClaw - social media for chatbots</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Claude Cowork</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Embedded tools in MS Office</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">7</span><span>Google Stitch, Nano Banana 2</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">8</span><span>Midjourney</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">9</span><span>Embedded tools in Adobe, Figma etc</span></div></div></div></section>
+<section class="slide layout-stagger"><h1>Education Issues: Cons</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Plagiarism &amp; Cognitive Offloading</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Biased Results &amp; Unequal Access ($$$)</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Potential Obsolescence of Teachers?</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Perverse Effects: Automated Assignments &gt; Automated Grading</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Subtle Changes: transfer of expertise from human to machine?</div></div></section>
+<section class="slide layout-split"><div class="split-left"><span class="label">EDUCATION ISSUES</span></div>
+<div class="split-right"><p>Cons</p>
+<p>Pros</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Plagiarism &amp; Cognitive Offloading</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Biased Results &amp; Unequal Access ($$$)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Potential Obsolescence of Teachers?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Perverse Effects: Automated Assignments &gt; Automated Grading</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Subtle Changes: transfer of expertise from human to machine?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Personalized, adaptive learning</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">7</span><span>Accessibility</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">8</span><span>Can support Universal Design for Learning</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Attractive as a form of inclusive education</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>But expensive, time-consuming</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Can AI generate multiple forms of engagement, representation, activities?</span></div></div></div></section>
+<section class="slide layout-section" style="background:#2D4A3E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">However: &quot;Bigger Picture&quot; Issues</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-fragment"><h1>What do we need to learn now? What do we need to teach?</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Programming</div>
+<div class="frag-cell" style="background:var(--accent2)">Design</div>
+<div class="frag-cell" style="background:var(--accent3)">Games</div>
+<div class="frag-cell" style="background:var(--accent4)">Entry-level professions</div>
+<div class="frag-cell" style="background:var(--black)">No easy answers.</div>
+<div class="frag-cell" style="background:var(--accent)">1. <strong>Predicted Erasure of White-Collar (Cognitive) Labor</strong></div>
+<div class="frag-cell" style="background:var(--accent2)">2. <strong>What happens When AI works properly?</strong> Social media as Harbinger: Addictive, Compulsive AI; AI &quot;Psychosis&quot;</div>
+<div class="frag-cell" style="background:var(--accent3)">3. <strong>Concentration of Power:</strong> Owners of AI; Power Users of AI; The rest of us?</div></div></section>
+<section class="slide layout-split"><div class="split-left"><span class="label">SERVICES &amp; LABOR</span></div>
+<div class="split-right"><p>&quot;Core&quot; Machine Learning?</p>
+<p>&quot;Prompt engineering&quot;?</p>
+<p>Hardware?</p>
+<p>Services?</p>
+<p>Humanities?</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Highly specialized (calculus, probability, linear algebra)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>But AI can write prompts...</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Again, specialized — traditionally male dominated</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Plumbing, electrician — Jensen Huang — but what about robots?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Care industries? (hospitals, childcare, counselling)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Peter Thiel</span></div></div></div></section>
+<section class="slide layout-split"><div class="split-left"><span class="label">CRISIS IN HIGHER ED</span></div>
+<div class="split-right"><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Spiralling costs</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Increased distrust in &quot;traditional&quot; knowledge, expertise (the COVID effect? Mis/disinformation?)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Lack of effective pathways to professional, higher paid labor</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Not yet, but anticipated</span></div></div></div></section>
+<section class="slide layout-fragment"><h1>Case Study: <em>Geist</em> in the Machine (Magee 2026)</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Geist in the Machine: Simulating Recognition and Inner Dialogue in AI-Mediated Teaching and Research — https://arxiv.org/abs/2603.10450</div>
+<div class="frag-cell" style="background:var(--accent2)">Experiment over winter to test (a) approaches to AI teaching and (b) developments in AI research</div>
+<div class="frag-cell" style="background:var(--accent3)">Builds upon earlier work (<em>The Drama Machine</em>, The Drama Machine: Simulating Character Development with LLM Agents)</div></div></section>
+<section class="slide layout-bullets"><span class="label">CASE STUDY KEY CONCEPTS</span><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><em>Vibe coding</em> (Karpathy)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Vibe scholarship? Really: Vibe-then-validate: version 1.0 -&gt; version 2.0</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Centrality of <em>recognition</em> for self-consciousness (Hegel, 1807; Honneth 1996)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Importance of the <em>unconscious</em> (Freud 1923)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Rise of <em>nonconscious cognition</em> (Katherine Hayles 2017)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>But <strong>what happens when we <em>know</em> we are not recognized but we <em>feel</em> recognized by a machine</strong>?</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Nonconscious <em>re</em>cognition (Magee 2026)</span></div></div></section>
+<section class="slide layout-arc"><div class="arc-left"><h1>What AI can do for research</h1></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div></section>
+<section class="slide layout-section" style="background:#F5E6D0"><h1 class="section-title">Connection to this course</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-rotated" style="background:#F5E6D0"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">https://docs.google.com/presentation/d/1Ef2cOYSKH5goLC6U6ikBKZf7aBwqZtn2ifGeihnn-l4/edit?slide=id.p#slide=id.p</p></div></section>
+<section class="slide layout-split" style="background:#F5E6D0"><div class="split-left"><h1>Workshop 2: Technological Lens</h1><h2 class="subtitle">Workshop 2: Technological Lens</h2></div>
+<div class="split-right"><p>https://docs.google.com/presentation/d/1Hlvpcow63mGnqoDLvaCIOBu_I5LKFBc5qT2TkSdzDXo/edit?slide=id.p#slide=id.p</p></div></section>
+<section class="slide layout-fragment"><h1>Workshop 3: Practitioner Lens</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">https://docs.google.com/presentation/d/1tm5q1JTfKU-YSJIKuFny1D2aU8-jMtwVxfRyBx9yGc4/edit?slide=id.p#slide=id.p</div></div></section>
+<section class="slide layout-split" style="background:#F5E6D0"><div class="split-left"><h1>Workshop 4: Critical Lens</h1><h2 class="subtitle">Workshop 4: Critical Lens</h2></div>
+<div class="split-right"><p>https://docs.google.com/presentation/d/1Sil2dxk73gQZInd99n3f2PvqsZkLzFqLCDxUTxHqNCk/edit?slide=id.p#slide=id.p</p>
+<p>https://docs.google.com/presentation/d/1Jfm7tsq58fX0kEOUcNGvuSKeoXW0FlGJNRyBx9yGc4/edit?usp=sharing</p></div></section>
+<section class="slide layout-fragment"><h1>Workshop 5: Pedagogical Lens (II)</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">https://docs.google.com/presentation/d/1-6sre1_FQSRBWxg03xjLYbp77iSljhDitDGbEhHzFhY/edit?slide=id.p#slide=id.p</div></div></section>
+<section class="slide layout-rotated" style="background:#F5E6D0"><div class="rotated-bar"><span class="rotated-text">SHOWCASE</span></div>
+<div class="rotated-content"></div></section>
+</div>
+<div class="progress"><div class="progress-bar"></div></div>
+<div class="counter"></div>
+<div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
+<script>
+
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  const notesPanel=document.querySelector('.notes-panel');
+  const notesContent=document.querySelector('.notes-content');
+  let cur=0,notesOpen=false;
+
+  function go(n){
+    if(n<0||n>=slides.length)return;
+    slides[cur].classList.remove('active');
+    cur=n;
+    slides[cur].classList.add('active');
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    counter.textContent=(cur+1)+' / '+slides.length;
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='n'||e.key==='N'){
+      notesOpen=!notesOpen;
+      notesPanel.classList.toggle('open',notesOpen);
+    }
+    else if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+      else document.exitFullscreen();
+    }
+  });
+
+  // Touch/swipe support
+  let tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){dx<0?go(cur+1):go(cur-1)}
+  },{passive:true});
+
+  // Click left/right halves
+  document.addEventListener('click',function(e){
+    if(e.target.tagName==='A')return;
+    if(e.clientX>window.innerWidth*0.65)go(cur+1);
+    else if(e.clientX<window.innerWidth*0.35)go(cur-1);
+  });
+
+  // Presenter mode — press P to open synced notes window
+  const bc=new BroadcastChannel('rastersysteme-presenter');
+  let presenterWin=null;
+
+  function broadcastSlide(){
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    const nextNoteEl=cur+1<slides.length?slides[cur+1].querySelector('.slide-notes'):null;
+    bc.postMessage({
+      type:'slide',
+      index:cur,
+      total:slides.length,
+      notes:noteEl?noteEl.textContent:'(no notes)',
+      nextNotes:nextNoteEl?nextNoteEl.textContent:'',
+      title:document.title
+    });
+  }
+
+  // Broadcast on every slide change
+  const origGo=go;
+  go=function(n){origGo(n);broadcastSlide()};
+
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
+    presenterWin=window.open('','rastersysteme_notes','width=700,height=500');
+    if(!presenterWin)return;
+    presenterWin.document.write(`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',sans-serif;background:#111;color:#f0ebe3;padding:2rem}
+.slide-num{font-size:.8rem;color:#8C8478;margin-bottom:.5rem;letter-spacing:0.1em}
+h2{font-size:1rem;color:#8C8478;margin-bottom:1rem;font-weight:400}
+.notes{font-size:1.3rem;line-height:1.7;margin-bottom:2rem;white-space:pre-wrap}
+.next-label{font-size:.7rem;color:#555;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:.5rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.5;white-space:pre-wrap;border-top:1px solid #333;padding-top:1rem}
+.timer{position:fixed;bottom:1rem;right:2rem;font-size:2rem;color:#333;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div class="slide-num" id="pn-num"></div>
+<h2 id="pn-title"></h2>
+<div class="notes" id="pn-notes">Press P in the slide window to sync.</div>
+<div class="next-label">NEXT</div>
+<div class="next-notes" id="pn-next"></div>
+<div class="timer" id="pn-timer">00:00</div>
+<script>
+const bc2=new BroadcastChannel('rastersysteme-presenter');
+const startTime=Date.now();
+bc2.onmessage=function(e){
+  if(e.data.type==='slide'){
+    document.getElementById('pn-num').textContent='Slide '+(e.data.index+1)+' / '+e.data.total;
+    document.getElementById('pn-title').textContent=e.data.title;
+    document.getElementById('pn-notes').textContent=e.data.notes;
+    document.getElementById('pn-next').textContent=e.data.nextNotes||'(end)';
+  }
+};
+setInterval(function(){
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const m=Math.floor(s/60);
+  document.getElementById('pn-timer').textContent=String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+},1000);
+<\/script></body></html>`);
+    presenterWin.document.close();
+    broadcastSlide();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='p'||e.key==='P'){openPresenter()}
+  });
+
+  go(0);
+})();
+
+</script>
+</body>
+</html>

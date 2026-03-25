@@ -1,0 +1,2235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>showcase — Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Outfit:wght@100..900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ── Slide layout system (from raster.js) ── */
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* === Designed slides (parameterised grid) === */
+.slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
+.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.slide.designed .accent-el{position:absolute;pointer-events:none}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
+  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
+thead th{background:var(--accent);color:var(--white);padding:1vmin 1.5vmin;font-weight:700;
+  border:1px solid var(--accent)}
+tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+
+/* Code */
+.code-block{position:relative;background:var(--code-bg,#2D2D2D);border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+a.auto-link{color:var(--accent2);text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:2px;word-break:break-all;font-size:inherit}
+a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:var(--white);font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:var(--white)}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.6)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:var(--white);font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:var(--white);font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:var(--white);font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:var(--white);font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:var(--white);font-weight:700;
+  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:var(--white);flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+.image-caption{font-size:clamp(0.65rem,1.2vmin,0.85rem);font-style:italic;color:var(--text-light);text-align:center}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+/* ═══ ENHANCED TYPOGRAPHY (Google Fonts loaded in HTML head) ═══ */
+h1{font-family:'DM Serif Display',var(--font),serif;letter-spacing:-0.03em;text-wrap:balance}
+.label{font-family:'Space Mono',var(--font),monospace;letter-spacing:0.3em}
+.layout-section h1{font-family:'DM Serif Display',var(--font),serif;font-weight:400;
+  font-size:clamp(2.5rem,7vmin,5rem);line-height:1.05;letter-spacing:-0.04em}
+.rotated-text{font-family:'DM Serif Display',var(--font),serif;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.counter{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em}
+.notes-panel h3{font-family:'Space Mono',monospace;letter-spacing:0.2em;color:var(--accent)}
+blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
+
+/* ═══ SLIDE TRANSITIONS ═══ */
+:root{--t-duration:0.5s;--t-ease:cubic-bezier(0.16,1,0.3,1)}
+
+/* Default: fade */
+.slide{opacity:0;transition:opacity var(--t-duration) var(--t-ease),transform var(--t-duration) var(--t-ease)}
+.slide.active{opacity:1}
+
+/* fade (default) */
+.slide[data-transition="fade"]{transform:none}
+
+/* slide-up */
+.slide[data-transition="slide-up"]{transform:translateY(4vh)}
+.slide[data-transition="slide-up"].active{transform:translateY(0)}
+.slide[data-transition="slide-up"].exit-down{transform:translateY(-4vh);opacity:0}
+
+/* slide-down */
+.slide[data-transition="slide-down"]{transform:translateY(-4vh)}
+.slide[data-transition="slide-down"].active{transform:translateY(0)}
+
+/* slide-left */
+.slide[data-transition="slide-left"]{transform:translateX(5vw)}
+.slide[data-transition="slide-left"].active{transform:translateX(0)}
+.slide[data-transition="slide-left"].exit-left{transform:translateX(-5vw);opacity:0}
+
+/* slide-right */
+.slide[data-transition="slide-right"]{transform:translateX(-5vw)}
+.slide[data-transition="slide-right"].active{transform:translateX(0)}
+
+/* zoom */
+.slide[data-transition="zoom"]{transform:scale(0.92);opacity:0}
+.slide[data-transition="zoom"].active{transform:scale(1);opacity:1}
+
+/* zoom-out */
+.slide[data-transition="zoom-out"]{transform:scale(1.08);opacity:0}
+.slide[data-transition="zoom-out"].active{transform:scale(1);opacity:1}
+
+/* cut (instant, no animation) */
+.slide[data-transition="cut"]{transition:none}
+.slide[data-transition="cut"].active{opacity:1}
+
+/* none (same as cut) */
+.slide[data-transition="none"]{transition:none}
+.slide[data-transition="none"].active{opacity:1}
+
+/* Respect reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .slide{transition:none !important;transform:none !important}
+  .slide.active{opacity:1}
+}
+
+/* ═══ MICRO-INTERACTIONS ═══ */
+.stagger-bar{border-radius:2px;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.stagger-bar::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.08) 100%);pointer-events:none}
+.stagger-bar:hover{transform:translateX(8px)}
+.frag-cell{border-radius:3px;transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.frag-cell::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 50%);pointer-events:none}
+.pills .pill{transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)}
+.pills .pill:hover{transform:translateX(4px)}
+.overlap-a,.overlap-b{border-radius:4px}
+.overlap-a{box-shadow:4px 4px 20px rgba(0,0,0,0.15)}
+
+/* ═══ GEOMETRIC ANIMATIONS ═══ */
+.arc-outer{animation:arc-breathe 6s ease-in-out infinite}
+@keyframes arc-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.arc-dot{animation:arc-pulse 2s ease-in-out infinite}
+@keyframes arc-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ═══ ACCENT DETAILS ═══ */
+.layout-section::before{content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--accent) 0%,transparent 60%)}
+.split-left::after{content:"";position:absolute;right:0;top:10%;bottom:10%;width:1px;
+  background:linear-gradient(180deg,transparent,var(--accent),transparent)}
+.layout-blank::after{content:"";position:absolute;top:50%;left:50%;width:4px;height:4px;
+  border-radius:50%;background:var(--accent);opacity:0.3;transform:translate(-50%,-50%)}
+.progress{height:2px;background:transparent}
+.progress-bar{box-shadow:0 0 8px var(--accent)}
+.notes-panel{backdrop-filter:blur(20px);background:rgba(0,0,0,0.88)}
+
+/* ═══ GRAIN TEXTURE ═══ */
+body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat}
+
+
+/* ── Override raster defaults for studio context ── */
+body { background: var(--stage, #0C0C0E); overflow: hidden; }
+.slide { display: flex; } /* undo display:none from raster default */
+.slide.active { display: flex; } /* keep compatibility */
+.deck { display: none; } /* we don't use the .deck wrapper */
+
+/* ── Studio chrome ── */
+
+/* ═══════════════════════════════════════════════════════
+   STUDIO CHROME — v2 "Editorial Stage" aesthetic
+   Fonts: Fraunces (display), Outfit (UI), JetBrains Mono
+   ═══════════════════════════════════════════════════════ */
+
+:root {
+  --stage:       #0C0C0E;
+  --surface:     #16161A;
+  --surface-2:   #1E1E24;
+  --border:      #2A2A32;
+  --border-2:    #353540;
+  --text:        #ECECF0;
+  --text-2:      #8888A0;
+  --text-3:      #55556A;
+  --accent:      #E04040;
+  --accent-glow: rgba(224,64,64,0.3);
+  --success:     #40C080;
+  --warning:     #E0A040;
+  --error:       #E04040;
+  --radius:      4px;
+  --ease:        cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* legacy aliases so existing JS refs don't break */
+  --studio-bg:      var(--stage);
+  --studio-surface:  var(--surface);
+  --studio-surface2: var(--surface-2);
+  --studio-border:   var(--border);
+  --studio-border2:  var(--border-2);
+  --studio-text:     var(--text);
+  --studio-text2:    var(--text-2);
+  --studio-text3:    var(--text-3);
+  --studio-accent:   var(--accent);
+  --studio-success:  var(--success);
+  --studio-warning:  var(--warning);
+  --studio-error:    var(--error);
+  --studio-radius:   var(--radius);
+  --studio-ease:     var(--ease);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: var(--stage);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: 'Outfit', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  color: var(--text);
+}
+
+/* ─── NOISE TEXTURE (CSS-only) ─── */
+
+.studio-stage::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    repeating-conic-gradient(
+      rgba(255,255,255,0.012) 0% 25%,
+      transparent 0% 50%
+    );
+  background-size: 4px 4px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── STAGE: the dark area behind slides ─── */
+
+.studio-stage {
+  position: fixed; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--stage);
+  padding: 3vmin;
+  transition: padding 0.4s var(--ease);
+}
+
+.studio-stage.qa-open {
+  padding-right: calc(30% + 3vmin);
+}
+
+/* ─── SLIDE VIEWPORT — floating card ─── */
+
+.studio-viewport {
+  position: relative;
+  width: 100%;
+  max-width: calc((100vh - 6vmin) * 16 / 9);
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: 3px;
+  z-index: 1;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 2px 4px rgba(0,0,0,0.3),
+    0 8px 24px rgba(0,0,0,0.4),
+    0 24px 80px rgba(0,0,0,0.5);
+}
+
+.studio-stage.qa-open .studio-viewport {
+  max-width: calc((100vh - 6vmin) * 16 / 9 * 0.7);
+}
+
+/* ─── INDIVIDUAL SLIDES — crossfade + scale ─── */
+
+.studio-slide {
+  position: absolute; inset: 0;
+  opacity: 0;
+  transform: scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.studio-slide.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.studio-slide .slide-content {
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ─── PROGRESS BAR — thin accent with glow ─── */
+
+.studio-progress {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(255,255,255,0.04);
+  z-index: 500;
+}
+
+.studio-progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.35s ease;
+  width: 0;
+  box-shadow: 0 0 8px var(--accent-glow), 0 0 24px var(--accent-glow);
+}
+
+/* ─── SLIDE COUNTER — bottom-right, Outfit ─── */
+
+.studio-counter {
+  position: fixed;
+  bottom: 14px; right: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--text-3);
+  z-index: 500;
+  letter-spacing: 0.08em;
+  user-select: none;
+  transition: opacity 0.3s ease;
+  opacity: 0.6;
+}
+
+.studio-counter.hidden { opacity: 0; }
+
+/* ─── SPEAKER NOTES — frosted dark glass ─── */
+
+.studio-notes {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 0;
+  background: rgba(12, 12, 14, 0.7);
+  backdrop-filter: blur(20px) saturate(1.5);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  border-top: 1px solid var(--border);
+  color: var(--text);
+  overflow: auto;
+  transition: height 0.3s var(--ease), padding 0.3s var(--ease);
+  z-index: 600;
+  padding: 0 40px;
+}
+
+.studio-notes.open {
+  height: 25vh;
+  padding: 24px 40px;
+}
+
+.studio-notes-header {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.studio-notes-body {
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  max-width: 80ch;
+}
+
+/* ─── GRID MODE — dark surface + grid pattern ─── */
+
+.studio-grid {
+  position: fixed; inset: 0;
+  background:
+    linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px),
+    var(--stage);
+  background-size: 40px 40px, 40px 40px, 100% 100%;
+  z-index: 800;
+  overflow-y: auto;
+  padding: 48px 48px;
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.97);
+  transition: opacity 0.3s var(--ease), transform 0.3s var(--ease);
+}
+
+.studio-grid.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.studio-grid-header {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.studio-grid-title {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  color: var(--text);
+  letter-spacing: -0.02em;
+}
+
+.studio-grid-meta {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+.studio-grid-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* ─── GRID CARDS — rounded, hover lift ─── */
+
+.studio-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease),
+              border-color 0.25s ease;
+  outline: none;
+}
+
+.studio-card:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  border-color: var(--border-2);
+}
+
+.studio-card:focus-visible,
+.studio-card.grid-active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow), 0 12px 40px rgba(0,0,0,0.5);
+  transform: scale(1.02);
+}
+
+.studio-card-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #000;
+}
+
+.studio-card-preview .slide-scaled {
+  position: absolute;
+  width: 1280px; height: 720px;
+  transform-origin: top left;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.studio-card-info {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.studio-card-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+  min-width: 24px;
+}
+
+/* ─── Layout badge: pill-shaped, colour-coded ─── */
+
+.studio-card-layout {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  /* default fallback colour */
+  color: var(--text-2);
+  background: rgba(136,136,160,0.1);
+}
+
+.studio-card-layout[data-layout="title"] { background: rgba(224,64,64,0.12); color: #E04040; }
+.studio-card-layout[data-layout="section"] { background: rgba(64,192,128,0.12); color: #40C080; }
+.studio-card-layout[data-layout="split"] { background: rgba(80,140,220,0.12); color: #508CDC; }
+.studio-card-layout[data-layout="bullets"] { background: rgba(224,160,64,0.12); color: #E0A040; }
+.studio-card-layout[data-layout="quote"] { background: rgba(180,120,220,0.12); color: #B478DC; }
+.studio-card-layout[data-layout="statement"] { background: rgba(80,200,200,0.12); color: #50C8C8; }
+.studio-card-layout[data-layout="image"] { background: rgba(220,100,160,0.12); color: #DC64A0; }
+.studio-card-layout[data-layout="code"] { background: rgba(160,180,80,0.12); color: #A0B450; }
+.studio-card-layout[data-layout="table"] { background: rgba(100,160,200,0.12); color: #64A0C8; }
+.studio-card-layout[data-layout="comparison"] { background: rgba(200,140,80,0.12); color: #C88C50; }
+.studio-card-layout[data-layout="content-heavy"] { background: rgba(140,120,200,0.12); color: #8C78C8; }
+.studio-card-layout[data-layout="blank"] { background: rgba(136,136,160,0.10); color: #8888A0; }
+.studio-card-layout[data-layout="arc"] { background: rgba(200,80,120,0.12); color: #C85078; }
+.studio-card-layout[data-layout="rotated"] { background: rgba(120,180,120,0.12); color: #78B478; }
+.studio-card-layout[data-layout="overlap"] { background: rgba(180,160,80,0.12); color: #B4A050; }
+.studio-card-layout[data-layout="designed"] { background: rgba(200,200,220,0.10); color: #C8C8DC; }
+
+/* ─── QA status dot ─── */
+
+.studio-card-status {
+  margin-left: auto;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.studio-card-status.ok   { background: var(--success); }
+.studio-card-status.warn { background: var(--warning); }
+.studio-card-status.err  { background: var(--error); }
+
+.studio-card-badges {
+  padding: 0 14px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.studio-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 100px;
+  line-height: 1.4;
+}
+.studio-badge.warn {
+  background: rgba(224,160,64,0.12);
+  color: var(--warning);
+}
+.studio-badge.err {
+  background: rgba(224,64,64,0.12);
+  color: var(--error);
+}
+
+/* ─── QA PANEL — slide-in from right ─── */
+
+.studio-qa {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 0;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  z-index: 700;
+  overflow-y: auto;
+  overflow-x: hidden;
+  opacity: 0;
+  transition: width 0.4s var(--ease-spring), opacity 0.3s ease;
+}
+
+.studio-qa.open {
+  width: 30%;
+  min-width: 380px;
+  opacity: 1;
+}
+
+.studio-qa-inner {
+  padding: 36px 32px;
+  min-width: 360px;
+}
+
+.studio-qa-title {
+  font-family: 'Fraunces', serif;
+  font-size: 22px;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.studio-qa-subtitle {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+/* Grade display — large Fraunces letter */
+.studio-grade-container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 32px;
+  padding: 24px;
+  background: var(--surface-2);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.studio-grade-letter {
+  font-family: 'Fraunces', serif;
+  font-size: 80px;
+  font-weight: 900;
+  font-optical-sizing: auto;
+  line-height: 1;
+}
+
+.studio-grade-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.studio-grade-score {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 15px;
+  color: var(--text);
+}
+
+.studio-grade-pct {
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  color: var(--text-3);
+}
+
+/* Score bars — 4px, rounded, gradient */
+.studio-score-section {
+  margin-bottom: 28px;
+}
+
+.studio-score-label {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.studio-score-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.studio-score-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  color: var(--text-2);
+  width: 120px;
+  flex-shrink: 0;
+}
+
+.studio-score-bar-bg {
+  flex: 1;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.studio-score-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.7s var(--ease);
+}
+
+.studio-score-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-2);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Summary stats */
+.studio-qa-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.studio-qa-stat {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 5px 12px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+}
+.studio-qa-stat.ok   { color: var(--success); }
+.studio-qa-stat.warn { color: var(--warning); }
+.studio-qa-stat.err  { color: var(--error); }
+
+/* Issue list — cards with left colour border */
+.studio-issue {
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  border-radius: var(--radius);
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--border);
+}
+
+.studio-issue .issue-slide {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  margin-right: 6px;
+}
+
+.studio-issue .issue-layout {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--accent);
+  background: rgba(224,64,64,0.1);
+  padding: 1px 6px;
+  border-radius: 100px;
+  margin-right: 8px;
+}
+
+.studio-issue.severity-error {
+  border-left-color: var(--error);
+}
+.studio-issue.severity-warning {
+  border-left-color: var(--warning);
+}
+
+.studio-issue .issue-icon {
+  margin-right: 4px;
+}
+.studio-issue .issue-icon.err  { color: var(--error); }
+.studio-issue .issue-icon.warn { color: var(--warning); }
+
+/* Content inventory — compact table, alternating tints */
+.studio-inventory {
+  margin-top: 16px;
+}
+
+.studio-inv-slide {
+  padding: 6px 10px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.studio-inv-slide:nth-child(odd) {
+  background: rgba(255,255,255,0.02);
+}
+
+.studio-inv-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  width: 28px;
+  flex-shrink: 0;
+}
+
+.studio-inv-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  color: var(--text-3);
+  background: var(--surface-2);
+  padding: 2px 6px;
+  border-radius: 100px;
+}
+
+/* ─── HELP OVERLAY — frosted glass card, two-column ─── */
+
+.studio-help {
+  position: fixed; inset: 0;
+  background: rgba(12, 12, 14, 0.85);
+  backdrop-filter: blur(24px) saturate(1.2);
+  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.studio-help.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.studio-help-inner {
+  max-width: 520px;
+  width: 90%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 36px 40px;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+}
+
+.studio-help-title {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  font-weight: 400;
+  font-optical-sizing: auto;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.studio-help-subtitle {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  color: var(--text-3);
+  margin-bottom: 28px;
+}
+
+.studio-help-section {
+  margin-bottom: 20px;
+}
+
+.studio-help-section-title {
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+
+.studio-shortcut {
+  display: flex;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.studio-key {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  border-radius: 4px;
+  padding: 4px 12px;
+  min-width: 72px;
+  text-align: center;
+  margin-right: 20px;
+  flex-shrink: 0;
+}
+
+.studio-shortcut-desc {
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* ─── MODE INDICATOR ─── */
+
+.studio-mode {
+  position: fixed;
+  top: 16px; left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Outfit', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  z-index: 500;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+
+.studio-mode.visible {
+  opacity: 1;
+}
+
+/* ─── BACK LINK (top-left) ─── */
+
+.studio-back {
+  position: fixed;
+  top: 16px; left: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--text-3);
+  text-decoration: none;
+  z-index: 500;
+  user-select: none;
+  opacity: 0.5;
+  transition: opacity 0.25s ease, color 0.25s ease;
+}
+
+.studio-back:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
+/* ─── DECK TITLE (top-right in present mode) ─── */
+
+.studio-deck-title {
+  position: fixed;
+  top: 16px; right: 20px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--text-3);
+  z-index: 500;
+  user-select: none;
+  opacity: 0.35;
+  transition: opacity 0.3s ease;
+}
+
+.studio-deck-title:hover { opacity: 0.8; }
+
+
+/* ── Slide-content inside studio inherits layout classes ── */
+.studio-slide .slide-content {
+  /* Reset the raster .slide positioning since we handle it */
+  position: absolute; inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Ensure layout-specific flex direction is preserved */
+.studio-slide .layout-title,
+.studio-slide .layout-split,
+.studio-slide .layout-rotated,
+.studio-slide .layout-arc,
+.studio-slide .layout-overlap { flex-direction: row; }
+
+.studio-slide .layout-title { padding: 0; gap: 5vmin; }
+.studio-slide .layout-split { padding: 5vmin; gap: 4vmin; }
+.studio-slide .layout-rotated { padding: 0; }
+.studio-slide .layout-section { justify-content: center; align-items: flex-start; padding: 5vmin 8vmin; }
+.studio-slide .layout-arc { gap: 3vmin; }
+
+/* Grid card previews: scale from 1280x720 */
+.studio-card-preview .slide-scaled {
+  /* raster slide defaults */
+  font-family: var(--font);
+  color: var(--text);
+}
+
+</style>
+<script type="application/json" id="studio-qa-data">{"grade":"B","pct":89,"totalScore":89,"maxScore":100,"a11yErrors":0,"a11yWarnings":1,"layoutErrors":0,"layoutWarnings":4,"scores":{"layoutVariety":{"score":15,"max":20,"detail":"10 unique layouts across 30 slides"},"sectionRhythm":{"score":11,"max":15,"detail":"7 section dividers (ideal ~5)"},"contentDensity":{"score":15,"max":15,"detail":"avg 5.6 elements/slide, variance 7.8"},"typography":{"score":15,"max":15,"detail":"29/30 slides have a heading"},"speakerNotes":{"score":10,"max":10,"detail":"30/30 slides have notes"},"contentTypes":{"score":8,"max":10,"detail":"4/5 content types used (table, code, image, quote, nesting)"},"visualRhythm":{"score":15,"max":15,"detail":"29/29 layout transitions (100% variety)"}},"slideCount":30}</script>
+</head>
+<body>
+
+<!-- ═══ PRESENT MODE: Stage + Viewport ═══ -->
+<div class="studio-stage">
+  <div class="studio-viewport">
+    <section class="studio-slide active" data-index="0" data-layout="title">
+  <div class="slide-content layout-title" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <div class="title-left"><div class="accent-block"><h1>Rastersysteme</h1></div></div>
+<div class="title-right"><h2 class="subtitle">A Swiss Grid Manifesto</h2><div class="pills"><div class="pill" style="background:var(--accent2)">Typography</div><div class="pill" style="background:var(--accent3)">Proportion</div><div class="pill" style="background:var(--accent4)">Rhythm</div><div class="pill" style="background:var(--accent2)">Colour</div><div class="pill" style="background:var(--accent3)">Tension</div></div></div>
+    <div class="slide-notes" hidden>Title slide. &quot;Rastersysteme&quot; — German for &quot;grid systems.&quot; The five topic pills map to the five sections of this presentation. Each section explores one axis of Swiss graphic design, then shows how New Wave pushed it further. The 60-column grid underpins every slide.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="1" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1A1A1A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">THE GRID</span><h1 class="section-title">I. Das Raster</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section I: The Grid. &quot;Das Raster&quot; is the German term. We begin with the mathematical foundation that makes everything else possible.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="2" data-layout="rotated">
+  <div class="slide-content layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">The grid system is an aid, not a guarantee. It permits a number of possible uses and each designer can look for a solution appropriate to his personal style.</p></div>
+    <div class="slide-notes" hidden>&quot;Grundlagen&quot; = foundations. This quote is from Josef Müller-Brockmann's &quot;Grid Systems in Graphic Design&quot; (1981). The split layout demonstrates the grid in action — title locked to the left zone, body text to the right, blockquote at the bottom. Every element aligns to column boundaries.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="3" data-layout="table">
+  <div class="slide-content layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">MATHEMATICS</span><h1>Why 60 Columns</h1><table><thead><tr><th style="text-align:center">Division</th><th style="text-align:center">Columns</th><th style="text-align:center">Zones</th><th style="text-align:left">Character</th></tr></thead><tbody><tr><td style="text-align:center">÷2</td><td style="text-align:center">30</td><td style="text-align:center">2</td><td style="text-align:left">Binary split — thesis / antithesis</td></tr><tr><td style="text-align:center">÷3</td><td style="text-align:center">20</td><td style="text-align:center">3</td><td style="text-align:left">Triptych — narrative sequence</td></tr><tr><td style="text-align:center">÷4</td><td style="text-align:center">15</td><td style="text-align:center">4</td><td style="text-align:left">Quadrant — dashboard density</td></tr><tr><td style="text-align:center">÷5</td><td style="text-align:center">12</td><td style="text-align:center">5</td><td style="text-align:left">Pentad — the primary rhythm</td></tr><tr><td style="text-align:center">÷6</td><td style="text-align:center">10</td><td style="text-align:center">6</td><td style="text-align:left">Hexad — dense information</td></tr><tr><td style="text-align:center">÷10</td><td style="text-align:center">6</td><td style="text-align:center">10</td><td style="text-align:left">Decad — fine granularity</td></tr><tr><td style="text-align:center">÷12</td><td style="text-align:center">5</td><td style="text-align:center">12</td><td style="text-align:left">Dodecad — structural backbone</td></tr><tr><td style="text-align:center">÷15</td><td style="text-align:center">4</td><td style="text-align:center">15</td><td style="text-align:left">Ultra-fine control</td></tr><tr><td style="text-align:center">÷20</td><td style="text-align:center">3</td><td style="text-align:center">20</td><td style="text-align:left">Micro-placement</td></tr><tr><td style="text-align:center">÷30</td><td style="text-align:center">2</td><td style="text-align:center">30</td><td style="text-align:left">Sub-pixel precision</td></tr></tbody></table>
+    <div class="slide-notes" hidden>60 is a &quot;highly composite number&quot; — it has more divisors than any smaller positive integer. This table shows every clean division. The ÷5 (12-column zones) and ÷12 (5-column zones) are the two primary rhythms in rastersysteme. Ancient Babylonians used base-60 for the same reason — maximum divisibility.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="4" data-layout="code">
+  <div class="slide-content layout-code" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">KONSTRUKTION</span><h1>Grid Anatomy</h1><div class="code-block"><span class="code-lang">javascript</span><pre><code>// The grid is defined by six parameters<br>const grid = createGrid(<br>  10,      // slideWidth  — 10 inches (16:9)<br>  5.625,   // slideHeight — 5.625 inches<br>  60,      // cols        — 60 vertical divisions<br>  40,      // rows        — 40 horizontal divisions<br>  0.5,     // margin      — 0.5&quot; on all sides<br>  0.02     // gutter      — 0.02&quot; micro-gutter<br>);<br><br>// Inner width: 10 - (2 × 0.5) = 9 inches<br>// Column width: (9 - 59 × 0.02) / 60 ≈ 0.130&quot;<br>// Row height:   (4.625 - 39 × 0.02) / 40 ≈ 0.096&quot;<br><br>// Placement is always column-based:<br>grid.cx(0)   // → 0.500&quot; (left margin)<br>grid.cx(12)  // → 2.300&quot; (first ÷5 division)<br>grid.cx(30)  // → 5.000&quot; (exact centre)<br>grid.cx(48)  // → 7.700&quot; (last ÷5 division)<br>grid.cx(60)  // → 9.500&quot; (right margin)</code></pre></div>
+    <div class="slide-notes" hidden>&quot;Konstruktion&quot; = construction. This code block reveals the exact mathematics of the grid. The micro-gutter of 0.02&quot; (about half a point) creates the barest separation between columns without visible gaps. Note that column 30 lands at exactly 5.0&quot; — the mathematical center of the slide. The 40-row vertical grid gives a 3:2 column-to-row ratio.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="5" data-layout="bullets">
+  <div class="slide-content layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">ORDNUNG</span><h1>Grid Hierarchy</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Primary structure — ÷12 divisions</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Every 12th column creates a strong vertical</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Five equal zones across the slide</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>The backbone of all layouts</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Secondary rhythm — ÷5 divisions</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Every 5th column creates a medium pulse</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Twelve zones for finer control</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Text columns, image placement</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Tertiary detail — individual columns</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>60 positions for micro-adjustment</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Indent, offset, fine kerning</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Optical alignment corrections</span></div></div>
+    <div class="slide-notes" hidden>&quot;Ordnung&quot; = order. The three-level hierarchy is fundamental to Swiss design — structure at every scale. The nested bullets demonstrate this hierarchy visually: top-level items get numbered accent dots (primary), sub-items get em-dash markers and are indented (secondary), creating information architecture through typography alone.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="6" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">LETTERFORMS AS ARCHITECTURE</span><h1 class="section-title">II. Typografie</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section II: Typography. The blue-dark background signals a new chapter. Swiss typography treats letters as architectural elements — each glyph is a structure, each line is a beam, each paragraph is a facade. The section layout centres the text as a declaration.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="7" data-layout="stagger">
+  <div class="slide-content layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>The Swiss Typefaces</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Akzidenz-Grotesk — the origin, 1898</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Neue Haas Grotesk — Miedinger, 1957</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Helvetica — renamed for the world, 1960</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Univers — Frutiger's numbered system, 1957</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Folio — Bauer's rational alternative, 1957</div></div>
+    <div class="slide-notes" hidden>The stagger layout presents the five foundational Swiss typefaces as cascading colour bars — each one a historical layer. Akzidenz-Grotesk from Berthold was the grandfather; Helvetica (originally Neue Haas Grotesk) became universal; Univers introduced the revolutionary numbered weight/width system. All are neo-grotesque sans-serifs with even stroke width and minimal contrast.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="8" data-layout="table">
+  <div class="slide-content layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">MASSSTAB</span><h1>The Type Scale</h1><table><thead><tr><th style="text-align:left">Role</th><th style="text-align:center">Size</th><th style="text-align:left">Weight</th><th style="text-align:center">Spacing</th><th style="text-align:center">Grid Rows</th></tr></thead><tbody><tr><td style="text-align:left">Display title</td><td style="text-align:center">40pt</td><td style="text-align:left">Bold</td><td style="text-align:center">−0.02em</td><td style="text-align:center">10</td></tr><tr><td style="text-align:left">Slide title</td><td style="text-align:center">28–34pt</td><td style="text-align:left">Bold</td><td style="text-align:center">−0.02em</td><td style="text-align:center">7–8</td></tr><tr><td style="text-align:left">Subtitle</td><td style="text-align:center">18–24pt</td><td style="text-align:left">Bold</td><td style="text-align:center">0</td><td style="text-align:center">5–6</td></tr><tr><td style="text-align:left">Body text</td><td style="text-align:center">13–17pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">4</td></tr><tr><td style="text-align:left">Bullet text</td><td style="text-align:center">12–14pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">3–4</td></tr><tr><td style="text-align:left">Caption</td><td style="text-align:center">9–11pt</td><td style="text-align:left">Regular</td><td style="text-align:center">+0.01em</td><td style="text-align:center">2</td></tr><tr><td style="text-align:left">Section label</td><td style="text-align:center">8pt</td><td style="text-align:left">Bold</td><td style="text-align:center">+0.25em</td><td style="text-align:center">2</td></tr><tr><td style="text-align:left">Slide number</td><td style="text-align:center">8pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">1</td></tr></tbody></table>
+    <div class="slide-notes" hidden>&quot;Massstab&quot; = scale/measure. This table maps every typographic role to its grid allocation. Note the inverse relationship between size and letterspacing: large type needs tighter tracking (optical correction), while small caps labels need wide spacing for legibility at small sizes. Each role occupies a specific number of grid rows — type and grid are inseparable.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="9" data-layout="rotated">
+  <div class="slide-content layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">Asymmetry is the rhythmic expression of functional design. In terms of design it contains the tension we see in the contrast between unequal parts — balance created not through equal distribution but through dynamic equilibrium.</p></div>
+    <div class="slide-notes" hidden>&quot;Flattersatz&quot; = flush left/ragged right (literally &quot;flutter setting&quot;). This is perhaps the most sacred rule of Swiss typography. Jan Tschichold codified it in &quot;Die neue Typographie&quot; (1928). The split layout mirrors the principle: the left column is the strong vertical anchor, the right column flows freely.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="10" data-layout="bullets">
+  <div class="slide-content layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">DURCHSCHUSS</span><h1>Spacing Systems</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Line spacing (leading)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Body: 1.3–1.5× font size</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Display: 0.95–1.05× (tighter for impact)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Code: 1.2× (scanning density)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Paragraph spacing</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Half-line space between paragraphs</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Never indent first lines — use space instead</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Letterspacing (tracking)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Negative for display type above 24pt</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Neutral for body text</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Positive for small caps and labels</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Maximum +0.25em for section headers</span></div></div>
+    <div class="slide-notes" hidden>&quot;Durchschuss&quot; = leading (literally &quot;shot through&quot; — from the lead strips inserted between lines of metal type). Swiss designers were obsessive about spacing ratios. The nested bullets demonstrate three hierarchical levels of spacing information, each progressively more detailed — mirroring the spacing hierarchy itself.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="11" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#6B1A10;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">COLOUR AS INFORMATION</span><h1 class="section-title">III. Farbe</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section III: Colour. The deep red background is itself a statement — colour in Swiss design is never decorative, always functional. Red signals urgency, importance, or section breaks. Müller-Brockmann's Musica Viva posters used red as the primary accent against black and white.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="12" data-layout="bullets">
+  <div class="slide-content layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">FARBSYSTEM</span><h1>The Four-Colour System</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Red — E63222</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Primary accent, calls to action</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Section dividers, emphasis</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Danger, urgency, passion</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Blue — 1B4FA0</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Secondary accent, information</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Links, references, navigation</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Stability, trust, depth</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Green — 2A7A4B</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Tertiary accent, confirmation</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Success states, natural themes</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Growth, balance, harmony</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Gold — F2C12E</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Quaternary accent, highlights</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Warnings, premium markers</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Energy, optimism, attention</span></div></div>
+    <div class="slide-notes" hidden>Swiss design typically restricts the palette to three or four colours plus black and white. Each colour carries semantic weight — it's not just aesthetic, it's informational. The four-colour system in rastersysteme cycles through these accents in bullets, stagger bars, and fragment cells. The restriction forces clarity.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="13" data-layout="overlap">
+  <div class="slide-content layout-overlap" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Transparency &amp; Layering</h1><div class="overlap-fields">
+<div class="overlap-a"><p>Solid fields at 15–40%</p><p>Colour mixing through overlap</p><p>Depth without drop shadows</p></div>
+<div class="overlap-b"><p>Background tints at 90–95%</p><p>Text fields with subtle fill</p><p>Information density via layers</p></div></div>
+    <div class="slide-notes" hidden>The overlap layout demonstrates colour interaction directly. Two translucent fields (accent and accent2) intersect, and where they overlap, a third colour emerges. This is a technique from concrete art — Max Bill, Richard Paul Lohse — where colour relationships are systematic, not intuitive. The transparency percentages are grid-aligned values.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="14" data-layout="fragment">
+  <div class="slide-content layout-fragment" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Colour in Context</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">F8F5F0 — warm white</div>
+<div class="frag-cell" style="background:var(--accent2)">FFFFFF — pure white</div>
+<div class="frag-cell" style="background:var(--accent3)">1A1A1A — near black</div>
+<div class="frag-cell" style="background:var(--accent4)">D4CEC4 — warm grey</div>
+<div class="frag-cell" style="background:var(--black)">5C5549 — mid text</div>
+<div class="frag-cell" style="background:var(--accent)">8C8478 — light text</div>
+<div class="frag-cell" style="background:var(--accent2)">E63222 — red accent</div>
+<div class="frag-cell" style="background:var(--accent3)">1B4FA0 — blue accent</div>
+<div class="frag-cell" style="background:var(--accent4)">2A7A4B — green accent</div></div>
+    <div class="slide-notes" hidden>The fragment layout presents the full colour palette as a grid of swatches. Each cell is one of the nine core colours in the light theme. The grid arrangement lets you see relationships between colours at a glance — warms on the left, neutrals in the middle, accents on the right. This is Gerstner's &quot;programme&quot; applied to colour.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="15" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1A1A1A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">PLACING ELEMENTS IN SPACE</span><h1 class="section-title">IV. Komposition</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section IV: Composition. Back to black — the most Swiss of backgrounds. &quot;Komposition&quot; covers the rules for placing elements on the grid: asymmetry, white space, visual weight, and the tension between order and energy.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="16" data-layout="bullets">
+  <div class="slide-content layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">DAS PRINZIP</span><h1>Asymmetry</h1><p>The Swiss rejected centred composition as static, hierarchical, and conventional.</p>
+<p>Asymmetric layout creates dynamic equilibrium — balance through unequal distribution of visual weight.</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Place the heaviest element off-centre</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Typically at the first ÷5 or ÷12 column</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Never exactly centred, never touching the margin</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Let white space do equal work</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Empty grid cells are design elements</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Silence is part of the composition</span></div></div><blockquote>The asymmetric layout is the rhythmic expression of functional design. Tension arises from contrast between unequal parts.</blockquote>
+    <div class="slide-notes" hidden>&quot;Das Prinzip&quot; = the principle. This is the most fundamental rule of Swiss layout. The split layout itself demonstrates asymmetry — the left zone is 22 columns (37%), the right zone is 33 columns (55%), with 5 columns of gutter between. This 2:3 ratio is close to the golden section.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="17" data-layout="rotated">
+  <div class="slide-content layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">White space is to be regarded as an active element, not a passive background.</p></div>
+    <div class="slide-notes" hidden>&quot;Weissraum&quot; = white space. Jan Tschichold wrote extensively about the active role of empty space. In rastersysteme, each layout deliberately leaves large areas of the grid unused — the split layout uses only ~55% of columns, the rotated layout dedicates 15% to a single vertical bar. This slide, in the split layout, demonstrates the principle by keeping the right column sparse.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="18" data-layout="stagger">
+  <div class="slide-content layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Visual Weight</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Display type at 40pt commands the eye first</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Colour fields create zones of density</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Numbered dots add punctuation and rhythm</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Body text forms the ground texture</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Micro-type (labels, numbers) recedes to structure</div></div>
+    <div class="slide-notes" hidden>Visual weight determines reading order. The stagger layout makes weight literal — each bar's size and colour intensity corresponds to the visual weight of the element it describes. Display type (heaviest bar, brightest colour) cascades down to micro-type (thinnest bar, most transparent). The diagonal energy of the cascade itself embodies the concept.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="19" data-layout="table">
+  <div class="slide-content layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Ten Layout Modes</h1><table><thead><tr><th style="text-align:left">Layout</th><th style="text-align:center">Cols Used</th><th style="text-align:left">Grid Character</th><th style="text-align:left">Inspiration</th></tr></thead><tbody><tr><td style="text-align:left">title</td><td style="text-align:center">24 + 22</td><td style="text-align:left">Binary split</td><td style="text-align:left">Book covers</td></tr><tr><td style="text-align:left">section</td><td style="text-align:center">52</td><td style="text-align:left">Full-width centre</td><td style="text-align:left">Chapter pages</td></tr><tr><td style="text-align:left">bullets</td><td style="text-align:center">55</td><td style="text-align:left">Left-anchored list</td><td style="text-align:left">Neue Grafik</td></tr><tr><td style="text-align:left">stagger</td><td style="text-align:center">42–60</td><td style="text-align:left">Diagonal cascade</td><td style="text-align:left">Musica Viva</td></tr><tr><td style="text-align:left">split</td><td style="text-align:center">22 + 33</td><td style="text-align:left">Asymmetric pair</td><td style="text-align:left">Editorial</td></tr><tr><td style="text-align:left">rotated</td><td style="text-align:center">13 + 40</td><td style="text-align:left">Vertical + horizontal</td><td style="text-align:left">Weingart</td></tr><tr><td style="text-align:left">fragment</td><td style="text-align:center">3 × 18</td><td style="text-align:left">Modular cells</td><td style="text-align:left">Lohse</td></tr><tr><td style="text-align:left">overlap</td><td style="text-align:center">32 + 32</td><td style="text-align:left">Intersecting fields</td><td style="text-align:left">Concrete art</td></tr><tr><td style="text-align:left">arc</td><td style="text-align:center">25 + 35</td><td style="text-align:left">Geometric + text</td><td style="text-align:left">Constructivism</td></tr><tr><td style="text-align:left">code</td><td style="text-align:center">58</td><td style="text-align:left">Full-width dark</td><td style="text-align:left">Terminal</td></tr></tbody></table>
+    <div class="slide-notes" hidden>This table maps each layout to its grid usage and art-historical reference. Note the column counts — every layout uses grid-aligned widths. The title layout's 24 + 22 = 46 columns, leaving 14 unused (breathing room). The split's 22 + 33 = 55, with 5-column gutter. These are not arbitrary — they're divisions of 60.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="20" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1B3D22;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">THE POSTER AS PROGRAMME</span><h1 class="section-title">V. Musica Viva</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section V: Musica Viva. Green background for a new chapter. Müller-Brockmann's concert poster series for the Zurich Tonhalle (1950–1972) is the single most important body of work in Swiss graphic design. Each poster was a &quot;programme&quot; — a systematic composition generated from the musical content.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="21" data-layout="stagger">
+  <div class="slide-content layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Zurich Tonhalle 1958</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Vertical colour fields in musical intervals</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Each bar tuned to the frequency of the programme</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Warm tones for strings, cool for winds</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Width as duration, height as dynamic</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">The poster does not illustrate — it is</div></div>
+    <div class="slide-notes" hidden>The stagger layout is rastersysteme's direct homage to the Musica Viva posters. The cascading bars don't represent data — they ARE visual music. Each bar's width, position, and colour is generated from the grid system, just as Müller-Brockmann generated poster compositions from musical structure. The diagonal progression creates rhythm; the colour cycle creates harmony.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="22" data-layout="arc">
+  <div class="slide-content layout-arc" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <div class="arc-left"><h1>Proportion &amp; Geometry</h1><p>From Euclid to Euler to Müller-Brockmann — the same mathematical impulse.</p>
+<p>The circle inscribed in the rectangle. The golden ratio as compositional anchor. Concentric forms creating visual gravity.</p>
+<p>A dot is a circle is a world.</p></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div>
+    <div class="slide-notes" hidden>The arc layout places concentric circles in the right zone — a direct reference to Müller-Brockmann's &quot;Beethovens&quot; poster (1955), which used overlapping arcs to represent musical dynamics. The concentric circles also reference the Bauhaus preliminary course: Itten, Albers, and Moholy-Nagy all used the circle-in-square as a fundamental compositional exercise.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="23" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+    <span class="label">FROM ORDER TO EXPRESSIVE TENSION</span><h1 class="section-title">VI. Neue Welle</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Section VI: New Wave. Deep blue for the final chapter. &quot;Neue Welle&quot; marks the transition from Swiss rationalism to the expressive typography of Weingart, Greiman, and their students. The grid remains — but it bends.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="24" data-layout="stagger">
+  <div class="slide-content layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Weingart at Basel</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Layered type at conflicting angles</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Extreme letterspacing stretched to texture</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Ruled lines as autonomous elements</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Stepped type creating visual staircases</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">The grid acknowledged, then violated</div></div>
+    <div class="slide-notes" hidden>Wolfgang Weingart arrived at the Basel School of Design as an instructor in 1968, aged 26. He taught typography for nearly four decades. His approach was not anti-grid — it was meta-grid. He used the system's own logic to generate visual complexity that the system's creators never intended. The rotated layout captures a fraction of this energy with its vertical title bar.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="25" data-layout="code">
+  <div class="slide-content layout-code" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <span class="label">GERSTNER → CODE</span><h1>The Programme Generalized</h1><div class="code-block"><span class="code-lang">javascript</span><pre><code>// Gerstner's morphological box — every design<br>// is one path through a multi-dimensional matrix<br><br>const programme = {<br>  grid:       [60, 30, 20, 15, 12, 10, 6, 5, 4, 3, 2],<br>  typeface:   ['Helvetica Neue', 'Akzidenz', 'Univers'],<br>  weight:     ['light', 'regular', 'medium', 'bold'],<br>  size:       [8, 9, 10, 11, 12, 13, 14, 17, 18, 24, 28, 30, 34, 40],<br>  leading:    [0.95, 1.0, 1.05, 1.2, 1.25, 1.3, 1.4, 1.5],<br>  tracking:   [-0.02, 0, 0.01, 0.1, 0.15, 0.2, 0.25],<br>  colour:     ['E63222', '1B4FA0', '2A7A4B', 'F2C12E',<br>               '1A1A1A', 'F8F5F0', 'FFFFFF'],<br>  opacity:    [0.10, 0.15, 0.20, 0.25, 0.35, 0.40, 0.85, 0.88, 0.90, 0.92, 0.93, 0.94, 0.95],<br>  layout:     ['title', 'section', 'bullets', 'stagger',<br>               'split', 'rotated', 'fragment', 'overlap',<br>               'arc', 'image', 'table', 'code', 'blank'],<br>};<br><br>// Total unique combinations:<br>// 11 × 3 × 4 × 14 × 8 × 7 × 7 × 13 × 13<br>// = 5,765,683,968 possible slides</code></pre></div>
+    <div class="slide-notes" hidden>Karl Gerstner's &quot;Designing Programmes&quot; (1964) proposed that design is not a series of artistic decisions but a systematic exploration of a possibility space. This code block makes the concept executable. The morphological box here has 9 axes, each with a set of valid values. Every slide in rastersysteme is one path through this matrix — and there are 5.7 billion unique combinations. This is the grid as generative programme.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="26" data-layout="overlap">
+  <div class="slide-content layout-overlap" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>Concrete + Expressive</h1><div class="overlap-fields">
+<div class="overlap-a"><p>Systematic rigour</p><p>Mathematical precision</p><p>Modular repetition</p><p>Objective photography</p><p>Universal communication</p></div>
+<div class="overlap-b"><p>Intuitive disruption</p><p>Optical texture</p><p>Controlled accident</p><p>Subjective collage</p><p>Personal expression</p></div></div>
+    <div class="slide-notes" hidden>The overlap layout is the visual thesis of this presentation. Two colour fields intersect — red (Swiss rationalism) and blue (New Wave expression). The bullets in each field represent the values of each tradition. Where the fields overlap, something new emerges: a design practice that is both systematic AND expressive. Neither tradition makes sense without the other.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="27" data-layout="stagger">
+  <div class="slide-content layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1>After Switzerland</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">April Greiman — digital collage, 1980s</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Neville Brody — The Face, postmodern type</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">David Carson — anti-grid as grid, Ray Gun</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Emigre — Rudy VanderLans + Zuzana Licko</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Experimental Jetset — Swiss revival, Amsterdam</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Norm — systematics as aesthetic, Zurich</div></div>
+    <div class="slide-notes" hidden>The legacy of Swiss/New Wave design extends through every major movement in graphic design since. Greiman brought Weingart's approach to America and into digital media. Brody and Carson pushed deconstruction further. Emigre created the typefaces of the digital revolution. Experimental Jetset and Norm represent a contemporary return to systematic design — Swiss principles applied with New Wave awareness.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="28" data-layout="rotated">
+  <div class="slide-content layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);font-family:'Georgia',var(--font)">
+    <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">The typographer must take the greatest care to study and observe the rules of legibility and order. But within this framework, he can and must explore all possibilities of expression.</p></div>
+    <div class="slide-notes" hidden>&quot;Nachspiel&quot; = postscript/aftermath. Georgia (a serif face) is used here deliberately — an act of typographic transgression that Weingart would approve. The quote synthesizes the Swiss and New Wave positions: rules AND expression, order AND exploration. The grid enables freedom precisely because it provides structure.</div>
+  </div>
+</section>
+<section class="studio-slide" data-index="29" data-layout="section">
+  <div class="slide-content layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+    <h1 class="section-title">Raster. System. Programme.</h1>
+<div class="accent-bar"></div>
+    <div class="slide-notes" hidden>Final slide. Three German-inflected words that summarise the intellectual heritage: Raster (Müller-Brockmann's grid), System (the International Style's aspiration to universal order), Programme (Gerstner's generative design). Displayed in the section layout — dark background, centred, with the red accent bar below. The presentation ends where it began: with the grid.</div>
+  </div>
+</section>
+  </div>
+</div>
+
+<!-- ═══ PROGRESS + COUNTER ═══ -->
+<div class="studio-progress"><div class="studio-progress-fill"></div></div>
+<div class="studio-counter">01 / 30</div>
+<div class="studio-mode"></div>
+<a class="studio-back" href="../index.html">&larr; rastersysteme</a>
+<div class="studio-deck-title">showcase</div>
+
+<!-- ═══ SPEAKER NOTES ═══ -->
+<div class="studio-notes">
+  <div class="studio-notes-header">Speaker Notes</div>
+  <div class="studio-notes-body">(no notes for this slide)</div>
+</div>
+
+<!-- ═══ GRID MODE ═══ -->
+<div class="studio-grid">
+  <div class="studio-grid-header">
+    <span class="studio-grid-title">showcase</span>
+    <span class="studio-grid-meta">30 slides &middot; section:7  stagger:5  rotated:4  bullets:4  table:3  code:2  overlap:2  title:1  fragment:1  arc:1</span>
+  </div>
+  <div class="studio-grid-cards">
+    <div class="studio-card" data-index="0" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-title" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <div class="title-left"><div class="accent-block"><h1>Rastersysteme</h1></div></div>
+<div class="title-right"><h2 class="subtitle">A Swiss Grid Manifesto</h2><div class="pills"><div class="pill" style="background:var(--accent2)">Typography</div><div class="pill" style="background:var(--accent3)">Proportion</div><div class="pill" style="background:var(--accent4)">Rhythm</div><div class="pill" style="background:var(--accent2)">Colour</div><div class="pill" style="background:var(--accent3)">Tension</div></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">01</span>
+    <span class="studio-card-layout" data-layout="title">title</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="1" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1A1A1A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">THE GRID</span><h1 class="section-title">I. Das Raster</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">02</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="2" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">The grid system is an aid, not a guarantee. It permits a number of possible uses and each designer can look for a solution appropriate to his personal style.</p></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">03</span>
+    <span class="studio-card-layout" data-layout="rotated">rotated</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="3" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">MATHEMATICS</span><h1>Why 60 Columns</h1><table><thead><tr><th style="text-align:center">Division</th><th style="text-align:center">Columns</th><th style="text-align:center">Zones</th><th style="text-align:left">Character</th></tr></thead><tbody><tr><td style="text-align:center">÷2</td><td style="text-align:center">30</td><td style="text-align:center">2</td><td style="text-align:left">Binary split — thesis / antithesis</td></tr><tr><td style="text-align:center">÷3</td><td style="text-align:center">20</td><td style="text-align:center">3</td><td style="text-align:left">Triptych — narrative sequence</td></tr><tr><td style="text-align:center">÷4</td><td style="text-align:center">15</td><td style="text-align:center">4</td><td style="text-align:left">Quadrant — dashboard density</td></tr><tr><td style="text-align:center">÷5</td><td style="text-align:center">12</td><td style="text-align:center">5</td><td style="text-align:left">Pentad — the primary rhythm</td></tr><tr><td style="text-align:center">÷6</td><td style="text-align:center">10</td><td style="text-align:center">6</td><td style="text-align:left">Hexad — dense information</td></tr><tr><td style="text-align:center">÷10</td><td style="text-align:center">6</td><td style="text-align:center">10</td><td style="text-align:left">Decad — fine granularity</td></tr><tr><td style="text-align:center">÷12</td><td style="text-align:center">5</td><td style="text-align:center">12</td><td style="text-align:left">Dodecad — structural backbone</td></tr><tr><td style="text-align:center">÷15</td><td style="text-align:center">4</td><td style="text-align:center">15</td><td style="text-align:left">Ultra-fine control</td></tr><tr><td style="text-align:center">÷20</td><td style="text-align:center">3</td><td style="text-align:center">20</td><td style="text-align:left">Micro-placement</td></tr><tr><td style="text-align:center">÷30</td><td style="text-align:center">2</td><td style="text-align:center">30</td><td style="text-align:left">Sub-pixel precision</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">04</span>
+    <span class="studio-card-layout" data-layout="table">table</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="4" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-code" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">KONSTRUKTION</span><h1>Grid Anatomy</h1><div class="code-block"><span class="code-lang">javascript</span><pre><code>// The grid is defined by six parameters<br>const grid = createGrid(<br>  10,      // slideWidth  — 10 inches (16:9)<br>  5.625,   // slideHeight — 5.625 inches<br>  60,      // cols        — 60 vertical divisions<br>  40,      // rows        — 40 horizontal divisions<br>  0.5,     // margin      — 0.5&quot; on all sides<br>  0.02     // gutter      — 0.02&quot; micro-gutter<br>);<br><br>// Inner width: 10 - (2 × 0.5) = 9 inches<br>// Column width: (9 - 59 × 0.02) / 60 ≈ 0.130&quot;<br>// Row height:   (4.625 - 39 × 0.02) / 40 ≈ 0.096&quot;<br><br>// Placement is always column-based:<br>grid.cx(0)   // → 0.500&quot; (left margin)<br>grid.cx(12)  // → 2.300&quot; (first ÷5 division)<br>grid.cx(30)  // → 5.000&quot; (exact centre)<br>grid.cx(48)  // → 7.700&quot; (last ÷5 division)<br>grid.cx(60)  // → 9.500&quot; (right margin)</code></pre></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">05</span>
+    <span class="studio-card-layout" data-layout="code">code</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="5" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">ORDNUNG</span><h1>Grid Hierarchy</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Primary structure — ÷12 divisions</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Every 12th column creates a strong vertical</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Five equal zones across the slide</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>The backbone of all layouts</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Secondary rhythm — ÷5 divisions</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Every 5th column creates a medium pulse</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Twelve zones for finer control</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Text columns, image placement</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Tertiary detail — individual columns</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>60 positions for micro-adjustment</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Indent, offset, fine kerning</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Optical alignment corrections</span></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">06</span>
+    <span class="studio-card-layout" data-layout="bullets">bullets</span>
+    <span class="studio-card-status warn"></span>
+  </div>
+  <div class="studio-card-badges"><span class="studio-badge warn">Dense bullets (12) — consider stagger or split</span></div>
+</div>
+<div class="studio-card" data-index="6" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">LETTERFORMS AS ARCHITECTURE</span><h1 class="section-title">II. Typografie</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">07</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="7" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>The Swiss Typefaces</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Akzidenz-Grotesk — the origin, 1898</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Neue Haas Grotesk — Miedinger, 1957</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Helvetica — renamed for the world, 1960</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Univers — Frutiger's numbered system, 1957</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Folio — Bauer's rational alternative, 1957</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">08</span>
+    <span class="studio-card-layout" data-layout="stagger">stagger</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="8" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">MASSSTAB</span><h1>The Type Scale</h1><table><thead><tr><th style="text-align:left">Role</th><th style="text-align:center">Size</th><th style="text-align:left">Weight</th><th style="text-align:center">Spacing</th><th style="text-align:center">Grid Rows</th></tr></thead><tbody><tr><td style="text-align:left">Display title</td><td style="text-align:center">40pt</td><td style="text-align:left">Bold</td><td style="text-align:center">−0.02em</td><td style="text-align:center">10</td></tr><tr><td style="text-align:left">Slide title</td><td style="text-align:center">28–34pt</td><td style="text-align:left">Bold</td><td style="text-align:center">−0.02em</td><td style="text-align:center">7–8</td></tr><tr><td style="text-align:left">Subtitle</td><td style="text-align:center">18–24pt</td><td style="text-align:left">Bold</td><td style="text-align:center">0</td><td style="text-align:center">5–6</td></tr><tr><td style="text-align:left">Body text</td><td style="text-align:center">13–17pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">4</td></tr><tr><td style="text-align:left">Bullet text</td><td style="text-align:center">12–14pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">3–4</td></tr><tr><td style="text-align:left">Caption</td><td style="text-align:center">9–11pt</td><td style="text-align:left">Regular</td><td style="text-align:center">+0.01em</td><td style="text-align:center">2</td></tr><tr><td style="text-align:left">Section label</td><td style="text-align:center">8pt</td><td style="text-align:left">Bold</td><td style="text-align:center">+0.25em</td><td style="text-align:center">2</td></tr><tr><td style="text-align:left">Slide number</td><td style="text-align:center">8pt</td><td style="text-align:left">Regular</td><td style="text-align:center">0</td><td style="text-align:center">1</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">09</span>
+    <span class="studio-card-layout" data-layout="table">table</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="9" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">Asymmetry is the rhythmic expression of functional design. In terms of design it contains the tension we see in the contrast between unequal parts — balance created not through equal distribution but through dynamic equilibrium.</p></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">10</span>
+    <span class="studio-card-layout" data-layout="rotated">rotated</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="10" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">DURCHSCHUSS</span><h1>Spacing Systems</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Line spacing (leading)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Body: 1.3–1.5× font size</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Display: 0.95–1.05× (tighter for impact)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Code: 1.2× (scanning density)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Paragraph spacing</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Half-line space between paragraphs</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Never indent first lines — use space instead</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Letterspacing (tracking)</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Negative for display type above 24pt</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Neutral for body text</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Positive for small caps and labels</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Maximum +0.25em for section headers</span></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">11</span>
+    <span class="studio-card-layout" data-layout="bullets">bullets</span>
+    <span class="studio-card-status warn"></span>
+  </div>
+  <div class="studio-card-badges"><span class="studio-badge warn">Dense bullets (12) — consider stagger or split</span></div>
+</div>
+<div class="studio-card" data-index="11" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#6B1A10;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">COLOUR AS INFORMATION</span><h1 class="section-title">III. Farbe</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">12</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="12" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">FARBSYSTEM</span><h1>The Four-Colour System</h1><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Red — E63222</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Primary accent, calls to action</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Section dividers, emphasis</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Danger, urgency, passion</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Blue — 1B4FA0</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Secondary accent, information</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Links, references, navigation</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Stability, trust, depth</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Green — 2A7A4B</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Tertiary accent, confirmation</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Success states, natural themes</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Growth, balance, harmony</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Gold — F2C12E</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Quaternary accent, highlights</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Warnings, premium markers</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Energy, optimism, attention</span></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">13</span>
+    <span class="studio-card-layout" data-layout="bullets">bullets</span>
+    <span class="studio-card-status warn"></span>
+  </div>
+  <div class="studio-card-badges"><span class="studio-badge warn">Dense bullets (16) — consider stagger or split</span></div>
+</div>
+<div class="studio-card" data-index="13" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-overlap" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Transparency &amp; Layering</h1><div class="overlap-fields">
+<div class="overlap-a"><p>Solid fields at 15–40%</p><p>Colour mixing through overlap</p><p>Depth without drop shadows</p></div>
+<div class="overlap-b"><p>Background tints at 90–95%</p><p>Text fields with subtle fill</p><p>Information density via layers</p></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">14</span>
+    <span class="studio-card-layout" data-layout="overlap">overlap</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="14" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-fragment" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Colour in Context</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">F8F5F0 — warm white</div>
+<div class="frag-cell" style="background:var(--accent2)">FFFFFF — pure white</div>
+<div class="frag-cell" style="background:var(--accent3)">1A1A1A — near black</div>
+<div class="frag-cell" style="background:var(--accent4)">D4CEC4 — warm grey</div>
+<div class="frag-cell" style="background:var(--black)">5C5549 — mid text</div>
+<div class="frag-cell" style="background:var(--accent)">8C8478 — light text</div>
+<div class="frag-cell" style="background:var(--accent2)">E63222 — red accent</div>
+<div class="frag-cell" style="background:var(--accent3)">1B4FA0 — blue accent</div>
+<div class="frag-cell" style="background:var(--accent4)">2A7A4B — green accent</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">15</span>
+    <span class="studio-card-layout" data-layout="fragment">fragment</span>
+    <span class="studio-card-status warn"></span>
+  </div>
+  <div class="studio-card-badges"><span class="studio-badge warn">Fragment layout uses colour to distinguish cells — consider </span></div>
+</div>
+<div class="studio-card" data-index="15" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1A1A1A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">PLACING ELEMENTS IN SPACE</span><h1 class="section-title">IV. Komposition</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">16</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="16" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-bullets" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">DAS PRINZIP</span><h1>Asymmetry</h1><p>The Swiss rejected centred composition as static, hierarchical, and conventional.</p>
+<p>Asymmetric layout creates dynamic equilibrium — balance through unequal distribution of visual weight.</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Place the heaviest element off-centre</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Typically at the first ÷5 or ÷12 column</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Never exactly centred, never touching the margin</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Let white space do equal work</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Empty grid cells are design elements</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Silence is part of the composition</span></div></div><blockquote>The asymmetric layout is the rhythmic expression of functional design. Tension arises from contrast between unequal parts.</blockquote>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">17</span>
+    <span class="studio-card-layout" data-layout="bullets">bullets</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="17" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">White space is to be regarded as an active element, not a passive background.</p></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">18</span>
+    <span class="studio-card-layout" data-layout="rotated">rotated</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="18" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Visual Weight</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Display type at 40pt commands the eye first</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Colour fields create zones of density</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Numbered dots add punctuation and rhythm</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Body text forms the ground texture</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Micro-type (labels, numbers) recedes to structure</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">19</span>
+    <span class="studio-card-layout" data-layout="stagger">stagger</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="19" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-table" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Ten Layout Modes</h1><table><thead><tr><th style="text-align:left">Layout</th><th style="text-align:center">Cols Used</th><th style="text-align:left">Grid Character</th><th style="text-align:left">Inspiration</th></tr></thead><tbody><tr><td style="text-align:left">title</td><td style="text-align:center">24 + 22</td><td style="text-align:left">Binary split</td><td style="text-align:left">Book covers</td></tr><tr><td style="text-align:left">section</td><td style="text-align:center">52</td><td style="text-align:left">Full-width centre</td><td style="text-align:left">Chapter pages</td></tr><tr><td style="text-align:left">bullets</td><td style="text-align:center">55</td><td style="text-align:left">Left-anchored list</td><td style="text-align:left">Neue Grafik</td></tr><tr><td style="text-align:left">stagger</td><td style="text-align:center">42–60</td><td style="text-align:left">Diagonal cascade</td><td style="text-align:left">Musica Viva</td></tr><tr><td style="text-align:left">split</td><td style="text-align:center">22 + 33</td><td style="text-align:left">Asymmetric pair</td><td style="text-align:left">Editorial</td></tr><tr><td style="text-align:left">rotated</td><td style="text-align:center">13 + 40</td><td style="text-align:left">Vertical + horizontal</td><td style="text-align:left">Weingart</td></tr><tr><td style="text-align:left">fragment</td><td style="text-align:center">3 × 18</td><td style="text-align:left">Modular cells</td><td style="text-align:left">Lohse</td></tr><tr><td style="text-align:left">overlap</td><td style="text-align:center">32 + 32</td><td style="text-align:left">Intersecting fields</td><td style="text-align:left">Concrete art</td></tr><tr><td style="text-align:left">arc</td><td style="text-align:center">25 + 35</td><td style="text-align:left">Geometric + text</td><td style="text-align:left">Constructivism</td></tr><tr><td style="text-align:left">code</td><td style="text-align:center">58</td><td style="text-align:left">Full-width dark</td><td style="text-align:left">Terminal</td></tr></tbody></table>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">20</span>
+    <span class="studio-card-layout" data-layout="table">table</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="20" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#1B3D22;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">THE POSTER AS PROGRAMME</span><h1 class="section-title">V. Musica Viva</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">21</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="21" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Zurich Tonhalle 1958</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Vertical colour fields in musical intervals</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Each bar tuned to the frequency of the programme</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Warm tones for strings, cool for winds</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Width as duration, height as dynamic</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">The poster does not illustrate — it is</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">22</span>
+    <span class="studio-card-layout" data-layout="stagger">stagger</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="22" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-arc" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <div class="arc-left"><h1>Proportion &amp; Geometry</h1><p>From Euclid to Euler to Müller-Brockmann — the same mathematical impulse.</p>
+<p>The circle inscribed in the rectangle. The golden ratio as compositional anchor. Concentric forms creating visual gravity.</p>
+<p>A dot is a circle is a world.</p></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">23</span>
+    <span class="studio-card-layout" data-layout="arc">arc</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="23" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512">
+      <span class="label">FROM ORDER TO EXPRESSIVE TENSION</span><h1 class="section-title">VI. Neue Welle</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">24</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="24" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Weingart at Basel</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Layered type at conflicting angles</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Extreme letterspacing stretched to texture</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Ruled lines as autonomous elements</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Stepped type creating visual staircases</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">The grid acknowledged, then violated</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">25</span>
+    <span class="studio-card-layout" data-layout="stagger">stagger</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="25" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-code" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <span class="label">GERSTNER → CODE</span><h1>The Programme Generalized</h1><div class="code-block"><span class="code-lang">javascript</span><pre><code>// Gerstner's morphological box — every design<br>// is one path through a multi-dimensional matrix<br><br>const programme = {<br>  grid:       [60, 30, 20, 15, 12, 10, 6, 5, 4, 3, 2],<br>  typeface:   ['Helvetica Neue', 'Akzidenz', 'Univers'],<br>  weight:     ['light', 'regular', 'medium', 'bold'],<br>  size:       [8, 9, 10, 11, 12, 13, 14, 17, 18, 24, 28, 30, 34, 40],<br>  leading:    [0.95, 1.0, 1.05, 1.2, 1.25, 1.3, 1.4, 1.5],<br>  tracking:   [-0.02, 0, 0.01, 0.1, 0.15, 0.2, 0.25],<br>  colour:     ['E63222', '1B4FA0', '2A7A4B', 'F2C12E',<br>               '1A1A1A', 'F8F5F0', 'FFFFFF'],<br>  opacity:    [0.10, 0.15, 0.20, 0.25, 0.35, 0.40, 0.85, 0.88, 0.90, 0.92, 0.93, 0.94, 0.95],<br>  layout:     ['title', 'section', 'bullets', 'stagger',<br>               'split', 'rotated', 'fragment', 'overlap',<br>               'arc', 'image', 'table', 'code', 'blank'],<br>};<br><br>// Total unique combinations:<br>// 11 × 3 × 4 × 14 × 8 × 7 × 7 × 13 × 13<br>// = 5,765,683,968 possible slides</code></pre></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">26</span>
+    <span class="studio-card-layout" data-layout="code">code</span>
+    <span class="studio-card-status warn"></span>
+  </div>
+  <div class="studio-card-badges"><span class="studio-badge warn">Code block has 21 lines — may clip</span></div>
+</div>
+<div class="studio-card" data-index="26" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-overlap" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>Concrete + Expressive</h1><div class="overlap-fields">
+<div class="overlap-a"><p>Systematic rigour</p><p>Mathematical precision</p><p>Modular repetition</p><p>Objective photography</p><p>Universal communication</p></div>
+<div class="overlap-b"><p>Intuitive disruption</p><p>Optical texture</p><p>Controlled accident</p><p>Subjective collage</p><p>Personal expression</p></div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">27</span>
+    <span class="studio-card-layout" data-layout="overlap">overlap</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="27" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-stagger" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1>After Switzerland</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">April Greiman — digital collage, 1980s</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Neville Brody — The Face, postmodern type</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">David Carson — anti-grid as grid, Ray Gun</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Emigre — Rudy VanderLans + Zuzana Licko</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Experimental Jetset — Swiss revival, Amsterdam</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Norm — systematics as aesthetic, Zurich</div></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">28</span>
+    <span class="studio-card-layout" data-layout="stagger">stagger</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="28" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-rotated" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt);font-family:'Georgia',var(--font)">
+      <div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">The typographer must take the greatest care to study and observe the rules of legibility and order. But within this framework, he can and must explore all possibilities of expression.</p></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">29</span>
+    <span class="studio-card-layout" data-layout="rotated">rotated</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+<div class="studio-card" data-index="29" tabindex="0">
+  <div class="studio-card-preview">
+    <div class="slide-scaled layout-section" style="padding:5vmin;gap:2vmin;font-family:var(--font);color:var(--text);background:var(--bg-alt)">
+      <h1 class="section-title">Raster. System. Programme.</h1>
+<div class="accent-bar"></div>
+    </div>
+  </div>
+  <div class="studio-card-info">
+    <span class="studio-card-num">30</span>
+    <span class="studio-card-layout" data-layout="section">section</span>
+    <span class="studio-card-status ok"></span>
+  </div>
+  
+</div>
+  </div>
+</div>
+
+<!-- ═══ QA PANEL ═══ -->
+<div class="studio-qa">
+  <div class="studio-qa-inner">
+    <div class="studio-qa-title">Quality Analysis</div>
+    <div class="studio-qa-subtitle">showcase &middot; light theme</div>
+
+    <div class="studio-grade-container">
+      <div class="studio-grade-letter" style="color:#508CDC">B</div>
+      <div class="studio-grade-details">
+        <div class="studio-grade-score">89 / 100</div>
+        <div class="studio-grade-pct">89% design quality</div>
+      </div>
+    </div>
+
+    <div class="studio-qa-stats">
+      <span class="studio-qa-stat">30 slides</span>
+      <span class="studio-qa-stat ok">0 a11y errors</span>
+      <span class="studio-qa-stat warn">1 a11y warnings</span>
+      <span class="studio-qa-stat ok">0 layout errors</span>
+      <span class="studio-qa-stat warn">4 layout warnings</span>
+    </div>
+
+    <div class="studio-score-section">
+      <div class="studio-score-label">Design Quality Scores</div>
+      <div class="studio-score-row">
+  <span class="studio-score-name">Layout Variety</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:75%;background:linear-gradient(90deg,#E0A040,#E8C060)"></div></div>
+  <span class="studio-score-val">15/20</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Section Rhythm</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:73%;background:linear-gradient(90deg,#E0A040,#E8C060)"></div></div>
+  <span class="studio-score-val">11/15</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Content Density</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:100%;background:linear-gradient(90deg,#40C080,#50D898)"></div></div>
+  <span class="studio-score-val">15/15</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Typography</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:100%;background:linear-gradient(90deg,#40C080,#50D898)"></div></div>
+  <span class="studio-score-val">15/15</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Speaker Notes</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:100%;background:linear-gradient(90deg,#40C080,#50D898)"></div></div>
+  <span class="studio-score-val">10/10</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Content Types</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:80%;background:linear-gradient(90deg,#40C080,#50D898)"></div></div>
+  <span class="studio-score-val">8/10</span>
+</div>
+<div class="studio-score-row">
+  <span class="studio-score-name">Visual Rhythm</span>
+  <div class="studio-score-bar-bg"><div class="studio-score-bar-fill" style="width:100%;background:linear-gradient(90deg,#40C080,#50D898)"></div></div>
+  <span class="studio-score-val">15/15</span>
+</div>
+    </div>
+
+    <div class="studio-score-section">
+      <div class="studio-score-label">Issues (5)</div>
+      <div class="studio-issue severity-warning">
+  <span class="issue-icon warn">⚠</span><span class="issue-slide">S06</span><span class="issue-layout">bullets</span>Dense bullets (12) — consider stagger or split
+</div>
+<div class="studio-issue severity-warning">
+  <span class="issue-icon warn">⚠</span><span class="issue-slide">S11</span><span class="issue-layout">bullets</span>Dense bullets (12) — consider stagger or split
+</div>
+<div class="studio-issue severity-warning">
+  <span class="issue-icon warn">⚠</span><span class="issue-slide">S13</span><span class="issue-layout">bullets</span>Dense bullets (16) — consider stagger or split
+</div>
+<div class="studio-issue severity-warning">
+  <span class="issue-icon warn">⚠</span><span class="issue-slide">S15</span><span class="issue-layout">fragment</span>Fragment layout uses colour to distinguish cells — consider adding numbering or icons
+</div>
+<div class="studio-issue severity-warning">
+  <span class="issue-icon warn">⚠</span><span class="issue-slide">S26</span><span class="issue-layout">code</span>Code block has 21 lines — may clip
+</div>
+    </div>
+
+    <div class="studio-score-section">
+      <div class="studio-score-label">Content Inventory</div>
+      <div class="studio-inventory">
+        <div class="studio-inv-slide"><span class="studio-inv-num">01</span><span class="studio-inv-tag">title</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">5 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">02</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#1A1A1A</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">03</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">2 body</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">04</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">1 table</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">05</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">1 code</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">06</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">12 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">07</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#0F2A4A</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">08</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">5 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">09</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">1 table</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">10</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">3 body</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">11</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">12 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">12</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#6B1A10</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">13</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">16 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">14</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">6 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">15</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">9 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">16</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#1A1A1A</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">17</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">6 bullets</span><span class="studio-inv-tag">2 body</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">18</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">3 body</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">19</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">5 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">20</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">1 table</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">21</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#1B3D22</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">22</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">5 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">23</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">3 body</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">24</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">bg:#0F2A4A</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">25</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">5 bullets</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">26</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">1 code</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">27</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">10 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">28</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">6 bullets</span><span class="studio-inv-tag">notes</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">29</span><span class="studio-inv-tag">subtitle</span><span class="studio-inv-tag">label</span><span class="studio-inv-tag">2 body</span><span class="studio-inv-tag">quote</span><span class="studio-inv-tag">notes</span><span class="studio-inv-tag">font:Georgia</span></div>
+<div class="studio-inv-slide"><span class="studio-inv-num">30</span><span class="studio-inv-tag">1 body</span><span class="studio-inv-tag">notes</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HELP OVERLAY ═══ -->
+<div class="studio-help">
+  <div class="studio-help-inner">
+    <div class="studio-help-title">Keyboard Shortcuts</div>
+    <div class="studio-help-subtitle">rastersysteme studio viewer</div>
+
+    <div class="studio-help-section">
+      <div class="studio-help-section-title">Navigation</div>
+      <div class="studio-shortcut"><span class="studio-key">&rarr; / Space</span><span class="studio-shortcut-desc">Next slide</span></div>
+      <div class="studio-shortcut"><span class="studio-key">&larr;</span><span class="studio-shortcut-desc">Previous slide</span></div>
+      <div class="studio-shortcut"><span class="studio-key">Home</span><span class="studio-shortcut-desc">First slide</span></div>
+      <div class="studio-shortcut"><span class="studio-key">End</span><span class="studio-shortcut-desc">Last slide</span></div>
+    </div>
+
+    <div class="studio-help-section">
+      <div class="studio-help-section-title">Modes</div>
+      <div class="studio-shortcut"><span class="studio-key">G</span><span class="studio-shortcut-desc">Grid overview</span></div>
+      <div class="studio-shortcut"><span class="studio-key">Q</span><span class="studio-shortcut-desc">QA analysis panel</span></div>
+      <div class="studio-shortcut"><span class="studio-key">N</span><span class="studio-shortcut-desc">Speaker notes</span></div>
+      <div class="studio-shortcut"><span class="studio-key">F</span><span class="studio-shortcut-desc">Fullscreen</span></div>
+      <div class="studio-shortcut"><span class="studio-key">?</span><span class="studio-shortcut-desc">This help overlay</span></div>
+      <div class="studio-shortcut"><span class="studio-key">Esc</span><span class="studio-shortcut-desc">Close panel / overlay</span></div>
+    </div>
+
+    <div class="studio-help-section">
+      <div class="studio-help-section-title">Grid Mode</div>
+      <div class="studio-shortcut"><span class="studio-key">Arrows</span><span class="studio-shortcut-desc">Navigate cards</span></div>
+      <div class="studio-shortcut"><span class="studio-key">Enter</span><span class="studio-shortcut-desc">Open slide in present mode</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+(function() {
+  'use strict';
+
+  // ── State ──
+  const slides = document.querySelectorAll('.studio-slide');
+  const total = slides.length;
+  let cur = 0;
+  let mode = 'present'; // present | grid | qa
+  let notesOpen = false;
+  let helpOpen = false;
+  let qaOpen = false;
+
+  // ── DOM refs ──
+  const stage = document.querySelector('.studio-stage');
+  const viewport = document.querySelector('.studio-viewport');
+  const progressBar = document.querySelector('.studio-progress-fill');
+  const counter = document.querySelector('.studio-counter');
+  const notesPanel = document.querySelector('.studio-notes');
+  const notesBody = document.querySelector('.studio-notes-body');
+  const gridOverlay = document.querySelector('.studio-grid');
+  const qaPanel = document.querySelector('.studio-qa');
+  const helpOverlay = document.querySelector('.studio-help');
+  const modeIndicator = document.querySelector('.studio-mode');
+  const gridCards = document.querySelectorAll('.studio-card');
+
+  // ── Grid card scaling ──
+  function scaleGridCards() {
+    document.querySelectorAll('.studio-card-preview').forEach(function(preview) {
+      var inner = preview.querySelector('.slide-scaled');
+      if (!inner) return;
+      var w = preview.clientWidth;
+      var scale = w / 1280;
+      inner.style.transform = 'scale(' + scale + ')';
+    });
+  }
+
+  // ── Navigate ──
+  function go(n) {
+    if (n < 0 || n >= total) return;
+    slides[cur].classList.remove('active');
+    cur = n;
+    slides[cur].classList.add('active');
+    progressBar.style.width = ((cur + 1) / total * 100) + '%';
+    counter.textContent = String(cur + 1).padStart(2, '0') + ' / ' + String(total).padStart(2, '0');
+
+    // Update notes
+    var noteEl = slides[cur].querySelector('.slide-notes');
+    notesBody.textContent = noteEl ? noteEl.textContent : '(no notes for this slide)';
+
+    // Update grid focus
+    gridCards.forEach(function(c) { c.classList.remove('grid-active'); });
+    if (gridCards[cur]) gridCards[cur].classList.add('grid-active');
+  }
+
+  // ── Mode indicator flash ──
+  function flashMode(label) {
+    modeIndicator.textContent = label;
+    modeIndicator.classList.add('visible');
+    clearTimeout(flashMode._t);
+    flashMode._t = setTimeout(function() {
+      modeIndicator.classList.remove('visible');
+    }, 1200);
+  }
+
+  // ── Toggle Grid ──
+  function toggleGrid() {
+    if (mode === 'grid') {
+      gridOverlay.classList.remove('open');
+      mode = 'present';
+      flashMode('PRESENT');
+    } else {
+      // Close QA if open
+      if (qaOpen) { qaPanel.classList.remove('open'); stage.classList.remove('qa-open'); qaOpen = false; }
+      gridOverlay.classList.add('open');
+      mode = 'grid';
+      flashMode('GRID');
+      scaleGridCards();
+      // Focus current card and scroll to it
+      if (gridCards[cur]) {
+        gridCards[cur].focus();
+        setTimeout(function() {
+          gridCards[cur].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
+    }
+  }
+
+  // ── Toggle QA ──
+  function toggleQA() {
+    if (mode === 'grid') {
+      gridOverlay.classList.remove('open');
+      mode = 'present';
+    }
+    qaOpen = !qaOpen;
+    qaPanel.classList.toggle('open', qaOpen);
+    stage.classList.toggle('qa-open', qaOpen);
+    flashMode(qaOpen ? 'QA' : 'PRESENT');
+  }
+
+  // ── Toggle Notes ──
+  function toggleNotes() {
+    notesOpen = !notesOpen;
+    notesPanel.classList.toggle('open', notesOpen);
+  }
+
+  // ── Toggle Help ──
+  function toggleHelp() {
+    helpOpen = !helpOpen;
+    helpOverlay.classList.toggle('open', helpOpen);
+  }
+
+  // ── Fullscreen ──
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(function() {});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  // ── Grid card click → open slide ──
+  gridCards.forEach(function(card) {
+    card.addEventListener('click', function() {
+      var idx = parseInt(card.getAttribute('data-index'), 10);
+      go(idx);
+      gridOverlay.classList.remove('open');
+      mode = 'present';
+      flashMode('PRESENT');
+    });
+  });
+
+  // ── Keyboard ──
+  document.addEventListener('keydown', function(e) {
+    // Help overlay captures Escape
+    if (helpOpen) {
+      if (e.key === 'Escape' || e.key === '?') { toggleHelp(); e.preventDefault(); }
+      return;
+    }
+
+    // Grid mode navigation
+    if (mode === 'grid') {
+      var focused = document.activeElement;
+      var focusIdx = -1;
+      gridCards.forEach(function(c, i) { if (c === focused) focusIdx = i; });
+
+      if (e.key === 'Escape' || e.key === 'g' || e.key === 'G') {
+        toggleGrid(); e.preventDefault(); return;
+      }
+      if (e.key === 'Enter' && focusIdx >= 0) {
+        go(focusIdx); gridOverlay.classList.remove('open');
+        mode = 'present'; flashMode('PRESENT'); e.preventDefault(); return;
+      }
+      // Arrow navigation in grid
+      var cols = Math.floor(gridOverlay.querySelector('.studio-grid-cards').clientWidth / 300) || 3;
+      var next = focusIdx;
+      if (e.key === 'ArrowRight') next = Math.min(focusIdx + 1, total - 1);
+      else if (e.key === 'ArrowLeft') next = Math.max(focusIdx - 1, 0);
+      else if (e.key === 'ArrowDown') next = Math.min(focusIdx + cols, total - 1);
+      else if (e.key === 'ArrowUp') next = Math.max(focusIdx - cols, 0);
+      if (next !== focusIdx && next >= 0) {
+        gridCards[next].focus();
+        gridCards[next].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        e.preventDefault();
+      }
+      if (e.key === '?') { toggleHelp(); e.preventDefault(); }
+      return;
+    }
+
+    // Present / QA mode keys
+    switch (e.key) {
+      case 'ArrowRight': case ' ': case 'PageDown':
+        e.preventDefault(); go(cur + 1); break;
+      case 'ArrowLeft': case 'PageUp':
+        e.preventDefault(); go(cur - 1); break;
+      case 'ArrowUp':
+        e.preventDefault(); go(cur - 1); break;
+      case 'ArrowDown':
+        e.preventDefault(); go(cur + 1); break;
+      case 'Home':
+        e.preventDefault(); go(0); break;
+      case 'End':
+        e.preventDefault(); go(total - 1); break;
+      case 'f': case 'F':
+        toggleFullscreen(); break;
+      case 'n': case 'N':
+        toggleNotes(); break;
+      case 'g': case 'G':
+        toggleGrid(); break;
+      case 'q': case 'Q':
+        toggleQA(); break;
+      case '?':
+        toggleHelp(); e.preventDefault(); break;
+      case 'Escape':
+        if (notesOpen) toggleNotes();
+        else if (qaOpen) toggleQA();
+        break;
+    }
+  });
+
+  // ── Touch / swipe ──
+  var touchX = 0, touchY = 0;
+  document.addEventListener('touchstart', function(e) {
+    touchX = e.touches[0].clientX;
+    touchY = e.touches[0].clientY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', function(e) {
+    if (mode !== 'present') return;
+    var dx = e.changedTouches[0].clientX - touchX;
+    var dy = e.changedTouches[0].clientY - touchY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      dx < 0 ? go(cur + 1) : go(cur - 1);
+    }
+  }, { passive: true });
+
+  // ── Click navigation (present mode) ──
+  viewport.addEventListener('click', function(e) {
+    if (mode !== 'present') return;
+    if (e.target.tagName === 'A') return;
+    var rect = viewport.getBoundingClientRect();
+    var x = (e.clientX - rect.left) / rect.width;
+    if (x > 0.65) go(cur + 1);
+    else if (x < 0.35) go(cur - 1);
+  });
+
+  // ── Resize handler ──
+  window.addEventListener('resize', function() {
+    if (mode === 'grid') scaleGridCards();
+  });
+
+  // ── Init ──
+  go(0);
+  scaleGridCards();
+})();
+
+</script>
+</body>
+</html>

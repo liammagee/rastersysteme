@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<title>week-1-radical-v2.composed</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--code-bg:#2D2D2D;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* === Designed slides (parameterised grid) === */
+.slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
+.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden}
+.slide.designed .accent-el{position:absolute;pointer-events:none}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
+  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
+thead th{background:var(--accent);color:var(--white);padding:1vmin 1.5vmin;font-weight:700;
+  border:1px solid var(--accent)}
+tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+
+/* Code */
+.code-block{position:relative;background:var(--code-bg,#2D2D2D);border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+a.auto-link{color:var(--accent2);text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:2px;word-break:break-all;font-size:inherit}
+a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:var(--white);font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:var(--white)}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.6)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:var(--white);font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:var(--white);font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:var(--white);font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:var(--white);font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:var(--white);font-weight:700;
+  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:var(--white);flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+.image-caption{font-size:clamp(0.65rem,1.2vmin,0.85rem);font-style:italic;color:var(--text-light);text-align:center}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+/* ═══ ENHANCED TYPOGRAPHY (Google Fonts loaded in HTML head) ═══ */
+h1{font-family:'DM Serif Display',var(--font),serif;letter-spacing:-0.03em;text-wrap:balance}
+.label{font-family:'Space Mono',var(--font),monospace;letter-spacing:0.3em}
+.layout-section h1{font-family:'DM Serif Display',var(--font),serif;font-weight:400;
+  font-size:clamp(2.5rem,7vmin,5rem);line-height:1.05;letter-spacing:-0.04em}
+.rotated-text{font-family:'DM Serif Display',var(--font),serif;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.counter{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em}
+.notes-panel h3{font-family:'Space Mono',monospace;letter-spacing:0.2em;color:var(--accent)}
+blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
+
+/* ═══ SLIDE TRANSITIONS ═══ */
+:root{--t-duration:0.5s;--t-ease:cubic-bezier(0.16,1,0.3,1)}
+
+/* Default: fade */
+.slide{opacity:0;transition:opacity var(--t-duration) var(--t-ease),transform var(--t-duration) var(--t-ease)}
+.slide.active{opacity:1}
+
+/* fade (default) */
+.slide[data-transition="fade"]{transform:none}
+
+/* slide-up */
+.slide[data-transition="slide-up"]{transform:translateY(4vh)}
+.slide[data-transition="slide-up"].active{transform:translateY(0)}
+.slide[data-transition="slide-up"].exit-down{transform:translateY(-4vh);opacity:0}
+
+/* slide-down */
+.slide[data-transition="slide-down"]{transform:translateY(-4vh)}
+.slide[data-transition="slide-down"].active{transform:translateY(0)}
+
+/* slide-left */
+.slide[data-transition="slide-left"]{transform:translateX(5vw)}
+.slide[data-transition="slide-left"].active{transform:translateX(0)}
+.slide[data-transition="slide-left"].exit-left{transform:translateX(-5vw);opacity:0}
+
+/* slide-right */
+.slide[data-transition="slide-right"]{transform:translateX(-5vw)}
+.slide[data-transition="slide-right"].active{transform:translateX(0)}
+
+/* zoom */
+.slide[data-transition="zoom"]{transform:scale(0.92);opacity:0}
+.slide[data-transition="zoom"].active{transform:scale(1);opacity:1}
+
+/* zoom-out */
+.slide[data-transition="zoom-out"]{transform:scale(1.08);opacity:0}
+.slide[data-transition="zoom-out"].active{transform:scale(1);opacity:1}
+
+/* cut (instant, no animation) */
+.slide[data-transition="cut"]{transition:none}
+.slide[data-transition="cut"].active{opacity:1}
+
+/* none (same as cut) */
+.slide[data-transition="none"]{transition:none}
+.slide[data-transition="none"].active{opacity:1}
+
+/* Respect reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .slide{transition:none !important;transform:none !important}
+  .slide.active{opacity:1}
+}
+
+/* ═══ MICRO-INTERACTIONS ═══ */
+.stagger-bar{border-radius:2px;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.stagger-bar::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.08) 100%);pointer-events:none}
+.stagger-bar:hover{transform:translateX(8px)}
+.frag-cell{border-radius:3px;transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.frag-cell::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 50%);pointer-events:none}
+.pills .pill{transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)}
+.pills .pill:hover{transform:translateX(4px)}
+.overlap-a,.overlap-b{border-radius:4px}
+.overlap-a{box-shadow:4px 4px 20px rgba(0,0,0,0.15)}
+
+/* ═══ GEOMETRIC ANIMATIONS ═══ */
+.arc-outer{animation:arc-breathe 6s ease-in-out infinite}
+@keyframes arc-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.arc-dot{animation:arc-pulse 2s ease-in-out infinite}
+@keyframes arc-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ═══ ACCENT DETAILS ═══ */
+.layout-section::before{content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--accent) 0%,transparent 60%)}
+.split-left::after{content:"";position:absolute;right:0;top:10%;bottom:10%;width:1px;
+  background:linear-gradient(180deg,transparent,var(--accent),transparent)}
+.layout-blank::after{content:"";position:absolute;top:50%;left:50%;width:4px;height:4px;
+  border-radius:50%;background:var(--accent);opacity:0.3;transform:translate(-50%,-50%)}
+.progress{height:2px;background:transparent}
+.progress-bar{box-shadow:0 0 8px var(--accent)}
+.notes-panel{backdrop-filter:blur(20px);background:rgba(0,0,0,0.88)}
+
+/* ═══ GRAIN TEXTURE ═══ */
+body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat}
+
+</style>
+</head>
+<body>
+<div class="deck">
+<section class="slide layout-title" style="background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="title-left"><div class="accent-block"><h1>Introduction to Generative AI for Education</h1></div></div>
+<div class="title-right"><p>Zoom: <a href="https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1" target="_blank" class="auto-link">https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1</a></p></div><div class="slide-notes" hidden>Welcome to <em>Introduction to Generative AI for Education</em>!<br><br>What's this course about? Why does this course exist? In 2026, in some sense, we no longer need a course introducing us to Generative AI — for education or for anything else. It might even seem, for those of us following the latest developments of OpenAI's ChatGPT, Anthropic's Claude, or new agentic systems like OpenClaw, as though we are even reaching the point of <em>singularity</em> in the field of education. A point at which, at least for self-paced adult learners, the role of traditional education might be receding into the shadows of tradition itself.<br><br>The large number of students here already signals a strong interest all the same. It is as though despite the vast volumes of materials about Generative AI — much generated of course by generative AI itself — there is still something we wish to get out of active discussion of the topic.<br><br>The course was first run by me last year, and the approach will be largely the same. However I have expanded what was 90–120 minute sessions into a full 2 hours 50 minute session, as I felt we were frequently short of time for discussions and practice. So nominally we'll be blocking out the time if we need it — with a 10 minute break roughly half way through.<br><br>Each session, including today, will be run as a workshop — a mix of theory, discussion and practice.</div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+<section class="slide layout-section" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><span class="label">2026</span><h1 class="section-title">In 2026, do we still need this course?</h1>
+<div class="accent-bar"></div><div class="slide-notes" hidden>This course naturally contests this characterization. But in 2026 it can seem difficult to know how to approach a technology that has become so popular precisely because it is &quot;professorial&quot;. The approach we will take will lean in on the idea that &quot;generative AI&quot; is an object we need to approach from several perspectives or lenses — and I will be encouraging you to notice and document the tensions between them. They will help us move away from what can at times appear narrow discourses of unbridled hope or hopeless fear. By the end of the course, I am hoping these different perspectives will each introduce AI in a way that adds something to your own theory and practice.<br><br>For this week there are no readings. We will be introducing ourselves — sharing something of our experiences as researchers and practitioners in AI — and I will also discuss the assessment and structure for the course in more detail.</div></section>
+<section class="slide layout-split" style="background:#16213E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">THE METHOD</span><h1>Six Lenses.</h1><h2 class="subtitle">Not doctrine — perspective.</h2></div>
+<div class="split-right"><p>Each lens adds something to your own theory and practice. The tensions between them are the material.</p></div></section>
+<section class="slide layout-stagger" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Week 1, Mar 23 — Introduction</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Week 2, Mar 30 — Historical</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Week 3, Apr 6 — Technological</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Week 4, Apr 13 — Practitioner</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Week 5, Apr 20 — Critical</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Week 6, Apr 27 — Pedagogical</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">Week 7, May 4 — Futurological</div></div><div class="slide-notes" hidden>Aside from this week, each week will have a specific AI theme or &quot;lens&quot; — a way of viewing, understanding and applying AI in the context of education. I'm aware many of you are teachers, and might be undertaking this course with different motives: to think about how to improve lesson plans with AI; to teach students about AI; to develop policies to address AI plagiarism.</div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+<section class="slide layout-rotated" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="rotated-bar"><span class="rotated-text">DR LIAM MAGEE</span></div>
+<div class="rotated-content"><p class="rotated-body">lmagee@illinois.edu<br>No office hours. No TA. Available by appointment. Will aim to be responsive.</p></div></section>
+<section class="slide layout-split" style="background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">MONDAYS — 5:30 TO 8:20 PM</span><h1>March 23 → May 4</h1></div>
+<div class="split-right"><p>Zoom: <a href="https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1" target="_blank" class="auto-link">https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1</a></p>
+<p>Google Doc: <a href="https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?usp=sharing" target="_blank" class="auto-link">https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?usp=sharing</a></p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Theory — ~1 hour</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Breakout / Group Discussion / Readings — ~1 hour</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Practice — ~1 hour</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>10-minute break midway</span></div></div></div></section>
+<section class="slide layout-fragment" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Develop understanding of generative AI through six themes: Historical, Technological, Practitioner, Critical, Pedagogical, Futurological</div>
+<div class="frag-cell" style="background:var(--accent2)">Respond to AI with a self-styled <strong>intervention</strong> addressing a pedagogical or social challenge</div>
+<div class="frag-cell" style="background:var(--accent3)">Be prepared to address a range of scenarios raised by AI in education</div>
+<div class="frag-cell" style="background:var(--accent4)"><a href="https://ldlprogram.web.illinois.edu/overview/course-descriptions/" target="_blank" class="auto-link">https://ldlprogram.web.illinois.edu/overview/course-descriptions/</a></div></div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+<section class="slide layout-overlap" style="background:#16213E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><h1>70%</h1><div class="overlap-fields">
+<div class="overlap-a"><p>Due Sunday midnight CST, week following each session</p>
+<p>Due May 16, 11:59 PM</p>
+<p>Checkpoints: Week 4 — AI Demonstrations; Week 7 — Showcase</p></div>
+<div class="overlap-b"></div></div></section>
+<section class="slide layout-section" style="background:#C0392B;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><span class="label">SUMMATIVE — 70%</span><h1 class="section-title">The Intervention.</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-fragment" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Presentation (15–20 slides)</div>
+<div class="frag-cell" style="background:var(--accent2)">A0 Conference Poster</div>
+<div class="frag-cell" style="background:var(--accent3)">Research Experiment / Paper</div>
+<div class="frag-cell" style="background:var(--accent4)">School Curriculum</div>
+<div class="frag-cell" style="background:var(--black)">Policy Document</div>
+<div class="frag-cell" style="background:var(--accent)">Comic Strip</div>
+<div class="frag-cell" style="background:var(--accent2)">Movie</div>
+<div class="frag-cell" style="background:var(--accent3)">Mock Product Pitch / Ad Campaign for a new AI service</div>
+<div class="frag-cell" style="background:var(--accent4)">Include: products/services used; prompts; approximate cost (free services completely fine)</div>
+<div class="frag-cell" style="background:var(--black)">Must engage at least <strong>3 lenses</strong> — respond to a key challenge, question, or issue about technology</div></div><div class="slide-notes" hidden>Task: Develop an <strong>intervention</strong> in the field of education that employs AI in a significant but critical way.<br><br>It should aim to integrate something of each of the six &quot;lenses&quot; introduced in this course: historical, technological, practitioner, critical, pedagogical, futurological.</div></section>
+<section class="slide layout-split" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">ALSO REQUIRED</span><h1>[3] Critical Assessment</h1><h2 class="subtitle">[3] Critical Assessment</h2></div>
+<div class="split-right"><p>500–1,000 words: reflection / artist's statement / director's pitch / researcher's statement, with sources</p>
+<p>1,000–2,000 words: critical assessment of the intervention — follows from Week 7 showcase</p>
+<p><strong>Week 8 — May 16, 11:59 PM: Refinement, Reflection, Submission</strong></p></div></section>
+<section class="slide layout-stagger" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%"><strong>Week 2 (Apr 5)</strong> Brainstorm: What about AI history interests you? Surprised where things arrived? What most needs saying today?</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%"><strong>Week 3 (Apr 12)</strong> Storyboard: What technical foundations matter? How much does the non-expert need? Format and genre?</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%"><strong>Week 4 (Apr 19)</strong> Practice: Text scaffolding? Code generation? Image/video/music production? Emerging best practices? What works for you?</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%"><strong>Week 5 (Apr 26)</strong> Edge: What criticisms resonate? Optimistic some can be fixed? What no overnight update will fix? How will you communicate this?</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%"><strong>Week 6 (May 2)</strong> Teaching Moment: What would you want others to know? Direct or indirect? What carries to a classroom, and at what levels?</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%"><strong>Week 7 (May 9)</strong> Showcase: How did others respond? What worked, what needs work? What does your intervention teach us about the future? What did you learn yourself?</div></div></section>
+<section class="slide layout-arc" style="background:#0F2A4A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="arc-left"><h1>What the intervention must demonstrate.</h1></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div></section>
+<section class="slide layout-split" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">FORMATIVE CRITERIA</span><h1>Weekly Responses</h1></div>
+<div class="split-right"><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Cite at least one weekly reading / material</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Demonstrate critical engagement with the material</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Appropriate length, tone, citation practices</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Accumulates into summative assessment</span></div></div></div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+<section class="slide layout-rotated" style="background:#16213E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="rotated-bar"><span class="rotated-text">ONE GOOGLE DOC.</span></div>
+<div class="rotated-content"><p class="rotated-body">Weekly accumulation is easier to track. Keeps the workshop, brainstorming, iterating spirit. Enables peer sharing and review.<br><a href="https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?usp=sharing" target="_blank" class="auto-link">https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?usp=sharing</a></p></div></section>
+<section class="slide layout-section" style="background:#B7410E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><h1 class="section-title">AI use with acknowledgement is encouraged.</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-split" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">AI POLICY</span><h1>For Weekly Activities, Reflection [2], Assessment [3]</h1><h2 class="subtitle">For Weekly Activities, Reflection [2], Assessment [3]</h2></div>
+<div class="split-right"><p>AI use with <em>acknowledgement</em> is <em>encouraged</em> for the artefact itself. We will discuss how this works as we progress through the course.</p>
+<p>AI use shouldn't be necessary or desirable for these components.</p></div></section>
+<section class="slide layout-section" style="background:#1B4332;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><span class="label">WCAG 2.1 LEVEL AA</span><h1 class="section-title">All materials checked for accessibility.</h1>
+<div class="accent-bar"></div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+<section class="slide layout-stagger" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Workshop 1 — Historical Lens: <a href="https://docs.google.com/presentation/d/1Ef2cOYSKH5goLC6U6ikBKZf7aBwqZtn2ifGeihnn-l4/edit?slide=id.p#slide=id.p" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1Ef2cOYSKH5goLC6U6ikBKZf7aBwqZtn2ifGeihnn-l4/edit?slide=id.p#slide=id.p</a></div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Workshop 2 — Technological Lens: <a href="https://docs.google.com/presentation/d/1Hlvpcow63mGnqoDLvaCIOBu_I5LKFBc5qT2TkSdzDXo/edit?slide=id.p#slide=id.p" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1Hlvpcow63mGnqoDLvaCIOBu_I5LKFBc5qT2TkSdzDXo/edit?slide=id.p#slide=id.p</a></div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Workshop 3 — Practitioner Lens: <a href="https://docs.google.com/presentation/d/1tm5q1JTfKU-YSJIKuFny1D2aU8-jMtwVxfRyBx9yGc4/edit?slide=id.p#slide=id.p" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1tm5q1JTfKU-YSJIKuFny1D2aU8-jMtwVxfRyBx9yGc4/edit?slide=id.p#slide=id.p</a></div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Workshop 4 — Critical Lens: <a href="https://docs.google.com/presentation/d/1Sil2dxk73gQZInd99n3f2PvqsZkLzFqLCDxUTxHqNCk/edit?slide=id.p#slide=id.p" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1Sil2dxk73gQZInd99n3f2PvqsZkLzFqLCDxUTxHqNCk/edit?slide=id.p#slide=id.p</a></div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Gen AI Week 5: <a href="https://docs.google.com/presentation/d/1Jfm7tsq58fX0kEOUcNGvuSKeoXW0flGFPUwpMWu5pmA/edit?usp=sharing" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1Jfm7tsq58fX0kEOUcNGvuSKeoXW0flGFPUwpMWu5pmA/edit?usp=sharing</a></div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Workshop 5 — Pedagogical Lens (II): <a href="https://docs.google.com/presentation/d/1-6sre1_FQSRBWxg03xjLYbp77iSljhDitDGbEhHzFhY/edit?slide=id.p#slide=id.p" target="_blank" class="auto-link">https://docs.google.com/presentation/d/1-6sre1_FQSRBWxg03xjLYbp77iSljhDitDGbEhHzFhY/edit?slide=id.p#slide=id.p</a></div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">Workshop 6 — Showcase</div></div></section>
+<section class="slide layout-fragment" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">What has been your experience of generative AI in education?</div>
+<div class="frag-cell" style="background:var(--accent2)">What is your level of technical expertise?</div>
+<div class="frag-cell" style="background:var(--accent3)">What criticisms have you had of generative AI?</div>
+<div class="frag-cell" style="background:var(--accent4)">How have you applied it — in teaching or elsewhere, in professional or personal life?</div>
+<div class="frag-cell" style="background:var(--black)">What are your hopes and fears about the future of AI?</div>
+<div class="frag-cell" style="background:var(--accent)">What do you think is still needed for generative AI in education today?</div>
+<div class="frag-cell" style="background:var(--accent2)">Google Doc: <a href="https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?tab=t.0" target="_blank" class="auto-link">https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?tab=t.0</a></div></div><div class="slide-notes" hidden>Introduce yourself — who you are, your professional background, your interest in education, your experience with AI.</div></section>
+<section class="slide layout-split" style="background:#111111;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="split-left"><span class="label">CAROUSELS — DISCUSSION GROUPS</span><h1>Rotating groups.</h1></div>
+<div class="split-right"><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Pick a reading, discuss — 30 minutes</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Return to wider group: present the reading and respond — 30 minutes</span></div></div></div></section>
+<section class="slide layout-arc" style="background:#16213E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"><div class="arc-left"><h1>Some understanding of different perspectives.</h1></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div></section>
+<section class="slide layout-blank" style="background:#0A0A0A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512" data-transition="fade"></section>
+</div>
+<div class="progress"><div class="progress-bar"></div></div>
+<div class="counter"></div>
+<div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
+<script>
+
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  const notesPanel=document.querySelector('.notes-panel');
+  const notesContent=document.querySelector('.notes-content');
+  let cur=0,notesOpen=false;
+
+  function go(n){
+    if(n<0||n>=slides.length)return;
+    slides[cur].classList.remove('active');
+    cur=n;
+    slides[cur].classList.add('active');
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    counter.textContent=(cur+1)+' / '+slides.length;
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='n'||e.key==='N'){
+      notesOpen=!notesOpen;
+      notesPanel.classList.toggle('open',notesOpen);
+    }
+    else if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+      else document.exitFullscreen();
+    }
+  });
+
+  // Touch/swipe support
+  let tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){dx<0?go(cur+1):go(cur-1)}
+  },{passive:true});
+
+  // Click left/right halves
+  document.addEventListener('click',function(e){
+    if(e.target.tagName==='A')return;
+    if(e.clientX>window.innerWidth*0.65)go(cur+1);
+    else if(e.clientX<window.innerWidth*0.35)go(cur-1);
+  });
+
+  // Presenter mode — press P to open synced notes window
+  const bc=new BroadcastChannel('rastersysteme-presenter');
+  let presenterWin=null;
+
+  function broadcastSlide(){
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    const nextNoteEl=cur+1<slides.length?slides[cur+1].querySelector('.slide-notes'):null;
+    bc.postMessage({
+      type:'slide',
+      index:cur,
+      total:slides.length,
+      notes:noteEl?noteEl.innerHTML:'<span class="empty">(no notes)</span>',
+      nextNotes:nextNoteEl?nextNoteEl.innerHTML:'',
+      title:document.title
+    });
+  }
+
+  // Broadcast on every slide change
+  const origGo=go;
+  go=function(n){origGo(n);broadcastSlide()};
+
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
+    presenterWin=window.open('','rastersysteme_notes','width=800,height=600');
+    if(!presenterWin)return;
+    presenterWin.document.write(`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow-y:auto}
+
+/* Header bar */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;border-bottom:1px solid #222;position:sticky;top:0;background:#0a0a0a;z-index:10}
+.slide-num{font-family:'Space Mono',monospace;font-size:.75rem;color:#8C8478;letter-spacing:0.15em}
+.elapsed{font-family:'Space Mono',monospace;font-size:1.8rem;color:#333;font-variant-numeric:tabular-nums}
+.progress-row{display:flex;gap:2px;align-items:center}
+.progress-dot{width:6px;height:6px;border-radius:50%;background:#333}
+.progress-dot.past{background:#548C5A}
+.progress-dot.current{background:#B7311A;width:8px;height:8px}
+
+/* Timing cue */
+.timing{display:flex;align-items:center;gap:1rem;padding:0.8rem 2rem;
+  background:#111;border-bottom:1px solid #1a1a1a;font-family:'Space Mono',monospace}
+.timing-icon{font-size:1rem}
+.timing-range{font-size:.85rem;color:#C79B38}
+.timing-duration{font-size:.85rem;color:#548C5A;margin-left:auto}
+
+/* Main notes */
+.notes-body{padding:2rem;min-height:40vh}
+.notes{font-size:1.25rem;line-height:1.8;color:#e8e0d4}
+.notes br{display:block;content:"";margin:0.3em 0}
+.notes em{color:#C79B38;font-style:italic}
+.notes strong{color:#fff;font-weight:700}
+.notes .empty{color:#555;font-style:italic}
+
+/* Next slide preview */
+.next-section{border-top:1px solid #222;padding:1.5rem 2rem}
+.next-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;
+  text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.8rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.6;max-height:15vh;overflow:hidden}
+.next-notes em{color:#876512}
+
+/* Keyboard hints */
+.countdown{font-family:'Space Mono',monospace;font-size:1rem;color:#2B7038;font-variant-numeric:tabular-nums;margin-top:0.2rem}
+.countdown.warning{color:#876512}
+.countdown.danger{color:#B7311A;animation:pulse 1s ease-in-out infinite}
+.countdown.over{color:#B7311A}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.duration-set{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 2rem;border-bottom:1px solid #1a1a1a}
+.duration-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;letter-spacing:0.1em}
+.hints{padding:0.8rem 2rem;border-top:1px solid #1a1a1a;
+  font-family:'Space Mono',monospace;font-size:.6rem;color:#333;letter-spacing:0.1em}
+</style></head><body>
+<div class="header">
+  <div>
+    <div class="slide-num" id="pn-num">SLIDE 1</div>
+    <div class="progress-row" id="pn-progress"></div>
+  </div>
+  <div style="text-align:right">
+    <div class="elapsed" id="pn-timer">00:00</div>
+    <div class="countdown" id="pn-countdown" style="display:none">remaining</div>
+  </div>
+</div>
+<div class="timing" id="pn-timing" style="display:none">
+  <span class="timing-icon">\u23F1</span>
+  <span class="timing-range" id="pn-timing-range"></span>
+  <span class="timing-duration" id="pn-timing-dur"></span>
+</div>
+<div class="duration-set" id="pn-duration-set">
+  <span class="duration-label">Duration:</span>
+  <input type="number" id="pn-duration-input" min="1" max="600" placeholder="minutes" style="width:60px;background:#222;border:1px solid #333;color:#e8e0d4;padding:4px 8px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem">
+  <button id="pn-duration-btn" style="background:#222;border:1px solid #333;color:#8C8478;padding:4px 10px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem;cursor:pointer">Set</button>
+</div>
+<div class="notes-body">
+  <div class="notes" id="pn-notes">Press <strong>P</strong> in the slide window to sync.</div>
+</div>
+<div class="next-section">
+  <div class="next-label">NEXT</div>
+  <div class="next-notes" id="pn-next"></div>
+</div>
+<div class="hints">\u2190 \u2192 navigate &nbsp;&nbsp; N notes panel &nbsp;&nbsp; F fullscreen</div>
+<script>
+const bc2=new BroadcastChannel('rastersysteme-presenter');
+const startTime=Date.now();
+let totalSlides=1;
+
+bc2.onmessage=function(e){
+  if(e.data.type==='slide'){
+    const idx=e.data.index;
+    totalSlides=e.data.total;
+    document.getElementById('pn-num').textContent='SLIDE '+(idx+1)+' / '+totalSlides;
+    document.getElementById('pn-notes').innerHTML=e.data.notes;
+    document.getElementById('pn-next').innerHTML=e.data.nextNotes||'<span class="empty">(end of deck)</span>';
+
+    // Progress dots
+    const dots=document.getElementById('pn-progress');
+    dots.innerHTML='';
+    for(let i=0;i<totalSlides;i++){
+      const d=document.createElement('div');
+      d.className='progress-dot'+(i<idx?' past':i===idx?' current':'');
+      dots.appendChild(d);
+    }
+
+    // Extract timing cue if present (format: \u23F1 Xm \u2192 Ym (Z:ZZ))
+    const notesText=e.data.notes||'';
+    const timingMatch=notesText.match(/\u23F1\s*(\S+)\s*\u2192\s*(\S+)\s*\(([^)]+)\)/);
+    const timingEl=document.getElementById('pn-timing');
+    if(timingMatch){
+      timingEl.style.display='flex';
+      document.getElementById('pn-timing-range').textContent=timingMatch[1]+' \u2192 '+timingMatch[2];
+      document.getElementById('pn-timing-dur').textContent=timingMatch[3];
+    } else {
+      timingEl.style.display='none';
+    }
+
+    // Scroll to top
+    window.scrollTo(0,0);
+  }
+};
+
+let durationMinutes=0;
+document.getElementById('pn-duration-btn').addEventListener('click',function(){
+  const v=parseInt(document.getElementById('pn-duration-input').value);
+  if(v>0){durationMinutes=v;document.getElementById('pn-duration-set').style.display='none'}
+});
+document.getElementById('pn-duration-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){document.getElementById('pn-duration-btn').click()}
+});
+
+setInterval(function(){
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const h=Math.floor(s/3600);
+  const m=Math.floor((s%3600)/60);
+  const sec=s%60;
+  const t=h>0
+    ? h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')
+    : String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+  document.getElementById('pn-timer').textContent=t;
+
+  // Countdown
+  const cdEl=document.getElementById('pn-countdown');
+  if(durationMinutes>0){
+    cdEl.style.display='block';
+    const remaining=durationMinutes*60-s;
+    if(remaining<=0){
+      cdEl.textContent='OVER by '+Math.abs(Math.floor(remaining/60))+'m';
+      cdEl.className='countdown over';
+    } else {
+      const rm=Math.floor(remaining/60);
+      const rs=remaining%60;
+      cdEl.textContent=rm+':'+String(rs).padStart(2,'0')+' left';
+      const pct=remaining/(durationMinutes*60);
+      cdEl.className='countdown'+(pct<0.1?' danger':pct<0.25?' warning':'');
+    }
+  }
+},1000);
+<\/script></body></html>`);
+    presenterWin.document.close();
+    broadcastSlide();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='p'||e.key==='P'){openPresenter()}
+  });
+
+  go(0);
+})();
+
+</script>
+</body>
+</html>

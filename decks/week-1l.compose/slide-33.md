@@ -1,0 +1,2 @@
+<!-- design: {"zones":[{"role":"body","col":14,"span":32,"row":18,"rowSpan":5}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"C9A447"},{"type":"line","col":14,"span":32,"row":17,"rowSpan":1,"color":"7A9BB5"},{"type":"dot","col":28,"span":2,"row":35,"rowSpan":2,"color":"C9A447"}],"typography":{"body":{"size":18,"weight":300,"align":"center","color":"F8F5F0","tracking":0.1,"leading":1.6}},"bg":"F8F5F0","font":"Georgia"} -->
+![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)

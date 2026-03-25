@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<title>week-1.moderate-light.composed</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:#fff;
+  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
+thead th{background:var(--accent);color:#fff;padding:1vmin 1.5vmin;font-weight:700;
+  border:1px solid var(--accent)}
+tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+
+/* Code */
+.code-block{position:relative;background:#2D2D2D;border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:#fff;font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:#fff}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.6)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:#fff;font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:#fff;font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.layout-section .label{color:var(--accent)}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:#fff;font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:#fff;font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:#fff;font-weight:700;
+  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:#fff;flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+/* ═══ ENHANCED TYPOGRAPHY (Google Fonts loaded in HTML head) ═══ */
+h1{font-family:'DM Serif Display',var(--font),serif;letter-spacing:-0.03em;text-wrap:balance}
+.label{font-family:'Space Mono',var(--font),monospace;letter-spacing:0.3em}
+.layout-section h1{font-family:'DM Serif Display',var(--font),serif;font-weight:400;
+  font-size:clamp(2.5rem,7vmin,5rem);line-height:1.05;letter-spacing:-0.04em}
+.rotated-text{font-family:'DM Serif Display',var(--font),serif;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.counter{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em}
+.notes-panel h3{font-family:'Space Mono',monospace;letter-spacing:0.2em;color:var(--accent)}
+blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
+
+/* ═══ SLIDE TRANSITIONS ═══ */
+.slide{opacity:0;transform:translateY(2vh);
+  transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1),transform 0.6s cubic-bezier(0.16,1,0.3,1)}
+.slide.active{opacity:1;transform:translateY(0)}
+
+/* ═══ MICRO-INTERACTIONS ═══ */
+.stagger-bar{border-radius:2px;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.stagger-bar::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.08) 100%);pointer-events:none}
+.stagger-bar:hover{transform:translateX(8px)}
+.frag-cell{border-radius:3px;transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.frag-cell::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 50%);pointer-events:none}
+.pills .pill{transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)}
+.pills .pill:hover{transform:translateX(4px)}
+.overlap-a,.overlap-b{border-radius:4px}
+.overlap-a{box-shadow:4px 4px 20px rgba(0,0,0,0.15)}
+
+/* ═══ GEOMETRIC ANIMATIONS ═══ */
+.arc-outer{animation:arc-breathe 6s ease-in-out infinite}
+@keyframes arc-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.arc-dot{animation:arc-pulse 2s ease-in-out infinite}
+@keyframes arc-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ═══ ACCENT DETAILS ═══ */
+.layout-section::before{content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--accent) 0%,transparent 60%)}
+.split-left::after{content:"";position:absolute;right:0;top:10%;bottom:10%;width:1px;
+  background:linear-gradient(180deg,transparent,var(--accent),transparent)}
+.layout-blank::after{content:"";position:absolute;top:50%;left:50%;width:4px;height:4px;
+  border-radius:50%;background:var(--accent);opacity:0.3;transform:translate(-50%,-50%)}
+.progress{height:2px;background:transparent}
+.progress-bar{box-shadow:0 0 8px var(--accent)}
+.notes-panel{backdrop-filter:blur(20px);background:rgba(0,0,0,0.88)}
+
+/* ═══ GRAIN TEXTURE ═══ */
+body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat}
+
+</style>
+</head>
+<body>
+<div class="deck">
+<section class="slide layout-title" style="--title-size:48px;letter-spacing:0.05em"><div class="title-left"><div class="accent-block"><h1>Introduction to Generative AI for Education</h1></div></div>
+<div class="title-right"><h2 class="subtitle">Generative AI for Education: Overview</h2><div class="pills"><div class="pill" style="background:var(--accent2)">Welcome!</div><div class="pill" style="background:var(--accent3)">Weekly Workshop Zoom link - https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1</div><div class="pill" style="background:var(--accent4)">Google doc - https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?tab=t.0#heading=h.nrro8a66e42m</div></div></div><div class="slide-notes" hidden>Welcome to <em>Introduction to Generative AI for Education</em>!<br><br>What's this course about? Why does this course exist? In 2026, we no longer need a course introducing us to Generative AI—or so it might seem. Following the latest developments of OpenAI's ChatGPT, Anthropic's Claude, and agentic systems like OpenClaw, we appear to be approaching singularity in education. For self-paced adult learners especially, traditional education's role seems to recede into history itself.<br><br>This course contests that view. In 2026, it remains difficult to know how to approach a technology that has become so popular precisely because it is &quot;professorial.&quot; Our approach: treat generative AI as an object requiring multiple perspectives or lenses. Each week thereafter explores one lens—historical, technological, practitioner, critical, pedagogical, futurological. These lenses don't form a single coherent doctrine; I'll encourage you to notice and document the tensions between them. They help us move beyond the narrow discourses of unbridled hope or hopeless fear that often dominate. By course's end, these perspectives should each enrich your theory and practice.<br><br>For this week: no readings. We'll introduce ourselves, share our AI experiences, and discuss assessment and course structure in detail. See you next week!<br><br>The large number of students signals strong interest. Despite the vast volume of AI materials—much generated by generative AI itself—there's something valuable in active discussion. This course ran last year with similar structure; I've expanded 90–120 minute sessions into 2 hours 50 minutes, as we frequently lacked time for discussion and practice. We'll use the full block as needed, with a 10-minute break roughly midway. Each session is a workshop: theory, discussion, and practice.</div></section>
+<section class="slide layout-stagger" style="font-family:'Georgia',var(--font);background:#FAFAF8;letter-spacing:0.05em;--body-size:15px"><h1>Learning Objectives</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Develop an understanding of generative AI according to the six themes: Historical; Technological; Practioner; Critical; Pedagogical; Futurological</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Respond to AI with a self-styled &quot;intervention&quot; that addresses a pedagogical or social challenge</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Be prepared to address a range of scenarios raised by AI in education</div></div></section>
+<section class="slide layout-rotated" style="font-family:'Georgia',var(--font);background:#E8664A;--title-size:32px;--body-size:16px;color:#FAFAF8"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body">Dr Liam Magee<br>Email: lmagee@illinois.edu<br>No office hours or TA; can meet by appointment. Will aim to be responsive.</p></div></section>
+<section class="slide layout-bullets" style="background:#D4B5A0;--body-size:14px"><span class="label">WEEKLY STRUCTURE</span><h1>Course Information</h1><p><strong>Weekly Workshops: Mondays, March 23 to May 4, 5:30 - 8:20</strong></p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Theory / Lecture - ~30 minutes</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Breakout rooms / Group Discussion / Readings - ~30 minutes</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Practice - ~30 minutes</span></div></div></section>
+<section class="slide layout-arc" style="font-family:'Helvetica Neue',var(--font);background:#FAFAF8;letter-spacing:0.08em;--body-size:13px"><div class="arc-left"><h1>Six-Week Journey</h1></div>
+<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div><div class="slide-notes" hidden>Each week beyond this one has a specific AI theme or &quot;lens&quot;—a way of viewing, understanding, and applying AI in the context of education. Many of you are teachers undertaking this course for different reasons: to improve lesson plans with AI, to teach students about AI, to develop policies addressing AI plagiarism. These six lenses (seven with intro) give us a structure within which to explore all of these concerns.</div></section>
+</div>
+<div class="progress"><div class="progress-bar"></div></div>
+<div class="counter"></div>
+<div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
+<script>
+
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  const notesPanel=document.querySelector('.notes-panel');
+  const notesContent=document.querySelector('.notes-content');
+  let cur=0,notesOpen=false;
+
+  function go(n){
+    if(n<0||n>=slides.length)return;
+    slides[cur].classList.remove('active');
+    cur=n;
+    slides[cur].classList.add('active');
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    counter.textContent=(cur+1)+' / '+slides.length;
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='n'||e.key==='N'){
+      notesOpen=!notesOpen;
+      notesPanel.classList.toggle('open',notesOpen);
+    }
+    else if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+      else document.exitFullscreen();
+    }
+  });
+
+  // Touch/swipe support
+  let tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){dx<0?go(cur+1):go(cur-1)}
+  },{passive:true});
+
+  // Click left/right halves
+  document.addEventListener('click',function(e){
+    if(e.target.tagName==='A')return;
+    if(e.clientX>window.innerWidth*0.65)go(cur+1);
+    else if(e.clientX<window.innerWidth*0.35)go(cur-1);
+  });
+
+  // Presenter mode — press P to open synced notes window
+  const bc=new BroadcastChannel('rastersysteme-presenter');
+  let presenterWin=null;
+
+  function broadcastSlide(){
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    const nextNoteEl=cur+1<slides.length?slides[cur+1].querySelector('.slide-notes'):null;
+    bc.postMessage({
+      type:'slide',
+      index:cur,
+      total:slides.length,
+      notes:noteEl?noteEl.textContent:'(no notes)',
+      nextNotes:nextNoteEl?nextNoteEl.textContent:'',
+      title:document.title
+    });
+  }
+
+  // Broadcast on every slide change
+  const origGo=go;
+  go=function(n){origGo(n);broadcastSlide()};
+
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
+    presenterWin=window.open('','rastersysteme_notes','width=700,height=500');
+    if(!presenterWin)return;
+    presenterWin.document.write(`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',sans-serif;background:#111;color:#f0ebe3;padding:2rem}
+.slide-num{font-size:.8rem;color:#8C8478;margin-bottom:.5rem;letter-spacing:0.1em}
+h2{font-size:1rem;color:#8C8478;margin-bottom:1rem;font-weight:400}
+.notes{font-size:1.3rem;line-height:1.7;margin-bottom:2rem;white-space:pre-wrap}
+.next-label{font-size:.7rem;color:#555;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:.5rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.5;white-space:pre-wrap;border-top:1px solid #333;padding-top:1rem}
+.timer{position:fixed;bottom:1rem;right:2rem;font-size:2rem;color:#333;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div class="slide-num" id="pn-num"></div>
+<h2 id="pn-title"></h2>
+<div class="notes" id="pn-notes">Press P in the slide window to sync.</div>
+<div class="next-label">NEXT</div>
+<div class="next-notes" id="pn-next"></div>
+<div class="timer" id="pn-timer">00:00</div>
+<script>
+const bc2=new BroadcastChannel('rastersysteme-presenter');
+const startTime=Date.now();
+bc2.onmessage=function(e){
+  if(e.data.type==='slide'){
+    document.getElementById('pn-num').textContent='Slide '+(e.data.index+1)+' / '+e.data.total;
+    document.getElementById('pn-title').textContent=e.data.title;
+    document.getElementById('pn-notes').textContent=e.data.notes;
+    document.getElementById('pn-next').textContent=e.data.nextNotes||'(end)';
+  }
+};
+setInterval(function(){
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const m=Math.floor(s/60);
+  document.getElementById('pn-timer').textContent=String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+},1000);
+<\/script></body></html>`);
+    presenterWin.document.close();
+    broadcastSlide();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='p'||e.key==='P'){openPresenter()}
+  });
+
+  go(0);
+})();
+
+</script>
+</body>
+</html>

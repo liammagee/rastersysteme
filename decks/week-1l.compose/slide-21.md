@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"body","col":4,"span":30,"row":20,"rowSpan":4}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"7A9BB5"},{"type":"line","col":4,"span":30,"row":18,"rowSpan":1,"color":"7A9BB5"}],"typography":{"body":{"size":18,"weight":300,"leading":1.6,"color":"1E3A52","tracking":"0.04em"}},"bg":"F8F5F0","font":"Helvetica Neue"} -->
+<!-- image: right 35 -->
+Break - 10 minutes

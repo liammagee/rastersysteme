@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>week-1.moderate-light.composed</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.7rem,1.4vmin,0.95rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:#fff;
+  font-size:clamp(0.55rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
+thead th{background:var(--accent);color:#fff;padding:1vmin 1.5vmin;font-weight:700;
+  border:1px solid var(--accent)}
+tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+
+/* Code */
+.code-block{position:relative;background:#2D2D2D;border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.6rem;color:#666;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:#fff;font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:#fff}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.6)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:#fff;font-weight:700;font-size:clamp(0.7rem,1.3vmin,0.9rem);opacity:0.85}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:#fff;font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.5);margin-top:1vmin}
+.layout-section .label{color:var(--accent)}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:#fff;font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem);opacity:0.88}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:#fff;font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:#fff;font-weight:700;
+  font-size:clamp(0.7rem,1.4vmin,0.95rem);opacity:0.85}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:#fff;flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+</style>
+</head>
+<body>
+<div class="deck">
+<section class="slide layout-title" style="background:#E8D5C4"><div class="title-left"><div class="accent-block"><h1>Introduction to Generative AI for Education</h1></div></div>
+<div class="title-right"><h2 class="subtitle">Generative AI for Education: Overview</h2><div class="pills"><div class="pill" style="background:var(--accent2)">Weekly Workshop Zoom link – https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1</div><div class="pill" style="background:var(--accent3)">Google doc – https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?tab=t.0#heading=h.nrro8a66e42m</div></div></div><div class="slide-notes" hidden>Welcome to Introduction to Generative AI for Education! In 2026, despite abundant AI materials, there remains real value in active discussion of the topic. This course offers multiple perspectives—historical, technological, practitioner, critical, pedagogical, futurological—without imposing a single doctrine. Each week explores one lens; you'll notice tensions between them. This week is introductory: no readings, just orientation and shared experience. Sessions run 2 hours 50 minutes (theory ~30 min, discussion ~30 min, practice ~30 min) with a 10-minute break. Design rationale: title layout declares authority and welcome; URLs anchor practical entry points.</div></section>
+<section class="slide layout-fragment" style="background:#E8D5C4"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Develop understanding of generative AI according to six themes: Historical; Technological; Practitioner; Critical; Pedagogical; Futurological</div>
+<div class="frag-cell" style="background:var(--accent2)">Respond to AI with a self-styled &quot;intervention&quot; addressing a pedagogical or social challenge</div>
+<div class="frag-cell" style="background:var(--accent3)">Be prepared to address a range of scenarios raised by AI in education</div>
+<div class="frag-cell" style="background:var(--accent4)"><strong>Course Overview</strong> – https://ldlprogram.web.illinois.edu/overview/course-descriptions/</div></div><div class="slide-notes" hidden>All required material (video lectures, readings) will be provided. Design rationale: fragment layout treats objectives as equal-weight mosaic; quote block establishes scope.</div></section>
+<section class="slide layout-bullets" style="background:#F5F0E8"><span class="label">CONTACT DETAILS</span><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><strong>Dr Liam Magee</strong></span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Email: lmagee@illinois.edu</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>No office hours or TA; can meet by appointment. Will aim to be responsive.</span></div></div><div class="slide-notes" hidden>Direct contact information. Design rationale: bullets for straightforward enumeration; off-white bg creates subtle transition.</div></section>
+<section class="slide layout-rotated" style="background:#E8D5C4"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body"><strong>Weekly Workshops: Mondays, March 23 to May 4, 5:30–8:20 PM</strong></p><p class="rotated-bullet">— ~30 minutes: Theory / Lecture</p><p class="rotated-bullet">— ~30 minutes: Breakout rooms / Group Discussion / Readings</p><p class="rotated-bullet">— ~30 minutes: Practice</p></div><div class="slide-notes" hidden>Session structure and timing. Design rationale: rotated layout disrupts the flow after three horizontal slides, forcing perceptual reset. Vertical type activates the field differently.</div></section>
+<section class="slide layout-stagger" style="background:#E8D5C4"><h1>Six Weekly Themes</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">March 23 – Week 1: Introduction</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">March 30 – Week 2: Historical Lens</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">April 6 – Week 3: Technological Lens</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">April 13 – Week 4: Practitioner Lens</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">April 20 – Week 5: Critical Lens</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">April 27 – Week 6: Pedagogical Lens</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">May 4 – Week 7: Futurological Lens</div></div><div class="slide-notes" hidden>Each week after this one follows a specific AI theme or lens—a way of understanding and applying AI in education. Many of you are teachers seeking to improve lesson plans, teach students about AI, or develop policies on AI plagiarism. These lenses will help. Design rationale: stagger layout builds momentum like instruments joining an ensemble; each theme enters the composition diagonally.</div></section>
+<section class="slide layout-split" style="background:#F5F0E8"><div class="split-left"><span class="label">ASSESSMENT OVERVIEW</span></div>
+<div class="split-right"><p><strong>Formative</strong></p>
+<p><strong>Summative</strong></p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Six responses to weekly questions</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>6 × 5% = 30%</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Due midnight Sunday of following week</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>An &quot;intervention&quot; (70%)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Due May 16, 11:59 PM</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Interim checkpoints:</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Week 4: Demonstrations of AI use</span></div>
+<div class="bullet level-1"><span class="dash">—</span><span>Week 7: Showcase—virtual conference with peer feedback</span></div></div></div><div class="slide-notes" hidden>Assessment structure balances continuous engagement (weekly responses) with a major creative project (the intervention). Design rationale: split layout divides formative and summative work across left/right zones; gutter tension between components.</div></section>
+<section class="slide layout-fragment" style="background:#E8D5C4"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)"><strong>Weekly Tasks – All Due Sunday Midnight CST</strong></div>
+<div class="frag-cell" style="background:var(--accent2)"><strong>Week 2</strong> (April 5): Brainstorming an &quot;Intervention&quot;</div>
+<div class="frag-cell" style="background:var(--accent3)">What history of AI interests you? Are you surprised where things have arrived? What needs saying about AI today?</div>
+<div class="frag-cell" style="background:var(--accent4)"><strong>Week 3</strong> (April 12): Storyboarding</div>
+<div class="frag-cell" style="background:var(--black)">What technical foundations matter? How much does the non-expert need to know? What format are you thinking?</div>
+<div class="frag-cell" style="background:var(--accent)"><strong>Week 4</strong> (April 19): Practicing AI</div>
+<div class="frag-cell" style="background:var(--accent2)">What parts interest you most? Text scaffolding? Code generation? Image/video/music? What works for you?</div>
+<div class="frag-cell" style="background:var(--accent3)"><strong>Week 5</strong> (April 26): Developing an Edge</div>
+<div class="frag-cell" style="background:var(--accent4)">What criticisms resonate? Can they be addressed? What won't an overnight AI update fix? How will you communicate this?</div>
+<div class="frag-cell" style="background:var(--black)"><strong>Week 6</strong> (May 2): Consider the Teaching &quot;Moment&quot;</div>
+<div class="frag-cell" style="background:var(--accent)">What would you want others to know? Direct lesson or indirect provocation? What carries across to classrooms?</div>
+<div class="frag-cell" style="background:var(--accent2)"><strong>Week 7</strong> (May 9): Showcasing the Intervention</div>
+<div class="frag-cell" style="background:var(--accent3)">How did others respond? What worked, what needs work? What does your intervention teach about the future?</div>
+<div class="frag-cell" style="background:var(--accent4)">Each response: 300–500 words. Aim to write toward the final assessment.</div></div><div class="slide-notes" hidden>Formative tasks scaffold the summative intervention. Each week builds the next. Design rationale: fragment layout democratizes six weekly tasks as equal pieces of an accumulating mosaic.</div></section>
+<section class="slide layout-rotated" style="background:#E8D5C4"><div class="rotated-bar"><span class="rotated-text">THE &quot;INTERVENTION&quot;</span></div>
+<div class="rotated-content"><p class="rotated-body"><strong>Choose one format:</strong><br><strong>Must include:</strong><br>1. Artefact demonstrating AI use (recommended: acknowledgement encouraged)<br>2. 500–1,000 word reflection / artist's statement / researcher's statement (with sources)<br>3. Critical 1,000–2,000 word assessment of the intervention<br><strong>Scope:</strong> Use at least three of the six lenses; respond to a key challenge or question about technology.<br><strong>Due:</strong> May 16, 11:59 PM</p><p class="rotated-bullet">— Presentation (15–20 slides)</p><p class="rotated-bullet">— A0 Conference Poster</p><p class="rotated-bullet">— Research Experiment / Paper</p><p class="rotated-bullet">— School Curriculum</p><p class="rotated-bullet">— Policy Document</p><p class="rotated-bullet">— Comic strip / Movie</p><p class="rotated-bullet">— Mock product pitch / ad campaign</p></div><div class="slide-notes" hidden>The intervention is the creative heart of the course. Any format works—presentation, poster, paper, curriculum, policy, comic, film, product pitch. It should integrate the six lenses (historical, technological, practitioner, critical, pedagogical, futurological) and tackle a real challenge. The three accompanying components (artefact, statement, assessment) together form the summative project. Design rationale: rotated layout emphasizes the intervention as structural pivot; vertical text becomes architecture.</div></section>
+<section class="slide layout-split" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;text-transform:uppercase;opacity:1"><div class="split-left"><span class="label">ASSESSMENT CRITERIA</span></div>
+<div class="split-right"><p><strong>Formative Weekly Responses</strong></p>
+<p><strong>Summative Final Assessment</strong></p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Cite at least one reading/material</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Demonstrate critical engagement</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Appropriate length, tone, citation</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Accumulates into summative assessment</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Creative responsiveness to AI challenges</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Critical engagement with course concepts</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">7</span><span>Coherence and rigor of statement</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">8</span><span>Evidence of reflection and reflexivity</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">9</span><span>Incorporation of recognizable educational/social theory (minimum one)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">10</span><span>Minimum six academic references</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">11</span><span>Assessed in total</span></div></div></div><div class="slide-notes" hidden>Clear rubric for both formative and summative work. Weekly citations and engagement build toward a final project anchored in theory and informed by course materials. Design rationale: dark navy field marks tonal shift into institutional assessment logic; split zone divides criteria into two complementary registers.</div></section>
+<section class="slide layout-section" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">AI Use With Acknowledgement Is Encouraged for the Intervention Artefact</h1>
+<div class="accent-bar"></div><div class="slide-notes" hidden>Clear guidance on when and how to use AI. The intervention itself is fair game for AI assistance (with acknowledgement); the thinking and assessment work should remain human-centered. Design rationale: section layout (dark field, centered white type) makes a bold, structural statement about AI ethics in the course itself.</div></section>
+<section class="slide layout-blank"><div class="slide-notes" hidden>Breath. Visual fermata before accessibility note. Design rationale: silence after intensity.</div></section>
+<section class="slide layout-split" style="background:#E8D5C4"><div class="split-left"><span class="label">ACCESSIBILITY</span></div>
+<div class="split-right"><p><strong>This course aims to provide wide exposure to a range of tools and readings.</strong></p>
+<p>WCAG 2.1 Level AA compliance checked on all materials.</p>
+<p><strong>Please notify me immediately if any materials are inaccessible.</strong></p>
+<p>Contact: lmagee@illinois.edu</p></div><div class="slide-notes" hidden>Accessibility is non-negotiable. All course content checked for compliance; students encouraged to flag barriers in real time. Design rationale: light field returns after dark section; split layout pairs accessibility commitment (left) with contact detail (right).</div></section>
+<section class="slide layout-stagger" style="background:#F5F0E8"><h1>A Rotating Discussion Method</h1><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Pick a reading (group selects)</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Discuss in breakout room</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Choose a spokesperson</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Return to wider group</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Present the reading and respond</div></div><div class="slide-notes" hidden>Reading carousels distribute intellectual labor and create peer-to-peer learning. Each group digs into one text, then brings it back to the whole. Design rationale: stagger layout suggests the circular motion of carousel itself; diagonal cascade mirrors the rotation of ideas.</div></section>
+<section class="slide layout-fragment" style="background:#E8D5C4"><h1>Six Questions to Guide Sharing</h1><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">What has been your experience of generative AI in education?</div>
+<div class="frag-cell" style="background:var(--accent2)">What is your level of technical expertise?</div>
+<div class="frag-cell" style="background:var(--accent3)">What criticisms have you had of generative AI?</div>
+<div class="frag-cell" style="background:var(--accent4)">How have you applied it—in teaching or elsewhere, in professional or personal life?</div>
+<div class="frag-cell" style="background:var(--black)">What are your hopes and fears about the future of AI?</div>
+<div class="frag-cell" style="background:var(--accent)">What do you think is still needed for generative AI in education today?</div>
+<div class="frag-cell" style="background:var(--accent2)">Introduce yourself: professional background, interest in education, experience with AI.</div></div><div class="slide-notes" hidden>These six questions frame the introductory discussion. No prepared answers needed—just shared reflection on where you're coming from. Design rationale: fragment layout treats six questions as democratic mosaic; no hierarchy, equal weight.</div></section>
+<section class="slide layout-blank"><div class="slide-notes" hidden>10-minute break. Structural pause in the workshop rhythm.</div></section>
+<section class="slide layout-section" style="font-family:'Futura',var(--font);background:#2C3E50;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><h1 class="section-title">AI in 2026: An Opinionated Take</h1>
+<div class="accent-bar"></div><div class="slide-notes" hidden>Thematic shift from course logistics to landscape analysis. The tone moves from administrative to provocative. Design rationale: Futura geometric sans signals modernist declaration; slate field establishes institutional weight; section layout centers the statement, making it a pivot point in the deck. Everything changes here.</div></section>
+<section class="slide layout-stagger" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">OpenAI's ChatGPT</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Anthropic's Claude</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Google's Gemini</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Xai, Meta, Microsoft Copilot</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">Apple uses Google Gemini</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Amazon: investor in Anthropic, provider for OpenAI</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">From free / $20/month to advertising (ChatGPT)</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:56%">Higher tier models ($200/month)</div></div><div class="slide-notes" hidden>The market has consolidated into three major players by early 2026. Smaller initiatives have lost momentum. Monetization strategies shifting upward. Design rationale: stagger layout builds consolidation as an ascending force; white text on navy maintains alert register.</div></section>
+<section class="slide layout-rotated" style="background:#2C3E50;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body"><strong>Mostly Developed in China</strong><br><strong>Other Regions</strong><br><strong>Timeline &amp; Issues</strong></p><p class="rotated-bullet">— Xiaomi</p><p class="rotated-bullet">— Alibaba Qwen</p><p class="rotated-bullet">— Kimi</p><p class="rotated-bullet">— Minimax</p><p class="rotated-bullet">— DeepSeek</p><p class="rotated-bullet">— Mistral (France)</p><p class="rotated-bullet">— Nemotron (Nvidia)</p><p class="rotated-bullet">— Estimated 3–9 months behind commercial models</p><p class="rotated-bullet">— Challenges: &quot;benchmaxxing,&quot; IP concerns, data exfiltration risks</p><p class="rotated-bullet">— Local deployment more viable (Apple silicon, better efficiency)</p></div><div class="slide-notes" hidden>Open source models predominantly emerge from Chinese labs; Western alternatives exist but remain fewer. This creates a bifurcated landscape: proprietary (US-controlled) vs. open/decentralized (globally distributed). Design rationale: rotated title disrupts the cascade; vertical text emphasizes the alternative market force.</div></section>
+<section class="slide layout-split" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="split-left"><span class="label">CONTRADICTORY TENDENCIES</span></div>
+<div class="split-right"><p><strong>Pressure to Scale</strong></p>
+<p><strong>Pressure to Optimize</strong></p>
+<p><strong>Long-term Trajectory: Uncertain</strong></p>
+<p>Workshop 4 examines environmental and social costs in detail.</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Scaling laws dictate bigger models</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>More &quot;thinking&quot; (inference) time needed</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Bigger data centers required</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Increased environmental cost</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>More efficient GPUs (Nvidia)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Better algorithms (Chinese labs)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">7</span><span>Better hardware (Apple silicon)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">8</span><span>Open source models run locally</span></div></div></div><div class="slide-notes" hidden>The field faces opposing forces: the logic of scaling (bigger is better) vs. the logic of efficiency (smaller, local, open). Which dominates will shape the industry for years. Design rationale: split zone divides these opposing forces across left/right; tension in the gutter mirrors the technological contradiction.</div></section>
+<section class="slide layout-fragment" style="background:#A85D4E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">OpenAI Codex</div>
+<div class="frag-cell" style="background:var(--accent2)">Claude Code</div>
+<div class="frag-cell" style="background:var(--accent3)">Google Gemini</div>
+<div class="frag-cell" style="background:var(--accent4)">OpenClaw (social media for chatbots)</div>
+<div class="frag-cell" style="background:var(--black)">Claude Cowork</div>
+<div class="frag-cell" style="background:var(--accent)">Embedded tools in MS Office</div>
+<div class="frag-cell" style="background:var(--accent2)">Google Stitch, Nano Banana 2</div>
+<div class="frag-cell" style="background:var(--accent3)">Midjourney</div>
+<div class="frag-cell" style="background:var(--accent4)">Embedded tools in Adobe, Figma</div>
+<div class="frag-cell" style="background:var(--black)"><strong>Code Automation</strong></div>
+<div class="frag-cell" style="background:var(--accent)"><strong>Computer Use</strong></div>
+<div class="frag-cell" style="background:var(--accent2)"><strong>Design</strong></div>
+<div class="frag-cell" style="background:var(--accent3)">The shift from &quot;chat interface&quot; to &quot;agent that acts&quot; is already underway.</div></div><div class="slide-notes" hidden>AI is moving from question-answering to autonomous action across multiple domains. Code, interface, design—tools now act on the user's behalf, raising new questions about control and accountability. Design rationale: burnt sienna bg signals transition to warmer, more human-scale consideration; fragment layout treats three domains as equal capability areas.</div></section>
+<section class="slide layout-bullets" style="background:#8B7355;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><span class="label">EDUCATION ISSUES: CONS</span><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><strong>Plagiarism &amp; Cognitive Offloading</strong> – students delegate thinking to machines</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span><strong>Biased Results &amp; Unequal Access</strong> – cost barriers, embedded biases</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span><strong>Potential Obsolescence of Teachers</strong> – automation of instruction itself</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span><strong>Perverse Effects</strong> – Automated assignments → Automated grading (Bernard Stiegler's <em>Automatic Society</em>)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span><strong>Subtle Transfer</strong> – expertise shifting from human to machine; what remains to teach?</span></div></div><div class="slide-notes" hidden>These are serious concerns grounded in real risks. Design rationale: bullets enumerate concerns as structured threats; sand-toned bg humanizes the institutional tone.</div></section>
+<section class="slide layout-stagger" style="background:#2C3E50;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Systems tuned to individual student needs</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Responsive to pace and style</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Multimodal support (audio, text, visual)</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">Removes barriers for diverse learners</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">AI can generate multiple forms of engagement</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Multiple representations of content</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">Multiple action/expression pathways</div></div><div class="slide-notes" hidden>AI's affordances for inclusive education are real—if the institutional commitment follows. Cost and effort remain barriers. Design rationale: stagger ascends from personalization (foundational) through accessibility to UDL (most comprehensive), each idea building on the last.</div></section>
+<section class="slide layout-rotated" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="rotated-bar"><span class="rotated-text">—</span></div>
+<div class="rotated-content"><p class="rotated-body"><strong>Three Structural Concerns</strong><br><strong>1. Predicted Erasure of White-Collar Labor</strong><br><strong>2. When AI Works Properly?</strong><br><strong>3. Concentration of Power</strong></p><p class="rotated-bullet">— Programming</p><p class="rotated-bullet">— Design</p><p class="rotated-bullet">— Games</p><p class="rotated-bullet">— Entry-level professions</p><p class="rotated-bullet">— Social media harbinger: addictive, compulsive systems</p><p class="rotated-bullet">— AI-enabled psychological manipulation at scale</p><p class="rotated-bullet">— What does &quot;AI psychosis&quot; look like?</p><p class="rotated-bullet">— Who owns AI? (Three companies)</p><p class="rotated-bullet">— Who are power users? (Corporations, governments)</p><p class="rotated-bullet">— What about the rest of us?</p></div><div class="slide-notes" hidden>These are not technical problems to be solved by better models. They are structural and social. Design rationale: rotated layout makes these concerns vertical, architectural—they frame the entire field as potential crisis.</div></section>
+<section class="slide layout-bullets" style="background:#8B7355;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><span class="label">WHAT DO WE NEED TO LEARN NOW?</span><p>No easy answers. Some candidate directions:</p>
+<p>Design problem, not merely a technical one. Requires pedagogical creativity.</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><strong>&quot;Core&quot; Machine Learning?</strong> Highly specialized (calculus, probability, linear algebra)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span><strong>&quot;Prompt Engineering&quot;?</strong> But AI can write prompts...</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span><strong>Hardware?</strong> Specialized, traditionally male-dominated</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span><strong>Services Sector?</strong> Plumbing, electrician (Jensen Huang). But robots?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span><strong>Care Industries?</strong> Hospitals, childcare, counselling—uniquely human?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span><strong>Humanities?</strong> Peter Thiel's provocative challenge</span></div></div><div class="slide-notes" hidden>The curriculum question is open. There is no consensus. Design rationale: bullets acknowledge multiple valid paths; sand tone returns to warmth after institutional intensity.</div></section>
+<section class="slide layout-section" style="font-family:'Georgia',var(--font);background:#F5F0E8"><h1 class="section-title">Crisis in Higher Education</h1>
+<div class="accent-bar"></div><div class="slide-notes" hidden>Higher ed faces an existential pressure. AI is one factor; it is not the cause. But it accelerates the crisis. Design rationale: Georgia serif softens the dark intensity; off-white field and section layout center the provocation with reflective weight. Font shift signals humanistic turn.</div></section>
+<section class="slide layout-split" style="font-family:'Georgia',var(--font);background:#E8D5C4"><div class="split-left"><span class="label">CASE STUDY: <em>GEIST IN THE MACHINE</em></span></div>
+<div class="split-right"><p><strong>Magee 2026</strong></p>
+<p>A winter experiment testing:</p>
+<p><strong>Builds on Prior Work</strong></p>
+<p><strong>Core Question</strong></p>
+<p>What happens when we <em>know</em> we are not recognized but we <em>feel</em> recognized by a machine?</p><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Approaches to AI teaching</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Developments in AI research</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span><em>The Drama Machine: Simulating Character Development with LLM Agents</em></span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Arxiv: https://arxiv.org/abs/2603.10450</span></div></div></div><div class="slide-notes" hidden>This case study demonstrates AI as research and teaching tool simultaneously. It pushes beyond &quot;using AI as a tool&quot; toward &quot;using AI to understand recognition, consciousness, and the unconscious.&quot; Design rationale: Georgia serif throughout; warm linen field creates intimacy; split zone pairs methodological grounding (left) with philosophical question (right).</div></section>
+<section class="slide layout-stagger" style="font-family:'Georgia',var(--font);background:#F5F0E8"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%">Intuitive, generative approach to prompt and design</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%">Version 1.0 → validate → version 2.0</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%">Iterative, embodied knowledge-making</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%">We become ourselves through being recognized by others</div>
+<div class="stagger-bar" style="background:var(--accent);margin-left:32%">What happens when the &quot;other&quot; is a machine?</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:40%">Nonconscious cognition rises (Hayles 2017)</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:48%">A new concept: feeling recognized by something that <em>cannot</em> recognize us</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:56%">Psychological, philosophical, pedagogical implications</div></div><div class="slide-notes" hidden>The case study integrates philosophy (Hegel, Honneth, Freud), media theory (Hayles), and contemporary AI research. It asks: what does it mean to feel seen by a system we know cannot see? Design rationale: stagger builds conceptual layers; Georgia serif maintains reflective tone throughout.</div></section>
+<section class="slide layout-fragment" style="font-family:'Courier New',var(--font);background:#E8D5C4"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)">Generate prompts</div>
+<div class="frag-cell" style="background:var(--accent2)">Generate simulated dialogue</div>
+<div class="frag-cell" style="background:var(--accent3)">Generate rubrics for evaluation</div>
+<div class="frag-cell" style="background:var(--accent4)">Generate test harness to apply rubric</div>
+<div class="frag-cell" style="background:var(--black)">Quantitative analysis of rubric scores (control vs. experiment)</div>
+<div class="frag-cell" style="background:var(--accent)">Qualitative analysis (word frequencies, thematic analysis)</div>
+<div class="frag-cell" style="background:var(--accent2)">Also generates complete nonsense</div>
+<div class="frag-cell" style="background:var(--accent3)">Hence: need to iterate, validate, verify</div>
+<div class="frag-cell" style="background:var(--accent4)">AI as tool, not oracle</div>
+<div class="frag-cell" style="background:var(--black)"><strong>Generation</strong></div>
+<div class="frag-cell" style="background:var(--accent)"><strong>Analysis</strong></div>
+<div class="frag-cell" style="background:var(--accent2)"><strong>Caveat</strong></div></div><div class="slide-notes" hidden>AI excels at rapid iteration, scaffolding, systematic evaluation—but requires human judgment and verification at every step. This is &quot;vibe-then-validate&quot;: hypothesis first, rigor second. Design rationale: Courier New monospace signals technical registry; fragment layout treats methods as equal-weight toolkit.</div></section>
+<section class="slide layout-rotated" style="background:#3A5A6E;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="rotated-bar"><span class="rotated-text">CREATIVE USE WITH VERIFICATION</span></div>
+<div class="rotated-content"><p class="rotated-body">The intervention encourages you to use AI creatively—to generate ideas, drafts, designs, analyses.<br><strong>But:</strong> Be prepared to verify and validate.<br>Demonstrate critical judgment, not algorithmic compliance.</p></div><div class="slide-notes" hidden>AI use in the intervention is permitted and encouraged, but with accountability. You must show your thinking, your choices, your awareness of AI's limitations. Design rationale: teal field introduces cool note after warm section; rotated layout emphasizes the structural importance of creative-but-critical AI use.</div></section>
+<section class="slide layout-blank"><div class="slide-notes" hidden>Final silence before coda. Room for reflection.</div></section>
+<section class="slide layout-fragment" style="background:#F5F0E8"><div class="frag-grid"><div class="frag-cell" style="background:var(--accent)"><strong>Week 1: Historical Lens</strong></div>
+<div class="frag-cell" style="background:var(--accent2)">https://docs.google.com/presentation/d/1Ef2cOYSKH5goLC6U6ikBKZf7aBwqZtn2ifGeihnn-l4/edit?slide=id.p#slide=id.p</div>
+<div class="frag-cell" style="background:var(--accent3)"><strong>Week 2: Technological Lens</strong></div>
+<div class="frag-cell" style="background:var(--accent4)">https://docs.google.com/presentation/d/1Hlvpcow63mGnqoDLvaCIOBu_I5LKFBc5qT2TkSdzDXo/edit?slide=id.p#slide=id.p</div>
+<div class="frag-cell" style="background:var(--black)"><strong>Week 3: Practitioner Lens</strong></div>
+<div class="frag-cell" style="background:var(--accent)">https://docs.google.com/presentation/d/1tm5q1JTfKU-YSJIKuFny1D2aU8-jMtwVxfRyBx9yGc4/edit?slide=id.p#slide=id.p</div></div><div class="slide-notes" hidden>Direct links to each workshop deck. Slides available for reference and review. Design rationale: fragment layout treats four linked workshops as equal resources.</div></section>
+<section class="slide layout-split" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="split-left"><span class="label">WORKSHOP FOUR</span></div>
+<div class="split-right"><p><strong>Critical Lens</strong></p>
+<p>https://docs.google.com/presentation/d/1Sil2dxk73gQZInd99n3f2PvqsZkLzFqLCDxUTxHqNCk/edit?slide=id.p#slide=id.p</p>
+<p>https://docs.google.com/presentation/d/1Jfm7tsq58fX0kEOUcNGvuSKeoXW0flGFPUwpMWu5pmA/edit?usp=sharing</p></div><div class="slide-notes" hidden>Two linked presentations for the critical lens. Design rationale: split layout acknowledges this workshop has two components; navy field marks final institutional section.</div></section>
+<section class="slide layout-bullets" style="background:#2C3E50;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><span class="label">WORKSHOPS FIVE &amp; SIX</span><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><strong>Week 5: Pedagogical Lens</strong> – https://docs.google.com/presentation/d/1-6sre1_FQSRBWxg03xjLYbp77iSljhDitDGbEhHzFhY/edit?slide=id.p#slide=id.p</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span><strong>Week 6: Showcase</strong> – Virtual conference, peer feedback, intervention presentations</span></div></div><div class="slide-notes" hidden>Final two workshops: pedagogical lens and the showcase itself. The showcase is the public presentation of your intervention. Design rationale: bullets enumerate final components; slate field maintains institutional register.</div></section>
+<section class="slide layout-stagger" style="background:#0D1B2A;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="stagger-bars"><div class="stagger-bar" style="background:var(--accent);margin-left:0%"><strong>This week:</strong> Introductions, discussion, orientation</div>
+<div class="stagger-bar" style="background:var(--accent2);margin-left:8%"><strong>Readings assigned:</strong> Check the course doc before next session</div>
+<div class="stagger-bar" style="background:var(--accent3);margin-left:16%"><strong>Formative task 1 due:</strong> Week 2 (April 5, 11:59 PM) – Brainstorm your &quot;intervention&quot;</div>
+<div class="stagger-bar" style="background:var(--accent4);margin-left:24%"><strong>Come prepared:</strong> With questions, ideas, and your own AI experience to share</div></div><div class="slide-notes" hidden>Concrete next steps to close the opening session. Students know what to expect and what is expected of them. Design rationale: stagger layout ascends from immediate (this week) through intermediate (readings) to first milestone (Week 2 task), building toward the semester arc.</div></section>
+<section class="slide layout-rotated" style="background:#2C3E50;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512"><div class="rotated-bar"><span class="rotated-text">WE ARE STILL HERE</span></div>
+<div class="rotated-content"><p class="rotated-body">Despite the vast volumes of AI-generated materials, something real happens in active discussion. That's why we gather.<br>This course is an intervention itself.</p></div><div class="slide-notes" hidden>A closing statement acknowledging the paradox: AI generates endlessly about itself, yet human dialogue remains irreplaceable. The course is not defensive against AI—it is generative, creative, critical, and grounded in the relationships we build. Design rationale: rotated layout gives the final thought vertical emphasis; it becomes architectural, framing the entire semester.</div></section>
+</div>
+<div class="progress"><div class="progress-bar"></div></div>
+<div class="counter"></div>
+<div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
+<script>
+
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  const notesPanel=document.querySelector('.notes-panel');
+  const notesContent=document.querySelector('.notes-content');
+  let cur=0,notesOpen=false;
+
+  function go(n){
+    if(n<0||n>=slides.length)return;
+    slides[cur].classList.remove('active');
+    cur=n;
+    slides[cur].classList.add('active');
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    counter.textContent=(cur+1)+' / '+slides.length;
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='n'||e.key==='N'){
+      notesOpen=!notesOpen;
+      notesPanel.classList.toggle('open',notesOpen);
+    }
+    else if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+      else document.exitFullscreen();
+    }
+  });
+
+  // Touch/swipe support
+  let tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){dx<0?go(cur+1):go(cur-1)}
+  },{passive:true});
+
+  // Click left/right halves
+  document.addEventListener('click',function(e){
+    if(e.target.tagName==='A')return;
+    if(e.clientX>window.innerWidth*0.65)go(cur+1);
+    else if(e.clientX<window.innerWidth*0.35)go(cur-1);
+  });
+
+  // Presenter mode — press P to open synced notes window
+  const bc=new BroadcastChannel('rastersysteme-presenter');
+  let presenterWin=null;
+
+  function broadcastSlide(){
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    const nextNoteEl=cur+1<slides.length?slides[cur+1].querySelector('.slide-notes'):null;
+    bc.postMessage({
+      type:'slide',
+      index:cur,
+      total:slides.length,
+      notes:noteEl?noteEl.textContent:'(no notes)',
+      nextNotes:nextNoteEl?nextNoteEl.textContent:'',
+      title:document.title
+    });
+  }
+
+  // Broadcast on every slide change
+  const origGo=go;
+  go=function(n){origGo(n);broadcastSlide()};
+
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
+    presenterWin=window.open('','rastersysteme_notes','width=700,height=500');
+    if(!presenterWin)return;
+    presenterWin.document.write(`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Helvetica Neue',sans-serif;background:#111;color:#f0ebe3;padding:2rem}
+.slide-num{font-size:.8rem;color:#8C8478;margin-bottom:.5rem;letter-spacing:0.1em}
+h2{font-size:1rem;color:#8C8478;margin-bottom:1rem;font-weight:400}
+.notes{font-size:1.3rem;line-height:1.7;margin-bottom:2rem;white-space:pre-wrap}
+.next-label{font-size:.7rem;color:#555;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:.5rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.5;white-space:pre-wrap;border-top:1px solid #333;padding-top:1rem}
+.timer{position:fixed;bottom:1rem;right:2rem;font-size:2rem;color:#333;font-variant-numeric:tabular-nums}
+</style></head><body>
+<div class="slide-num" id="pn-num"></div>
+<h2 id="pn-title"></h2>
+<div class="notes" id="pn-notes">Press P in the slide window to sync.</div>
+<div class="next-label">NEXT</div>
+<div class="next-notes" id="pn-next"></div>
+<div class="timer" id="pn-timer">00:00</div>
+<script>
+const bc2=new BroadcastChannel('rastersysteme-presenter');
+const startTime=Date.now();
+bc2.onmessage=function(e){
+  if(e.data.type==='slide'){
+    document.getElementById('pn-num').textContent='Slide '+(e.data.index+1)+' / '+e.data.total;
+    document.getElementById('pn-title').textContent=e.data.title;
+    document.getElementById('pn-notes').textContent=e.data.notes;
+    document.getElementById('pn-next').textContent=e.data.nextNotes||'(end)';
+  }
+};
+setInterval(function(){
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const m=Math.floor(s/60);
+  document.getElementById('pn-timer').textContent=String(m).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+},1000);
+<\/script></body></html>`);
+    presenterWin.document.close();
+    broadcastSlide();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='p'||e.key==='P'){openPresenter()}
+  });
+
+  go(0);
+})();
+
+</script>
+</body>
+</html>

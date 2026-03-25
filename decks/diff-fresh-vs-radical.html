@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<title>Diff: week-1-fresh.composed.md → week-1-radical-v2.composed.md</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e0d8cc;padding:3rem}
+h1{font-size:1.8rem;font-weight:700;margin-bottom:0.5rem}
+h2{font-size:1rem;font-weight:400;color:#8C8478;margin-bottom:2rem}
+.meta{display:flex;gap:3rem;margin-bottom:2rem;font-family:'Space Mono',monospace;font-size:0.75rem;color:#8C8478}
+.meta .stat{display:flex;flex-direction:column;gap:0.2rem}
+.meta .stat-value{font-size:1.5rem;font-weight:700;color:#e0d8cc}
+.meta .stat-value.changed{color:#B7311A}
+.meta .stat-value.same{color:#2B7038}
+
+/* Palette comparison */
+.palettes{display:flex;gap:3rem;margin-bottom:2rem}
+.palette-group{display:flex;flex-direction:column;gap:0.5rem}
+.palette-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:#555;text-transform:uppercase;letter-spacing:0.15em}
+.palette-row{display:flex;gap:4px}
+.swatch{width:24px;height:24px;border-radius:3px;border:1px solid #333;display:inline-block;vertical-align:middle}
+
+/* Table */
+table{width:100%;border-collapse:collapse;margin-top:1rem}
+th{font-family:'Space Mono',monospace;font-size:0.65rem;color:#555;text-transform:uppercase;letter-spacing:0.1em;
+  text-align:left;padding:0.8rem 1rem;border-bottom:1px solid #222}
+td{padding:0.6rem 1rem;border-bottom:1px solid #1a1a1a;font-size:0.85rem}
+.num{font-family:'Space Mono',monospace;color:#555;width:3rem}
+.slide-row.changed{background:#1a1510}
+.slide-row.added{background:#0a1a0a}
+.slide-row.removed{background:#1a0a0a}
+.slide-row.same{opacity:0.4}
+.slide-row.same:hover{opacity:1}
+
+/* Change badges */
+.change-badge{display:inline-flex;align-items:center;gap:0.3rem;padding:0.2rem 0.5rem;
+  border:1px solid;border-radius:3px;font-size:0.7rem;font-family:'Space Mono',monospace;margin:0 0.2rem}
+.change-badge .field{font-weight:700}
+.content-flag{color:#876512;font-family:'Space Mono',monospace;font-size:0.7rem}
+
+/* Layout distribution */
+.distributions{display:flex;gap:3rem;margin-bottom:2rem}
+.dist-group{flex:1}
+.dist-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:#555;text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.5rem}
+.dist-bar{display:flex;align-items:center;gap:0.5rem;margin-bottom:0.3rem}
+.dist-bar-name{font-family:'Space Mono',monospace;font-size:0.7rem;width:80px;color:#8C8478}
+.dist-bar-fill{height:14px;background:#B7311A;border-radius:2px;min-width:2px}
+.dist-bar-count{font-family:'Space Mono',monospace;font-size:0.65rem;color:#555}
+</style></head><body>
+<h1>week-1-fresh.composed.md → week-1-radical-v2.composed.md</h1>
+<h2>Design directive diff</h2>
+
+<div class="meta">
+  <div class="stat"><span>Total</span><span class="stat-value">30</span></div>
+  <div class="stat"><span>Changed</span><span class="stat-value changed">29</span></div>
+  <div class="stat"><span>Unchanged</span><span class="stat-value same">1</span></div>
+  <div class="stat"><span>Layouts</span><span class="stat-value">26</span></div>
+  <div class="stat"><span>Backgrounds</span><span class="stat-value">24</span></div>
+  <div class="stat"><span>Fonts</span><span class="stat-value">3</span></div>
+  <div class="stat"><span>Labels</span><span class="stat-value">29</span></div>
+</div>
+
+<div class="palettes">
+  <div class="palette-group">
+    <div class="palette-label">Before palette</div>
+    <div class="palette-row"><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#3D0A06" title="#3D0A06"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#1B4332" title="#1B4332"></span><span class="swatch" style="background:#2C3E50" title="#2C3E50"></span><span class="swatch" style="background:#B7311A" title="#B7311A"></span></div>
+  </div>
+  <div class="palette-group">
+    <div class="palette-label">After palette</div>
+    <div class="palette-row"><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#16213E" title="#16213E"></span><span class="swatch" style="background:#C0392B" title="#C0392B"></span><span class="swatch" style="background:#B7410E" title="#B7410E"></span><span class="swatch" style="background:#1B4332" title="#1B4332"></span></div>
+  </div>
+</div>
+
+<div class="distributions">
+  <div class="dist-group">
+    <div class="dist-label">Before layouts</div>
+    <div class="dist-bar"><span class="dist-bar-name">overlap</span><div class="dist-bar-fill" style="width:140px"></div><span class="dist-bar-count">7</span></div><div class="dist-bar"><span class="dist-bar-name">split</span><div class="dist-bar-fill" style="width:120px"></div><span class="dist-bar-count">6</span></div><div class="dist-bar"><span class="dist-bar-name">fragment</span><div class="dist-bar-fill" style="width:80px"></div><span class="dist-bar-count">4</span></div><div class="dist-bar"><span class="dist-bar-name">rotated</span><div class="dist-bar-fill" style="width:60px"></div><span class="dist-bar-count">3</span></div><div class="dist-bar"><span class="dist-bar-name">stagger</span><div class="dist-bar-fill" style="width:40px"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">arc</span><div class="dist-bar-fill" style="width:40px"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">section</span><div class="dist-bar-fill" style="width:40px"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">blank</span><div class="dist-bar-fill" style="width:40px"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">title</span><div class="dist-bar-fill" style="width:20px"></div><span class="dist-bar-count">1</span></div><div class="dist-bar"><span class="dist-bar-name">bullets</span><div class="dist-bar-fill" style="width:20px"></div><span class="dist-bar-count">1</span></div>
+  </div>
+  <div class="dist-group">
+    <div class="dist-label">After layouts</div>
+    <div class="dist-bar"><span class="dist-bar-name">blank</span><div class="dist-bar-fill" style="width:120px;background:#1B5E80"></div><span class="dist-bar-count">6</span></div><div class="dist-bar"><span class="dist-bar-name">split</span><div class="dist-bar-fill" style="width:120px;background:#1B5E80"></div><span class="dist-bar-count">6</span></div><div class="dist-bar"><span class="dist-bar-name">section</span><div class="dist-bar-fill" style="width:80px;background:#1B5E80"></div><span class="dist-bar-count">4</span></div><div class="dist-bar"><span class="dist-bar-name">stagger</span><div class="dist-bar-fill" style="width:60px;background:#1B5E80"></div><span class="dist-bar-count">3</span></div><div class="dist-bar"><span class="dist-bar-name">fragment</span><div class="dist-bar-fill" style="width:60px;background:#1B5E80"></div><span class="dist-bar-count">3</span></div><div class="dist-bar"><span class="dist-bar-name">rotated</span><div class="dist-bar-fill" style="width:40px;background:#1B5E80"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">arc</span><div class="dist-bar-fill" style="width:40px;background:#1B5E80"></div><span class="dist-bar-count">2</span></div><div class="dist-bar"><span class="dist-bar-name">title</span><div class="dist-bar-fill" style="width:20px;background:#1B5E80"></div><span class="dist-bar-count">1</span></div><div class="dist-bar"><span class="dist-bar-name">overlap</span><div class="dist-bar-fill" style="width:20px;background:#1B5E80"></div><span class="dist-bar-count">1</span></div>
+  </div>
+</div>
+
+<table>
+  <thead><tr>
+    <th>#</th><th>Before layout</th><th>After layout</th><th>Bg</th><th>Changes</th>
+  </tr></thead>
+  <tbody><tr class="slide-row changed">
+      <td class="num">1</td>
+      <td>title</td>
+      <td>title</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#876512"><span class="field">bg</span> — → 0F2A4A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> GENERATIVE AI — EDUCATION → SPRING 2026 — UNIVERSITY OF ILLINOIS</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">2</td>
+      <td>overlap</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → blank</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0F2A4A → 0A0A0A</span> <span class="change-badge" style="border-color:#1B5E80"><span class="field">font</span> Georgia → —</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> COURSE OBJECTIVES — SIX LENSES → —</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">3</td>
+      <td>split</td>
+      <td>section</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> split → section</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> INSTRUCTOR — CONTACT → 2026</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">4</td>
+      <td>stagger</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#16213E" title="#16213E"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> stagger → split</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0F2A4A → 16213E</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> FORMAT — WEEKLY SCHEDULE → THE METHOD</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">5</td>
+      <td>fragment</td>
+      <td>stagger</td>
+      <td><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> fragment → stagger</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1A1A1A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> CURRICULUM — SIX LENSES → COURSE STRUCTURE — SEVEN WEEKS</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">6</td>
+      <td>arc</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> arc → blank</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 111111 → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> ASSESSMENT — OVERVIEW → —</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">7</td>
+      <td>rotated</td>
+      <td>rotated</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0F2A4A → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> FORMATIVE — WEEKLY RESPONSES → CONTACT</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">8</td>
+      <td>overlap</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#3D0A06" title="#3D0A06"></span><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → split</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 3D0A06 → 0F2A4A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> SUMMATIVE — INTERVENTION → MONDAYS — 5:30 TO 8:20 PM</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">9</td>
+      <td>overlap</td>
+      <td>fragment</td>
+      <td><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → fragment</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1A1A1A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> ASSESSMENT — CRITERIA → LEARNING OBJECTIVES</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">10</td>
+      <td>bullets</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> bullets → blank</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 111111 → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> SUBMISSION — PROCESS → —</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">11</td>
+      <td>section</td>
+      <td>overlap</td>
+      <td><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#16213E" title="#16213E"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> section → overlap</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0A0A0A → 16213E</span> <span class="change-badge" style="border-color:#1B5E80"><span class="field">font</span> Georgia → —</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> POLICY — AI USE → ASSESSMENT STRUCTURE</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">12</td>
+      <td>split</td>
+      <td>section</td>
+      <td><span class="swatch" style="background:#1B4332" title="#1B4332"></span><span class="swatch" style="background:#C0392B" title="#C0392B"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> split → section</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1B4332 → C0392B</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> POLICY — ACCESSIBILITY → SUMMATIVE — 70%</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">13</td>
+      <td>blank</td>
+      <td>fragment</td>
+      <td><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> blank → fragment</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> — → INTERVENTION ARTEFACT [1] — CHOOSE ONE</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">14</td>
+      <td>rotated</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> rotated → split</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> READING GROUP CAROUSELS → ALSO REQUIRED</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">15</td>
+      <td>fragment</td>
+      <td>stagger</td>
+      <td><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> fragment → stagger</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1A1A1A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> DISCUSSION — INTRODUCTIONS → FORMATIVE TASKS — 300–500 WORDS EACH — ALL DUE SUNDAY MIDNIGHT CST — 6 × 5% = 30%</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">16</td>
+      <td>overlap</td>
+      <td>arc</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → arc</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> LANDSCAPE — 2026 → SUMMATIVE CRITERIA — ASSESSED IN TOTAL</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">17</td>
+      <td>fragment</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> fragment → split</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1A1A1A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> OPEN SOURCE — LANDSCAPE → FORMATIVE CRITERIA</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">18</td>
+      <td>overlap</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#3D0A06" title="#3D0A06"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → blank</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 3D0A06 → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> TENSION — SCALING → —</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">19</td>
+      <td>overlap</td>
+      <td>rotated</td>
+      <td><span class="swatch" style="background:#2C3E50" title="#2C3E50"></span><span class="swatch" style="background:#16213E" title="#16213E"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → rotated</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 2C3E50 → 16213E</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> TENSION — EFFICIENCY → SUBMISSION METHOD</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">20</td>
+      <td>fragment</td>
+      <td>section</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span><span class="swatch" style="background:#B7410E" title="#B7410E"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> fragment → section</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 111111 → B7410E</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> AGENCY — AI SYSTEMS → —</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">21</td>
+      <td>stagger</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#B7311A" title="#B7311A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> stagger → split</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> B7311A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> CRITIQUE — EDUCATION → AI POLICY</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">22</td>
+      <td>overlap</td>
+      <td>section</td>
+      <td><span class="swatch" style="background:#1B4332" title="#1B4332"></span><span class="swatch" style="background:#1B4332" title="#1B4332"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> overlap → section</span> <span class="change-badge" style="border-color:#1B5E80"><span class="field">font</span> Georgia → —</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> OPPORTUNITY — EDUCATION → WCAG 2.1 LEVEL AA</span></td>
+    </tr>
+<tr class="slide-row same">
+      <td class="num">23</td>
+      <td>blank</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes">—</td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">24</td>
+      <td>section</td>
+      <td>stagger</td>
+      <td><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> section → stagger</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0A0A0A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> SOURCE — ARCHIVED → WORKSHOP SLIDES</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">25</td>
+      <td>split</td>
+      <td>fragment</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> split → fragment</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0F2A4A → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — HISTORICAL → DISCUSSION & INTRODUCTIONS — SIX QUESTIONS</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">26</td>
+      <td>split</td>
+      <td>split</td>
+      <td><span class="swatch" style="background:#1A1A1A" title="#1A1A1A"></span><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1A1A1A → 111111</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — TECHNOLOGICAL → CAROUSELS — DISCUSSION GROUPS</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">27</td>
+      <td>rotated</td>
+      <td>arc</td>
+      <td><span class="swatch" style="background:#0F2A4A" title="#0F2A4A"></span><span class="swatch" style="background:#16213E" title="#16213E"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> rotated → arc</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 0F2A4A → 16213E</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — PRACTITIONER → ENDPOINT</span></td>
+    </tr>
+<tr class="slide-row changed">
+      <td class="num">28</td>
+      <td>split</td>
+      <td>blank</td>
+      <td><span class="swatch" style="background:#3D0A06" title="#3D0A06"></span><span class="swatch" style="background:#0A0A0A" title="#0A0A0A"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> split → blank</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 3D0A06 → 0A0A0A</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — CRITICAL → —</span></td>
+    </tr>
+<tr class="slide-row removed">
+      <td class="num">29</td>
+      <td>split</td>
+      <td>—</td>
+      <td><span class="swatch" style="background:#1B4332" title="#1B4332"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> split → —</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 1B4332 → —</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — PEDAGOGICAL → —</span></td>
+    </tr>
+<tr class="slide-row removed">
+      <td class="num">30</td>
+      <td>arc</td>
+      <td>—</td>
+      <td><span class="swatch" style="background:#111111" title="#111111"></span></td>
+      <td class="changes"><span class="change-badge" style="border-color:#B7311A"><span class="field">layout</span> arc → —</span> <span class="change-badge" style="border-color:#876512"><span class="field">bg</span> 111111 → —</span> <span class="change-badge" style="border-color:#2B7038"><span class="field">label</span> WORKSHOP — SHOWCASE → —</span></td>
+    </tr></tbody>
+</table>
+
+</body></html>

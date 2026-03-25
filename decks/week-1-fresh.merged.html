@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<title>week-1-fresh — merged</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#7A7168;--accent:#B7311A;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'DM Sans','Helvetica Neue',sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;font-family:var(--font);-webkit-font-smoothing:antialiased}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(1.8rem,5vmin,3.5rem);font-weight:700;line-height:1.1;letter-spacing:-0.03em}
+h2{font-size:clamp(1rem,2.5vmin,1.6rem);color:var(--text-mid)}
+p{font-size:clamp(0.85rem,1.8vmin,1.2rem);line-height:1.5;color:var(--text-mid)}
+.label{font-family:'Space Mono',monospace;font-size:clamp(0.55rem,0.9vmin,0.75rem);letter-spacing:0.25em;text-transform:uppercase;color:var(--accent);font-weight:700}
+ul{list-style:none;display:flex;flex-direction:column;gap:0.8vmin}
+li{font-size:clamp(0.85rem,1.8vmin,1.2rem);color:var(--text);display:flex;gap:1vmin;align-items:baseline}
+li::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:0.4em}
+blockquote{border-left:2px solid var(--accent);padding:1.5vmin 2vmin;font-style:italic;color:var(--text-mid)}
+.progress{position:fixed;bottom:0;left:0;right:0;height:2px;z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s;box-shadow:0 0 8px var(--accent)}
+.counter{position:fixed;bottom:8px;right:16px;font-family:'Space Mono',monospace;font-size:10px;color:rgba(128,128,128,0.4);z-index:100}
+</style>
+</head>
+<body>
+<div class="deck"><section class="slide" style="flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">GENERATIVE AI — EDUCATION</span>
+<h1>Introduction to Generative AI for Education</h1>
+<h2>Generative AI for Education: Overview</h2>
+<ul><li>Welcome!</li><li>Weekly Workshop Zoom link - https://illinois.zoom.us/j/86072392676?pwd=2jtxdxceBVvTv2BSxnbMoS0mmFkvwV.1</li><li>Google doc - https://docs.google.com/document/d/1ilFZ02OM83n-mnHsmUPPMgE61k7NIAG4ZB0cX5Nc2BY/edit?tab=t.0#heading=h.nrro8a66e42m</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-01.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">COURSE OBJECTIVES — SIX LENSES</span>
+<h2>Learning Objectives</h2>
+<p>From the course description: https://ldlprogram.web.illinois.edu/overview/course-descriptions/</p>
+<ul><li>Develop an understanding of generative AI according to the six themes: Historical; Technological; Practioner; Critical; Pedagogical; Futurological</li><li>Respond to AI with a self-styled "intervention" that addresses a pedagogical or social challenge</li><li>Be prepared to address a range of scenarios raised by AI in education</li></ul>
+<blockquote>Explores applications of Generative AI in Education. Topics include: AI predecessors (symbolic, data-driven, and connectionist AI); Large Language Models and statistical approaches to meaning in text; machine learning (supervised, unsupervised and reinforcement learning, including deep learning and neural nets); chatbot architectures and prompt engineering; fine-tuning for domain-specific applications; multimodal AI; guardrails (including managing AI bias, "jailbreaks," "hallucinations," explainability, intellectual property, privacy and security); and applications of Generative AI in education
+All required material (video lectures, readings etc.) will be provided to students, as per the tentative schedule below.</blockquote></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-02.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">INSTRUCTOR — CONTACT</span>
+<h2>Contact Details</h2>
+<p>Dr Liam Magee</p><p>Email: lmagee@illinois.edu</p><p>No office hours or TA; can meet by appointment. Will aim to be responsive.</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-03.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">FORMAT — WEEKLY SCHEDULE</span>
+<h2>Course Information</h2>
+<p>Weekly Workshops: **Mondays, March 23 to May 4, 5:30 - 8:20**</p><p>Likely 2x</p>
+<ul><li>Theory / Lecture - ~30 minutes</li><li>Breakout rooms / Group Discussion / Readings - ~30 minutes</li><li>Practice - ~30 minutes</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-04.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1A1A1A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">CURRICULUM — SIX LENSES</span>
+<h2>Structure</h2>
+<p>Built around 6 weekly themes:</p><p>March 23 - Week 1: Introduction</p><p>March 30 - Week 2: Historical Lens</p><p>April 6 - Week 3: Technological Lens</p><p>April 13 - Week 4: Practioner Lens</p><p>April 20 - Week 5: Critical Lens</p><p>April 27 - Week 6: Pedagogical Lens</p><p>May 4 - Week 7: Futurological Lens</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-05.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">ASSESSMENT — OVERVIEW</span>
+<h2>Assessment</h2>
+<ul><li>Formative: six responses to each week's questions **(6 x 5% = 30%)**</li><li>Due midnight Sunday of the following week</li><li>Summative - an *intervention*: **70%**</li><li>Due May 16 11:59PM</li><li>Interim checkpoints:</li><li>Week 4: Demonstrations of AI use</li><li>Week 7: Showcase the "interventions" - virtual conference,  opportunity for peer feedback.</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-06.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">FORMATIVE — WEEKLY RESPONSES</span>
+<h2>Formative Assessment Building: Weekly Tasks</h2>
+<p>All assessments are due **Sunday midnight CST** of the corresponding week. Six weekly tasks x 5% per cent = 30% overall grade. Each response builds towards the final assessment. Aim to write 300-500 words per week.</p><p>**Week 2 (due April 5 11:59PM): Brainstorming an "Intervention" **</p><p>Questions: what about the history of AI has interested you? Are you surprised with where things have arrived at? What is it you feel most needs saying about AI today?</p><p>**Week 3 (due April 12 11:59PM): Storyboarding**</p><p>Questions: What about the technical foundations might be important to understand? How much does the non-expert need to know? What format & genre are you thinking about?</p><p>**Week 4 (due April 19 11:59PM): Practicing AI**</p><p>Questions: what parts of AI interest you most? Text scaffolding? Code generation? Image / video / music production? Having a "guide"? What are emerging best practices for AI use? and what works for you?</p><p>**Week 5 (due April 26 11:59PM): Developing an Edge**</p><p>Questions: what criticisms of AI resonate for you? Are you optimistic some / all can or have been addressed? What, conversely, that no overnight AI update is likely to "fix"? And how will you communicate this in your intervention?</p><p>**Week 6 (due April May 2 11:59PM): Consider the Teaching "Moment"**</p><p>Questions: what would you want others to know about AI? Is your lesson direct (e.g. "here's the lesson...") or indirect (e.g. "something to think about")? What about this could you carry across to a classroom, and at what levels?</p><p>**Week 7 (due May 9 11:59PM): Showcasing the Intervention**</p><p>Questions: how did others respond to your intervention? What worked, and what needs worked? What does your intervention teach us about the future? What did you learn yourself?</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-07.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#3D0A06;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">SUMMATIVE — INTERVENTION</span>
+<h2>Summative Term Assessment: An "Intervention"</h2>
+<p>What kind of intervention? Any of the following artefacts **[1]**:</p><p>*And* a **[2]** 500-1,000 word reflection / artist's statement / director's pitch / researcher's statement etc (with sources)</p><p>*And* a **[3]** critical 1,000-2,000 word "assessment" of the intervention (follows from week 7 showcase)</p><p>**Week 8 (due May 16 11:59PM): Refinement, Reflection, Submission**</p>
+<ul><li>Presentation (15-20 slides)</li><li>A0 Conference Poster</li><li>Research Experiment / Paper</li><li>School Curriculum</li><li>Policy Document</li><li>Comic strip</li><li>Movie</li><li>Mock product pitch / ad campaign for a new AI service</li><li>Include details of: products/services; prompts; ~cost (if any - note use of free services is completely fine)</li><li>Intervention should involve use of at least 3 of the lens</li><li>Respond to a key challenge, question or issue about technology</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-08.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1A1A1A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">ASSESSMENT — CRITERIA</span>
+<h2>Assessment Criteria</h2>
+<p>**Formative Weekly Responses**</p><p>**Summative Final Assessment**</p>
+<ul><li>Cite at least one of the weekly readings / materials</li><li>Demonstate critical engagement with the material</li><li>Appropriate length, tone, citation practices</li><li>Accumulates into *summative assessment*</li><li>*Creative responsiveness* of intervention to challenges and opportunities of AI</li><li>Evidence of *critical engagement* to course concepts and materials</li><li>*Coherence* and *rigor* of accompanying statement</li><li>Evidence of *reflection* and *reflexivity* in your own assessment</li><li>Incorporation of at least one recognizable educational or social *theoretical* orientation that anchors the intervention (we will discuss this)</li><li>Use of at least *six* relevant academic references</li><li>Assessed in **total**</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-09.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">SUBMISSION — PROCESS</span>
+<h2>Process of submission: Why a single Google Doc?</h2>
+<ul><li>Why? Weekly accumulation becomes easier to track for me</li><li>Keeps the idea of workshops / brainstorming / iterating</li><li>Enables peer sharing / review</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-10.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0A0A0A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">POLICY — AI USE</span>
+<h2>A Note on AI use for this course</h2>
+<p>AI use with *acknowledgement* is *encouraged* for the intervention artefact [1] itself. We will be discussing how this might work as we progress through the course. For weekly activities, and for reflection [2] and assessment [3] parts of the final project, it shouldn't be necessary or desirable.</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-11.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1B4332;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">POLICY — ACCESSIBILITY</span>
+<h2>A Note on Accessibility</h2>
+<p>This course is aimed at providing wide exposore to range of tools as well as readings. I will be checking content for WCAG 2.1 Level AA compliance, but please let me know if any materials are inaccessible.</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-12.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0A0A0A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-13.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">READING GROUP CAROUSELS</span>
+<ul><li>Rotating groups: pick a reading, discuss</li><li>Choose a spokesperson</li><li>Return to the wider group: present the reading and respond</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-14.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1A1A1A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">DISCUSSION — INTRODUCTIONS</span>
+<h2>Dicusssion & Introductions</h2>
+<p>6 Questions:</p><p>1. What has been your experience of generative AI in education?</p><p>2. What is your level of technical expertise?</p><p>3. What criticisms have you had of generative AI?</p><p>4. How have you applied it - in teaching or elsewhere, in professional or personal life?</p><p>5. What are your hopes and fears about the future of AI?</p><p>6. What do you think is still needed for generative AI in education today?</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-15.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">LANDSCAPE — 2026</span>
+<h2>AI Consolidation</h2>
+<p>Key Trends:</p><p>--</p>
+<ul><li>AI Consolidation into "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini</li><li>Big names have slowed down: Xai, Meta, Microsoft Copilot</li><li>Apple: using Google Gemini</li><li>Amazon: investor in Anthropic, provider for OpenAI</li><li>"Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini</li><li>Big names have slowed down: Xai, Meta, Microsoft Copilot</li><li>Apple: using Google Gemini</li><li>Amazon: investor in Anthropic, provider for OpenAI</li><li>Shift from free / $20 per month to:</li><li>Advertising (ChatGPT)</li><li>Higher tier models ($200 per month)</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-16.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1A1A1A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">OPEN SOURCE — LANDSCAPE</span>
+<h2>Rise of open source models</h2>
+<ul><li>Mostly developed in China</li><li>Xiaomi</li><li>Alibaba Qwen</li><li>Kimi</li><li>Minimax</li><li>DeepSeek</li><li>Mistral (France)</li><li>Nemotron (Nvidia)</li><li>Estimated 3-9 months beyond commercial models</li><li>Issues around "benchmaxxing"; IP theft(!); hosting / exfiltration of data</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-17.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#3D0A06;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">TENSION — SCALING</span>
+<h2>Contradictory tendencies: Increasing demand...</h2>
+<ul><li>Scaling laws (Week 3)</li><li>Bigger models</li><li>More "thinking" (inference) time</li><li>Bigger data centers</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-18.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#2C3E50;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">TENSION — EFFICIENCY</span>
+<h2>...but also:</h2>
+<p>In Workshop 4 we'll be examining criticisms of the environmental and social costs of AI. These differing trends make long term estimation hard to predict.</p>
+<ul><li>More efficient GPUs (see Nvidia)</li><li>Better algorithms (especially from Chinese labs)</li><li>Better hardware (Apple): Open source models run locallly</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-19.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">AGENCY — AI SYSTEMS</span>
+<h2>Agentive AI</h2>
+<ul><li>Code automation</li><li>OpenAI Codex</li><li>Claude Code</li><li>Google Gemini</li><li>Computer use:</li><li>OpenClaw - social media for chatbots</li><li>Claude Cowork</li><li>Embedded tools in MS Office</li><li>Design:</li><li>Google Stitch, Nano Banana 2</li><li>Midjourney</li><li>Embedded tools in Adobe, Figma etc</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-20.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#B7311A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">CRITIQUE — EDUCATION</span>
+<h2>Education Issues: Cons</h2>
+<ul><li>Plagiarism & Cognitive Offloading</li><li>Biased Results & Unequal Access ($$$)</li><li>Potential Obsolescence of Teachers?</li><li>Perverse Effects: Automated Assignments > Automated Grading</li><li>Bernard Stiegler's *The Automatic Society*?</li><li>Subtle Changes: transfer of expertise from human to machine?</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-21.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1B4332;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">OPPORTUNITY — EDUCATION</span>
+<h2>Education Issues: Pros</h2>
+<ul><li>Personalized, adaptive learning</li><li>Accessibility</li><li>Can support Universal Design for Learning</li><li>Attractive as a form of inclusive education</li><li>But expensive, time-consuming</li><li>Can AI generate multiple forms of engagement, representation, activities?</li></ul></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-22.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0A0A0A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-23.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0A0A0A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">SOURCE — ARCHIVED</span>
+<p><!--</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-24.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — HISTORICAL</span>
+<p>Workshop 1: Historical Lens</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-25.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1A1A1A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — TECHNOLOGICAL</span>
+<p>Workshop 2: Technological Lens</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-26.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#0F2A4A;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — PRACTITIONER</span>
+<p>Workshop 3: Practitioner Lens</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-27.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#3D0A06;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — CRITICAL</span>
+<p>Workshop 4: Critical Lens</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-28.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#1B4332;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — PEDAGOGICAL</span>
+<p>Workshop 5: Pedagogical Lens (II)</p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-29.png" style="width:100%;height:100%;object-fit:cover"></div></section>
+<section class="slide" style="background-color:#111111;flex-direction:row;padding:0 !important;"><div style="flex:1;padding:5vmin;display:flex;flex-direction:column;gap:2vmin"><span class="label">WORKSHOP — SHOWCASE</span>
+<p>Workshop 6: Showcase</p><p>Showcase</p><p>--></p></div><div style="flex:0 0 40%;overflow:hidden"><img src="week-1-images/slide-30.png" style="width:100%;height:100%;object-fit:cover"></div></section></div>
+<div class="progress"><div class="progress-bar"></div></div>
+<div class="counter"></div>
+<script>
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  let cur=0;
+  function go(n){if(n<0||n>=slides.length)return;slides[cur].classList.remove('active');cur=n;slides[cur].classList.add('active');bar.style.width=((cur+1)/slides.length*100)+'%';counter.textContent=(cur+1)+' / '+slides.length}
+  document.addEventListener('keydown',function(e){if(e.key==='ArrowRight'||e.key===' ')go(cur+1);else if(e.key==='ArrowLeft')go(cur-1);else if(e.key==='Home')go(0);else if(e.key==='End')go(slides.length-1);else if(e.key==='f'){if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});else document.exitFullscreen()}});
+  document.addEventListener('click',function(e){if(e.clientX>window.innerWidth*0.65)go(cur+1);else if(e.clientX<window.innerWidth*0.35)go(cur-1)});
+  go(0);
+})();
+</script>
+</body>
+</html>
