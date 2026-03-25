@@ -2,38 +2,46 @@
 
 Swiss 60-column grid slide system. Markdown → PPTX/HTML with Claude-directed design.
 
-## Skills
+## Quick Start
 
-### /qa-visual
-Run a visual accessibility audit on an HTML slideshow using Claude in Chrome.
-Opens the slideshow, screenshots each slide, checks computed contrast ratios,
-overflow, broken images. Reports findings with screenshots of problem slides.
+```bash
+npm start              # interactive CLI wizard
+npm test               # run all tests
+npm run ui             # web dashboard (port 8800)
+node pipeline.js       # staged pipeline: split → design → compose → render
+```
 
-Usage: `/qa-visual decks/week-1.html`
+## Architecture
 
-### /qa-fix-loop
-Autonomous a11y fix cycle: audit → analyze → fix code → re-render → verify.
-Uses Chrome for auditing AND repo access for fixing. Continues until all
-issues are resolved or the user stops it.
+```
+content/week-N/*.md    → source markdown (one file per week)
+  ↓ compose.js         → Claude designs grid layouts (JSON directives)
+*.composed.md          → markdown with design directives injected
+  ↓ raster.js          → renders to HTML + PPTX
+decks/*.html           → final slide decks
+```
 
-Usage: `/qa-fix-loop decks/week-1.html`
+## Key Files
 
-## Key files
+| File | Role |
+|------|------|
+| `raster.js` | Core renderer — PPTX + HTML, themes, layouts, 60-col grid |
+| `compose.js` | Claude-directed composition (JSON directives approach) |
+| `pipeline.js` | Staged pipeline: split → design → compose → render |
+| `server.js` | Web dashboard UI |
+| `compare.js` | Multi-variant comparison with rubric evaluation |
+| `qa.js` | Markdown-level QA (WCAG, design scoring, validation) |
+| `qa-html.js` | Headless browser QA via Puppeteer |
+| `qa-live.js` | Injectable browser audit overlay (press A in deck) |
 
-- `raster.js` — core renderer (PPTX + HTML), themes, layouts, grid system
-- `compose.js` — Claude-directed composition (JSON directives approach)
-- `pipeline.js` — staged pipeline: split → design → compose → render (`node pipeline.js`)
-- `server.js` — web dashboard UI (`npm run ui` or `node server.js`)
-- `compare.js` — multi-variant comparison with rubric evaluation
-- `rastersysteme.js` — interactive CLI wizard (`npm start`)
-- `qa.js` — markdown-level QA (WCAG, design scoring, validation)
-- `qa-html.js` — headless browser QA via Puppeteer
-- `qa-live.js` — injectable browser audit overlay (press A)
-- `SPEC.md` — formal markdown slide specification
+## Rendering
 
-## Conventions
+```bash
+# Render HTML from composed markdown
+node -e "require('./raster.js').generateHTML('input.composed.md', 'output.html')"
 
-- All tools use `chalk.dim/red/cyan/green/yellow` for console output (standard ANSI)
-- Tests in `raster.test.js` (core) and `tools.test.js` (tools) — run with `npm test`
-- Design systems saved in `design-systems/`, master sets in `master-sets/`
-- Composed markdown uses `<!-- layout: name -->`, `<!-- bg: HEX -->`, `<!-- font: Name -->`, `<!-- transition: name -->`
+# Render with theme
+node -e "require('./raster.js').generateHTML('input.composed.md', 'output.html', {theme:'dark'})"
+```
+
+Themes: `light` (default), `dark`, `red`, `blue`
