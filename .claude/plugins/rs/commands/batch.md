@@ -12,7 +12,7 @@ Run a skill or command across multiple decks in the `decks/` folder.
 
 `/batch <skill> [filter] [options]`
 
-- First arg: the skill to run — `splice-images`, `qa-visual`, `render`, `compose`, `qa-fix-loop`
+- First arg: the skill to run — `splice-images`, `qa-visual`, `render`, `compose`, `qa-fix-loop`, or **`all`** for the full pipeline
 - Second arg (optional): filter to select which decks to process (see Filtering below)
 - Remaining args: passed through to the underlying skill
 
@@ -44,8 +44,11 @@ When no filter is given, the default glob for the skill is used (see Discover ta
 /batch render --modified                      # re-render only decks changed since last commit
 /batch qa-visual --only week-1a,week-1b       # audit specific decks
 /batch qa-visual --exclude *studio*,*review*  # audit all except studio/review
-/batch compose content/week-*/week-*.md       # compose all source markdown files
-/batch compose --week 2                       # compose all week-2 source files
+/batch compose                                # compose all content/week-*/week-*.md
+/batch compose --week 2                       # compose week-2 only
+/batch all                                    # full pipeline: compose → render → splice for all weeks
+/batch all --week 2                           # full pipeline for week-2 only
+/batch all --week 2 --theme dark              # full pipeline for week-2, dark theme
 ```
 
 ## Steps
@@ -60,7 +63,8 @@ Based on the skill, find the right files using the default glob:
 | `render` | `*.composed.md` | `decks/` |
 | `qa-visual` | `*.html` (same exclusions as splice-images) | `decks/` |
 | `qa-fix-loop` | `*.html` (same exclusions) | `decks/` |
-| `compose` | `*.md` | `content/week-*/` |
+| `compose` | `week-*.md` (the main source file per week) | `content/week-*/` |
+| `all` | Each `content/week-*/` folder (runs full pipeline) | `content/` |
 
 ### 2. Apply filters
 
@@ -105,9 +109,37 @@ Run the `/rs:qa-visual` skill for each file, collecting results.
 Run the `/rs:qa-fix-loop` skill for each file.
 
 **compose:**
+
+Discover source files by scanning `content/week-*/` for the main `week-N.md` file in each folder:
 ```bash
+# For each content/week-N/ directory, find the source markdown:
+#   content/week-1/week-1.md → compose → decks/week-1.html
+#   content/week-2/week-2.md → compose → decks/week-2.html
 node compose.js <source.md> decks/<name>.html [options]
 ```
+
+**all (full pipeline per week):**
+
+Runs compose → render → splice-images sequentially for each `content/week-*/` folder:
+
+```bash
+# For each content/week-N/ directory:
+# 1. Compose: source markdown → composed markdown + HTML
+node compose.js content/week-N/week-N.md decks/week-N.html [options]
+
+# 2. Splice images (if a matching images dir exists)
+node splice-images.js decks/week-N.html decks/week-N-images/ --output decks/week-N.html
+#    Also check content/week-N/images/ and content/week-N/week-N-images/
+
+# 3. Rebuild manifest
+node build-manifest.js
+```
+
+Image directory resolution for each week:
+1. `decks/week-N-images/` (primary)
+2. `content/week-N/week-N-images/` (co-located with source)
+3. `content/week-N/images/` (generic images folder)
+4. Skip splice if none found
 
 ### 4. Track progress
 

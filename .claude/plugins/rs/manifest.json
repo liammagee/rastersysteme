@@ -2,7 +2,7 @@
   "name": "rs",
   "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more",
   "commands": [
-    { "name": "batch", "description": "Run a skill across all decks in batch — splice-images, qa-visual, render, compose, or any per-deck operation.", "file": "commands/batch.md" },
+    { "name": "batch", "description": "Run a skill across all decks in batch, or 'all' for full pipeline (compose → render → splice) per content/week-*/ folder.", "file": "commands/batch.md" },
     { "name": "compare", "description": "Run multi-variant comparison of a deck across intensity levels and themes, with rubric evaluation and side-by-side review.", "file": "commands/compare.md" },
     { "name": "compose", "description": "Run Claude-directed composition on source markdown — assigns design directives (grid zones, typography, colors, accents) to each slide.", "file": "commands/compose.md" },
     { "name": "delete-slide", "description": "Remove one or more slides from a composed markdown deck, with confirmation and re-render.", "file": "commands/delete-slide.md" },
