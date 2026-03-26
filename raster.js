@@ -1859,11 +1859,16 @@ function renderDesigned(slide) {
     const textBottom = Math.max(...zones.map(z => ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100), 50);
     // Place images in the least-occupied corner, constrained size
     const imgStyle = textRight < 70
-      ? `position:absolute;right:3%;top:5%;width:30%;max-height:60%;overflow:hidden;z-index:0;opacity:0.85`
+      ? `position:absolute;right:3%;top:5%;width:30%;height:55%;overflow:hidden;z-index:0;opacity:0.85`
       : textBottom < 65
-        ? `position:absolute;left:5%;bottom:5%;width:35%;max-height:35%;overflow:hidden;z-index:0;opacity:0.85`
-        : `position:absolute;right:3%;bottom:5%;width:25%;max-height:40%;overflow:hidden;z-index:0;opacity:0.7`;
-    extras += `<div style="${imgStyle}">${imagesHTML(slide.images)}</div>`;
+        ? `position:absolute;left:5%;bottom:5%;width:35%;height:30%;overflow:hidden;z-index:0;opacity:0.85`
+        : `position:absolute;right:3%;bottom:5%;width:25%;height:35%;overflow:hidden;z-index:0;opacity:0.7`;
+    // Limit to 2 images max in fallback position to prevent overflow
+    const showImages = slide.images.slice(0, 2);
+    const imgHTML = showImages.map(img =>
+      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="width:100%;height:auto;display:block;margin-bottom:4px;border-radius:3px">`
+    ).join("");
+    extras += `<div style="${imgStyle}">${imgHTML}</div>`;
   }
   if (slide.links.length && !zonedRoles.has("links")) {
     extras += linksHTML(slide.links);
