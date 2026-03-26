@@ -617,14 +617,14 @@ console.log("hello");
       assert.ok(html.includes("video-responsive"), "should have responsive video wrapper");
     });
 
-    it("appends unzoned images as zone-extras fallback", () => {
+    it("appends unzoned images as positioned fallback", () => {
       const md = `<!-- design: { "zones": [{ "role": "title", "col": 5, "span": 40, "row": 0, "rowSpan": 10 }] } -->
 # Slide
 ![Photo](diagram.png)`;
       const [slide] = parseMarkdown(md);
       const html = renderDesigned(slide);
-      assert.ok(html.includes("zone-extras"), "should have zone-extras for unzoned image");
       assert.ok(html.includes("diagram.png"), "extras should contain image");
+      assert.ok(html.includes("position:absolute"), "image should be absolutely positioned to avoid text");
     });
 
     it("appends unzoned links as zone-extras fallback", () => {

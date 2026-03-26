@@ -1853,13 +1853,25 @@ function renderDesigned(slide) {
     extras += videosHTML(slide.videos);
   }
   if (slide.images.length && !zonedRoles.has("image")) {
-    extras += imagesHTML(slide.images);
+    // Position unzoned images to avoid text zones — find empty quadrant
+    const zones = design.zones || [];
+    const textRight = Math.max(...zones.map(z => ((z.col || 0) + (z.span || 30)) / 60 * 100), 50);
+    const textBottom = Math.max(...zones.map(z => ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100), 50);
+    // Place images in the least-occupied corner, constrained size
+    const imgStyle = textRight < 70
+      ? `position:absolute;right:3%;top:5%;width:30%;max-height:60%;overflow:hidden;z-index:0;opacity:0.85`
+      : textBottom < 65
+        ? `position:absolute;left:5%;bottom:5%;width:35%;max-height:35%;overflow:hidden;z-index:0;opacity:0.85`
+        : `position:absolute;right:3%;bottom:5%;width:25%;max-height:40%;overflow:hidden;z-index:0;opacity:0.7`;
+    extras += `<div style="${imgStyle}">${imagesHTML(slide.images)}</div>`;
   }
   if (slide.links.length && !zonedRoles.has("links")) {
     extras += linksHTML(slide.links);
   }
   const extrasHTML = extras
-    ? `<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto">${extras}</div>`
+    ? (slide.images.length && !zonedRoles.has("image"))
+      ? extras  // images already positioned absolutely
+      : `<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto">${extras}</div>`
     : "";
 
   return `${accentsHTML}\n${zonesHTML}\n${extrasHTML}`;
