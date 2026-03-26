@@ -1853,20 +1853,52 @@ function renderDesigned(slide) {
     extras += videosHTML(slide.videos);
   }
   if (slide.images.length && !zonedRoles.has("image")) {
-    // Position unzoned images to avoid text zones — find empty quadrant
+    // Smart image placement — varies by zone layout, image count, and slide position
     const zones = design.zones || [];
-    const textRight = Math.max(...zones.map(z => ((z.col || 0) + (z.span || 30)) / 60 * 100), 50);
-    const textBottom = Math.max(...zones.map(z => ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100), 50);
-    // Place images in the least-occupied corner, constrained size
-    const imgStyle = textRight < 70
-      ? `position:absolute;right:3%;top:5%;width:30%;height:55%;overflow:hidden;z-index:0;opacity:0.85`
-      : textBottom < 65
-        ? `position:absolute;left:5%;bottom:5%;width:35%;height:30%;overflow:hidden;z-index:0;opacity:0.85`
-        : `position:absolute;right:3%;bottom:5%;width:25%;height:35%;overflow:hidden;z-index:0;opacity:0.7`;
-    // Limit to 2 images max in fallback position to prevent overflow
-    const showImages = slide.images.slice(0, 2);
+    const textLeft = Math.min(...zones.map(z => (z.col || 0) / 60 * 100), 100);
+    const textRight = Math.max(...zones.map(z => ((z.col || 0) + (z.span || 30)) / 60 * 100), 0);
+    const textTop = Math.min(...zones.map(z => (z.row || 0) / 40 * 100), 100);
+    const textBottom = Math.max(...zones.map(z => ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100), 0);
+    const textBodyLen = slide.body.join(" ").length + (slide.blockquote || "").length;
+    const isImageHeavy = slide.images.length > 1 && textBodyLen < 100;
+    const isImagePrimary = !slide.title && !slide.subtitle && textBodyLen < 50;
+
+    // Determine placement strategy
+    let imgStyle;
+    if (isImagePrimary) {
+      // Image IS the slide — show large, centred
+      imgStyle = `position:absolute;inset:5%;overflow:hidden;z-index:0;opacity:0.9;display:flex;align-items:center;justify-content:center`;
+    } else if (isImageHeavy) {
+      // Multiple images, light text — grid them across the right half
+      imgStyle = `position:absolute;right:2%;top:5%;width:45%;height:90%;overflow:hidden;z-index:0;opacity:0.85;display:flex;flex-direction:column;gap:2%;justify-content:center`;
+    } else if (textRight < 65) {
+      // Text occupies left side — image goes right, tall panel
+      imgStyle = `position:absolute;right:2%;top:8%;width:32%;height:70%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
+    } else if (textLeft > 20) {
+      // Text is offset right — image goes left
+      imgStyle = `position:absolute;left:2%;top:8%;width:18%;height:60%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
+    } else if (textTop > 25) {
+      // Text starts low — image strip across top
+      imgStyle = `position:absolute;top:3%;left:5%;right:5%;height:22%;overflow:hidden;z-index:0;opacity:0.8;border-radius:4px`;
+    } else if (textBottom < 70) {
+      // Text ends early — image strip across bottom
+      imgStyle = `position:absolute;bottom:3%;left:5%;right:5%;height:28%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
+    } else {
+      // Text fills most of the slide — small inset, use slide index to vary corner
+      const corner = (slide.index || 0) % 4;
+      const positions = [
+        `position:absolute;right:3%;top:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
+        `position:absolute;left:3%;bottom:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
+        `position:absolute;right:3%;bottom:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
+        `position:absolute;left:3%;top:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
+      ];
+      imgStyle = positions[corner];
+    }
+
+    const showImages = isImagePrimary ? slide.images : slide.images.slice(0, 2);
+    const imgFit = isImagePrimary ? 'object-fit:contain;max-width:100%;max-height:100%' : 'width:100%;height:auto;object-fit:cover';
     const imgHTML = showImages.map(img =>
-      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="width:100%;height:auto;display:block;margin-bottom:4px;border-radius:3px">`
+      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="${imgFit};display:block;margin-bottom:4px;border-radius:3px">`
     ).join("");
     extras += `<div style="${imgStyle}">${imgHTML}</div>`;
   }
