@@ -1,5 +1,14 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":18,"row":4,"rowSpan":3},{"role":"title","col":6,"span":34,"row":14,"rowSpan":14}],"accents":[{"type":"line","col":5,"span":1,"row":0,"rowSpan":40,"color":"2A1F14"},{"type":"line","col":6,"span":26,"row":12,"rowSpan":1,"color":"2A1F14"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.22em","color":"2A1F14"},"title":{"size":48,"weight":600,"leading":1.15,"color":"2A1F14"}},"bg":"B89B72","font":"Palatino"} -->
-### WEEK 1
-## Slide 10
+<!-- design: {"zones":[{"role":"label","col":16,"span":40,"row":1,"rowSpan":3},{"role":"title","col":1,"span":12,"row":4,"rowSpan":34},{"role":"bullets","col":16,"span":19,"row":4,"rowSpan":34},{"role":"body","col":38,"span":20,"row":4,"rowSpan":34}],"accents":[{"type":"bar","col":14,"span":1,"row":0,"rowSpan":40,"color":"D4924A"},{"type":"bar","col":36,"span":1,"row":4,"rowSpan":34,"color":"4A6B8A"}],"typography":{"title":{"size":48,"weight":700,"leading":1.05,"color":"1A2840"},"bullets":{"size":13,"weight":400,"leading":1.7,"color":"1A2840"},"body":{"size":13,"weight":300,"leading":1.65,"color":"4A6B8A"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.15em","color":"D4924A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### AGENTIVE AI
+## Agentive AI
 
-### ‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)
+ - Code automation
+   - OpenAI Codex
+   - Claude Code
+   - Google Gemini
+ - Computer use:
+   - OpenClaw: local agent, social media for chatbots
+   - Claude Cowork
+ - Design:
+   - Google Stitch, Nano Banana 2, Midjourney
+   - Embedded tools in Adobe, Figma etc

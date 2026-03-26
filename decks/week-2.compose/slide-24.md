@@ -1,0 +1,7 @@
+<!-- design: {"zones":[{"role":"label","col":10,"span":24,"row":3,"rowSpan":3},{"role":"bullets","col":10,"span":44,"row":7,"rowSpan":13},{"role":"body","col":10,"span":44,"row":24,"rowSpan":14}],"accents":[{"type":"bar","col":6,"span":2,"row":7,"rowSpan":31,"color":"4A6B8A"},{"type":"line","col":10,"span":44,"row":22,"rowSpan":1,"color":"D4924A"}],"typography":{"bullets":{"size":15,"weight":400,"leading":1.75,"color":"1A2840"},"body":{"size":14,"weight":300,"leading":1.65,"color":"4A6B8A"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.15em","color":"4A6B8A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### WEEK 2
+For those mathematically / philosophically minded:
+
+ - Much of AI-related - and general - computing from 1940s to 2020s involves mapping continuous (derivates) into discrete (very small differences). At least as far as *simulation* (from ballistics to language generation) are concerned.
+ - Note *analog* (non digital) calculators can compute continuities directly! Arguably what biological brains also do - open for debate. 
+ - Continuous > discrete is always "lossy" - loses definition. Think about how early pixels used RGB - so many values for red, green, blue. Detail, naunce is lost. Is digitization - conversion of continuous to discrete - an approximation but never realization of the real thing?

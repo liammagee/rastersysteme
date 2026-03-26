@@ -10,11 +10,29 @@ Generate AI image prompts for every slide in a deck. Creates a visual thread (co
 
 ## Arguments
 
+**Full deck mode:**
 `/imagine content/week-2/week-2.md`
 `/imagine decks/week-1k.composed.md --style bauhaus`
 `/imagine decks/week-1k.composed.md --generate`
 
+**Quick prompt mode (keywords only):**
+`/imagine --prompt "neural network brutalism"`
+`/imagine --prompt "data flowing through pipes" --style data-viz`
+`/imagine --prompt "collaboration trust" --style bauhaus --aspect 1:1`
+
 ## How to work
+
+### Quick prompt mode
+
+If the user passes `--prompt "keywords"` (or gives keywords without a file path), run:
+
+```bash
+node imagine.js --prompt "keywords" --style <style> [--aspect <ratio>] [--abstraction <level>]
+```
+
+This generates a single image prompt from keywords and prints it to stdout. Uses haiku by default for speed. Present the output to the user.
+
+### Full deck mode
 
 ### 1. Understand the deck
 

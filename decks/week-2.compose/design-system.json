@@ -1,33 +1,33 @@
 {
-  "aesthetic": "Codex Marginalia — a typographic system modelled on the illuminated manuscript page, where cream fields, ink accents, and ruled left-margins create the book as interface",
+  "aesthetic": "Pressroom Meridian — an editorial system that moves like a broadsheet at golden hour, warm and papery at dawn, cooling to deep ocean blue by dusk",
   "palette": [
     {
-      "hex": "F8F3E6",
-      "name": "Vellum Cream",
+      "hex": "FAF6EE",
+      "name": "Linen Ground",
       "role": "ground"
     },
     {
-      "hex": "EDE0C4",
-      "name": "Warm Parchment",
+      "hex": "D4924A",
+      "name": "Harvest Amber",
       "role": "dominant"
     },
     {
-      "hex": "B89B72",
-      "name": "Antique Gold",
+      "hex": "4A6B8A",
+      "name": "Slate Meridian",
       "role": "accent"
     },
     {
-      "hex": "2A1F14",
-      "name": "India Ink",
+      "hex": "1A2840",
+      "name": "Deep Ink",
       "role": "signal"
     }
   ],
-  "chromaticArc": "Opens on vellum cream (slides 1–4), drops to ink-dark for the first section divider (slide 5), resurfaces through warm parchment for the development run (slides 6–9), pauses on antique-gold mid-tone (slide 10), returns to cream through the closing arc (slides 11–13), drops again to ink for the penultimate divider (slide 14), and resolves on vellum cream — four light/dark crossings across fifteen pages.",
-  "gridStrategy": "Every title anchors at col 6 with span varying between 22 and 36 to shift gravitational weight; body text migrates vertically between row 18 and row 26 while never exceeding span 36, preserving col 42–60 as structural silence — compositional variety comes from title span width, row drop, and occasional body offset to col 10, not from abandoning the left-margin discipline.",
+  "chromaticArc": "Slides 1–12 rest on warm linen with amber punctuation; slides 13–22 introduce Slate Meridian as the accent tone while linen holds the ground; slides 23–32 let slate migrate to backgrounds on 2 section dividers; slides 33–38 close on Deep Ink dividers and cool grey-white grounds, completing the warm-to-cold transit.",
+  "gridStrategy": "Each slide cycles through one of four zone archetypes — full-bleed title (col 0 span 58), right-offset statement (col 30 span 28), left-sidebar body split (col 0 span 18 / col 22 span 36), and centred column (col 12 span 36) — sequenced to prevent any two consecutive slides from sharing the same archetype.",
   "typeScale": {
     "titleRange": [
       32,
-      52
+      72
     ],
     "bodySize": 14,
     "labelSize": 11,
@@ -37,10 +37,10 @@
     ]
   },
   "fontStrategy": {
-    "default": "Palatino",
+    "default": "Helvetica Neue",
     "secondary": "Georgia",
-    "tertiary": "Helvetica Neue",
-    "secondarySlides": "Georgia appears on slides 7 and 12 — aphorism or pull-quote slides where a single large italic phrase at weight 400 and generous tracking occupies most of the field, exploiting Georgia's compressed letterforms for maximum editorial warmth"
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on ~6 slides (roughly every 6th): opening title, key-insight statements, and any slide carrying a direct quote or single-sentence thesis — always at weight 400 to emphasise warmth over authority"
   },
-  "accentStrategy": "A thin vertical rule (type: line, col 5, rowSpan full) anchors the left gutter as a running chapter margin on roughly 45% of slides; on the two ink-dark section dividers this rule is replaced by a 3-column antique-gold bar at col 6 acting as a folio marker, and on five light slides a short horizontal rule at row 14 separates title zone from body zone with calligraphic restraint."
+  "accentStrategy": "Thin horizontal rules (type: line, height 1px, Harvest Amber or Slate Meridian) divide title from body zones on 40% of slides; 5–6 slides add a narrow vertical bar (col span 1, full row height) in amber as left-margin punctuation on sidebar layouts."
 }

@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":22,"span":28,"row":5,"rowSpan":3},{"role":"body","col":22,"span":34,"row":17,"rowSpan":10}],"accents":[{"type":"block","col":0,"span":18,"row":0,"rowSpan":40,"color":"D4924A"},{"type":"line","col":22,"span":34,"row":15,"rowSpan":1,"color":"1A2840"}],"typography":{"body":{"size":26,"weight":300,"leading":1.3,"color":"1A2840"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.17em","color":"1A2840"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### WEEK 2
+![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)

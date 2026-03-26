@@ -1,9 +1,14 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":16,"row":4,"rowSpan":3},{"role":"title","col":8,"span":28,"row":8,"rowSpan":12},{"role":"body","col":6,"span":36,"row":24,"rowSpan":12}],"accents":[{"type":"bar","col":6,"span":3,"row":0,"rowSpan":2,"color":"B89B72"},{"type":"line","col":6,"span":34,"row":22,"rowSpan":1,"color":"2A1F14"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.2em","color":"B89B72"},"title":{"size":36,"weight":400,"leading":1.3,"color":"2A1F14"},"body":{"size":14,"weight":400,"leading":1.7,"color":"2A1F14"}},"bg":"EDE0C4","font":"Georgia"} -->
-### WEEK 1
-## Slide 4
+<!-- design: {"zones":[{"role":"label","col":4,"span":52,"row":4,"rowSpan":3},{"role":"bullets","col":2,"span":25,"row":9,"rowSpan":26},{"role":"body","col":31,"span":26,"row":9,"rowSpan":26}],"accents":[{"type":"line","col":2,"span":54,"row":8,"rowSpan":1,"color":"D4924A"},{"type":"bar","col":28,"span":1,"row":9,"rowSpan":26,"color":"D4924A"}],"typography":{"bullets":{"size":14,"weight":400,"leading":1.85,"color":"FAF6EE"},"body":{"size":13,"weight":300,"leading":1.65,"color":"FAF6EE"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.14em","color":"D4924A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### WEEK 2
+### Roll Forward
 
-### An Era of Symbiotic (or Sympoetic***** or Co-intelligent******) Pedagogy?   **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI (e.g. DeepSeek R1-Zero) **AI to Human**  
+ - Attempts to reclaim the more "human" form
+ - An Era of Symbiotic (or Sympoetic / Co-intelligent / Cyber-social) Pedagogy?   
+ - 
+ - **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI  **AI to Human**  
 
 | | |
 |---|---|
-| Human<br><br><br><br>AI<br><br><br><br>***** Donna Haraway (2106) *Staying with the Trouble*<br>****** Ethan Mollick (2024) *Co-intelligence*<br><br> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)<br><br><br><br>![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png)<br><br> |
+| Human | AI |
+| Donna Haraway (2016) *Staying with the Trouble* | Ethan Mollick (2024) *Co-intelligence*<br><br> |
+| ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png) |

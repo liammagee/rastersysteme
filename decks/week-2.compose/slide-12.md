@@ -1,5 +1,11 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":16,"row":4,"rowSpan":3},{"role":"title","col":6,"span":44,"row":11,"rowSpan":18}],"accents":[{"type":"bar","col":0,"span":2,"row":10,"rowSpan":8,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.2em","color":"B89B72"},"title":{"size":52,"weight":400,"style":"italic","tracking":"0.05em","leading":1.2,"color":"2A1F14"}},"bg":"EDE0C4","font":"Georgia"} -->
-### WEEK 1
-## Slide 12
+<!-- design: {"zones":[{"role":"title","col":4,"span":26,"row":3,"rowSpan":8},{"role":"body","col":4,"span":26,"row":14,"rowSpan":23},{"role":"bullets","col":34,"span":22,"row":3,"rowSpan":34}],"accents":[{"type":"bar","col":31,"span":1,"row":3,"rowSpan":34,"color":"D4924A"},{"type":"line","col":4,"span":26,"row":13,"rowSpan":1,"color":"4A6B8A"}],"typography":{"title":{"size":36,"weight":700,"leading":1.1,"color":"1A2840"},"bullets":{"size":13,"weight":400,"leading":1.8,"color":"1A2840"},"body":{"size":13,"weight":300,"leading":1.65,"color":"4A6B8A"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.15em","color":"D4924A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### EDUCATION
+## Education Issues: Pros
 
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**
+
+ - Personalized, adaptive learning
+ - Accessibility
+ - Can support Universal Design for Learning
+   - Attractive as a form of inclusive education
+   - But expensive, time-consuming
+   - Can AI generate multiple forms of engagement, representation, activities?

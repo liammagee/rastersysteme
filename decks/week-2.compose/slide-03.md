@@ -1,9 +1,15 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":20,"row":5,"rowSpan":3},{"role":"title","col":6,"span":36,"row":10,"rowSpan":11},{"role":"body","col":6,"span":30,"row":26,"rowSpan":11}],"accents":[{"type":"line","col":5,"span":1,"row":0,"rowSpan":40,"color":"B89B72"},{"type":"dot","col":6,"span":2,"row":24,"rowSpan":2,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.18em","color":"B89B72"},"title":{"size":52,"weight":700,"leading":1.1,"color":"2A1F14"},"body":{"size":14,"weight":400,"leading":1.65,"color":"2A1F14"}},"bg":"F8F3E6","font":"Palatino"} -->
-### WEEK 1
-## Slide 3
+<!-- design: {"zones":[{"role":"label","col":4,"span":52,"row":4,"rowSpan":3},{"role":"body","col":4,"span":25,"row":9,"rowSpan":28},{"role":"body","col":32,"span":24,"row":9,"rowSpan":28}],"accents":[{"type":"line","col":4,"span":52,"row":8,"rowSpan":1,"color":"D4924A"}],"typography":{"body":{"size":13,"weight":400,"leading":1.7,"color":"1A2840"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.14em","color":"D4924A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### WEEK 2
+### Themes: Cybernetics vs Artificial Intelligence?
 
-### Artificial Intelligence involves….  
-
-| | |
+| Cybernetics | AI |
 |---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_4.png)<br><br><br><br>“*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955)<br><br> |  |
+| ![Image](images/pasted-image-2026-03-26T20-29-19-509Z-8579ae13.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_3.png) |
+| Norbert Weiner | John McCarthy |
+| Cybernetics - Governance, Steerage | Artificial Intelligence |
+| Vision: Humans teaming with Machines (Cyborg) | Vision: A Machine Reproducing Human Intelligence |
+| Collective | Individualized |
+| Co-operative | Competitive |
+| Directing (Governance) | Self-governing |
+| "Cybernetics" - too fancy, academic; what does it even mean? | "Artificial Intelligence" - appeals to military / government / corporate funders |
+| CyberSocial (Cope, Kalantzis) | OpenAI |

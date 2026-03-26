@@ -211,7 +211,6 @@ async function generateWithImagen(prompt, outputPath, apiKey, imagenModel) {
       contents: [{ parts: [{ text: imagePrompt }] }],
       generationConfig: {
         responseModalities: ["IMAGE", "TEXT"],
-        imageSafety: "BLOCK_NONE",
       },
     });
 
@@ -504,16 +503,18 @@ if (require.main === module) {
 
   if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
     console.log(`
-  imagine — generate consistent image prompts for slide presentations
+  imagine — generate image prompts for slide presentations or from keywords
 
   Usage:
-    node imagine.js <input.md> [options]
+    node imagine.js <input.md> [options]       Full deck prompt generation
+    node imagine.js --prompt "keywords" [opts] Single prompt from keywords
 
   Options:
+    --prompt <keywords>    Generate a single prompt from keywords (no file needed)
     --style <name>         Image style preset (default: swiss-poster)
     --abstraction <level>  abstract | suggestive (default) | representational | literal
     --aspect <ratio>       Aspect ratio: 16:9 (default), 1:1, 9:16, 4:3
-    --model <model>        Claude model (default: sonnet)
+    --model <model>        Claude model (default: sonnet; prompt mode uses haiku)
     --generate             Actually generate images (requires API key)
     --images-only          Skip prompt generation, use existing prompts.json
     --slides <range>       Only process specific slides (e.g. "1", "1-3", "1,5,10")
@@ -543,12 +544,11 @@ if (require.main === module) {
     node imagine.js slides.md
     node imagine.js slides.md --style bauhaus --aspect 1:1
     node imagine.js slides.md --style editorial --generate --engine imagen
-    node imagine.js slides.md --style collage --model haiku
+    node imagine.js --prompt "neural network brutalism" --style architectural
+    node imagine.js --prompt "data flowing through pipes" --style data-viz --aspect 1:1
     `);
     process.exit(0);
   }
-
-  const input = args[0];
 
   function getFlag(flag) {
     const idx = args.indexOf(flag);
@@ -559,7 +559,7 @@ if (require.main === module) {
     style: getFlag("--style") || "swiss-poster",
     abstraction: getFlag("--abstraction") || "suggestive",
     aspectRatio: getFlag("--aspect") || "16:9",
-    model: getFlag("--model") || "sonnet",
+    model: getFlag("--model"),
     generate: args.includes("--generate") || args.includes("--images-only"),
     imagesOnly: args.includes("--images-only"),
     slides: getFlag("--slides"),
@@ -569,15 +569,130 @@ if (require.main === module) {
     midjourneyUrl: loadEnvKeys().MIDJOURNEY_API_URL,
   };
 
-  if (!fs.existsSync(input)) {
-    console.error(`Error: file not found: ${input}`);
-    process.exit(1);
-  }
+  // Quick prompt mode: --prompt "keywords"
+  const promptKeywords = getFlag("--prompt");
+  if (promptKeywords) {
+    if (!options.model) options.model = "haiku";
+    quickPrompt(promptKeywords, options).catch((err) => {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    });
+  } else {
+    const input = args[0];
+    if (!options.model) options.model = "sonnet";
 
-  imagine(input, options).catch((err) => {
-    console.error(`Error: ${err.message}`);
-    process.exit(1);
-  });
+    if (!fs.existsSync(input)) {
+      console.error(`Error: file not found: ${input}`);
+      process.exit(1);
+    }
+
+    imagine(input, options).catch((err) => {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    });
+  }
 }
 
-module.exports = { imagine, buildImagePrompt, IMAGE_STYLES };
+// ═══════════════════════════════════════════════════════
+// QUICK PROMPT — keywords → single image prompt
+// ═══════════════════════════════════════════════════════
+
+async function quickPrompt(keywords, options = {}) {
+  const style = IMAGE_STYLES[options.style || "swiss-poster"];
+  const aspectRatio = options.aspectRatio || "16:9";
+  const abstraction = ABSTRACTION_LEVELS[options.abstraction || "suggestive"];
+
+  process.stderr.write(`\n  ${accent("■")} ${chalk.white.bold("imagine prompt")}\n`);
+  process.stderr.write(`  ${dim("Keywords:")} ${teal(keywords)}\n`);
+  process.stderr.write(`  ${dim("Style:")} ${teal(options.style || "swiss-poster")}\n`);
+
+  const prompt = `You are an art director creating a single image prompt for AI image generation (Midjourney, DALL-E, Imagen).
+
+KEYWORDS: ${keywords}
+
+AESTHETIC PRESET: ${style.name}
+${style.description}
+Medium: ${style.medium}
+Avoid: ${style.avoid}
+
+${abstraction}
+
+ASPECT RATIO: ${aspectRatio}
+
+Create ONE vivid, specific image prompt (50-120 words) based on the keywords above, in the given style.
+
+OUTPUT FORMAT — return ONLY valid JSON, no commentary:
+{
+  "prompt": "the full image generation prompt, 50-120 words",
+  "negativePrompt": "what to avoid",
+  "params": {
+    "aspectRatio": "${aspectRatio}",
+    "style": "${style.name}"
+  }
+}`;
+
+  const raw = await callClaudeAsync(prompt, {
+    model: options.model || "haiku",
+    label: "imagine-prompt",
+    raw: true,
+  });
+
+  try {
+    let text = raw.trim();
+    if (/^```(?:json)?\s*\n/.test(text)) {
+      text = text.replace(/^```(?:json)?\s*\n/, "").replace(/\n```\s*$/, "");
+    }
+    const first = text.indexOf("{");
+    const last = text.lastIndexOf("}");
+    if (first >= 0 && last > first) text = text.slice(first, last + 1);
+    const result = JSON.parse(text);
+
+    process.stderr.write(`  ${sage("✓")} Done\n\n`);
+    console.log(result.prompt);
+    console.log(`\nNegative: ${result.negativePrompt}`);
+    console.log(`Aspect: ${result.params?.aspectRatio || aspectRatio}`);
+    console.log(`Style: ${result.params?.style || style.name}`);
+
+    // Generate image if requested
+    if (options.generate) {
+      const envKeys = loadEnvKeys();
+      const apiKey = options.apiKey || envKeys.GOOGLE_API_KEY || envKeys.IMAGEN_API_KEY;
+      const hasMj = envKeys.MIDJOURNEY_DISCORD_TOKEN && envKeys.MIDJOURNEY_SERVER_ID && envKeys.MIDJOURNEY_CHANNEL_ID;
+      const engine = options.engine || "midjourney";
+
+      if (!apiKey && !hasMj) {
+        process.stderr.write(`\n  ${accent("✗")} No API key found. Set GOOGLE_API_KEY or Midjourney credentials in .env\n`);
+        return result;
+      }
+
+      // Slugify keywords for filename
+      const slug = keywords.replace(/[^a-zA-Z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 60).toLowerCase();
+      const outputDir = path.join(__dirname, "decks", "prompt-images");
+      fs.mkdirSync(outputDir, { recursive: true });
+      const imgPath = path.join(outputDir, `${slug}.png`);
+
+      process.stderr.write(`\n  ${dim("── Image Generation")} ${teal(engine)} ${dim("────────────────")}\n`);
+      process.stderr.write(`  ${dim("Output:")} ${teal(imgPath)}\n`);
+
+      try {
+        if (engine === "midjourney" && hasMj) {
+          await generateWithMidjourney(result.prompt, imgPath, envKeys, aspectRatio);
+        } else if (apiKey) {
+          await generateWithImagen(result.prompt, imgPath, apiKey, options.imagenModel);
+        }
+        process.stderr.write(`  ${sage("✓")} Image saved → ${teal(imgPath)}\n`);
+        if (mjClient) { try { mjClient.Close(); } catch {} }
+      } catch (err) {
+        process.stderr.write(`  ${accent("✗")} ${err.message}\n`);
+      }
+    }
+
+    return result;
+  } catch (e) {
+    process.stderr.write(`  ${accent("✗")} Failed to parse response\n`);
+    console.log(raw);
+    return null;
+  }
+}
+
+module.exports = { imagine, quickPrompt, buildImagePrompt, IMAGE_STYLES };

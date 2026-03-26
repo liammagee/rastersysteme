@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":4,"span":22,"row":3,"rowSpan":3},{"role":"body","col":4,"span":52,"row":10,"rowSpan":20}],"accents":[{"type":"dot","col":54,"span":3,"row":3,"rowSpan":3,"color":"D4924A"},{"type":"line","col":4,"span":52,"row":32,"rowSpan":1,"color":"D4924A"}],"typography":{"body":{"size":52,"weight":700,"leading":1.05,"color":"FAF6EE"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.17em","color":"4A6B8A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### WEEK 2
+![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**

@@ -1,9 +1,14 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":16,"row":4,"rowSpan":3},{"role":"title","col":6,"span":42,"row":9,"rowSpan":13},{"role":"body","col":6,"span":28,"row":27,"rowSpan":10}],"accents":[{"type":"bar","col":0,"span":2,"row":12,"rowSpan":6,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.2em","color":"B89B72"},"title":{"size":52,"weight":400,"style":"italic","tracking":"0.04em","leading":1.2,"color":"2A1F14"},"body":{"size":14,"weight":400,"leading":1.7,"color":"2A1F14"}},"bg":"EDE0C4","font":"Georgia"} -->
-### WEEK 1
-## Slide 7
+<!-- design: {"zones":[{"role":"title","col":2,"span":54,"row":2,"rowSpan":6},{"role":"bullets","col":2,"span":27,"row":11,"rowSpan":27},{"role":"body","col":31,"span":27,"row":11,"rowSpan":27}],"accents":[{"type":"line","col":2,"span":54,"row":9,"rowSpan":1,"color":"D4924A"},{"type":"bar","col":29,"span":1,"row":11,"rowSpan":27,"color":"4A6B8A"}],"typography":{"title":{"size":36,"weight":700,"leading":1.05,"color":"FAF6EE"},"bullets":{"size":13,"weight":400,"leading":1.7,"color":"FAF6EE"},"body":{"size":13,"weight":300,"leading":1.65,"color":"D4924A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### OPEN SOURCE
+## Rise of open source models
 
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)  
-
-| | |
-|---|---|
-| **Proto-Computing in the  ****8****th ****–****13****th **** Centuries**<br><br><br><br>Al-Khwarizmi - Esposito, John L. , ed. (1999) *The Oxford History of Islam*, Oxford University Press ISBN: 0195107993. ; April 2006<br><br> |  |
+ - Mostly developed in China
+   - Xiaomi
+   - Alibaba Qwen
+   - Kimi
+   - Minimax
+   - DeepSeek
+ - Mistral (France)
+ - Nemotron (Nvidia)
+ - Estimated 3-9 months beyond commercial models
+ - Issues around "benchmaxxing"; IP theft(!); hosting / exfiltration of data

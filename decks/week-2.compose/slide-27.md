@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":10,"span":24,"row":5,"rowSpan":3},{"role":"body","col":10,"span":44,"row":22,"rowSpan":12}],"accents":[{"type":"bar","col":6,"span":2,"row":22,"rowSpan":12,"color":"D4924A"},{"type":"line","col":10,"span":44,"row":20,"rowSpan":1,"color":"D4924A"}],"typography":{"body":{"size":32,"weight":400,"leading":1.25,"color":"FAF6EE"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.18em","color":"D4924A"}},"bg":"4A6B8A","font":"Georgia"} -->
+### WEEK 2
+![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.

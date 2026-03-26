@@ -1,5 +1,8 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":18,"row":5,"rowSpan":3},{"role":"title","col":6,"span":36,"row":13,"rowSpan":16}],"accents":[{"type":"line","col":5,"span":1,"row":0,"rowSpan":40,"color":"B89B72"},{"type":"line","col":6,"span":20,"row":11,"rowSpan":1,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.2em","color":"B89B72"},"title":{"size":52,"weight":700,"leading":1.1,"color":"2A1F14"}},"bg":"F8F3E6","font":"Palatino"} -->
-### WEEK 1
-## Slide 8
+<!-- design: {"zones":[{"role":"title","col":4,"span":50,"row":3,"rowSpan":8},{"role":"bullets","col":4,"span":24,"row":13,"rowSpan":22},{"role":"body","col":32,"span":24,"row":13,"rowSpan":22}],"accents":[{"type":"line","col":4,"span":50,"row":12,"rowSpan":1,"color":"4A6B8A"},{"type":"bar","col":30,"span":1,"row":13,"rowSpan":22,"color":"D4924A"}],"typography":{"title":{"size":38,"weight":700,"leading":1.1,"color":"1A2840"},"bullets":{"size":14,"weight":400,"leading":1.8,"color":"1A2840"},"body":{"size":14,"weight":300,"leading":1.65,"color":"4A6B8A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### CONTRADICTIONS
+## Contradictory tendencies: Increasing demand...
 
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.
+ - Scaling laws (Week 3)
+ - Bigger models 
+ - More "thinking" (inference) time
+ - Huge investment data centers, power plants

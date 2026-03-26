@@ -1,9 +1,11 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":20,"row":3,"rowSpan":3},{"role":"title","col":6,"span":30,"row":7,"rowSpan":11},{"role":"body","col":10,"span":34,"row":22,"rowSpan":13}],"accents":[{"type":"line","col":5,"span":1,"row":0,"rowSpan":40,"color":"B89B72"},{"type":"line","col":6,"span":24,"row":20,"rowSpan":1,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.16em","color":"B89B72"},"title":{"size":44,"weight":500,"leading":1.2,"color":"2A1F14"},"body":{"size":14,"weight":400,"leading":1.65,"color":"2A1F14"}},"bg":"EDE0C4","font":"Palatino"} -->
-### WEEK 1
-## Slide 6
+<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":3,"rowSpan":7},{"role":"bullets","col":2,"span":26,"row":12,"rowSpan":26},{"role":"body","col":32,"span":26,"row":12,"rowSpan":26}],"accents":[{"type":"line","col":4,"span":52,"row":11,"rowSpan":1,"color":"D4924A"},{"type":"bar","col":30,"span":1,"row":12,"rowSpan":26,"color":"4A6B8A"}],"typography":{"title":{"size":36,"weight":700,"leading":1.1,"color":"1A2840"},"bullets":{"size":13,"weight":400,"leading":1.75,"color":"1A2840"},"body":{"size":13,"weight":300,"leading":1.65,"color":"4A6B8A"}},"bg":"FAF6EE","font":"Helvetica Neue"} -->
+### AI CONSOLIDATION
+## AI Consolidation 
 
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_8.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_9.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_10.png)   AI as IT?  Or something else?  
-
-| | |
-|---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_11.png)<br><br> | Yahoo Finance, 2025<br><br> |
+ - "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini
+   - Other big names have slowed down: Xai, Meta, Microsoft Copilot
+   - Apple: using Google Gemini
+   - Amazon: investor in Anthropic, provider for OpenAI
+ - Shift from free / $20 per month to:
+   - Advertising (ChatGPT)
+   - Higher tier models ($200 per month)

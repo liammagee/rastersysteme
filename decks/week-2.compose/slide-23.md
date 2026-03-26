@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":6,"span":24,"row":5,"rowSpan":3},{"role":"body","col":8,"span":44,"row":15,"rowSpan":14}],"accents":[{"type":"line","col":8,"span":44,"row":13,"rowSpan":1,"color":"D4924A"},{"type":"line","col":8,"span":44,"row":31,"rowSpan":1,"color":"D4924A"}],"typography":{"body":{"size":32,"weight":400,"leading":1.25,"color":"FAF6EE"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.18em","color":"D4924A"}},"bg":"4A6B8A","font":"Georgia"} -->
+### WEEK 2
+[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ballistic-computer-sim.html)

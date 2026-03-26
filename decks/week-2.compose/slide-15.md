@@ -1,9 +1,3 @@
-<!-- design: {"zones":[{"role":"label","col":6,"span":18,"row":4,"rowSpan":3},{"role":"title","col":6,"span":32,"row":8,"rowSpan":11},{"role":"body","col":6,"span":36,"row":24,"rowSpan":13}],"accents":[{"type":"line","col":6,"span":32,"row":21,"rowSpan":1,"color":"B89B72"},{"type":"bar","col":6,"span":2,"row":37,"rowSpan":3,"color":"B89B72"}],"typography":{"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.18em","color":"B89B72"},"title":{"size":44,"weight":600,"leading":1.2,"color":"2A1F14"},"body":{"size":14,"weight":400,"leading":1.7,"color":"2A1F14"}},"bg":"F8F3E6","font":"Palatino"} -->
-### WEEK 1
-## Slide 15
-
-### And a bold proposition…  
-
-| | |
-|---|---|
-| All the **mathematics** for AI in 2025 was developed by the end of the 19th century (with applications, like Markov models, in 1906/1913)<br>Are the last 125 years just **hardware**, **networks** & **data **(see LeCun 2021 - who doesn’t (quite) say this)?<br>Is our sense of **modernity **just the long shadow cast by the Enlightenment (17th / 18th century)?<br><br> |  |
+<!-- design: {"zones":[{"role":"label","col":12,"span":36,"row":6,"rowSpan":3},{"role":"body","col":12,"span":36,"row":14,"rowSpan":14}],"accents":[{"type":"line","col":12,"span":36,"row":12,"rowSpan":1,"color":"4A6B8A"},{"type":"dot","col":56,"span":2,"row":33,"rowSpan":2,"color":"D4924A"}],"typography":{"body":{"size":28,"weight":400,"leading":1.3,"color":"1A2840"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.18em","color":"4A6B8A"}},"bg":"FAF6EE","font":"Georgia"} -->
+### WEEK 2
+![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)

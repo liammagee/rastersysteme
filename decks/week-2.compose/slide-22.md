@@ -1,0 +1,3 @@
+<!-- design: {"zones":[{"role":"label","col":4,"span":24,"row":4,"rowSpan":3},{"role":"body","col":4,"span":52,"row":27,"rowSpan":10}],"accents":[{"type":"line","col":4,"span":52,"row":25,"rowSpan":1,"color":"4A6B8A"},{"type":"block","col":44,"span":14,"row":0,"rowSpan":7,"color":"4A6B8A"}],"typography":{"body":{"size":30,"weight":400,"leading":1.3,"color":"FAF6EE"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.18em","color":"4A6B8A"}},"bg":"FAF6EE","font":"Georgia"} -->
+### WEEK 2
+[The Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)

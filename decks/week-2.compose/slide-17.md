@@ -1,6 +1,6 @@
-<!-- design: {"zones":[{"role":"body","col":6,"span":38,"row":19,"rowSpan":12}],"accents":[{"type":"line","col":5,"span":1,"row":0,"rowSpan":40,"color":"B89B72"},{"type":"line","col":6,"span":32,"row":16,"rowSpan":1,"color":"B89B72"}],"typography":{"body":{"size":14,"weight":400,"leading":1.6,"color":"2A1F14"}},"bg":"F8F3E6","font":"Georgia"} -->
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
+<!-- design: {"zones":[{"role":"label","col":4,"span":20,"row":5,"rowSpan":3},{"role":"body","col":30,"span":26,"row":11,"rowSpan":18}],"accents":[{"type":"bar","col":28,"span":1,"row":11,"rowSpan":18,"color":"4A6B8A"},{"type":"line","col":30,"span":26,"row":31,"rowSpan":1,"color":"D4924A"}],"typography":{"body":{"size":24,"weight":400,"leading":1.4,"color":"1A2840"},"label":{"size":11,"weight":700,"transform":"uppercase","tracking":"0.18em","color":"4A6B8A"}},"bg":"FAF6EE","font":"Georgia"} -->
+### WEEK 2
+We'll return to these themes...
 
-| | |
-|---|---|
-| **17th/****18th**** Century**<br>** – final days of feudalism**<br>** – computation as *****rational (human)***<br><br><br><br>**18th/19th Century**<br>** – first days of industrial capitalism**<br>** – computation as *****mechanical (machine)***<br><br> |  |
+
+... but how did we get here?
