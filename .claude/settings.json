@@ -3,21 +3,10 @@
     "allow": [
       "Bash(npm test)",
       "Bash(npm run *)",
-      "Bash(node raster.js *)",
-      "Bash(node compose.js *)",
-      "Bash(node pipeline.js *)",
-      "Bash(node server.js *)",
-      "Bash(node qa.js *)",
-      "Bash(node qa-html.js *)",
-      "Bash(node compare.js *)",
-      "Bash(node rastersysteme.js *)",
-      "Bash(node -e *)",
+      "Bash(node *)",
       "Bash(git *)"
     ]
   },
-  "plugins": [
-    ".claude/plugins/rs"
-  ],
   "hooks": {
     "PostToolUse": [
       {

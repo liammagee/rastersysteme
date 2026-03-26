@@ -1,0 +1,908 @@
+import { useState, useEffect, useRef, useMemo } from "react";
+
+const CATEGORIES = {
+  philosophy: { label: "Philosophy", color: "#E8A838", icon: "◆" },
+  literature: { label: "Literature", color: "#D45D79", icon: "◈" },
+  mathematics: { label: "Mathematics", color: "#48BFE3", icon: "◇" },
+  computation: { label: "Computation", color: "#72E1A0", icon: "▣" },
+  ai: { label: "Artificial Intelligence", color: "#C4A1FF", icon: "◉" },
+  indigenous: { label: "Indigenous Knowledge", color: "#FF9F43", icon: "◎" },
+};
+
+const BLOCKS = {
+  logic: { label: "Logic & Formal Reasoning", color: "#E8A838", max: 100 },
+  calculus: { label: "Calculus & Optimisation", color: "#F07167", max: 100 },
+  probability: { label: "Probability & Statistics", color: "#00BBF9", max: 100 },
+  linalg: { label: "Linear Algebra", color: "#72E1A0", max: 100 },
+  computation: { label: "Computation & Hardware", color: "#80ED99", max: 100 },
+  neuraltheory: { label: "Neural Network Theory", color: "#C4A1FF", max: 100 },
+  training: { label: "Training & Learning Methods", color: "#FF85A1", max: 100 },
+  architecture: { label: "Architectures & Scale", color: "#FFD166", max: 100 },
+};
+
+const ERAS = [
+  { start: -70000, end: 800, label: "Deep Time & Classical Antiquity", color: "rgba(232,168,56,0.08)", accent: "#C8956C", bg: "radial-gradient(ellipse at 30% 50%, rgba(200,149,108,0.06) 0%, transparent 60%)", motif: "greek", desc: "Worldwide · Athens · Alexandria · Mesoamerica" },
+  { start: 800, end: 1600, label: "Medieval & Renaissance", color: "rgba(212,93,121,0.08)", accent: "#4A7FB5", bg: "radial-gradient(ellipse at 70% 50%, rgba(74,127,181,0.05) 0%, transparent 60%)", motif: "islamic", desc: "Baghdad · Isfahan · Kerala · Cusco · Prague" },
+  { start: 1600, end: 1850, label: "Enlightenment & Mechanisation", color: "rgba(72,191,227,0.06)", accent: "#B8926A", bg: "radial-gradient(ellipse at 40% 50%, rgba(184,146,106,0.04) 0%, transparent 60%)", motif: "enlightenment", desc: "Paris · London · Basel · St Petersburg" },
+  { start: 1850, end: 1940, label: "Formal Foundations", color: "rgba(114,225,160,0.06)", accent: "#7A9B8A", bg: "radial-gradient(ellipse at 50% 50%, rgba(122,155,138,0.04) 0%, transparent 60%)", motif: "modernist", desc: "Vienna · Göttingen · Cambridge · Moscow" },
+  { start: 1940, end: 1970, label: "Dawn of AI", color: "rgba(196,161,255,0.08)", accent: "#8B7EC8", bg: "radial-gradient(ellipse at 60% 50%, rgba(139,126,200,0.05) 0%, transparent 60%)", motif: "midcentury", desc: "Bletchley Park · Princeton · Kyiv · Tokyo" },
+  { start: 1970, end: 2012, label: "Winters & Renewals", color: "rgba(196,161,255,0.05)", accent: "#5A8A6E", bg: "radial-gradient(ellipse at 50% 50%, rgba(90,138,110,0.03) 0%, transparent 60%)", motif: "digital", desc: "Helsinki · Tokyo · Munich · Lugano · Toronto" },
+  { start: 2012, end: 2026, label: "Deep Learning & Beyond", color: "rgba(196,161,255,0.12)", accent: "#9B7ED8", bg: "radial-gradient(ellipse at 50% 40%, rgba(155,126,216,0.06) 0%, transparent 50%)", motif: "neural", desc: "San Francisco · London · Seoul · Montreal" },
+];
+
+const EVENTS = [
+  // Deep Time & Classical Antiquity
+  { year: -65000, title: "Aboriginal Australian Songlines", category: "indigenous", place: "Australia-wide", region: "Aboriginal Australia", desc: "Aboriginal Australians develop the world's oldest continuous knowledge system: songlines encode navigation data, ecological relationships, and law into oral-musical sequences mapped across the landscape. These vast, structured information networks — spanning thousands of kilometres and tens of thousands of years — represent the earliest known system for encoding, transmitting, and error-correcting complex structured data across generations.", refs: "Chatwin (1987) The Songlines; Kelly (2016) The Memory Code; Dunn & Hercock in Blackwell Companion to the Anthropology of Oceania", blocks: { computation: 3, logic: 2 } },
+  { year: -20000, title: "Ishango Bone", category: "indigenous", place: "Ishango", region: "Central Africa (modern DRC)", desc: "A baboon fibula with tally marks found at Ishango on the shores of Lake Edward. The groupings suggest prime numbers and possibly a lunar calendar — evidence of mathematical thinking in central Africa at least 20,000 years ago, and among the oldest known mathematical artefacts anywhere.", refs: "de Heinzelin (1962) 'Ishango', Scientific American 206(6); Pletser & Huylebrouck (1999) 'The Ishango Artefact', in Forma 14", blocks: { logic: 1 } },
+  { year: -2600, title: "Andean Knotted-String Precursors", category: "indigenous", place: "Caral", region: "Andean South America", desc: "At Caral-Supe, one of the oldest urban centres in the Americas, archaeologists find bundled cords that may be precursors to the quipu — evidence that Andean peoples were developing structured information-encoding technologies at least 4,600 years ago, contemporaneous with Sumerian cuneiform.", refs: "Shady Solís et al. (2001) 'Dating Caral', Science 292(5517); Mann (2005) 'Unraveling Khipu's Secrets', Science 309(5737)", blocks: { computation: 2 } },
+  { year: -350, title: "Aristotle's Syllogistic Logic", category: "philosophy", place: "Athens", region: "Greece", desc: "Aristotle formalises deductive reasoning in the Organon — the template for all rule-based inference.", refs: "Aristotle, Prior Analytics; Smith (1989) 'Aristotle's Logic' in Cambridge Companion; Corcoran (1972) 'Completeness of an Ancient Logic', JSL 37(4)", blocks: { logic: 12 } },
+  { year: -350.1, title: "Pāṇini's Aṣṭādhyāyī", category: "indigenous", place: "Gandhāra", region: "Ancient India (modern Pakistan)", desc: "Pāṇini composes a grammar of Sanskrit in 3,959 algebraic rules — the first formal generative system in history. Its recursive rule structure, use of meta-rules, and context-sensitive substitutions anticipate formal language theory, Backus-Naur form, and the principles underlying programming languages and computational linguistics by over two millennia.", refs: "Staal (1988) Universals: Studies in Indian Logic and Linguistics; Kiparsky (2009) 'On the Architecture of Pāṇini's Grammar', in Huet et al.; Cardona (1997) Pāṇini: His Work and Its Traditions", blocks: { logic: 5, computation: 3 } },
+  { year: -300, title: "Euclid's Elements", category: "mathematics", place: "Alexandria", region: "Ptolemaic Egypt", desc: "Euclid codifies geometry as a deductive system from axioms — the paradigm of formal proof.", refs: "Euclid, Elements (Heath trans. 1908); Mueller (1981) Philosophy of Mathematics and Deductive Structure in Euclid's Elements", blocks: { logic: 5, linalg: 3 } },
+  { year: -300.1, title: "Mayan Vigesimal System & Zero", category: "indigenous", place: "Mesoamerica", region: "Maya Civilisation", desc: "The Maya develop a sophisticated vigesimal (base-20) positional number system with a true placeholder zero — independently of Indian and Babylonian traditions. Their Long Count calendar requires astronomical calculations over millions of years. This independent invention of zero and positional notation demonstrates that the mathematical foundations of computation emerged in multiple civilisations.", refs: "Ifrah (1998) Universal History of Numbers, ch. 22; Lounsbury (1978) 'Maya Numeration, Computation and Calendrical Astronomy' in DSB 15; Blume (2011) 'Maya Concepts of Zero', Proc. Am. Phil. Soc. 155(1)", blocks: { computation: 2, logic: 2 } },
+  { year: -250, title: "Automata of Ctesibius & Philo", category: "computation", place: "Alexandria", region: "Ptolemaic Egypt", desc: "Hellenistic engineers build self-regulating water clocks and pneumatic devices — the earliest feedback mechanisms.", refs: "Drachmann (1963) The Mechanical Technology of Greek and Roman Antiquity; Berryman (2009) The Mechanical Hypothesis in Ancient Greek Natural Philosophy", blocks: { computation: 2 } },
+  { year: -200, title: "Archimedes' Method of Exhaustion", category: "mathematics", place: "Syracuse", region: "Sicily", desc: "Archimedes approximates areas and volumes by summing infinitely thin slices — proto-calculus anticipating integration by two millennia.", refs: "Archimedes, The Method (Heiberg ed. 1906); Netz & Noel (2007) The Archimedes Codex", blocks: { calculus: 5 } },
+  { year: -150, title: "The Nine Chapters on the Mathematical Art", category: "mathematics", place: "China", region: "Han Dynasty", desc: "This Chinese classic describes Gaussian elimination for linear systems ~2,000 years before Gauss, and methods for computing with matrices of coefficients — a foundational text of linear algebra.", refs: "Shen, Crossley & Lun (1999) The Nine Chapters on the Mathematical Art (trans.); Katz (2009) History of Mathematics, ch. 7", blocks: { linalg: 6, logic: 2 } },
+  { year: -100, title: "Antikythera Mechanism", category: "computation", place: "Rhodes or Corinth", region: "Greece", desc: "An ancient Greek analogue computer predicting eclipses and astronomical positions.", refs: "Freeth et al. (2006) 'Decoding the Ancient Greek Astronomical Calculator', Nature 444; Jones (2017) A Portable Cosmos", blocks: { computation: 3 } },
+  { year: 628, title: "Brahmagupta's Brāhmasphuṭasiddhānta", category: "mathematics", place: "Bhillamāla", region: "Gurjara-Pratihara India", desc: "Brahmagupta formalises rules for zero and negative numbers — arguably India's most consequential gift to computation and all of mathematics.", refs: "Plofker (2009) Mathematics in India, ch. 6; Ifrah (1998) Universal History of Numbers, ch. 25; Datta & Singh (1935) History of Hindu Mathematics", blocks: { logic: 3, linalg: 2, computation: 2 } },
+  { year: 850, title: "Al-Khwarizmi's Algebra", category: "mathematics", place: "Baghdad", region: "Abbasid Caliphate", desc: "Al-Khwarizmi's Kitab al-Jabr gives us 'algorithm' and systematic equation-solving — the seed of computational procedure.", refs: "Rashed (2009) Al-Khwarizmi: The Beginnings of Algebra; Berggren (1986) Episodes in the Mathematics of Medieval Islam", blocks: { logic: 4, computation: 2, linalg: 2 } },
+  { year: 1000, title: "African Fractal Architecture & Recursive Design", category: "indigenous", place: "Sub-Saharan Africa", region: "Multiple societies", desc: "Across sub-Saharan Africa, settlement architectures, textile patterns, divination systems, and game boards encode recursive self-similar structures — fractals — at scales from hairstyling to city planning. As Ron Eglash has documented, these designs embody computational concepts of recursion, scaling, and feedback loops that are fundamental to modern computer science, yet developed indigenously over centuries.", refs: "Eglash (1999) African Fractals: Modern Computing and Indigenous Design, Rutgers UP; Eglash (1998) 'Fractals in African Settlement Architecture', Complexity 4(2); Gerdes (1999) Geometry from Africa", blocks: { logic: 2, computation: 2 } },
+  { year: 1070, title: "Omar Khayyam's Cubic Equations", category: "mathematics", place: "Isfahan", region: "Seljuk Persia", desc: "Khayyam classifies and geometrically solves cubic equations using conic sections.", refs: "Khayyam, Risāla fī'l-barāhīn (Woepcke trans. 1851); Rashedi & Ged (2000) 'Omar Khayyam as a Mathematician'", blocks: { linalg: 2 } },
+  { year: 1150, title: "Polynesian Wayfinding", category: "indigenous", place: "Pacific Ocean", region: "Polynesia / Micronesia", desc: "Pacific Islander navigators cross thousands of kilometres of open ocean using star compasses, swell patterns, bird behaviour, and cloud formations — integrating multiple probabilistic signals into mental models of position. This non-instrumental navigation represents a sophisticated form of Bayesian reasoning: updating beliefs about location from uncertain environmental evidence, without instruments or notation.", refs: "Lewis (1972) We, the Navigators; Gladwin (1970) East Is a Big Bird; Finney (1994) Voyage of Rediscovery; Genz (2016) 'Wayfinding' in Cambridge History of Pacific Islanders", blocks: { probability: 3 } },
+  { year: 1200, title: "Haudenosaunee (Iroquois) Governance Systems", category: "indigenous", place: "Great Lakes region", region: "Haudenosaunee Confederacy (modern NE USA/Canada)", desc: "The Haudenosaunee Confederacy develops a governance system of federated consensus — the Great Law of Peace — using wampum belts as structured information-bearing artefacts. The system's layered decision architecture, with councils, checks, and distributed authority, has been cited as an influence on federalist political thought and represents a sophisticated approach to structured information management.", refs: "Grinde & Johansen (1991) Exemplar of Liberty: Native America and the Evolution of Democracy; Mann (2005) 1491: New Revelations of the Americas Before Columbus, ch. 8; Fenton (1998) The Great Law and the Longhouse", blocks: { logic: 1 } },
+  { year: 1206, title: "Al-Jazari's Programmable Automata", category: "computation", place: "Diyarbakır", region: "Artuqid Anatolia", desc: "Al-Jazari designs programmable automata described in his Book of Knowledge of Ingenious Mechanical Devices.", refs: "Al-Jazari (Hill trans. 1974) The Book of Knowledge of Ingenious Mechanical Devices; Rosheim (1994) Robot Evolution", blocks: { computation: 3 } },
+  { year: 1275, title: "Ramon Llull's Ars Magna", category: "philosophy", place: "Palma", region: "Majorca", desc: "Llull proposes a mechanical method for generating truths by combining concepts — an early vision of automated reasoning.", refs: "Bonner (2007) The Art and Logic of Ramon Llull; Eco (1995) The Search for the Perfect Language, ch. 3", blocks: { logic: 3, computation: 1 } },
+  { year: 1400, title: "Madhava & the Kerala School", category: "mathematics", place: "Sangamagrama", region: "Kerala, India", desc: "Madhava discovers infinite series for sine, cosine, and arctangent — essentially the Taylor series — two centuries before Newton/Leibniz. The Kerala School develops proto-calculus and computes π to 11 decimal places.", refs: "Plofker (2009) Mathematics in India, ch. 7; Joseph (2009) Passage to Infinity: Medieval Indian Mathematics from Kerala; Rajagopal & Rangachari (1986) 'On Medieval Kerala Mathematics', Archive for History of Exact Sciences 35(2)", blocks: { calculus: 10 } },
+  { year: 1438, title: "Inca Quipu as Data Encoding System", category: "indigenous", place: "Cusco", region: "Tawantinsuyu (Inca Empire)", desc: "The Inca Empire administers 12 million people across 4,000 km using quipu — knotted-string devices encoding data in base-10 positional notation via knot types, positions, colours, ply direction, and fibre materials. Gary Urton has proposed that quipu may use a 7-bit binary code capable of over 1,500 unique information units — a combinatorial system strikingly analogous to digital encoding. The quipucamayocs who maintained these records were, in effect, a professional class of data analysts.", refs: "Urton (2003) Signs of the Inka Khipu: Binary Coding in the Andean Knotted-String Records; Ascher & Ascher (1997) Mathematics of the Incas: Code of the Quipu; Hyland (2017) 'Writing with Twisted Cords', Current Anthropology 58(3)", blocks: { computation: 3, logic: 1 } },
+  { year: 1545, title: "Cardano's Ars Magna & Games of Chance", category: "mathematics", place: "Milan", region: "Duchy of Milan", desc: "Cardano publishes solutions to cubic/quartic equations and the first systematic treatment of probability.", refs: "Cardano (1545/Witmer trans. 1968) Ars Magna; Ore (1953) Cardano: The Gambling Scholar", blocks: { probability: 5 } },
+  { year: 1580, title: "The Golem of Prague", category: "literature", place: "Prague", region: "Bohemia", desc: "Rabbi Loew animates a clay figure through inscription of sacred words — a foundational myth of artificial life created through language.", refs: "Sherwin (1985) The Golem Legend; Wiener (1964) God & Golem, Inc.", blocks: {} },
+  { year: 1637, title: "Descartes' Discourse on Method", category: "philosophy", place: "Leiden", region: "Dutch Republic", desc: "Descartes proposes that animals are complex machines (bête machine), raising the question of whether thought itself could be mechanical.", refs: "Descartes (1637/Cottingham trans. 1985) Discourse on the Method; Gaukroger (1995) Descartes: An Intellectual Biography", blocks: { logic: 2 } },
+  { year: 1642, title: "Pascal's Pascaline", category: "computation", place: "Rouen", region: "France", desc: "Blaise Pascal builds an arithmetic machine for addition and subtraction.", refs: "Pascal (Mesnard ed. 1964-) Oeuvres Complètes; Goldstine (1972) The Computer from Pascal to von Neumann, ch. 1", blocks: { computation: 3 } },
+  { year: 1654, title: "Pascal & Fermat's Probability Correspondence", category: "mathematics", place: "Paris ↔ Toulouse", region: "France", desc: "In a legendary exchange on the 'problem of points', Pascal and Fermat found probability theory.", refs: "Devlin (2008) The Unfinished Game; Hacking (1975) The Emergence of Probability, ch. 7", blocks: { probability: 8 } },
+  { year: 1666, title: "Leibniz's Calculus Ratiocinator", category: "philosophy", place: "Leipzig", region: "Saxony", desc: "Leibniz envisions a universal logical calculus and machine — the first specification of artificial general reasoning.", refs: "Leibniz (Parkinson trans. 1966) Logical Papers; Davis (2000) The Universal Computer, ch. 1", blocks: { logic: 5 } },
+  { year: 1687, title: "Newton's Principia Mathematica", category: "mathematics", place: "Cambridge", region: "England", desc: "Newton publishes calculus alongside the laws of motion — the language of continuous optimisation.", refs: "Newton (1687/Cohen & Whitman trans. 1999) The Principia; Guicciardini (2009) Isaac Newton on Mathematical Certainty", blocks: { calculus: 14 } },
+  { year: 1693, title: "Leibniz Publishes the Calculus", category: "mathematics", place: "Hanover", region: "Brunswick-Lüneburg", desc: "Leibniz independently develops calculus with the notation (dx, ∫) still used today.", refs: "Leibniz (Child trans. 1920) The Early Mathematical Manuscripts; Bos (1974) 'Differentials, Higher-Order Differentials', Archive Hist. Exact Sci. 14", blocks: { calculus: 12 } },
+  { year: 1713, title: "Bernoulli's Ars Conjectandi", category: "mathematics", place: "Basel", region: "Swiss Confederacy", desc: "Bernoulli proves the law of large numbers — the first link between probability and frequency.", refs: "Bernoulli (Sylla trans. 2006) The Art of Conjecturing; Stigler (1986) History of Statistics, ch. 2", blocks: { probability: 8 } },
+  { year: 1714, title: "Leibniz's Stepped Reckoner", category: "computation", place: "Hanover", region: "Brunswick-Lüneburg", desc: "Leibniz constructs a calculator for all four arithmetic operations.", refs: "Goldstine (1972) The Computer from Pascal to von Neumann, ch. 1; Morar (2015) 'Leibniz's Calculating Machine'", blocks: { computation: 3 } },
+  { year: 1726, title: "Swift's Engine in Gulliver's Travels", category: "literature", place: "London", region: "Great Britain", desc: "Swift satirises a machine generating every possible sentence — a prescient image of language models.", refs: "Swift (1726) Gulliver's Travels, Part III, ch. 5; Standage (2002) The Turk, ch. 1", blocks: {} },
+  { year: 1736, title: "Euler's Foundations of Analysis", category: "mathematics", place: "St Petersburg", region: "Russian Empire", desc: "Euler systematises calculus, establishing functions, series, and e^x as core vocabulary.", refs: "Euler (1748) Introductio in Analysin Infinitorum; Dunham (1999) Euler: The Master of Us All", blocks: { calculus: 7 } },
+  { year: 1747, title: "La Mettrie's L'Homme Machine", category: "philosophy", place: "Leiden", region: "Dutch Republic", desc: "La Mettrie argues humans are entirely material machines.", refs: "La Mettrie (Thomson trans. 1996) Machine Man and Other Writings", blocks: {} },
+  { year: 1750, title: "Cramer's Rule for Linear Systems", category: "mathematics", place: "Geneva", region: "Republic of Geneva", desc: "Cramer publishes a formula for solving linear systems using determinants.", refs: "Cramer (1750) Introduction à l'Analyse des Lignes Courbes Algébriques", blocks: { linalg: 6 } },
+  { year: 1763, title: "Bayes' Theorem Published Posthumously", category: "mathematics", place: "London", region: "Great Britain", desc: "Bayes' essay introduces inverse probability — how to update beliefs from evidence.", refs: "Bayes (1763) 'An Essay towards solving a Problem in the Doctrine of Chances', Phil. Trans. 53; McGrayne (2011) The Theory That Would Not Die", blocks: { probability: 12 } },
+  { year: 1770, title: "The Mechanical Turk", category: "computation", place: "Pressburg", region: "Habsburg Empire", desc: "Von Kempelen's chess-playing automaton — a hoax that sparked genuine debate about machine intelligence.", refs: "Standage (2002) The Turk; Schaffer (1999) 'Enlightened Automata' in Clark et al., The Sciences in Enlightened Europe", blocks: { computation: 1 } },
+  { year: 1805, title: "Legendre & the Method of Least Squares", category: "mathematics", place: "Paris", region: "Napoleonic France", desc: "Legendre publishes least squares — ancestor of loss functions that train every neural network.", refs: "Legendre (1805) Nouvelles méthodes pour la détermination des orbites des comètes; Stigler (1986) History of Statistics, ch. 1", blocks: { calculus: 8, training: 5 } },
+  { year: 1812, title: "Laplace's Théorie Analytique des Probabilités", category: "mathematics", place: "Paris", region: "Napoleonic France", desc: "Laplace synthesises probability theory and the central limit theorem.", refs: "Laplace (1812) Théorie Analytique; Dale (1999) A History of Inverse Probability, ch. 13", blocks: { probability: 10 } },
+  { year: 1818, title: "Shelley's Frankenstein", category: "literature", place: "London", region: "United Kingdom", desc: "Shelley's novel explores artificial life and creators' moral responsibility — the ur-text of AI ethics.", refs: "Shelley (1818) Frankenstein; Mellor (1988) Mary Shelley: Her Life, Her Fiction, Her Monsters", blocks: {} },
+  { year: 1837, title: "Babbage's Analytical Engine", category: "computation", place: "London", region: "United Kingdom", desc: "Babbage designs a general-purpose computer with memory, processor, and branching.", refs: "Babbage (1864) Passages from the Life of a Philosopher; Swade (2001) The Difference Engine", blocks: { computation: 10 } },
+  { year: 1843, title: "Ada Lovelace's Notes", category: "computation", place: "London", region: "United Kingdom", desc: "Lovelace publishes the first algorithm and speculates on machine creativity.", refs: "Lovelace (1843) 'Notes' on Menabrea's 'Sketch of the Analytical Engine'; Essinger (2014) Ada's Algorithm", blocks: { computation: 4 } },
+  { year: 1847, title: "Boole's Mathematical Analysis of Logic", category: "mathematics", place: "Cork", region: "Ireland", desc: "Boole reduces logic to algebra — the mathematics inside every digital circuit.", refs: "Boole (1847) The Mathematical Analysis of Logic; Hailperin (1986) Boole's Logic and Probability", blocks: { logic: 10, computation: 3 } },
+  { year: 1855, title: "Cayley's Theory of Matrices", category: "mathematics", place: "Cambridge", region: "United Kingdom", desc: "Cayley formalises matrix algebra — the fundamental data structure of AI.", refs: "Cayley (1858) 'A Memoir on the Theory of Matrices', Phil. Trans. 148; Hawkins (1977) 'Another Look at Cayley and the Theory of Matrices'", blocks: { linalg: 12 } },
+  { year: 1872, title: "Butler's Erewhon", category: "literature", place: "London", region: "United Kingdom", desc: "Butler imagines machines evolving consciousness through Darwinian selection.", refs: "Butler (1872) Erewhon; Dyson (1997) Darwin Among the Machines, ch. 1", blocks: {} },
+  { year: 1879, title: "Frege's Begriffsschrift", category: "mathematics", place: "Jena", region: "German Empire", desc: "Frege invents predicate logic — the symbolic system underlying AI knowledge representation.", refs: "Frege (1879/van Heijenoort trans. 1967) Begriffsschrift; Kenny (1995) Frege: An Introduction", blocks: { logic: 8 } },
+  { year: 1888, title: "Peano's Axioms for Vector Spaces", category: "mathematics", place: "Turin", region: "Kingdom of Italy", desc: "Peano axiomatises vector spaces — the scaffolding of high-dimensional computation.", refs: "Peano (1888) Calcolo geometrico secondo l'Ausdehnungslehre; Moore (1995) 'The Axiomatization of Linear Algebra'", blocks: { linalg: 8 } },
+  { year: 1893, title: "Villiers' Tomorrow's Eve", category: "literature", place: "Paris", region: "France", desc: "Villiers de l'Isle-Adam's novel features an android — an early 'artificial woman' narrative.", refs: "Villiers (1886/Adams trans. 1982) Tomorrow's Eve; Wood (2002) Edison's Eve", blocks: {} },
+  { year: 1901, title: "Pearson's Principal Component Analysis", category: "mathematics", place: "London", region: "United Kingdom", desc: "PCA — finding axes of maximum variance in high-dimensional data.", refs: "Pearson (1901) 'On Lines and Planes of Closest Fit', Phil. Mag. 2(11); Jolliffe (2002) Principal Component Analysis", blocks: { linalg: 8, probability: 3 } },
+  { year: 1907, title: "Markov Chains", category: "mathematics", place: "St Petersburg", region: "Russian Empire", desc: "Markov introduces chains of dependent random variables — foundational for NLP and RL.", refs: "Markov (1906) 'Extension of the Law of Large Numbers', Izv. Fiz.-Matem. Obshch.; Seneta (2006) 'Markov and the Creation of Markov Chains'", blocks: { probability: 8 } },
+  { year: 1910, title: "Russell & Whitehead's Principia Mathematica", category: "mathematics", place: "Cambridge", region: "United Kingdom", desc: "Deriving all mathematics from logic — its failure set the stage for Gödel and Turing.", refs: "Russell & Whitehead (1910-13) Principia Mathematica; Grattan-Guinness (2000) The Search for Mathematical Roots", blocks: { logic: 6 } },
+  { year: 1920, title: "Čapek's R.U.R.", category: "literature", place: "Prague", region: "Czechoslovakia", desc: "Čapek introduces 'robot' and dramatises an artificial workforce in rebellion.", refs: "Čapek (1920/Novack trans. 2004) R.U.R.; Horáková & Keating (2005) 'Robot Stories'", blocks: {} },
+  { year: 1925, title: "Fisher's Statistical Methods", category: "mathematics", place: "Rothamsted", region: "United Kingdom", desc: "Fisher establishes maximum likelihood and statistical inference.", refs: "Fisher (1925) Statistical Methods for Research Workers; Hald (1998) A History of Mathematical Statistics, ch. 26", blocks: { probability: 10, training: 5 } },
+  { year: 1928, title: "Hilbert's Entscheidungsproblem", category: "mathematics", place: "Bologna / Göttingen", region: "Germany", desc: "Hilbert poses the decision problem. Turing's answer would define computation's limits.", refs: "Hilbert & Ackermann (1928) Grundzüge der Theoretischen Logik; Sieg (2009) 'Hilbert's Programs' in Handbook of Philosophy of Mathematics", blocks: { logic: 5 } },
+  { year: 1928.1, title: "Von Neumann's Minimax Theorem", category: "mathematics", place: "Göttingen", region: "Germany", desc: "The minimax theorem for zero-sum games — underpinning adversarial training.", refs: "von Neumann (1928) 'Zur Theorie der Gesellschaftsspiele', Math. Annalen 100; Leonard (2010) Von Neumann, Morgenstern, and the Creation of Game Theory", blocks: { probability: 3, training: 3 } },
+  { year: 1931, title: "Gödel's Incompleteness Theorems", category: "mathematics", place: "Vienna", region: "Austria", desc: "Gödel proves fundamental limits on formal reasoning.", refs: "Gödel (1931) 'Über formal unentscheidbare Sätze', Monatshefte für Math. 38; Nagel & Newman (1958) Gödel's Proof", blocks: { logic: 10 } },
+  { year: 1933, title: "Kolmogorov's Axioms of Probability", category: "mathematics", place: "Moscow", region: "Soviet Union", desc: "Kolmogorov places probability on rigorous foundations.", refs: "Kolmogorov (1933/Morrison trans. 1956) Foundations of the Theory of Probability; Shafer & Vovk (2006) 'The Sources of Kolmogorov's Grundbegriffe'", blocks: { probability: 10 } },
+  { year: 1936, title: "Turing's 'On Computable Numbers'", category: "computation", place: "Cambridge", region: "United Kingdom", desc: "Turing defines the Turing machine — formalising algorithm and universal computation.", refs: "Turing (1936) 'On Computable Numbers', Proc. London Math. Soc. 42; Petzold (2008) The Annotated Turing", blocks: { computation: 15, logic: 5 } },
+  { year: 1936.1, title: "Church's Lambda Calculus", category: "mathematics", place: "Princeton", region: "United States", desc: "Church proves the Entscheidungsproblem unsolvable using lambda calculus.", refs: "Church (1936) 'An Unsolvable Problem of Elementary Number Theory', Amer. J. Math. 58; Barendregt (1984) The Lambda Calculus", blocks: { logic: 5, computation: 3 } },
+  { year: 1938, title: "Shannon's Symbolic Analysis of Relay Circuits", category: "computation", place: "Cambridge, MA", region: "United States", desc: "Shannon shows Boolean algebra can be implemented in electrical circuits.", refs: "Shannon (1938) 'A Symbolic Analysis of Relay and Switching Circuits', Trans. AIEE 57; Nahin (2013) The Logician and the Engineer", blocks: { computation: 8 } },
+  { year: 1943, title: "McCulloch-Pitts Neuron Model", category: "ai", place: "Chicago", region: "United States", desc: "Networks of threshold units can compute any logical function.", refs: "McCulloch & Pitts (1943) 'A Logical Calculus of the Ideas Immanent in Nervous Activity', Bull. Math. Biophys. 5(4)", blocks: { neuraltheory: 15 } },
+  { year: 1947, title: "Dantzig's Simplex Algorithm", category: "mathematics", place: "Washington, D.C.", region: "United States", desc: "The simplex method for linear programming.", refs: "Dantzig (1963) Linear Programming and Extensions; Todd (2002) 'The Many Facets of Linear Programming', Math. Programming 91(3)", blocks: { calculus: 6, linalg: 5 } },
+  { year: 1948, title: "Shannon's Information Theory", category: "mathematics", place: "Murray Hill, NJ", region: "United States", desc: "Information as entropy at Bell Labs — shaping the cross-entropy loss that trains LLMs.", refs: "Shannon (1948) 'A Mathematical Theory of Communication', Bell System Technical Journal 27; Cover & Thomas (2006) Elements of Information Theory", blocks: { probability: 8, training: 8 } },
+  { year: 1948.1, title: "Wiener's Cybernetics", category: "ai", place: "Cambridge, MA", region: "United States", desc: "Intelligence as feedback and control at MIT.", refs: "Wiener (1948) Cybernetics: Or Control and Communication in the Animal and the Machine", blocks: { neuraltheory: 5 } },
+  { year: 1949, title: "Hebb's Rule", category: "ai", place: "Montreal", region: "Canada", desc: "'Neurons that fire together wire together' — the first learning rule.", refs: "Hebb (1949) The Organization of Behavior; Brown & Bhatt (2020) 'The Legacy of Donald O. Hebb', Nature Reviews Neuroscience 21", blocks: { neuraltheory: 10, training: 5 } },
+  { year: 1950, title: "Turing's 'Computing Machinery and Intelligence'", category: "ai", place: "Manchester", region: "United Kingdom", desc: "Turing proposes the Imitation Game and asks 'Can machines think?'", refs: "Turing (1950) 'Computing Machinery and Intelligence', Mind 59(236); Copeland (2004) The Essential Turing", blocks: { neuraltheory: 3 } },
+  { year: 1950.1, title: "Asimov's I, Robot", category: "literature", place: "New York", region: "United States", desc: "The Three Laws of Robotics — rule-based AI governance framing alignment debates.", refs: "Asimov (1950) I, Robot; Clarke (1993) 'Asimov's Laws of Robotics', AI Magazine 14(4)", blocks: {} },
+  { year: 1956, title: "Dartmouth Workshop", category: "ai", place: "Hanover, NH", region: "United States", desc: "McCarthy, Minsky, Shannon and Rochester coin 'artificial intelligence'.", refs: "McCarthy et al. (1955) 'A Proposal for the Dartmouth Summer Research Project on AI'; Kline (2011) 'Cybernetics, Automata Studies, and the Dartmouth Conference'", blocks: { neuraltheory: 3 } },
+  { year: 1957, title: "Rosenblatt's Perceptron", category: "ai", place: "Ithaca, NY", region: "United States", desc: "The first neural network for pattern recognition at Cornell.", refs: "Rosenblatt (1958) 'The Perceptron', Psychological Review 65(6); Olazaran (1996) 'A Sociological Study of the Official History of the Perceptrons Controversy'", blocks: { neuraltheory: 10, training: 5, architecture: 5 } },
+  { year: 1958, title: "McCarthy's LISP", category: "ai", place: "Cambridge, MA", region: "United States", desc: "McCarthy creates LISP at MIT — the language of AI for decades.", refs: "McCarthy (1960) 'Recursive Functions of Symbolic Expressions', CACM 3(4)", blocks: { computation: 4 } },
+  { year: 1960, title: "Widrow & Hoff's Gradient Descent (ADALINE)", category: "ai", place: "Stanford, CA", region: "United States", desc: "The delta rule — gradient descent applied to a single neuron.", refs: "Widrow & Hoff (1960) 'Adaptive Switching Circuits', IRE WESCON Conv. Record", blocks: { training: 10, calculus: 5 } },
+  { year: 1965, title: "Dreyfus' Alchemy and AI", category: "philosophy", place: "Cambridge, MA", region: "United States", desc: "Dreyfus critiques symbolic AI, arguing human intelligence is fundamentally embodied.", refs: "Dreyfus (1965/1972) What Computers Can't Do; Dreyfus (1992) What Computers Still Can't Do", blocks: {} },
+  { year: 1965.1, title: "Ivakhnenko & Lapa's Deep Learning Networks", category: "ai", place: "Kyiv", region: "Ukrainian SSR", desc: "The first working deep multilayer learning networks at Kyiv's Institute of Cybernetics. By 1971, Ivakhnenko describes 8-layer networks. Schmidhuber: 'The father of Deep Learning is the Ukrainian mathematician Ivakhnenko.'", refs: "Ivakhnenko & Lapa (1965) Cybernetic Predicting Devices; Ivakhnenko (1971) 'Polynomial Theory of Complex Systems', IEEE Trans. SMC 1(4); Schmidhuber (2015) 'Deep Learning in Neural Networks: An Overview', Neural Networks 61", blocks: { neuraltheory: 10, training: 8, architecture: 5 } },
+  { year: 1965.2, title: "Cooley-Tukey FFT", category: "mathematics", place: "Princeton / IBM", region: "United States", desc: "FFT reduces Fourier analysis from O(n²) to O(n log n).", refs: "Cooley & Tukey (1965) 'An Algorithm for the Machine Calculation of Complex Fourier Series', Math. Comp. 19(90)", blocks: { computation: 5, linalg: 3 } },
+  { year: 1966, title: "Weizenbaum's ELIZA", category: "ai", place: "Cambridge, MA", region: "United States", desc: "A chatbot whose users formed emotional bonds, disturbing its creator.", refs: "Weizenbaum (1966) 'ELIZA', CACM 9(1); Weizenbaum (1976) Computer Power and Human Reason", blocks: { architecture: 2 } },
+  { year: 1967, title: "Amari's SGD for Deep Networks", category: "ai", place: "Tokyo", region: "Japan", desc: "Amari at the University of Tokyo publishes end-to-end training of a 5-layer MLP by stochastic gradient descent — anticipating backpropagation-based training by two decades.", refs: "Amari (1967) 'Theory of Adaptive Pattern Classifiers', IEEE Trans. EC-16(3); Amari (1993) 'Backpropagation and Stochastic Gradient Descent Method', Neurocomputing 5", blocks: { training: 8, neuraltheory: 5 } },
+  { year: 1969, title: "Fukushima's ReLU Activation", category: "ai", place: "Tokyo", region: "Japan", desc: "Fukushima introduces the Rectified Linear Unit at NHK — now standard in virtually all deep networks.", refs: "Fukushima (1969) 'Visual Feature Extraction by a Multilayered Network of Analog Threshold Elements', IEEE Trans. SSC-5(4); Schmidhuber (2022) 'Annotated History of Modern AI and Deep Learning'", blocks: { neuraltheory: 5 } },
+  { year: 1969.1, title: "Minsky & Papert's Perceptrons", category: "ai", place: "Cambridge, MA", region: "United States", desc: "Proof of single-layer perceptron limitations triggers the first AI Winter.", refs: "Minsky & Papert (1969) Perceptrons; Olazaran (1996) 'A Sociological Study of the Official History of the Perceptrons Controversy'", blocks: {} },
+  { year: 1970, title: "Linnainmaa's Backpropagation", category: "mathematics", place: "Helsinki", region: "Finland", desc: "Seppo Linnainmaa publishes efficient reverse-mode automatic differentiation — what we now call backpropagation — including FORTRAN code. This is the mathematical invention underlying all neural network training.", refs: "Linnainmaa (1970) 'The Representation of the Cumulative Rounding Error' (MSc thesis, Univ. Helsinki); Schmidhuber (2015) 'Deep Learning in Neural Networks', Neural Networks 61, §5.5", blocks: { training: 10, calculus: 5 } },
+  { year: 1970.1, title: "SVD Algorithms", category: "mathematics", place: "Stanford, CA", region: "United States", desc: "Golub & Reinsch publish efficient SVD — workhorse of dimensionality reduction.", refs: "Golub & Reinsch (1970) 'Singular Value Decomposition and Least Squares Solutions', Num. Math. 14(5)", blocks: { linalg: 7 } },
+  { year: 1972, title: "Colmerauer & Roussel's Prolog", category: "ai", place: "Marseille", region: "France", desc: "Logic programming at Aix-Marseille.", refs: "Colmerauer & Roussel (1993) 'The Birth of Prolog', ACM SIGPLAN Notices 28(3); Kowalski (1988) 'The Early Years of Logic Programming'", blocks: { logic: 3, computation: 2 } },
+  { year: 1976, title: "Hofstadter begins Gödel, Escher, Bach", category: "philosophy", place: "Bloomington, IN", region: "United States", desc: "Strange loops, self-reference and consciousness.", refs: "Hofstadter (1979) Gödel, Escher, Bach: An Eternal Golden Braid", blocks: {} },
+  { year: 1979, title: "Fukushima's Neocognitron", category: "ai", place: "Tokyo", region: "Japan", desc: "The first deep CNN — convolutional and downsampling layers inspired by the visual cortex, born from NHK's 'bionics of vision' research. It prefigures all modern CNNs.", refs: "Fukushima (1980) 'Neocognitron', Biological Cybernetics 36(4); Schmidhuber (2015) 'Deep Learning in Neural Networks', Neural Networks 61, §5.4", blocks: { architecture: 10, neuraltheory: 5 } },
+  { year: 1980, title: "Searle's Chinese Room", category: "philosophy", place: "Berkeley, CA", region: "United States", desc: "Symbol manipulation alone cannot produce understanding.", refs: "Searle (1980) 'Minds, Brains, and Programs', Behavioral and Brain Sciences 3(3); Cole (2020) 'The Chinese Room Argument', SEP", blocks: {} },
+  { year: 1980.1, title: "Expert Systems Boom", category: "ai", place: "Pittsburgh / Stanford", region: "United States", desc: "Rule-based expert systems bring AI into industry.", refs: "Feigenbaum et al. (1988) The Rise of the Expert Company; Buchanan & Shortliffe (1984) Rule-Based Expert Systems", blocks: { architecture: 3 } },
+  { year: 1982, title: "Japan's Fifth Generation Computer Project", category: "computation", place: "Tokyo", region: "Japan", desc: "MITI launches a $400M project for inference machines, galvanising global AI investment.", refs: "Feigenbaum & McCorduck (1983) The Fifth Generation; Fransman (1993) The Market and Beyond, ch. 6", blocks: { computation: 4, logic: 2 } },
+  { year: 1984, title: "Gibson's Neuromancer", category: "literature", place: "Vancouver", region: "Canada", desc: "Gibson coins 'cyberspace' — from a manual typewriter.", refs: "Gibson (1984) Neuromancer; McCaffery (1991) Storming the Reality Studio", blocks: {} },
+  { year: 1986, title: "Backpropagation Popularised for Neural Networks", category: "ai", place: "San Diego / Pittsburgh", region: "United States", desc: "Rumelhart, Hinton & Williams demonstrate Linnainmaa's backpropagation on multi-layer networks — building on foundations from Finland, Ukraine, and Japan.", refs: "Rumelhart, Hinton & Williams (1986) 'Learning Representations by Back-Propagating Errors', Nature 323; Schmidhuber (2015) 'Deep Learning in Neural Networks', §5.5 on credit assignment", blocks: { training: 5, architecture: 5 } },
+  { year: 1988, title: "Second AI Winter", category: "ai", place: "Global", region: "Global", desc: "Expert systems collapse. Funding retreats worldwide.", refs: "Crevier (1993) AI: The Tumultuous History of the Search for Artificial Intelligence, ch. 11", blocks: {} },
+  { year: 1989, title: "LeCun's CNN for Handwriting", category: "ai", place: "Murray Hill, NJ", region: "United States", desc: "LeCun at Bell Labs combines Fukushima's convolutions with Linnainmaa's backpropagation.", refs: "LeCun et al. (1989) 'Backpropagation Applied to Handwritten Zip Code Recognition', Neural Computation 1(4)", blocks: { architecture: 5, training: 3 } },
+  { year: 1991, title: "Schmidhuber's 'Annus Mirabilis'", category: "ai", place: "Munich / Lugano", region: "Germany / Switzerland", desc: "At TU Munich/IDSIA, Schmidhuber publishes adversarial networks, linear Transformers, and self-supervised pre-training — principles behind GPT.", refs: "Schmidhuber (1991) various; Schmidhuber (2020) 'Generative Adversarial Networks Are Special Cases of Artificial Curiosity'; Schmidhuber (2022) 'Annotated History of Modern AI'", blocks: { architecture: 8, training: 5, neuraltheory: 3 } },
+  { year: 1995, title: "Vapnik's Support Vector Machines", category: "ai", place: "Murray Hill, NJ", region: "United States", desc: "Vapnik — born in Soviet Uzbekistan — develops SVMs at Bell Labs.", refs: "Cortes & Vapnik (1995) 'Support-Vector Networks', Machine Learning 20(3); Vapnik (1998) Statistical Learning Theory", blocks: { linalg: 5, training: 3 } },
+  { year: 1997, title: "Deep Blue Defeats Kasparov", category: "ai", place: "New York", region: "United States", desc: "IBM's Deep Blue defeats the world chess champion.", refs: "Campbell et al. (2002) 'Deep Blue', Artificial Intelligence 134(1-2); Newborn (1997) Kasparov Versus Deep Blue", blocks: { computation: 5 } },
+  { year: 1997.1, title: "Hochreiter & Schmidhuber's LSTM", category: "ai", place: "Munich", region: "Germany", desc: "Long Short-Term Memory solves the vanishing gradient — dominating sequence modelling until Transformers.", refs: "Hochreiter & Schmidhuber (1997) 'Long Short-Term Memory', Neural Computation 9(8)", blocks: { architecture: 10, neuraltheory: 5, training: 3 } },
+  { year: 1999, title: "Eglash's African Fractals", category: "indigenous", place: "Multiple field sites", region: "Sub-Saharan Africa", desc: "Ron Eglash's landmark book documents how African architecture, art, divination, and games embody fractal geometry and recursive algorithms, connecting Indigenous computational thinking to modern CS. This reframes the history of recursive design from a purely European narrative.", refs: "Eglash (1999) African Fractals: Modern Computing and Indigenous Design, Rutgers UP", blocks: {} },
+  { year: 2001, title: "Spielberg's A.I.", category: "literature", place: "Los Angeles", region: "United States", desc: "A robot child's desire for love. Kubrick-conceived, Spielberg-directed.", refs: "Spielberg (2001) A.I. Artificial Intelligence [film]; Haraway (2003) 'Cyborgs to Companion Species'", blocks: {} },
+  { year: 2003, title: "Random Matrices & High-Dimensional Statistics", category: "mathematics", place: "Multiple centres", region: "Global", desc: "Random matrix theory informs neural network design.", refs: "Mehta (2004) Random Matrices; Pennington & Worah (2017) 'Nonlinear Random Matrix Theory for Deep Learning', NeurIPS", blocks: { linalg: 5, probability: 3, neuraltheory: 3 } },
+  { year: 2011, title: "Watson Wins Jeopardy!", category: "ai", place: "Yorktown Heights, NY", region: "United States", desc: "IBM Watson demonstrates NLU and probabilistic reasoning at scale.", refs: "Ferrucci et al. (2010) 'Building Watson', AI Magazine 31(3)", blocks: { architecture: 3 } },
+  { year: 2012, title: "AlexNet & the Deep Learning Revolution", category: "ai", place: "Toronto", region: "Canada", desc: "Krizhevsky & Hinton's CNN wins ImageNet — building on Fukushima's architecture, Linnainmaa's backprop, Ivakhnenko's deep representations. GPUs make it practical.", refs: "Krizhevsky, Sutskever & Hinton (2012) 'ImageNet Classification with Deep Convolutional Neural Networks', NeurIPS 25", blocks: { architecture: 10, computation: 10, neuraltheory: 3, linalg: 5 } },
+  { year: 2014, title: "Goodfellow's GANs", category: "ai", place: "Montreal", region: "Canada", desc: "Adversarial training generates realistic data — concept rooted in Schmidhuber's 1990-91 work.", refs: "Goodfellow et al. (2014) 'Generative Adversarial Nets', NeurIPS 27; Schmidhuber (2020) 'GANs Are Special Cases of Artificial Curiosity (1990)'", blocks: { architecture: 8, training: 6 } },
+  { year: 2014.1, title: "Bostrom's Superintelligence", category: "philosophy", place: "Oxford", region: "United Kingdom", desc: "Systematic treatment of existential risk from AI.", refs: "Bostrom (2014) Superintelligence: Paths, Dangers, Strategies, OUP", blocks: {} },
+  { year: 2014.2, title: "Variational Autoencoders", category: "ai", place: "Amsterdam", region: "Netherlands", desc: "VAEs marry Bayesian probability with deep learning.", refs: "Kingma & Welling (2014) 'Auto-Encoding Variational Bayes', ICLR", blocks: { architecture: 6, probability: 5, training: 3 } },
+  { year: 2016, title: "AlphaGo Defeats Lee Sedol", category: "ai", place: "Seoul", region: "South Korea", desc: "DeepMind (London) defeats the Go champion in Seoul. Move 37: profoundly creative.", refs: "Silver et al. (2016) 'Mastering the Game of Go with Deep Neural Networks and Tree Search', Nature 529", blocks: { training: 5, architecture: 3 } },
+  { year: 2017, title: "'Attention Is All You Need'", category: "ai", place: "Mountain View, CA", region: "United States", desc: "The Transformer. Team spans the globe: Vaswani (India), Uszkoreit (Germany), Gomez (Canada), Kaiser (Poland), Polosukhin (Ukraine). Self-attention as matrix multiplications.", refs: "Vaswani et al. (2017) 'Attention Is All You Need', NeurIPS 30", blocks: { architecture: 15, linalg: 5, training: 3 } },
+  { year: 2018, title: "BERT & GPT", category: "ai", place: "Mountain View / San Francisco", region: "United States", desc: "Massive pre-training produces powerful language understanding.", refs: "Devlin et al. (2019) 'BERT', NAACL; Radford et al. (2018) 'Improving Language Understanding by Generative Pre-Training'", blocks: { architecture: 5, training: 5 } },
+  { year: 2020, title: "GPT-3: Scaling Laws Vindicated", category: "ai", place: "San Francisco", region: "United States", desc: "175B parameters. Emergent few-shot learning, code generation, coherent writing.", refs: "Brown et al. (2020) 'Language Models Are Few-Shot Learners', NeurIPS 33; Kaplan et al. (2020) 'Scaling Laws for Neural Language Models'", blocks: { architecture: 3, computation: 5 } },
+  { year: 2021, title: "Stiegler's Automatic Society", category: "philosophy", place: "Épineuil-le-Fleuriel", region: "France", desc: "Stiegler's work on grammatisation gains urgency as LLMs automate cognitive labour.", refs: "Stiegler (2015/Ross trans. 2016) Automatic Society, Vol. 1; Stiegler (2018) The Neganthropocene", blocks: {} },
+  { year: 2022, title: "ChatGPT & the Public Awakening", category: "ai", place: "San Francisco", region: "United States", desc: "100M users in two months. LLMs become a mass cultural phenomenon.", refs: "OpenAI (2022) 'Introducing ChatGPT'; Brynjolfsson et al. (2023) 'Generative AI at Work', NBER WP 31161", blocks: { training: 3, architecture: 2 } },
+  { year: 2023, title: "GPT-4 & Multimodal AI", category: "ai", place: "San Francisco", region: "United States", desc: "Multimodal models process text, images, code.", refs: "OpenAI (2023) 'GPT-4 Technical Report'; Bubeck et al. (2023) 'Sparks of Artificial General Intelligence'", blocks: { architecture: 3 } },
+  { year: 2024, title: "Frontier Models & the Alignment Challenge", category: "ai", place: "SF / London / Paris", region: "Global", desc: "Claude, Gemini, and others advance. Research spans SF, London, Paris, Toronto, Beijing, Seoul.", refs: "Anthropic (2024) 'The Claude Model Card'; Anwar et al. (2024) 'Foundational Challenges in Assuring Alignment'", blocks: { architecture: 2, training: 2, computation: 2 } },
+  { year: 2025, title: "Agentic AI & Reasoning Models", category: "ai", place: "Global", region: "Global", desc: "AI systems plan, use tools, and reason. The technology rests on millennia of global intellectual effort — from Aboriginal songlines to Baghdad's algebra, Kerala's calculus, Kyiv's deep networks, and Tokyo's convolutions.", refs: "Schmidhuber (2025) 'Who Invented Deep Learning?', IDSIA-16-25; Anthropic (2025) Claude technical documentation", blocks: { architecture: 2, training: 3 } },
+];
+
+// Region mapping: event region string → map region IDs
+const REGION_MAP = {
+  "Aboriginal Australia": ["oceania"],
+  "Central Africa (modern DRC)": ["africa"],
+  "Andean South America": ["south_america"],
+  "Greece": ["europe_south"],
+  "Ancient India (modern Pakistan)": ["south_asia"],
+  "Ptolemaic Egypt": ["north_africa"],
+  "Sicily": ["europe_south"],
+  "Han Dynasty": ["east_asia"],
+  "Gurjara-Pratihara India": ["south_asia"],
+  "Abbasid Caliphate": ["middle_east"],
+  "Seljuk Persia": ["middle_east"],
+  "Artuqid Anatolia": ["middle_east"],
+  "Majorca": ["europe_south"],
+  "Kerala, India": ["south_asia"],
+  "Multiple societies": ["africa"],
+  "Polynesia / Micronesia": ["oceania"],
+  "Haudenosaunee Confederacy (modern NE USA/Canada)": ["north_america"],
+  "Maya Civilisation": ["central_america"],
+  "Tawantinsuyu (Inca Empire)": ["south_america"],
+  "Duchy of Milan": ["europe_south"],
+  "Bohemia": ["europe_central"],
+  "Dutch Republic": ["europe_west"],
+  "France": ["europe_west"],
+  "Saxony": ["europe_central"],
+  "England": ["europe_west"],
+  "Brunswick-Lüneburg": ["europe_central"],
+  "Swiss Confederacy": ["europe_central"],
+  "Great Britain": ["europe_west"],
+  "Russian Empire": ["russia"],
+  "Republic of Geneva": ["europe_central"],
+  "Habsburg Empire": ["europe_central"],
+  "Napoleonic France": ["europe_west"],
+  "United Kingdom": ["europe_west"],
+  "Ireland": ["europe_west"],
+  "German Empire": ["europe_central"],
+  "Kingdom of Italy": ["europe_south"],
+  "Czechoslovakia": ["europe_central"],
+  "Germany": ["europe_central"],
+  "Austria": ["europe_central"],
+  "Soviet Union": ["russia"],
+  "United States": ["north_america"],
+  "Canada": ["north_america"],
+  "Japan": ["east_asia"],
+  "Ukrainian SSR": ["russia"],
+  "Finland": ["europe_north"],
+  "Germany / Switzerland": ["europe_central"],
+  "South Korea": ["east_asia"],
+  "Netherlands": ["europe_west"],
+  "Sub-Saharan Africa": ["africa"],
+  "Global": ["north_america","europe_west","east_asia","south_asia","africa","oceania"],
+};
+
+function getRegionIds(region) {
+  if (!region) return [];
+  if (REGION_MAP[region]) return REGION_MAP[region];
+  for (const [key, val] of Object.entries(REGION_MAP)) {
+    if (region.includes(key) || key.includes(region)) return val;
+  }
+  return [];
+}
+
+// Simplified world map SVG paths (natural earth-ish projection)
+const MAP_REGIONS = {
+  north_america: { cx: 70, cy: 55, path: "M30,25 L55,18 L80,18 L105,25 L115,40 L108,55 L95,72 L80,80 L65,75 L50,82 L40,70 L25,55 L20,40 Z", label: "N. America" },
+  central_america: { cx: 72, cy: 88, path: "M55,80 L65,78 L75,82 L80,92 L72,98 L60,95 L52,88 Z", label: "C. America" },
+  south_america: { cx: 95, cy: 130, path: "M72,100 L85,95 L100,100 L110,115 L108,135 L100,155 L88,160 L78,148 L72,125 L68,110 Z", label: "S. America" },
+  europe_west: { cx: 155, cy: 40, path: "M140,28 L155,25 L162,30 L165,42 L160,52 L148,55 L138,48 L135,38 Z", label: "W. Europe" },
+  europe_central: { cx: 170, cy: 38, path: "M162,28 L178,25 L185,32 L183,44 L175,50 L165,48 L160,40 Z", label: "C. Europe" },
+  europe_south: { cx: 168, cy: 52, path: "M148,48 L158,45 L172,48 L178,55 L172,62 L158,65 L148,58 Z", label: "S. Europe" },
+  europe_north: { cx: 168, cy: 22, path: "M152,12 L170,8 L182,14 L180,24 L168,28 L155,25 L150,18 Z", label: "N. Europe" },
+  north_africa: { cx: 168, cy: 70, path: "M130,62 L158,58 L195,62 L200,75 L185,82 L150,80 L130,75 Z", label: "N. Africa" },
+  africa: { cx: 175, cy: 108, path: "M148,78 L180,75 L198,82 L205,100 L200,125 L188,142 L172,148 L160,140 L150,118 L145,95 Z", label: "Africa" },
+  middle_east: { cx: 200, cy: 58, path: "M185,48 L205,42 L218,48 L222,60 L215,70 L200,72 L188,65 L183,55 Z", label: "Middle East" },
+  south_asia: { cx: 228, cy: 78, path: "M215,62 L232,58 L245,65 L248,80 L240,92 L225,95 L215,85 L212,72 Z", label: "South Asia" },
+  east_asia: { cx: 260, cy: 50, path: "M240,25 L262,22 L280,30 L285,48 L278,60 L260,65 L245,58 L238,42 Z", label: "East Asia" },
+  russia: { cx: 220, cy: 25, path: "M182,8 L220,5 L268,8 L290,18 L285,28 L240,30 L200,28 L185,20 Z", label: "Russia / Ukraine" },
+  oceania: { cx: 278, cy: 130, path: "M258,110 L280,105 L298,112 L302,128 L295,140 L275,145 L258,135 L255,120 Z", label: "Oceania" },
+};
+
+function WorldMap({ activeRegions, accent }) {
+  return (
+    <svg viewBox="0 0 320 165" style={{ width: "100%", height: "auto", display: "block" }}>
+      <rect width="320" height="165" fill="transparent" />
+      {Object.entries(MAP_REGIONS).map(([id, reg]) => {
+        const isActive = activeRegions.includes(id);
+        return (
+          <g key={id}>
+            <path
+              d={reg.path}
+              fill={isActive ? accent + "35" : "rgba(255,255,255,0.03)"}
+              stroke={isActive ? accent : "rgba(255,255,255,0.06)"}
+              strokeWidth={isActive ? 1.2 : 0.4}
+              style={{ transition: "all 0.8s ease" }}
+            />
+            {isActive && (
+              <>
+                <circle cx={reg.cx} cy={reg.cy} r="3" fill={accent} opacity="0.9" style={{ transition: "all 0.6s ease" }}>
+                  <animate attributeName="r" values="3;5;3" dur="2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.9;0.4;0.9" dur="2s" repeatCount="indefinite" />
+                </circle>
+                <circle cx={reg.cx} cy={reg.cy} r="1.5" fill={accent} />
+              </>
+            )}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function WorldMapMini({ activeRegions, accent }) {
+  return (
+    <svg viewBox="0 0 320 165" style={{ width: "60px", height: "30px", display: "inline-block", verticalAlign: "middle", marginRight: "8px" }}>
+      {Object.entries(MAP_REGIONS).map(([id, reg]) => {
+        const isActive = activeRegions.includes(id);
+        return <path key={id} d={reg.path} fill={isActive ? accent : "rgba(255,255,255,0.05)"} stroke="none" style={{ transition: "fill 0.6s ease" }} />;
+      })}
+    </svg>
+  );
+}
+
+function computeCumulativeBlocks(events) {
+  const cumulative = [];
+  const running = {};
+  Object.keys(BLOCKS).forEach(k => running[k] = 0);
+  events.forEach(ev => {
+    if (ev.blocks) Object.entries(ev.blocks).forEach(([k, v]) => { running[k] = (running[k] || 0) + v; });
+    cumulative.push({ ...running });
+  });
+  return cumulative;
+}
+
+function useInView(ref, threshold = 0.15) {
+  const [v, setV] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) { setV(true); obs.disconnect(); } }, { threshold });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref, threshold]);
+  return v;
+}
+
+function getEraForYear(year) {
+  return ERAS.find(e => year >= e.start && year < e.end) || ERAS[ERAS.length - 1];
+}
+
+// SVG motif decorations for each era
+function EraMotif({ motif, accent }) {
+  const opacity = 0.06;
+  if (motif === "greek") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity }}>
+      <defs><pattern id="greek" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M0 20h15v-15h5v20h-20z M25 20h15v15h-5v-20h-10v5z" fill="none" stroke={accent} strokeWidth="0.5"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#greek)"/>
+    </svg>
+  );
+  if (motif === "islamic") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity }}>
+      <defs><pattern id="islamic" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+        <circle cx="24" cy="24" r="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+        <circle cx="0" cy="0" r="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+        <circle cx="48" cy="0" r="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+        <circle cx="0" cy="48" r="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+        <circle cx="48" cy="48" r="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#islamic)"/>
+    </svg>
+  );
+  if (motif === "enlightenment") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity }}>
+      <defs><pattern id="enlight" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+        <line x1="0" y1="30" x2="60" y2="30" stroke={accent} strokeWidth="0.3" strokeDasharray="2 4"/>
+        <line x1="30" y1="0" x2="30" y2="60" stroke={accent} strokeWidth="0.3" strokeDasharray="2 4"/>
+        <circle cx="30" cy="30" r="12" fill="none" stroke={accent} strokeWidth="0.3"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#enlight)"/>
+    </svg>
+  );
+  if (motif === "modernist") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity }}>
+      <defs><pattern id="modernist" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+        <rect x="5" y="5" width="18" height="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+        <rect x="27" y="27" width="18" height="18" fill="none" stroke={accent} strokeWidth="0.4"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#modernist)"/>
+    </svg>
+  );
+  if (motif === "midcentury") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity }}>
+      <defs><pattern id="midcent" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+        <circle cx="20" cy="20" r="2" fill={accent} opacity="0.5"/>
+        <circle cx="20" cy="20" r="10" fill="none" stroke={accent} strokeWidth="0.3"/>
+        <line x1="10" y1="20" x2="30" y2="20" stroke={accent} strokeWidth="0.3"/>
+        <line x1="20" y1="10" x2="20" y2="30" stroke={accent} strokeWidth="0.3"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#midcent)"/>
+    </svg>
+  );
+  if (motif === "digital") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity: opacity * 0.7 }}>
+      <defs><pattern id="digital" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+        <rect x="0" y="0" width="4" height="4" fill={accent} opacity="0.3"/>
+        <rect x="10" y="10" width="4" height="4" fill={accent} opacity="0.2"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#digital)"/>
+    </svg>
+  );
+  if (motif === "neural") return (
+    <svg width="100%" height="100%" style={{ position: "absolute", top: 0, left: 0, opacity: opacity * 0.8 }}>
+      <defs><pattern id="neural" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+        <circle cx="10" cy="10" r="2" fill={accent} opacity="0.4"/>
+        <circle cx="50" cy="20" r="2" fill={accent} opacity="0.3"/>
+        <circle cx="30" cy="50" r="2" fill={accent} opacity="0.4"/>
+        <line x1="10" y1="10" x2="50" y2="20" stroke={accent} strokeWidth="0.3" opacity="0.3"/>
+        <line x1="50" y1="20" x2="30" y2="50" stroke={accent} strokeWidth="0.3" opacity="0.3"/>
+        <line x1="10" y1="10" x2="30" y2="50" stroke={accent} strokeWidth="0.3" opacity="0.2"/>
+      </pattern></defs>
+      <rect width="100%" height="100%" fill="url(#neural)"/>
+    </svg>
+  );
+  return null;
+}
+
+function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
+  const ref = useRef(null);
+  const vis = useInView(ref, 0.08);
+  const cat = CATEGORIES[event.category];
+  const era = getEraForYear(Math.floor(event.year));
+  const displayYear = (() => {
+    const y = Math.floor(event.year);
+    if (y <= -10000) return `~${Math.abs(y/1000)}k BCE`;
+    if (y < 0) return `~${Math.abs(y)} BCE`;
+    return `${y}`;
+  })();
+  const hasBlocks = event.blocks && Object.keys(event.blocks).length > 0;
+
+  return (
+    <div ref={ref} data-event-index={index} onClick={onToggle} style={{
+      opacity: vis ? 1 : 0,
+      transform: vis ? "translateY(0)" : "translateY(30px)",
+      transition: `opacity 0.6s cubic-bezier(0.16,1,0.3,1) ${index % 3 * 0.04}s, transform 0.6s cubic-bezier(0.16,1,0.3,1) ${index % 3 * 0.04}s`,
+      cursor: "pointer", display: "flex", alignItems: "flex-start", gap: "14px",
+      width: "100%", marginBottom: "2px",
+    }}>
+      <div style={{
+        flexShrink: 0, width: 12, height: 12, borderRadius: "50%",
+        background: isActive ? cat.color : isExpanded ? cat.color : "transparent",
+        border: `2px solid ${isActive ? cat.color : era.accent + "80"}`,
+        marginTop: "8px",
+        boxShadow: isActive ? `0 0 12px ${cat.color}60` : "none",
+        transition: "all 0.4s ease", zIndex: 2,
+      }} />
+      <div style={{
+        flex: 1,
+        background: isExpanded ? `linear-gradient(135deg, ${cat.color}0D, ${cat.color}04)` : isActive ? "rgba(255,255,255,0.012)" : "transparent",
+        border: `1px solid ${isExpanded ? cat.color + "28" : isActive ? "rgba(255,255,255,0.035)" : "transparent"}`,
+        borderRadius: "10px", padding: isExpanded ? "16px 18px" : "9px 12px",
+        transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap" }}>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: cat.color,
+            background: cat.color + "12", padding: "1px 6px", borderRadius: "3px", fontWeight: 600,
+          }}>{displayYear}</span>
+          <span style={{
+            fontSize: "9px", color: cat.color + "80", textTransform: "uppercase",
+            letterSpacing: "1px", fontFamily: "'JetBrains Mono', monospace",
+          }}>{cat.icon} {cat.label}</span>
+          {/* Geography badge */}
+          <span style={{
+            fontSize: "9px", color: era.accent + "90", fontFamily: "'JetBrains Mono', monospace",
+            marginLeft: "auto", letterSpacing: "0.3px", fontStyle: "italic",
+          }}>{event.place}</span>
+        </div>
+        <h3 style={{
+          fontFamily: "'Playfair Display', Georgia, serif",
+          fontSize: isExpanded ? "16.5px" : "14.5px", color: "#E8E4DE",
+          margin: "5px 0 0 0", fontWeight: 600, lineHeight: 1.3,
+          transition: "font-size 0.3s ease",
+        }}>{event.title}</h3>
+        <div style={{
+          maxHeight: isExpanded ? "500px" : "0px", overflow: "hidden",
+          transition: "max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
+          opacity: isExpanded ? 1 : 0,
+        }}>
+          {/* Region tag */}
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+            color: era.accent, marginTop: "6px", letterSpacing: "0.5px",
+            display: "flex", alignItems: "center", gap: "6px",
+          }}>
+            <span style={{ opacity: 0.6 }}>●</span> {event.region}
+          </div>
+          <p style={{
+            fontFamily: "'Source Serif 4', Georgia, serif",
+            fontSize: "13.5px", color: "#B8B2A8", lineHeight: 1.7, margin: "6px 0 0 0",
+          }}>{event.desc}</p>
+          {hasBlocks && (
+            <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginTop: "10px" }}>
+              {Object.entries(event.blocks).map(([k, v]) => (
+                <span key={k} style={{
+                  fontSize: "9px", fontFamily: "'JetBrains Mono', monospace",
+                  color: BLOCKS[k].color, background: BLOCKS[k].color + "12",
+                  padding: "2px 7px", borderRadius: "3px",
+                }}>{BLOCKS[k].label} +{v}</span>
+              ))}
+            </div>
+          )}
+          {event.refs && (
+            <div style={{
+              marginTop: "12px", paddingTop: "10px",
+              borderTop: "1px solid rgba(255,255,255,0.04)",
+            }}>
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "8px",
+                letterSpacing: "1.5px", color: "rgba(255,255,255,0.2)",
+                textTransform: "uppercase", marginBottom: "5px",
+              }}>Further Reading</div>
+              <p style={{
+                fontFamily: "'Source Serif 4', Georgia, serif",
+                fontSize: "11.5px", color: "rgba(255,255,255,0.3)",
+                lineHeight: 1.6, margin: 0, fontStyle: "italic",
+              }}>{event.refs}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EraMarker({ era }) {
+  const ref = useRef(null);
+  const vis = useInView(ref, 0.2);
+  return (
+    <div ref={ref} data-era-label={era.label} style={{
+      textAlign: "center", padding: "32px 16px 18px",
+      opacity: vis ? 1 : 0, transform: vis ? "translateY(0)" : "translateY(16px)",
+      transition: "all 0.8s cubic-bezier(0.16,1,0.3,1)",
+    }}>
+      <div style={{
+        display: "inline-block", background: era.color, border: `1px solid ${era.accent}20`,
+        borderRadius: "16px", padding: "8px 22px", position: "relative",
+      }}>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace", fontSize: "9.5px",
+          color: era.accent, letterSpacing: "2px", textTransform: "uppercase",
+          display: "block",
+        }}>{era.label}</span>
+        <span style={{
+          fontFamily: "'Source Serif 4', serif", fontSize: "11px",
+          color: era.accent + "80", display: "block", marginTop: "3px",
+          fontStyle: "italic", letterSpacing: "0.3px",
+        }}>{era.desc}</span>
+      </div>
+    </div>
+  );
+}
+
+function BlocksPanel({ blocks, disciplinePct, globalPct, maxReachable, globalMax, activeBlockKeys, allSelected, filterLabel }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "7px", width: "100%" }}>
+      {Object.entries(BLOCKS).map(([key, block]) => {
+        const val = blocks[key] || 0;
+        const myMax = maxReachable[key] || 0;
+        const gMax = globalMax[key] || 0;
+        const pct = myMax > 0 ? Math.min(100, Math.round((val / myMax) * 100)) : 0;
+        const globalBlockPct = gMax > 0 ? Math.round((val / gMax) * 100) : 0;
+        const isActive = activeBlockKeys.includes(key);
+        // How much of global this discipline can ever provide
+        const ceilingPct = gMax > 0 ? Math.round((myMax / gMax) * 100) : 0;
+        return (
+          <div key={key} style={{ opacity: isActive ? 1 : 0.2, transition: "opacity 0.5s ease" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "2px" }}>
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "8.5px",
+                color: isActive && pct > 0 ? block.color : "rgba(255,255,255,0.15)",
+                transition: "color 0.5s ease",
+              }}>{block.label}</span>
+              <span style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "8.5px",
+                color: isActive && pct > 0 ? block.color + "AA" : "rgba(255,255,255,0.1)",
+                transition: "color 0.5s ease", minWidth: "28px", textAlign: "right",
+              }}>{pct}%</span>
+            </div>
+            <div style={{ height: "3px", borderRadius: "1.5px", background: "rgba(255,255,255,0.03)", overflow: "hidden", position: "relative" }}>
+              {/* Ghost: how much of global this discipline covers at most */}
+              {!allSelected && isActive && <div style={{
+                position: "absolute", top: 0, left: 0, height: "100%", borderRadius: "1.5px",
+                width: "100%", background: `${block.color}08`,
+                transition: "width 0.5s cubic-bezier(0.16,1,0.3,1)",
+              }} />}
+              <div style={{
+                height: "100%", borderRadius: "1.5px", width: `${pct}%`,
+                background: isActive ? `linear-gradient(90deg, ${block.color}80, ${block.color})` : "rgba(255,255,255,0.05)",
+                transition: "width 0.5s cubic-bezier(0.16,1,0.3,1)",
+                boxShadow: isActive && pct > 0 ? `0 0 6px ${block.color}25` : "none",
+                position: "relative", zIndex: 1,
+              }} />
+            </div>
+            {/* Show global contribution when filtered */}
+            {!allSelected && isActive && ceilingPct < 100 && (
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "7.5px",
+                color: "rgba(255,255,255,0.15)", marginTop: "1px",
+              }}>{ceilingPct}% of global total</div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Discipline completion */}
+      <div style={{ marginTop: "6px", paddingTop: "8px", borderTop: "1px solid rgba(255,255,255,0.05)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "3px" }}>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+            color: "rgba(255,255,255,0.4)", letterSpacing: "0.8px", textTransform: "uppercase",
+          }}>{allSelected ? "GenAI Readiness" : "Foundations Complete"}</span>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "14px", fontWeight: 600,
+            background: "linear-gradient(90deg, #E8A838, #D45D79, #48BFE3, #72E1A0, #C4A1FF)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>{disciplinePct}%</span>
+        </div>
+        <div style={{ height: "5px", borderRadius: "2.5px", background: "rgba(255,255,255,0.03)", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: "2.5px", width: `${disciplinePct}%`,
+            background: "linear-gradient(90deg, #E8A838, #D45D79, #48BFE3, #72E1A0, #C4A1FF)",
+            transition: "width 0.5s cubic-bezier(0.16,1,0.3,1)",
+            boxShadow: "0 0 8px rgba(196,161,255,0.2)",
+          }} />
+        </div>
+      </div>
+
+      {/* Global contribution (when filtered) */}
+      {!allSelected && (
+        <div style={{ marginTop: "4px", paddingTop: "6px", borderTop: "1px solid rgba(255,255,255,0.03)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "3px" }}>
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "8px",
+              color: "rgba(255,255,255,0.25)", letterSpacing: "0.5px",
+            }}>Share of total GenAI stack</span>
+            <span style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", fontWeight: 600,
+              color: "rgba(255,255,255,0.45)",
+            }}>{globalPct}%</span>
+          </div>
+          <div style={{ height: "3px", borderRadius: "1.5px", background: "rgba(255,255,255,0.03)", overflow: "hidden" }}>
+            <div style={{
+              height: "100%", borderRadius: "1.5px", width: `${globalPct}%`,
+              background: "rgba(255,255,255,0.15)",
+              transition: "width 0.5s cubic-bezier(0.16,1,0.3,1)",
+            }} />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function AITimeline() {
+  const [activeFilters, setActiveFilters] = useState(new Set(Object.keys(CATEGORIES)));
+  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [currentEventIdx, setCurrentEventIdx] = useState(0);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [panelOpen, setPanelOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check(); window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const filtered = useMemo(() => EVENTS.filter(e => activeFilters.has(e.category)), [activeFilters]);
+  const cumBlocks = useMemo(() => computeCumulativeBlocks(filtered), [filtered]);
+
+  // Max each block can reach from the SELECTED disciplines (denominator for discipline %)
+  const maxReachable = useMemo(() => {
+    const t = {}; Object.keys(BLOCKS).forEach(k => t[k] = 0);
+    filtered.forEach(ev => { if (ev.blocks) Object.entries(ev.blocks).forEach(([k, v]) => { t[k] = (t[k] || 0) + v; }); });
+    return t;
+  }, [filtered]);
+
+  // Max each block can reach from ALL disciplines (denominator for global contribution %)
+  const globalMax = useMemo(() => {
+    const t = {}; Object.keys(BLOCKS).forEach(k => t[k] = 0);
+    EVENTS.forEach(ev => { if (ev.blocks) Object.entries(ev.blocks).forEach(([k, v]) => { t[k] = (t[k] || 0) + v; }); });
+    return t;
+  }, []);
+
+  const activeBlockKeys = useMemo(() => Object.keys(BLOCKS).filter(k => maxReachable[k] > 0), [maxReachable]);
+
+  const currentBlocks = cumBlocks[currentEventIdx] || {};
+
+  // Discipline readiness: weighted sum — blocks the discipline contributes more to matter more
+  const disciplinePct = (() => {
+    const totalMax = activeBlockKeys.reduce((s, k) => s + maxReachable[k], 0);
+    if (totalMax === 0) return 0;
+    const totalCur = activeBlockKeys.reduce((s, k) => s + Math.min(currentBlocks[k] || 0, maxReachable[k]), 0);
+    return Math.round((totalCur / totalMax) * 100);
+  })();
+
+  // Global contribution: weighted sum against global totals
+  const globalPct = (() => {
+    const gKeys = Object.keys(BLOCKS).filter(k => globalMax[k] > 0);
+    const totalMax = gKeys.reduce((s, k) => s + globalMax[k], 0);
+    if (totalMax === 0) return 0;
+    const totalCur = gKeys.reduce((s, k) => s + Math.min(currentBlocks[k] || 0, globalMax[k]), 0);
+    return Math.round((totalCur / totalMax) * 100);
+  })();
+
+  const allSelected = activeFilters.size === Object.keys(CATEGORIES).length;
+  const filterLabel = allSelected ? null : [...activeFilters].map(k => CATEGORIES[k].label).join(", ");
+
+  const currentEvent = filtered[currentEventIdx];
+  const currentYear = currentEvent ? (() => { const y = Math.floor(currentEvent.year); if (y <= -10000) return `~${Math.abs(y/1000)}k BCE`; if (y < 0) return `~${Math.abs(y)} BCE`; return `${y}`; })() : "";
+  const currentEra = currentEvent ? getEraForYear(Math.floor(currentEvent.year)) : ERAS[0];
+  const activeRegions = useMemo(() => currentEvent ? getRegionIds(currentEvent.region) : [], [currentEvent]);
+
+  useEffect(() => {
+    const el = scrollRef.current; if (!el) return;
+    const handleScroll = () => {
+      const pct = el.scrollTop / (el.scrollHeight - el.clientHeight);
+      setScrollProgress(Math.min(1, pct));
+      const cr = el.getBoundingClientRect();
+      const center = cr.top + cr.height * 0.38;
+      let ci = 0, cd = Infinity;
+      el.querySelectorAll("[data-event-index]").forEach(n => {
+        const idx = parseInt(n.getAttribute("data-event-index"));
+        const r = n.getBoundingClientRect();
+        const d = Math.abs(r.top + r.height / 2 - center);
+        if (d < cd) { cd = d; ci = idx; }
+      });
+      setCurrentEventIdx(ci);
+    };
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const toggleFilter = cat => {
+    setActiveFilters(prev => {
+      const next = new Set(prev);
+      if (next.has(cat)) { if (next.size > 1) next.delete(cat); } else next.add(cat);
+      return next;
+    }); setExpandedIndex(null);
+  };
+
+  const withEras = useMemo(() => {
+    const items = []; let ei = 0;
+    filtered.forEach((ev, fi) => {
+      while (ei < ERAS.length && Math.floor(ev.year) >= ERAS[ei].start && (fi === 0 || Math.floor(filtered[fi - 1]?.year ?? -9999) < ERAS[ei].start)) {
+        items.push({ type: "era", data: ERAS[ei] }); ei++;
+      }
+      items.push({ type: "event", data: ev, filteredIdx: fi });
+    });
+    return items;
+  }, [filtered]);
+
+  const showSidePanel = panelOpen && !isMobile;
+
+  return (
+    <div style={{
+      width: "100%", height: "100vh", background: "#0B0A09", color: "#E8E4DE",
+      fontFamily: "'Source Serif 4', Georgia, serif", position: "relative", overflow: "hidden",
+      display: "flex",
+    }}>
+      <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,500;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+
+      {/* Animated era background */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+        pointerEvents: "none", zIndex: 0,
+        background: currentEra.bg,
+        transition: "background 1.2s ease",
+      }}>
+        <div style={{ transition: "opacity 1.2s ease", opacity: 1 }}>
+          <EraMotif motif={currentEra.motif} accent={currentEra.accent} />
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      <div style={{
+        position: "fixed", top: 0, left: 0, zIndex: 100,
+        width: `${scrollProgress * 100}%`, height: "2px",
+        background: `linear-gradient(90deg, ${currentEra.accent}, #C4A1FF)`,
+        transition: "background 1s ease",
+      }} />
+
+      {/* Side panel */}
+      <div style={{
+        width: showSidePanel ? "280px" : "0px",
+        minWidth: showSidePanel ? "280px" : "0px",
+        height: "100vh", background: "rgba(0,0,0,0.3)",
+        borderRight: showSidePanel ? `1px solid ${currentEra.accent}15` : "none",
+        display: "flex", flexDirection: "column", overflow: "hidden",
+        transition: "all 0.4s cubic-bezier(0.16,1,0.3,1)",
+        zIndex: 10,
+      }}>
+        <div style={{ padding: "24px 18px 14px" }}>
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "8px",
+            letterSpacing: "2.5px", color: "rgba(255,255,255,0.2)", textTransform: "uppercase", marginBottom: "5px",
+          }}>{allSelected ? "Building Blocks for" : "Contribution from"}</div>
+          <div style={{
+            fontFamily: "'Playfair Display', serif", fontSize: allSelected ? "17px" : "15px",
+            fontWeight: 600, color: "#E8E4DE", lineHeight: 1.25,
+            transition: "font-size 0.3s ease",
+          }}>{allSelected ? "Generative AI" : filterLabel}</div>
+          {!allSelected && <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+            color: "rgba(255,255,255,0.18)", marginTop: "3px",
+          }}>to GenAI's building blocks</div>}
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "10.5px",
+            color: currentEra.accent + "90", marginTop: "6px",
+            transition: "color 1s ease",
+          }}>
+            <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "9px" }}>YEAR </span>
+            <span style={{ fontWeight: 600 }}>{currentYear}</span>
+          </div>
+          {/* Current era indicator */}
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "8px",
+            letterSpacing: "1.5px", color: currentEra.accent + "60",
+            textTransform: "uppercase", marginTop: "2px",
+            transition: "color 1s ease",
+          }}>{currentEra.label}</div>
+        </div>
+        {/* World Map */}
+        <div style={{ padding: "0 14px 8px" }}>
+          <WorldMap activeRegions={activeRegions} accent={currentEra.accent} />
+          {currentEvent && currentEvent.place !== "Global" && (
+            <div style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+              color: currentEra.accent + "90", textAlign: "center", marginTop: "4px",
+              transition: "color 0.6s ease",
+            }}>{currentEvent.place}</div>
+          )}
+        </div>
+        <div style={{ flex: 1, padding: "0 18px 20px", overflowY: "auto" }}>
+          <BlocksPanel blocks={currentBlocks} disciplinePct={disciplinePct} globalPct={globalPct}
+            maxReachable={maxReachable} globalMax={globalMax} activeBlockKeys={activeBlockKeys}
+            allSelected={allSelected} filterLabel={filterLabel} />
+        </div>
+      </div>
+
+      {/* Toggle */}
+      {!isMobile && <button onClick={() => setPanelOpen(!panelOpen)} style={{
+        position: "fixed", bottom: "16px", left: showSidePanel ? "290px" : "10px",
+        zIndex: 90, background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.06)", borderRadius: "6px",
+        color: "rgba(255,255,255,0.3)", fontFamily: "'JetBrains Mono', monospace",
+        fontSize: "9px", padding: "5px 9px", cursor: "pointer",
+        transition: "left 0.4s cubic-bezier(0.16,1,0.3,1)",
+      }}>{panelOpen ? "◀ Hide" : "▶ Blocks"}</button>}
+
+      {/* Mobile bar */}
+      {isMobile && <div style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 80,
+        background: "rgba(11,10,9,0.95)", backdropFilter: "blur(12px)",
+        borderTop: `1px solid ${currentEra.accent}18`, padding: "10px 16px 14px",
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", color: currentEra.accent + "80" }}>
+            <WorldMapMini activeRegions={activeRegions} accent={currentEra.accent} />
+            {currentYear}
+          </span>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "14px", fontWeight: 600,
+            background: "linear-gradient(90deg, #E8A838, #D45D79, #48BFE3, #72E1A0, #C4A1FF)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>{disciplinePct}%</span>
+        </div>
+        <div style={{ height: "4px", borderRadius: "2px", background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
+          <div style={{
+            height: "100%", borderRadius: "2px", width: `${disciplinePct}%`,
+            background: `linear-gradient(90deg, ${currentEra.accent}, #C4A1FF)`,
+            transition: "width 0.5s cubic-bezier(0.16,1,0.3,1)",
+          }} />
+        </div>
+      </div>}
+
+      {/* Main content */}
+      <div ref={scrollRef} style={{ flex: 1, height: "100vh", overflowY: "auto", overflowX: "hidden", position: "relative", zIndex: 1 }}>
+        <header style={{ textAlign: "center", padding: "65px 20px 14px", maxWidth: "620px", margin: "0 auto" }}>
+          <div style={{
+            fontFamily: "'JetBrains Mono', monospace", fontSize: "8.5px",
+            letterSpacing: "3.5px", color: "rgba(255,255,255,0.16)", textTransform: "uppercase", marginBottom: "14px",
+          }}>An Interactive Chronicle</div>
+          <h1 style={{
+            fontFamily: "'Playfair Display', serif",
+            fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 700, lineHeight: 1.1, margin: 0,
+            background: "linear-gradient(135deg, #E8E4DE, #B8B2A8)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>The Archaeology of<br />Artificial Intelligence</h1>
+          <p style={{
+            fontFamily: "'Source Serif 4', serif", fontSize: "14px", color: "#7A756C",
+            lineHeight: 1.7, marginTop: "14px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto",
+          }}>2,400 years across Athens, Baghdad, Paris, Cambridge, and San Francisco. Scroll to watch the building blocks accumulate. Filter by discipline to see each tradition's contribution.</p>
+        </header>
+
+        {/* Filters */}
+        <div style={{
+          display: "flex", justifyContent: "center", gap: "5px", flexWrap: "wrap",
+          padding: "6px 14px 28px", position: "sticky", top: 0, zIndex: 50,
+          background: "linear-gradient(180deg, #0B0A09 55%, transparent)", paddingTop: "10px",
+        }}>
+          {Object.entries(CATEGORIES).map(([key, cat]) => {
+            const active = activeFilters.has(key);
+            return (
+              <button key={key} onClick={() => toggleFilter(key)} style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+                letterSpacing: "0.5px", padding: "4px 10px", borderRadius: "14px",
+                border: `1px solid ${active ? cat.color + "40" : "rgba(255,255,255,0.04)"}`,
+                background: active ? cat.color + "10" : "transparent",
+                color: active ? cat.color : "rgba(255,255,255,0.18)",
+                cursor: "pointer", transition: "all 0.3s ease", textTransform: "uppercase",
+              }}>{cat.icon} {cat.label}</button>
+            );
+          })}
+        </div>
+
+        {/* Timeline */}
+        <div style={{ maxWidth: "580px", margin: "0 auto", padding: "0 18px 140px", position: "relative" }}>
+          <div style={{
+            position: "absolute", left: "23px", top: 0, bottom: 0, width: "1px",
+            background: `linear-gradient(180deg, transparent, ${currentEra.accent}15 3%, ${currentEra.accent}15 97%, transparent)`,
+            transition: "background 1s ease",
+          }} />
+
+          {withEras.map((item) => {
+            if (item.type === "era") return <EraMarker key={`era-${item.data.label}`} era={item.data} />;
+            return (
+              <TimelineEvent
+                key={`${item.data.year}-${item.data.title}`}
+                event={item.data}
+                index={item.filteredIdx}
+                isExpanded={expandedIndex === item.filteredIdx}
+                onToggle={() => setExpandedIndex(expandedIndex === item.filteredIdx ? null : item.filteredIdx)}
+                isActive={currentEventIdx === item.filteredIdx}
+              />
+            );
+          })}
+          <div style={{
+            textAlign: "center", padding: "44px 20px",
+            fontFamily: "'Playfair Display', serif", fontSize: "15px",
+            color: "rgba(255,255,255,0.08)", fontStyle: "italic",
+          }}>The story continues . . .</div>
+        </div>
+      </div>
+    </div>
+  );
+}
