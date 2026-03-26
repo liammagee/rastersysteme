@@ -78,8 +78,16 @@ Themes: `light` (default), `dark`, `red`, `blue`
 | Skill | Description |
 |-------|-------------|
 | `/qa-visual <deck.html>` | A11y + design consistency audit via Chrome |
-| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle |
+| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle (design-aware) |
 | `/preview <deck.html> slide N` | Interactive slide browsing in Chrome |
 | `/studio <deck.html>` | Open studio viewer (present + grid + QA) |
 | `/pace <deck> --duration N` | Add timing cues to speaker notes |
 | `/export <deck> --pdf\|--pptx` | Export to PDF or PowerPoint |
+
+**Design rubric (see RUBRIC.md):**
+
+| Skill | Description |
+|-------|-------------|
+| `/evaluate <deck.html>` | Score deck against 8-dimension rubric (computed + visual) |
+| `/design <deck.composed.md>` | Apply rubric-targeted improvements to design directives |
+| `/refine-loop <deck.html>` | Recursive evaluate → design → re-render until scores plateau |
