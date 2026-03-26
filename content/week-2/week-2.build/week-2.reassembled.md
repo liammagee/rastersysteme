@@ -1,29 +1,31 @@
 # Gen AI - Week 2 - Pathways to AI
 
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_1.png)
+### ![Image](images/gen_ai___week_1___pathways_to_ai_img_1.png)  
 
-
+| | |
 |---|---|
-| Generative AI for Education |  |
+| Generative AI for Education<br><br> |  |
 
 ---
+
 ## “La Longue Duree” (Annales School, Fernand Braudel)
 
 
  - "Total History"
+
  - Why it matters
    - Should we treat history as (a) the work of (heroic - typically white, male) individuals? Or (b) processes, systems, structures? 
+ 
  - Compare:
    - AI as the output of individual genius (Schmidhuber, LeCun, Hinton, Goodfellow, Sutskever etc)?
+
    - Or instead a process of accumulating layers:
      - Material / Mathematical foundations (calculus - 17th century - but etymologically “small stone” - what a child uses to count with). Fundamental to backpropagation, fundamental to machine learning - but a fundamentally simple operation repeated over and over.  
      - Development of statistics: again, 17th century, register of births, deaths and marriages. "Big data" in the era of pen and paper. Connection to government: control of the people via techniques of governance, governmentality (Foucault, *Les Mots et Les Choses* / *The Order of Things*). 
      - Colonization: how to control people at a distance. 
      - Rise of industralialization, modernization: accumulation and deployment of capital. Fixed vs variable costs: factories, rail. 
      - Early informatics: the printing press, the typewriter. Babbage's "Difference Engine" (1830s) 
-  
-
   
   ---
 
@@ -33,7 +35,7 @@
      - Ballistics - force, resistance, shape of projectile, atmosphere: shift from stars, ships to missles
      -  limited help - until we “square the circle” - decompose curved trajectories into lots of tiny lines (derivatives) / rectangles (integrals). “Unlock” the possibilities of stars, balls - missiles. First uses of computing - calculate the derivates 
     
-> Instruction: Make me a simple simulation that shows how the first computers were used to solve problems of derivatives for missiles
+Instruction: Make me a simple simulation that shows how the first computers were used to solve problems of derivatives for missiles
 
 ---
 
@@ -42,7 +44,6 @@
 People likely know the famous first examples of computers for solving decryption. A kind of "safe" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!
 
 But what of their other use? Ballistics, missile trajectory...
-
 
 ---
 
@@ -54,7 +55,7 @@ Galileo (pre-Calculus!)
  - But what really happens? We throw a stone / launch a missile
    - And drag - acceleration changes every instant - requiring constant recalculation
    
----
+  
 
 So let's throw stone; we have essentially (simplistically) 4 variables:
  - angle of release
@@ -75,15 +76,11 @@ New problems: mass, shape of stone (etc. etc)
  
  
 Now think about education. For military purposes, we need trigonometry, calculus, physics, ordinary differential equations...
-The "computer" pre-1940s: a person (typically woman) calculating these 
+The "computer" pre-1940s: a person (typically woman) calculating these
 
 ---
 
 [claude.ai](https://claude.ai/public/artifacts/c8c048da-b0af-4ac8-befc-33faf70536a4)
-
----
-
-[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)
 
 ---
 
@@ -97,11 +94,7 @@ For those mathematically / philosophically minded:
  - Note *analog* (non digital) calculators can compute continuities directly! Arguably what biological brains also do - open for debate. 
  - Continuous > discrete is always "lossy" - loses definition. Think about how early pixels used RGB - so many values for red, green, blue. Detail, naunce is lost. Is digitization - conversion of continuous to discrete - an approximation but never realization of the real thing?
 
- 
-
-
 ---
-
 
 ### Cybernetics   Artificial Intelligence  
 
@@ -111,7 +104,6 @@ For those mathematically / philosophically minded:
 
 ---
 
-
 ### Artificial Intelligence involves….  
 
 | | |
@@ -120,17 +112,13 @@ For those mathematically / philosophically minded:
 
 ---
 
-
 ### An Era of Symbiotic (or Sympoetic***** or Co-intelligent******) Pedagogy?   **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI (e.g. DeepSeek R1-Zero) **AI to Human**  
 
 | | |
 |---|---|
 | Human<br><br><br><br>AI<br><br><br><br>***** Donna Haraway (2106) *Staying with the Trouble*<br>****** Ethan Mollick (2024) *Co-intelligence*<br><br> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)<br><br><br><br>![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png)<br><br> |
 
-
-
 ---
-
 
 ### ![Image](images/gen_ai___week_1___pathways_to_ai_img_7.png)  
 
@@ -140,7 +128,6 @@ For those mathematically / philosophically minded:
 
 ---
 
-
 ### ![Image](images/gen_ai___week_1___pathways_to_ai_img_8.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_9.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_10.png)   AI as IT?  Or something else?  
 
 | | |
@@ -148,7 +135,6 @@ For those mathematically / philosophically minded:
 | ![Image](images/gen_ai___week_1___pathways_to_ai_img_11.png)<br><br> | Yahoo Finance, 2025<br><br> |
 
 ---
-
 
 ### ![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)  
 
@@ -158,21 +144,17 @@ For those mathematically / philosophically minded:
 
 ---
 
-
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.  
-
----
-
-
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)  
+### ![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.
 
 ---
 
-
-### ‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)  
+### ![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)
 
 ---
 
+### ‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)
+
+---
 
 ### ![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
 
@@ -182,12 +164,9 @@ For those mathematically / philosophically minded:
 
 ---
 
-
-### ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**  
+### ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**
 
 ---
-
-
 
 | 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |
 |---|---|---|
@@ -200,9 +179,7 @@ For those mathematically / philosophically minded:
 | **Proto-Industrialization / Globalization / Colonization** | **Ricœur:** “Hermeneutics of Suspicion” (Marx, Nietzsche, Freud) — beyond Descartes: ideology / will to power / unconscious desire | **Counter-narratives:** Cultural Marxism, existentialism, poststructuralism; “ends” talk (Foucault, Fukuyama, Lyotard) |
 | **Machines:** Steam Engine / Jacquard Loom | **Fordism / Taylorism** | Post-Enlightenment disenchantment. AI Winter / Spring / glorious Summer? Transhumanism, return to Enlightenment, or enshittification (Doctorow)? |
 
-
 ---
-
 
 ### Looking ahead…  
 
@@ -212,12 +189,8 @@ For those mathematically / philosophically minded:
 
 ---
 
-
 ### And a bold proposition…  
 
 | | |
 |---|---|
 | All the **mathematics** for AI in 2025 was developed by the end of the 19th century (with applications, like Markov models, in 1906/1913)<br>Are the last 125 years just **hardware**, **networks** & **data **(see LeCun 2021 - who doesn’t (quite) say this)?<br>Is our sense of **modernity **just the long shadow cast by the Enlightenment (17th / 18th century)?<br><br> |  |
-
----
-

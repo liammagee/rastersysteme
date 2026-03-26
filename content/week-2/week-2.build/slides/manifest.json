@@ -1,0 +1,111 @@
+{
+  "sourceHash": "5165f1cfa18b8481",
+  "generated": "2026-03-26T04:09:31.169Z",
+  "slides": [
+    {
+      "index": 1,
+      "file": "01-gen-ai-week-2-pathways-to-ai.md",
+      "title": "Gen AI - Week 2 - Pathways to AI"
+    },
+    {
+      "index": 2,
+      "file": "02-la-longue-duree-annales-school-fernand-b.md",
+      "title": "“La Longue Duree” (Annales School, Fernand Braudel)"
+    },
+    {
+      "index": 3,
+      "file": "03-people-likely-know-the-famous-first-exam.md",
+      "title": "People likely know the famous first examples of computers for solving decryption. A kind of \"safe\" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!"
+    },
+    {
+      "index": 4,
+      "file": "04-galileo-pre-calculus.md",
+      "title": "Galileo (pre-Calculus!)"
+    },
+    {
+      "index": 5,
+      "file": "05-claudeaihttpsclaudeaipublicartifactsc8c0.md",
+      "title": "[claude.ai](https://claude.ai/public/artifacts/c8c048da-b0af-4ac8-befc-33faf70536a4)"
+    },
+    {
+      "index": 6,
+      "file": "06-early-ballistic-computer-simulationhttps.md",
+      "title": "[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ballistic-computer-sim.html)"
+    },
+    {
+      "index": 7,
+      "file": "07-for-those-mathematically-philosophically.md",
+      "title": "For those mathematically / philosophically minded:"
+    },
+    {
+      "index": 8,
+      "file": "08-cybernetics-artificial-intelligence.md",
+      "title": "Cybernetics   Artificial Intelligence"
+    },
+    {
+      "index": 9,
+      "file": "09-artificial-intelligence-involves.md",
+      "title": "Artificial Intelligence involves…."
+    },
+    {
+      "index": 10,
+      "file": "10-an-era-of-symbiotic-or-sympoetic-or-co-i.md",
+      "title": "An Era of Symbiotic (or Sympoetic***** or Co-intelligent******) Pedagogy?   **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI (e.g. DeepSeek R1-Zero) **AI to Human**"
+    },
+    {
+      "index": 11,
+      "file": "11-imageimagesgenaiweek1pathwaystoaiimg7png.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_7.png)"
+    },
+    {
+      "index": 12,
+      "file": "12-imageimagesgenaiweek1pathwaystoaiimg8png.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_8.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_9.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_10.png)   AI as IT?  Or something else?"
+    },
+    {
+      "index": 13,
+      "file": "13-imageimagesgenaiweek1pathwaystoaiimg12pn.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)"
+    },
+    {
+      "index": 14,
+      "file": "14-imageimagesgenaiweek1pathwaystoaiimg14pn.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press."
+    },
+    {
+      "index": 15,
+      "file": "15-imageimagesgenaiweek1pathwaystoaiimg15pn.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)"
+    },
+    {
+      "index": 16,
+      "file": "16-if-ai-systems-are-seen-as-more-reliable-.md",
+      "title": "‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)"
+    },
+    {
+      "index": 17,
+      "file": "17-imageimagesgenaiweek1pathwaystoaiimg18pn.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)"
+    },
+    {
+      "index": 18,
+      "file": "18-imageimagesgenaiweek1pathwaystoaiimg20pn.md",
+      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**"
+    },
+    {
+      "index": 19,
+      "file": "19-17th18th-c-dawn-of-modernity-19thearly-2.md",
+      "title": "| 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |"
+    },
+    {
+      "index": 20,
+      "file": "20-looking-ahead.md",
+      "title": "Looking ahead…"
+    },
+    {
+      "index": 21,
+      "file": "21-and-a-bold-proposition.md",
+      "title": "And a bold proposition…"
+    }
+  ]
+}

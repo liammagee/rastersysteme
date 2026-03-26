@@ -1,0 +1,16 @@
+{
+  "name": "rs-tools",
+  "owner": {
+    "name": "machinespirits"
+  },
+  "metadata": {
+    "description": "Rastersysteme slide deck tools for Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "rs",
+      "source": "./plugins/rs",
+      "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more"
+    }
+  ]
+}

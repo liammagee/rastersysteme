@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Papier Gris — a warm editorial system built on aged newsprint and ink, where cream fields hold spare typographic architecture and dark espresso erupts only at structural seams",
+  "palette": [
+    {
+      "hex": "F8F5F0",
+      "name": "Antique White",
+      "role": "ground"
+    },
+    {
+      "hex": "E2D9CC",
+      "name": "Warm Linen",
+      "role": "dominant"
+    },
+    {
+      "hex": "9C8A76",
+      "name": "Sandstone",
+      "role": "accent"
+    },
+    {
+      "hex": "1E1A17",
+      "name": "Press Black",
+      "role": "signal"
+    }
+  ],
+  "chromaticArc": "Slides 1–6 breathe on Antique White; slides 7–8 drop to Press Black section dividers; slides 9–14 rise back to Warm Linen mid-tones with Sandstone accent bars; slide 15 hits Press Black again; slides 16–19 return to Antique White with Sandstone punctuation; slide 20 closes on a final Press Black divider; slide 21 lands back on clean Antique White — three full light-to-dark crossings across the arc.",
+  "gridStrategy": "Title zones rotate through four column anchors (0, 12, 22, 34) across consecutive slides, body spans alternate between narrow (18–22 cols) and wide (34–40 cols), and the accent bar column position advances by 4–8 columns each slide to build a diagonal visual rhythm across the deck.",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Helvetica Neue",
+    "secondary": "Georgia",
+    "tertiary": null,
+    "secondarySlides": "Georgia appears on slides 5, 11, 17 — body-heavy editorial spreads where a serif voice adds warmth and slows reading pace"
+  },
+  "accentStrategy": "Every slide carries a single 1–2 column vertical bar spanning 6–10 rows, placed at a column position that advances irregularly across the deck (cols 2, 10, 18, 26, 34, 42, 50, cycling with variation) so the bars trace a slow diagonal drift when the deck is viewed as a sequence — serving simultaneously as zone divider, page number anchor, and rhythmic spine."
+}
