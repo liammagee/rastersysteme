@@ -13,6 +13,10 @@ Score a rendered HTML deck against the design rubric (see RUBRIC.md).
 
 ## How to work
 
+### 0. Fallback mode
+
+If Chrome is disconnected, the evaluate skill can still compute 5 of 8 dimensions directly from files on disk using `parseMarkdown()` from `raster.js` on the `.composed.md` file. Visual dimensions (communicability, taste, balance) default to estimates based on the design plan analysis. When Chrome IS available, visual assessment from screenshots overrides the estimates.
+
 ### 1. Connect to Chrome
 
 Open the deck in Chrome. If not already open, navigate to `http://localhost:8701/<deck-path>`.

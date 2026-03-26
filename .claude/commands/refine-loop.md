@@ -17,6 +17,14 @@ Continues until scores plateau (diminishing returns) or all dimensions exceed th
 
 ## How to work
 
+### 0. Chrome keepalive
+
+Long operations (compose, render) will disconnect Chrome. When running Bash commands that take >30 seconds:
+
+1. Run the command with `run_in_background: true`
+2. While waiting, ping Chrome every 20 seconds with `mcp__claude-in-chrome__tabs_context_mcp`
+3. When the background command finishes, Chrome is still connected for screenshots
+
 ### 1. Initial evaluation
 
 Run `/evaluate` on the deck. Record the baseline scorecard.
