@@ -1,6 +1,6 @@
 ---
 name: refine-loop
-description: Recursive design/evaluation cycle — evaluate, improve, re-render, re-evaluate until rubric scores plateau or exceed threshold.
+description: Recursive design/evaluation cycle — evaluate, improve, re-render, re-evaluate until rubric scores plateau or exceed threshold. Runs entirely headless — no Chrome dependency in the inner loop.
 ---
 
 # Refine Loop
@@ -8,6 +8,8 @@ description: Recursive design/evaluation cycle — evaluate, improve, re-render,
 Autonomous cycle: **evaluate → design → re-render → re-evaluate → repeat**.
 
 Continues until scores plateau (diminishing returns) or all dimensions exceed threshold.
+
+The inner loop runs entirely on headless evaluation (Puppeteer). Chrome is not required. Optional Chrome visual verification is available as a final step.
 
 ## Arguments
 
@@ -17,24 +19,32 @@ Continues until scores plateau (diminishing returns) or all dimensions exceed th
 
 ## How to work
 
-### 0. Chrome keepalive
+### 1. Initial headless evaluation
 
-Long operations (compose, render) will disconnect Chrome. When running Bash commands that take >30 seconds:
+Run the headless rubric to establish baseline scores:
 
-1. Run the command with `run_in_background: true`
-2. While waiting, ping Chrome every 20 seconds with `mcp__claude-in-chrome__tabs_context_mcp`
-3. When the background command finishes, Chrome is still connected for screenshots
+```bash
+node rubric-headless.js <deck.html> --json
+```
 
-### 1. Initial evaluation
+Record baseline in the persistent scorecard (`logs/qa/<deckname>-scorecard.json`).
 
-Run `/evaluate` on the deck. Record the baseline scorecard.
+Also run markdown QA for supplementary data:
+```bash
+node qa.js <deck.composed.md> --format json
+```
 
-### 2. Design improvement cycle
+### 2. Design improvement cycle (headless-only)
 
 For each iteration:
 
 **a) Identify targets**
-Sort dimensions by score. Pick the bottom 2–3 that are below the threshold (default: 7/10 per dimension, or 70/100 total).
+Sort the 5 computed dimensions by score. Pick the bottom 2–3 that are below threshold (default: 7/10 per dimension, or 70/100 total).
+
+For the 3 visual dimensions (not available headlessly), use qa.js design scores as proxies:
+- Low `layoutVariety` or `visualRhythm` → likely low Communicability
+- Low `typography` score → likely low Taste
+- Low `contentDensity` variance → likely low Layout Balance
 
 **b) Apply improvements**
 Follow the `/design` skill — edit design directives targeting the lowest dimensions. Make 3–5 changes per iteration (not too many — evaluate the impact).
@@ -44,68 +54,90 @@ Follow the `/design` skill — edit design directives targeting the lowest dimen
 node raster.js <source.composed.md> <output.html> --format html --theme light
 ```
 
-**d) Re-evaluate**
-Run `/evaluate` again. Record the new scorecard.
+If images need re-splicing:
+```bash
+node splice-images.js <output.html> <images-dir> --output <output.html>
+```
+
+**d) Re-evaluate (headless)**
+```bash
+node rubric-headless.js <deck.html> --json
+```
+
+The new scores are automatically persisted to the scorecard with trajectory tracking.
 
 **e) Check stopping conditions**
 
 Stop if ANY of these are true:
-1. **Threshold met:** All dimensions ≥ 7/10 (or custom `--target`)
-2. **Diminishing returns:** Total score improved by < 2 points (out of 100) vs previous iteration
+1. **Threshold met:** All computed dimensions >= 7/10 (or custom `--target`)
+2. **Diminishing returns:** Computed total improved by < 1 point vs previous iteration
 3. **Max iterations:** Reached limit (default: 5, or custom `--max-iterations`)
 4. **Regression:** Any dimension dropped by > 1 point (a fix made something worse — roll back)
 
 ### 3. Track score trajectory
 
-Maintain a table across iterations:
+The persistent scorecard automatically accumulates scores from each iteration. Read the trajectory to build the comparison table:
 
 ```
 Refine Loop: decks/week-2.html
 ──────────────────────────────────────────────────────────────────────
                     Iter 0    Iter 1    Iter 2    Iter 3    Δ total
 Accessibility       8.5       8.5       9.0       9.0       +0.5
-Communicability     7.0       7.0       7.5       7.5       +0.5
-Taste               7.5       7.5       8.0       8.0       +0.5
 Grid Utilization    6.0       7.5       8.0       8.0       +2.0
 Color Harmonics     7.0       7.0       7.5       7.5       +0.5
-Layout Balance      5.5       7.0       7.5       8.0       +2.5
 Coherence/Variance  7.5       8.0       8.0       8.0       +0.5
 Image Integration   5.0       6.5       7.0       7.5       +2.5
 ──────────────────────────────────────────────────────────────────────
-TOTAL (/100)        66        72        78        80        +14
+Computed (/50)      34.0      37.5      39.5      40.0      +6.0
 
-Stopped: threshold met (all dimensions ≥ 7/10)
+Stopped: threshold met (all computed dims >= 7/10)
 Iterations: 3
+Scorecard: logs/qa/week-2-scorecard.json
 ```
 
 ### 4. Rollback protection
 
 Before each iteration, note the current state. If a change causes regression (a dimension drops by >1 point), revert that specific edit and try an alternative approach.
 
-### 5. Final report
+### 5. Optional Chrome visual verification
+
+After the loop completes, offer to run Chrome visual verification:
+
+```
+Computed scores have plateaued at 40.0/50 (80%).
+Run Chrome visual verification for communicability, taste, and balance? (y/n)
+```
+
+If yes: run the single-slide-at-a-time visual review from the `/evaluate` skill (step 3). This is a one-time operation at the end, not in the hot loop.
+
+If Chrome is unavailable: the loop still completed successfully with computed scores. Visual dimensions can be assessed later.
+
+### 6. Final report
 
 ```
 Refine Loop Complete
 ────────────────────
 Deck: decks/week-2.html (21 slides)
 Iterations: 3 (stopped: threshold met)
-Score: 66 → 80/100 (+14 points)
-Tier: Competent → Professional
+Score: 34.0 → 40.0/50 computed (+6.0 points)
+Tier estimate: Competent → Professional
 
 Key improvements:
   Grid: added 4 new zone archetypes, offset titles on 6 slides
-  Balance: introduced asymmetric layouts on slides 4, 8, 13
-  Images: added image zones to 5 design directives
   Color: smoothed 3 abrupt chromatic transitions
+  Images: added image zones to 5 design directives
+  Coherence: reduced consecutive same-bg runs
 
 Files modified:
   decks/week-2.composed.md (15 design directives edited)
   decks/week-2.html (re-rendered)
+
+Scorecard: logs/qa/week-2-scorecard.json
 ```
 
 Offer to commit, or to continue refining specific dimensions.
 
-### 6. Design integrity check
+### 7. Design integrity check
 
 After the loop, re-read the design plan. Verify the improvements haven't drifted from the stated aesthetic. If the plan says "Codex Marginalia — illuminated manuscript page" but the fixes introduced modernist asymmetry that contradicts the medieval manuscript feel, flag it:
 

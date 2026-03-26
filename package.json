@@ -26,6 +26,8 @@
     "qa": "node qa.js",
     "qa-html": "node qa-html.js",
     "qa-live": "node qa-live.js",
+    "rubric": "node rubric-headless.js",
+    "eval": "node eval-harness.js",
     "batch": "node batch.js"
   },
   "bin": {
@@ -40,6 +42,7 @@
     "dotenv": "^17.3.1",
     "image-size": "^1.1.1",
     "midjourney": "^4.3.18",
-    "pptxgenjs": "^4.0.1"
+    "pptxgenjs": "^4.0.1",
+    "puppeteer": "^24.40.0"
   }
 }

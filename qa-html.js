@@ -97,7 +97,7 @@ async function qaHTML(htmlPath, options = {}) {
         s.style.display = j === idx ? "flex" : "none";
       });
     }, i);
-    await page.waitForTimeout(150);
+    await new Promise(r => setTimeout(r, 150));
 
     // Run checks on this slide
     const slideResults = await page.evaluate((slideIdx) => {
@@ -311,7 +311,12 @@ if (require.main === module) {
     process.exit(1);
   }
 
+  const jsonMode = args.includes("--json");
+
   qaHTML(input).then(result => {
+    if (jsonMode) {
+      console.log(JSON.stringify(result, null, 2));
+    }
     process.exit(result.errors > 0 ? 1 : 0);
   }).catch(err => {
     console.error(`Error: ${err.message}`);

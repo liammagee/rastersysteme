@@ -1,80 +1,86 @@
 ---
 name: evaluate
-description: Score a rendered slide deck against the 8-dimension design rubric. Returns a structured scorecard with computed metrics and visual assessments.
+description: Score a rendered slide deck against the 10-dimension design rubric using the multiway evaluation harness. Combines headless, vision, and textual evaluators.
 ---
 
 # Evaluate
 
-Score a rendered HTML deck against the design rubric (see RUBRIC.md).
+Score a rendered HTML deck against the design rubric (see RUBRIC.md) using all available evaluators.
 
 ## Arguments
 
 `/evaluate decks/week-2.html`
+`/evaluate decks/week-2.html --evaluators headless,vision`
 
 ## How to work
 
-### 0. Fallback mode
+### 1. Run the evaluation harness
 
-If Chrome is disconnected, the evaluate skill can still compute 5 of 8 dimensions directly from files on disk using `parseMarkdown()` from `raster.js` on the `.composed.md` file. Visual dimensions (communicability, taste, balance) default to estimates based on the design plan analysis. When Chrome IS available, visual assessment from screenshots overrides the estimates.
-
-### 1. Connect to Chrome
-
-Open the deck in Chrome. If not already open, navigate to `http://localhost:8701/<deck-path>`.
-
-### 2. Run the computed audit
-
-Execute the rubric audit script (`rubric-audit.js`) via `mcp__claude-in-chrome__javascript_tool`.
-
-Read the file first:
 ```bash
-cat rubric-audit.js
+node eval-harness.js <deck.html> --json
 ```
 
-Then execute it in the browser. Parse the returned JSON scorecard.
+This runs all available evaluators in parallel:
+- **headless-rubric**: Puppeteer rubric audit (5 computed dimensions)
+- **headless-qa**: Puppeteer accessibility audit
+- **markdown-qa**: Markdown-level QA analysis
+- **screenshot-vision**: Puppeteer screenshots + Anthropic API vision (3 visual dimensions)
+- **claude-textual**: Claude textual evaluation (content fidelity, narrative coherence)
 
-### 3. Visual assessment — screenshot 5 slides
+Results are confidence-weighted and merged into a 10-dimension scorecard:
 
-Screenshot slides at positions: 1 (opening), N/4 (early), N/2 (middle), 3N/4 (late), N (closing).
+| Dimension | Type | Primary evaluator |
+|-----------|------|-------------------|
+| Accessibility | computed | headless-rubric (0.95) |
+| Communicability | visual | screenshot-vision (0.85) |
+| Taste | visual | screenshot-vision (0.80) |
+| Grid Utilization | computed | headless-rubric (0.95) |
+| Color Harmonics | computed | headless-rubric (0.95) |
+| Layout Balance | visual | screenshot-vision (0.85) |
+| Coherence & Variance | computed | headless-rubric (0.90) |
+| Image Integration | computed | headless-rubric (0.95) |
+| Content Fidelity | textual | claude-textual (0.95) |
+| Narrative Coherence | textual | claude-textual (0.90) |
 
-For each screenshot, assess the three visual dimensions:
+The scorecard is automatically persisted to `logs/qa/<deckname>-scorecard.json`.
 
-**Communicability (1–10):** Does the design help you understand the content? Is the hierarchy clear? Can you find the point?
+### 2. Chrome visual enhancement (optional, best-effort)
 
-**Taste (1–10):** Does this exhibit Swiss/modernist quality? Is it distinctive or generic? Does every element earn its place?
+If Chrome is connected, you can supplement the harness scores with direct visual review. Use the **atomic single-slide pattern** — one slide at a time, persist after each:
 
-**Layout Balance (1–10):** Does the slide feel visually balanced? Is whitespace intentional? Is there dynamic asymmetric tension or static centering?
+1. Ping `mcp__claude-in-chrome__tabs_context_mcp`
+2. Navigate to slide, screenshot, assess communicability/taste/balance
+3. Persist immediately — if Chrome drops, partial scores are saved
 
-Average across the 5 slides for each dimension.
+Chrome visual scores have higher confidence (0.9) than screenshot-vision (0.85), so they will shift the weighted average when available.
 
-### 4. Compile the scorecard
-
-Combine computed scores (5 dimensions from JS) + visual scores (3 dimensions from screenshots):
+### 3. Display the scorecard
 
 ```
 Design Rubric Scorecard: decks/week-2.html
-──────────────────────────────────────────
-Dimension              Score   Notes
-─────────────────────  ─────   ─────
-Accessibility          8.5     0 errors, 3 warnings
-Communicability        7.0     Clear hierarchy, some dense slides
-Taste                  7.5     Codex Marginalia system is distinctive
-Grid Utilization       8.0     21 designed slides, 5 archetypes
-Color Harmonics        7.0     4 palette colors, chromatic arc present
-Layout Balance         6.5     Some slides feel static/centred
-Coherence & Variance   7.5     Good rotation, no long repeats
-Image Integration      6.0     Images present but placement repetitive
-─────────────────────  ─────
-TOTAL                  58/80   (72/100 — Professional tier)
+──────────────────────────────────────────────────────────────────
+Dimension              Score   Conf   Source
+─────────────────────  ─────   ────   ──────────────────────
+Accessibility          8.2/10  0.95   headless-rubric + headless-qa + markdown-qa
+Communicability        7.0/10  0.85   screenshot-vision
+Taste                  7.5/10  0.80   screenshot-vision
+Grid Utilization       10.0/10 0.95   headless-rubric
+Color Harmonics        10.0/10 0.95   headless-rubric
+Layout Balance         6.5/10  0.85   screenshot-vision
+Coherence & Variance   8.0/10  0.90   headless-rubric + markdown-qa
+Image Integration      9.0/10  0.95   headless-rubric
+Content Fidelity       8.5/10  0.95   claude-textual
+Narrative Coherence    7.0/10  0.90   claude-textual
+──────────────────────────────────────────────────────────────────
+TOTAL                  81.7/100 (82% — Professional)
 ```
 
-### 5. Identify improvement priorities
+### 4. Identify improvement priorities
 
-Rank the dimensions lowest-to-highest. The bottom 2–3 are the improvement targets. For each, give specific actionable recommendations tied to the rubric criteria:
+Rank dimensions lowest-to-highest. The bottom 2–3 are improvement targets. For each, give specific actionable recommendations tied to rubric criteria and slide numbers.
 
-- "Layout Balance (6.5): Slides 4, 8, 13 feel statically centred. Try offset archetypes — move title to col 30+, body to col 4. Add asymmetric accent bars."
-- "Image Integration (6.0): All images bottom-right. Add image zones to design directives on slides 1, 6, 9. Vary placement."
+### 5. Offer next steps
 
-### 6. Offer next steps
-
-- `/rs-design` to apply improvements to the composed markdown
-- `/rs-refine-loop` to iterate automatically until scores plateau
+- `/design` to apply improvements to the composed markdown
+- `/refine-loop` to iterate automatically until scores plateau
+- `node eval-harness.js <deck.html> --evaluators headless` for fast computed-only evaluation
