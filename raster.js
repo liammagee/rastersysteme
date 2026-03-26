@@ -50,6 +50,42 @@ function isDarkColor(hex) {
   return (r * 0.299 + g * 0.587 + b * 0.114) < 128;
 }
 
+// WCAG contrast enforcement — darken text colors that fail AA on their background
+function sRGBLum(hex) {
+  hex = hex.replace(/^#/, "");
+  const r = parseInt(hex.slice(0,2),16)/255, g = parseInt(hex.slice(2,4),16)/255, b = parseInt(hex.slice(4,6),16)/255;
+  const [rl,gl,bl] = [r,g,b].map(v => v <= 0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055, 2.4));
+  return 0.2126*rl + 0.7152*gl + 0.0722*bl;
+}
+function contrastRatio(hex1, hex2) {
+  const l1 = sRGBLum(hex1), l2 = sRGBLum(hex2);
+  return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
+}
+function enforceContrast(fgHex, bgHex, minRatio = 4.5) {
+  if (!fgHex || !bgHex) return fgHex;
+  fgHex = fgHex.replace(/^#/, ""); bgHex = bgHex.replace(/^#/, "");
+  if (contrastRatio(fgHex, bgHex) >= minRatio) return fgHex;
+  // Determine direction: darken on light bg, lighten on dark bg
+  const bgDark = isDarkColor(bgHex);
+  let r = parseInt(fgHex.slice(0,2),16), g = parseInt(fgHex.slice(2,4),16), b = parseInt(fgHex.slice(4,6),16);
+  for (let i = 0; i < 10; i++) {
+    if (bgDark) {
+      // Lighten: move towards white
+      r = Math.min(255, Math.round(r + (255 - r) * 0.2));
+      g = Math.min(255, Math.round(g + (255 - g) * 0.2));
+      b = Math.min(255, Math.round(b + (255 - b) * 0.2));
+    } else {
+      // Darken: move towards black
+      r = Math.max(0, Math.round(r * 0.82));
+      g = Math.max(0, Math.round(g * 0.82));
+      b = Math.max(0, Math.round(b * 0.82));
+    }
+    const hex = [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
+    if (contrastRatio(hex, bgHex) >= minRatio) return hex;
+  }
+  return [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
+}
+
 function adaptThemeForBg(theme, bgHex) {
   if (!bgHex) return theme;
   const bgDark = isDarkColor(bgHex);
@@ -1748,24 +1784,45 @@ const HTML_LAYOUTS = {
 // DESIGNED SLIDE RENDERER (parameterised grid)
 // ═══════════════════════════════════════════════════════
 
-function typographyToCSS(typo) {
+// Minimum font sizes by zone role — keeps text readable even when composition assigns small values
+const FONT_FLOOR = { title: 20, body: 14, bullets: 14, quote: 13, label: 10 };
+
+function typographyToCSS(typo, role, bgHex) {
   if (!typo) return "";
   const parts = [];
-  if (typo.size) parts.push(`font-size:${typo.size}px`);
+  if (typo.size) {
+    const floor = (role && FONT_FLOOR[role]) || 0;
+    parts.push(`font-size:${Math.max(typo.size, floor)}px`);
+  }
   if (typo.weight) parts.push(`font-weight:${typo.weight}`);
   if (typo.transform) parts.push(`text-transform:${typo.transform}`);
   if (typo.tracking) parts.push(`letter-spacing:${typo.tracking}`);
   if (typo.leading) parts.push(`line-height:${typo.leading}`);
   if (typo.align) parts.push(`text-align:${typo.align}`);
-  if (typo.color) parts.push(`color:#${typo.color.replace(/^#/, "")}`);
+  if (typo.color) {
+    let fg = typo.color.replace(/^#/, "");
+    // Enforce WCAG AA contrast against slide background
+    if (bgHex && role !== "label") {
+      const sz = typo.size || 16;
+      const bold = typo.weight && typo.weight >= 700;
+      const isLarge = sz >= 18 || (sz >= 14 && bold);
+      fg = enforceContrast(fg, bgHex, isLarge ? 3 : 4.5);
+    }
+    parts.push(`color:#${fg}`);
+  }
   return parts.join(";");
 }
 
 function zonePositionCSS(zone) {
-  const left = (zone.col / 60 * 100).toFixed(4);
-  const width = (zone.span / 60 * 100).toFixed(4);
-  const top = (zone.row / 40 * 100).toFixed(4);
-  const height = (zone.rowSpan / 40 * 100).toFixed(4);
+  const col = Math.min(zone.col || 0, 59);
+  const row = Math.min(zone.row || 0, 39);
+  // Clamp to grid bounds: col+span<=60, row+rowSpan<=40
+  const span = Math.min(zone.span || 1, 60 - col);
+  const rowSpan = Math.min(zone.rowSpan || 1, 40 - row);
+  const left = (col / 60 * 100).toFixed(4);
+  const width = (span / 60 * 100).toFixed(4);
+  const top = (row / 40 * 100).toFixed(4);
+  const height = (rowSpan / 40 * 100).toFixed(4);
   return `left:${left}%;width:${width}%;top:${top}%;height:${height}%`;
 }
 
@@ -1774,6 +1831,7 @@ function renderDesigned(slide) {
   if (!design) return "";
   const typography = design.typography || {};
   const gapVal = design.gap === "tight" ? "0.5vmin" : design.gap === "loose" ? "4vmin" : "2vmin";
+  const slideBg = (design.bg || "FAF6EE").replace(/^#/, "");
 
   // Render accent elements
   const accentsHTML = (design.accents || []).map(a => {
@@ -1808,9 +1866,34 @@ function renderDesigned(slide) {
     return true;
   });
 
+  // Auto-expand narrow text zones for text-heavy slides
+  // Estimate content weight per text zone and widen if needed
+  const textRoles = new Set(["body", "bullets", "quote"]);
+  const contentWeight = (slide.bullets.length * 60) + slide.body.join(" ").length + (slide.blockquote || "").length;
+  if (contentWeight > 300) {
+    // Find text zones that are too narrow for their content
+    const textZones = deduped.filter(z => textRoles.has(z.role));
+    const nonTextZones = deduped.filter(z => !textRoles.has(z.role) && z.role !== "title" && z.role !== "label");
+    for (const tz of textZones) {
+      if (tz.span < 25) {
+        // Calculate how much we can expand without exceeding slide width
+        const maxSpan = Math.min(55, 60 - (tz.col || 0));
+        // Check if expansion would collide with other text zones
+        let canExpand = maxSpan;
+        for (const other of textZones) {
+          if (other === tz) continue;
+          if ((other.col || 0) > (tz.col || 0)) {
+            canExpand = Math.min(canExpand, (other.col || 0) - (tz.col || 0) - 1);
+          }
+        }
+        tz.span = Math.max(tz.span, Math.min(canExpand, 35));
+      }
+    }
+  }
+
   const zonesHTML = deduped.map(zone => {
     const pos = zonePositionCSS(zone);
-    const typoStyle = typographyToCSS(typography[zone.role] || {});
+    const typoStyle = typographyToCSS(typography[zone.role] || {}, zone.role, slideBg);
     const style = [pos, typoStyle].filter(Boolean).join(";");
     let content = "";
 
@@ -1821,7 +1904,8 @@ function renderDesigned(slide) {
         break;
       }
       case "body": {
-        content = slide.body.map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        // Filter out stray slide separators that leaked from composition
+        content = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
         break;
       }
       case "bullets": {
@@ -1830,7 +1914,7 @@ function renderDesigned(slide) {
       }
       case "label": {
         const labelText = slide.sectionLabel || "";
-        const labelStyle = typographyToCSS(typography.label || {});
+        const labelStyle = typographyToCSS(typography.label || {}, "label", slideBg);
         content = labelText ? `<span class="label" style="font-variant-caps:small-caps;${labelStyle}">${esc(labelText)}</span>` : "";
         break;
       }
@@ -1868,52 +1952,141 @@ function renderDesigned(slide) {
     extras += videosHTML(slide.videos);
   }
   if (slide.images.length && !zonedRoles.has("image")) {
-    // Smart image placement — varies by zone layout, image count, and slide position
+    // Smart image placement — overlap-aware, varied positions
     const zones = design.zones || [];
     const textLeft = Math.min(...zones.map(z => (z.col || 0) / 60 * 100), 100);
     const textRight = Math.max(...zones.map(z => ((z.col || 0) + (z.span || 30)) / 60 * 100), 0);
     const textTop = Math.min(...zones.map(z => (z.row || 0) / 40 * 100), 100);
     const textBottom = Math.max(...zones.map(z => ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100), 0);
     const textBodyLen = slide.body.join(" ").length + (slide.blockquote || "").length;
+    const bulletCount = slide.bullets.length;
     const isImageHeavy = slide.images.length > 1 && textBodyLen < 100;
     const isImagePrimary = !slide.title && !slide.subtitle && textBodyLen < 50;
 
-    // Determine placement strategy
-    let imgStyle;
-    if (isImagePrimary) {
-      // Image IS the slide — show large, centred
-      imgStyle = `position:absolute;inset:5%;overflow:hidden;z-index:0;opacity:0.9;display:flex;align-items:center;justify-content:center`;
-    } else if (isImageHeavy) {
-      // Multiple images, light text — grid them across the right half
-      imgStyle = `position:absolute;right:2%;top:5%;width:45%;height:90%;overflow:hidden;z-index:0;opacity:0.85;display:flex;flex-direction:column;gap:2%;justify-content:center`;
-    } else if (textRight < 65) {
-      // Text occupies left side — image goes right, tall panel
-      imgStyle = `position:absolute;right:2%;top:8%;width:32%;height:70%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
-    } else if (textLeft > 20) {
-      // Text is offset right — image goes left
-      imgStyle = `position:absolute;left:2%;top:8%;width:18%;height:60%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
-    } else if (textTop > 25) {
-      // Text starts low — image strip across top
-      imgStyle = `position:absolute;top:3%;left:5%;right:5%;height:22%;overflow:hidden;z-index:0;opacity:0.8;border-radius:4px`;
-    } else if (textBottom < 70) {
-      // Text ends early — image strip across bottom
-      imgStyle = `position:absolute;bottom:3%;left:5%;right:5%;height:28%;overflow:hidden;z-index:0;opacity:0.85;border-radius:4px`;
-    } else {
-      // Text fills most of the slide — small inset, use slide index to vary corner
-      const corner = (slide.index || 0) % 4;
-      const positions = [
-        `position:absolute;right:3%;top:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
-        `position:absolute;left:3%;bottom:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
-        `position:absolute;right:3%;bottom:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
-        `position:absolute;left:3%;top:5%;width:22%;height:30%;overflow:hidden;z-index:0;opacity:0.7;border-radius:4px`,
-      ];
-      imgStyle = positions[corner];
+    // Compute per-zone bounding boxes for precise overlap checking
+    const zoneRects = zones.map(z => ({
+      l: (z.col || 0) / 60 * 100, t: (z.row || 0) / 40 * 100,
+      r: ((z.col || 0) + (z.span || 30)) / 60 * 100,
+      b: ((z.row || 0) + (z.rowSpan || 20)) / 40 * 100,
+    }));
+
+    // Overlap area between two rects (0-100% coordinate space)
+    function overlapArea(a, b) {
+      const ox = Math.max(0, Math.min(a.r, b.r) - Math.max(a.l, b.l));
+      const oy = Math.max(0, Math.min(a.b, b.b) - Math.max(a.t, b.t));
+      return ox * oy;
     }
 
-    const showImages = isImagePrimary ? slide.images : slide.images.slice(0, 2);
-    const imgFit = isImagePrimary ? 'object-fit:contain;max-width:100%;max-height:100%' : 'width:100%;height:auto;object-fit:cover';
+    // Score a candidate image region — lower is better (less overlap with text)
+    function overlapScore(imgRect) {
+      return zoneRects.reduce((sum, zr) => sum + overlapArea(imgRect, zr), 0);
+    }
+
+    // Candidate positions: name, rect {l,t,r,b}, CSS style
+    // Provides 7 distinct placement types for variety scoring
+    const candidates = [];
+    const gap = 2; // % gap between text and image
+
+    // 1. Right panel — if text leaves right space
+    if (textRight < 70) {
+      const w = Math.min(45, 100 - textRight - gap);
+      if (w >= 20) candidates.push({ name: "right-panel",
+        rect: { l: 100 - w, t: 0, r: 100, b: 100 },
+        css: `position:absolute;right:0;top:0;width:${w}%;height:100%;overflow:hidden;z-index:0;opacity:0.9` });
+    }
+
+    // 2. Left panel — if text leaves left space
+    if (textLeft > 20) {
+      const w = Math.min(40, textLeft - gap);
+      if (w >= 20) candidates.push({ name: "left-panel",
+        rect: { l: 0, t: 0, r: w, b: 100 },
+        css: `position:absolute;left:0;top:0;width:${w}%;height:100%;overflow:hidden;z-index:0;opacity:0.9` });
+    }
+
+    // 3. Top strip — if text starts below 20%
+    if (textTop > 20) {
+      const h = Math.min(35, textTop - gap);
+      if (h >= 15) candidates.push({ name: "top-strip",
+        rect: { l: 0, t: 0, r: 100, b: h },
+        css: `position:absolute;top:0;left:0;right:0;height:${h}%;overflow:hidden;z-index:0;opacity:0.85` });
+    }
+
+    // 4. Bottom strip — if text ends above 80%
+    if (textBottom < 80) {
+      const h = Math.min(35, 100 - textBottom - gap);
+      if (h >= 15) candidates.push({ name: "bottom-strip",
+        rect: { l: 0, t: 100 - h, r: 100, b: 100 },
+        css: `position:absolute;bottom:0;left:0;right:0;height:${h}%;overflow:hidden;z-index:0;opacity:0.9` });
+    }
+
+    // 5-8. Corner insets — sized to avoid overlap, at least 22% wide
+    const cornerDefs = [
+      { name: "top-right",   anchor: "right:2%;top:3%" },
+      { name: "bottom-left", anchor: "left:2%;bottom:3%" },
+      { name: "bottom-right",anchor: "right:2%;bottom:3%" },
+      { name: "top-left",    anchor: "left:2%;top:3%" },
+    ];
+    for (const cd of cornerDefs) {
+      const isRight = cd.anchor.includes("right:");
+      const isBottom = cd.anchor.includes("bottom:");
+      // Size corner to fit in the gap between text zones and slide edge
+      let w = isRight ? Math.min(35, 100 - textRight + 5) : Math.min(35, textLeft + 5);
+      let h = isBottom ? Math.min(45, 100 - textBottom + 5) : Math.min(45, textTop + 5);
+      w = Math.max(22, Math.min(w, 35));
+      h = Math.max(30, Math.min(h, 50));
+      const rect = {
+        l: isRight ? 100 - w - 2 : 2, t: isBottom ? 100 - h - 3 : 3,
+        r: isRight ? 98 : w + 2,       b: isBottom ? 97 : h + 3,
+      };
+      candidates.push({ name: cd.name, rect,
+        css: `position:absolute;${cd.anchor};width:${w}%;height:${h}%;overflow:hidden;z-index:0;opacity:0.82;border-radius:4px` });
+    }
+
+    // 9. Centre inset — for slides where text hugs edges
+    candidates.push({ name: "centre",
+      rect: { l: 30, t: 25, r: 70, b: 75 },
+      css: `position:absolute;left:30%;top:25%;width:40%;height:50%;overflow:hidden;z-index:0;opacity:0.75;border-radius:4px` });
+
+    // Determine placement
+    let imgStyle;
+    if (isImagePrimary) {
+      imgStyle = `position:absolute;inset:3%;overflow:hidden;z-index:0;opacity:0.95;display:flex;align-items:center;justify-content:center`;
+    } else if (isImageHeavy) {
+      // Multiple images — pick best half, but fall through if both halves overlap too much
+      const rightScore = overlapScore({ l: 50, t: 0, r: 100, b: 100 });
+      const bottomScore = overlapScore({ l: 0, t: 50, r: 100, b: 100 });
+      const bestHalfScore = Math.min(rightScore, bottomScore);
+      if (bestHalfScore < 500) {
+        // Acceptable overlap — use half-slide layout
+        imgStyle = bottomScore < rightScore
+          ? `position:absolute;bottom:0;left:0;right:0;height:50%;overflow:hidden;z-index:0;opacity:0.9;display:flex;flex-direction:row;gap:1%;justify-content:center;padding:3%`
+          : `position:absolute;right:0;top:0;width:50%;height:100%;overflow:hidden;z-index:0;opacity:0.9;display:flex;flex-direction:column;gap:1%;justify-content:center;padding:3%`;
+      }
+      // else: fall through to candidate scoring below
+    }
+    if (!imgStyle && !isImagePrimary) {
+      // Score all candidates, pick the one with least overlap
+      // Tie-break: prefer variety via slide index rotation
+      const slideIdx = slide.index || 0;
+      let best = null, bestScore = Infinity;
+      for (let i = 0; i < candidates.length; i++) {
+        const c = candidates[(i + slideIdx) % candidates.length];
+        const score = overlapScore(c.rect);
+        // Favour zero-overlap candidates strongly; among those, rotate by index
+        if (score < bestScore || (score === 0 && bestScore === 0 && i < 2)) {
+          bestScore = score;
+          best = c;
+          if (score === 0) break; // zero overlap is ideal — take it
+        }
+      }
+      imgStyle = best ? best.css
+        : `position:absolute;right:2%;bottom:3%;width:25%;height:35%;overflow:hidden;z-index:0;opacity:0.75;border-radius:4px`;
+    }
+
+    const showImages = isImagePrimary ? slide.images : slide.images.slice(0, 3);
+    const imgFit = `width:100%;height:100%;object-fit:cover;display:block`;
     const imgHTML = showImages.map(img =>
-      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="${imgFit};display:block;margin-bottom:4px;border-radius:3px">`
+      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="${imgFit}">`
     ).join("");
     extras += `<div style="${imgStyle}">${imgHTML}</div>`;
   }
@@ -2065,10 +2238,10 @@ blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmi
 .dash{color:var(--text-light);flex-shrink:0}
 
 /* Tables */
-table{width:100%;border-collapse:collapse;font-size:clamp(0.7rem,1.4vmin,0.95rem)}
-thead th{background:var(--accent);color:var(--white);padding:1vmin 1.5vmin;font-weight:700;
-  border:1px solid var(--accent)}
-tbody td{padding:0.8vmin 1.5vmin;border:1px solid var(--grey)}
+table{width:100%;border-collapse:collapse;font-size:clamp(0.8rem,1.6vmin,1.05rem)}
+thead th{background:var(--accent);color:var(--white);padding:1.2vmin 1.8vmin;font-weight:700;
+  border:1px solid var(--accent);line-height:1.4}
+tbody td{padding:1vmin 1.8vmin;border:1px solid var(--grey);line-height:1.5}
 tbody tr:nth-child(even){background:var(--bg)}
 tbody tr:nth-child(odd){background:var(--bg-alt)}
 

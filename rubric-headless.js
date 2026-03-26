@@ -74,11 +74,22 @@ async function evaluate(htmlPath, options = {}) {
         if (fg&&elBg) { const r=cr(fg,elBg); const sz=parseFloat(st.fontSize); const bold=parseInt(st.fontWeight)>=700; const lg=sz>=18||(sz>=14&&bold); if (r<(lg?3:4.5)) { if (r<2) contrastErrors++; else contrastWarnings++; } }
       });
 
+      // Only count overflows on elements whose parent doesn't clip them
       slide.querySelectorAll("*").forEach(el => {
         const r=el.getBoundingClientRect(); const st=getComputedStyle(el);
         if (st.display==="none"||r.width===0) return;
-        if (["script","style","link","meta"].includes(el.tagName.toLowerCase())) return;
-        if (r.right>window.innerWidth+10||r.bottom>window.innerHeight+10) overflows++;
+        if (["script","style","link","meta","img"].includes(el.tagName.toLowerCase())) return;
+        if (r.right>window.innerWidth+10||r.bottom>window.innerHeight+10) {
+          // Check if any ancestor clips this overflow
+          let clipped = false;
+          let parent = el.parentElement;
+          while (parent && parent !== slide) {
+            const ps = getComputedStyle(parent);
+            if (ps.overflow === "hidden" || ps.overflow === "clip") { clipped = true; break; }
+            parent = parent.parentElement;
+          }
+          if (!clipped) overflows++;
+        }
       });
 
       // Note: lazy-loaded images on display:none slides won't be complete — only count visible slide's images as broken
@@ -93,7 +104,11 @@ async function evaluate(htmlPath, options = {}) {
         const ir=img.getBoundingClientRect(); if (ir.width===0) return;
         const cx=ir.left+ir.width/2, cy=ir.top+ir.height/2;
         imgPlacements.add(cx>window.innerWidth*0.65?"right":cx<window.innerWidth*0.35?"left":cy<window.innerHeight*0.35?"top":cy>window.innerHeight*0.65?"bottom":"centre");
-        slide.querySelectorAll("h1,h2,p,.bullet").forEach(el => { const tr=el.getBoundingClientRect(); if (tr.width===0) return; if (tr.left<ir.right&&tr.right>ir.left&&tr.top<ir.bottom&&tr.bottom>ir.top) { const d=img.closest("div[style]"); if (d&&parseFloat(d.style.opacity||"1")>0.15) imgOverlaps++; } });
+        slide.querySelectorAll("h1,h2,p,.bullet").forEach(el => { const tr=el.getBoundingClientRect(); if (tr.width===0||tr.height===0) return;
+          // Only count overlap if text centre is inside image rect (edge touches don't count)
+          const tcx=tr.left+tr.width/2, tcy=tr.top+tr.height/2;
+          if (tcx>ir.left&&tcx<ir.right&&tcy>ir.top&&tcy<ir.bottom) { const d=img.closest("div[style]"); if (d&&parseFloat(d.style.opacity||"1")>0.3) imgOverlaps++; }
+        });
       });
       if (idx>0) slide.style.display="none";
     });
@@ -212,7 +227,52 @@ function applyFixes(composedPath, scores, metrics) {
     });
   }
 
-  // Fix 5: Darken label accent colors
+  // Fix 5: Clamp accent and zone boundaries to grid (col+span<=60, row+rowSpan<=40)
+  parts.forEach((p, i) => {
+    // Accent clamping
+    let modified = p.replace(/"col":(\d+),"span":(\d+)/g, (match, col, span) => {
+      const c = parseInt(col), s = parseInt(span);
+      if (c + s > 60) {
+        const newSpan = Math.max(1, 60 - c);
+        changes.push(`S${i+1}: clamped span ${s}→${newSpan} (col ${c})`);
+        return `"col":${c},"span":${newSpan}`;
+      }
+      return match;
+    });
+    modified = modified.replace(/"row":(\d+),"rowSpan":(\d+)/g, (match, row, span) => {
+      const r = parseInt(row), s = parseInt(span);
+      if (r + s > 40) {
+        const newSpan = Math.max(1, 40 - r);
+        return `"row":${r},"rowSpan":${newSpan}`;
+      }
+      return match;
+    });
+    parts[i] = modified;
+  });
+
+  // Fix 6: Bump contrast on near-miss warnings (darken text slightly on light bgs)
+  if (metrics.contrastWarnings > 0) {
+    parts.forEach((p, i) => {
+      const bgM = p.match(/"bg":"([A-Fa-f0-9]+)"/);
+      if (!bgM) return;
+      const bgLum = parseInt(bgM[1].slice(0, 2), 16);
+      if (bgLum > 200) {
+        // Very light bg — darken any mid-tone text colors
+        const before = p;
+        parts[i] = p.replace(/"color":"([89A-Ba-b][A-Fa-f0-9]{5})"/g, (match, hex) => {
+          // Darken by ~15%
+          const r = Math.max(0, Math.round(parseInt(hex.slice(0,2),16) * 0.85));
+          const g = Math.max(0, Math.round(parseInt(hex.slice(2,4),16) * 0.85));
+          const b = Math.max(0, Math.round(parseInt(hex.slice(4,6),16) * 0.85));
+          const newHex = [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
+          return `"color":"${newHex}"`;
+        });
+        if (parts[i] !== before) changes.push(`S${i+1}: darkened mid-tone text for contrast`);
+      }
+    });
+  }
+
+  // Fix 7: Darken label accent colors
   let joined = parts.join("\n---\n");
   const labelCount = (joined.match(/"label":\{[^}]*"color":"[BC][A-Fa-f0-9]{5}"/g) || []).length;
   if (labelCount > 0) {

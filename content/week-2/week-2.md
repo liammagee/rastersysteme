@@ -1,14 +1,9 @@
 # Gen AI - Week 2 - Pathways to AI
 
-
 ![Image](images/gen_ai___week_1___pathways_to_ai_img_1.png)
 
 
-
-
-
 ---
-
 
 ### Initial Definition: Artificial Intelligence involves….  
 
@@ -17,8 +12,6 @@
 | ![Image](images/gen_ai___week_1___pathways_to_ai_img_4.png)“*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955) |  |
 
 ---
-
-
 
 ### Themes: Cybernetics vs Artificial Intelligence?
 
@@ -50,166 +43,20 @@
 | ![Image](images/pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png) | 
 
 
-
----
-
-## AI in 2026: An Opinionated Take
-
-What's going on in the world of AI today?
-
-
----
-
-## AI Consolidation 
-
- - "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini
-   - Other big names have slowed down: Xai, Meta, Microsoft Copilot
-   - Apple: using Google Gemini
-   - Amazon: investor in Anthropic, provider for OpenAI
- - Shift from free / $20 per month to:
-   - Advertising (ChatGPT)
-   - Higher tier models ($200 per month)
-   
-
----
-
-## Rise of open source models
-
- - Mostly developed in China
-   - Xiaomi
-   - Alibaba Qwen
-   - Kimi
-   - Minimax
-   - DeepSeek
- - Mistral (France)
- - Nemotron (Nvidia)
- - Estimated 3-9 months beyond commercial models
- - Issues around "benchmaxxing"; IP theft(!); hosting / exfiltration of data
-
-
----
-
-## Contradictory tendencies: Increasing demand...
-
- - Scaling laws (Week 3)
- - Bigger models 
- - More "thinking" (inference) time
- - Huge investment data centers, power plants
-
----
-
-## ...but also: 
-
- - More efficient GPUs (see Nvidia)
- - Better algorithms (especially from Chinese labs)
- - Better hardware (Apple): Open source models run locally
-
-In Workshop 4 we'll be examining criticisms of the environmental and social costs of AI. As a note for now: these differing trends make long term estimation hard to predict.
-
-
----
-
-## Agentive AI
-
- - Code automation
-   - OpenAI Codex
-   - Claude Code
-   - Google Gemini
- - Computer use:
-   - OpenClaw: local agent, social media for chatbots
-   - Claude Cowork
- - Design:
-   - Google Stitch, Nano Banana 2, Midjourney
-   - Embedded tools in Adobe, Figma etc
-
-
-
----
-
-## Education Issues: Cons
-
- - Plagiarism & Cognitive Offloading
- - Biased Results & Unequal Access
- - Potential Obsolescence of Teachers?
- - Perverse Effects: Automated Assignments > Automated Grading
-   - Bernard Stiegler's *The Automatic Society*?
- - Subtle Changes: transfer of expertise from human to machine?
-
-
----
-
-## Education Issues: Pros
-
-
- - Personalized, adaptive learning
- - Accessibility
- - Can support Universal Design for Learning
-   - Attractive as a form of inclusive education
-   - But expensive, time-consuming
-   - Can AI generate multiple forms of engagement, representation, activities?
-
----
-
-## However: "Bigger Picture" Issues
-
-1. Predicted Erasure of White-Collar (Cognitive) Labor
-   - Programming
-   - Design
-   - Games
-   - Entry-level professions 
-2. What happens When AI works properly? Social media as Harbinger: Addictive, Compulsive AI; AI "Psychosis"
-3. Concentration of Power: Owners of AI; Power Users of AI; The rest of us?
-
-
----
-
-## What do we need to learn now? What do we need to teach?
-
-No easy answers:
- - "Core" Machine Learning? highly specialized (calculus, probability, linear algebra) 
- - "Prompt engineering"? But AI can write prompts...
- - Hardware? Again, specialized - traditionally male dominated
- - Services? 
-   - plumbing, electrician - Jensen Huang - but what about robots?
-   - Care industries? (hospitals, childcare, counselling)
- - Humanities? Peter Thiel...
-
-![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
-
-
-
----
-
-
----
-
-## Crisis in Higher Ed
-
- - Spiralling costs
- - Increased distrust in "traditional" knowledge, expertise (the COVID effect? Mis/disinformation?)
- - Lack of effective pathways to professional, higher paid labor
- - Not yet, but anticipated
-
-
-
----
-
-
-We'll return to these themes...
-
-
-... but how did we get here?
-
 ---
 
 
 
 ## “La Longue Duree” (Annales School, Fernand Braudel)
 
-
  - "Total History"
  - Why it matters
    - Should we treat history as (a) the work of (heroic - typically white, male) individuals? Or (b) processes, systems, structures? 
+   
+---
+
+## Fundamental Processes of AI
+
  - Compare:
    - AI as the output of individual genius (Schmidhuber, LeCun, Hinton, Goodfellow, Sutskever etc)?
    - Or instead a process of accumulating layers:
@@ -220,130 +67,7 @@ We'll return to these themes...
      - Early informatics: the printing press, the typewriter. Babbage's "Difference Engine" (1830s) 
   
 
-  
-  ---
 
-
-   - The problem of curvature. “Old school” Euclidean geometry, trigonometry good for architecture, but doesn't help in a world of *motion*
-   - Problems of astronomy, ship navigation - but still relatively limited influence of *drag*
-   - Ballistics - force, resistance, shape of projectile, atmosphere: shift from stars, ships to missles
-   -  limited help - until we “square the circle” - decompose curved trajectories into lots of tiny lines (derivatives) / rectangles (integrals). “Unlock” the possibilities of stars, balls - missiles. First uses of computing - calculate the derivatives 
-    
-> Instruction: Make me a simple simulation that shows how the first computers were used to solve problems of derivatives for missiles
-
-
-
-
----
-
-
-
-
-
-People likely know the famous first examples of computers for solving decryption. A kind of "safe" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!
-
-But what of their other use? Ballistics, missile trajectory...
-
-
-
-
-
----
-
-
-
-
-Galileo (pre-Calculus!)
-
- - Parabola - models an curved but essentially consistent universe. One time calculation using sine / cosine / trigonometry (what year mathematics)?
-   - Can handle *gravity* - constant downward force
- 
- - But what really happens? We throw a stone / launch a missile
-   - And drag - acceleration changes every instant - requiring constant recalculation
-   
-
-
-
----
-
-
-
-
-So let's throw stone; we have essentially (simplistically) 4 variables:
- - angle of release
- - velocity (metres/yards per second)
- - gravity (wants to pull the stone back to ground)
- - drag (air resistance; varies with velocity, meaning we need to **calculate as we go** - not an analytic solution)
- - So we now need fancy (17th century and beyond) math:
-   - Euler's method (following Newton / Leibniz): decompose the entire stone's thrown into a sequence:
-     - Step 1: x, y, velocity x, velocity y
-     - Step 2: new x, new y -> then new velocity x, new velocity y
-     - etc...
-
-Can be done by hand, but each angle + velocity needs a new set of values...
-New problems: mass, shape of stone (etc. etc)
- - Euler: 1760s
- - Runge–Kutta Corrections: 1890s/1900s
- - Initial computation: Euler method (1940s); Runge–Kutta (late 1940s/50s) ... 
- 
- 
-Now think about education. For military purposes, we need trigonometry, calculus, physics, ordinary differential equations...
-The "computer" pre-1940s: a person (typically woman) calculating these 
-
-
-
-
----
-
-
-
-
-
-
-[The Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)
-
-
-
-
----
-
-
-
-
-[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ballistic-computer-sim.html)
-
-
-
-
----
-
-
-
-
-For those mathematically / philosophically minded:
-
- - Much of AI-related - and general - computing from 1940s to 2020s involves mapping continuous (derivates) into discrete (very small differences). At least as far as *simulation* (from ballistics to language generation) are concerned.
- - Note *analog* (non digital) calculators can compute continuities directly! Arguably what biological brains also do - open for debate. 
- - Continuous > discrete is always "lossy" - loses definition. Think about how early pixels used RGB - so many values for red, green, blue. Detail, naunce is lost. Is digitization - conversion of continuous to discrete - an approximation but never realization of the real thing?
-
- 
-
-
-
-
-
-
----
-
-
-
-
-
-![Image](images/gen_ai___week_1___pathways_to_ai_img_8.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_9.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_10.png)   AI as IT?  Or something else?  
-
-| | |
-|---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_11.png)<br><br> | Yahoo Finance, 2025<br><br> |
 
 
 
@@ -427,6 +151,10 @@ For those mathematically / philosophically minded:
 
 
 
+[The Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)
+
+
+---
 
 
 | 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |
@@ -442,6 +170,18 @@ For those mathematically / philosophically minded:
 
 
 
+---
+
+## "Drawing a Long Bow": From Ballistics to AI
+
+   - The problem of curvature. “Old school” Euclidean geometry, trigonometry good for architecture, but doesn't help in a world of *motion*
+   - Problems of astronomy, ship navigation - but still relatively limited influence of *drag*
+   - Ballistics - force, resistance, shape of projectile, atmosphere: shift from stars, ships to missles
+   -  limited help - until we “square the circle” - decompose curved trajectories into lots of tiny lines (derivatives) / rectangles (integrals). “Unlock” the possibilities of stars, balls - missiles. First uses of computing - calculate the derivatives 
+    
+> Instruction: Make me a simple simulation that shows how the first computers were used to solve problems of derivatives for missiles
+
+
 
 
 ---
@@ -449,27 +189,257 @@ For those mathematically / philosophically minded:
 
 
 
+People likely know the famous first examples of computers for solving decryption. A kind of "safe" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!
+
+But what of their other use? Ballistics, missile trajectory...
+
+
+
+
+
+---
+
+
+### Galileo (pre-Calculus!)
+
+ - Parabola - models an curved but essentially consistent universe. One time calculation using sine / cosine / trigonometry (what year mathematics)?
+ - Can handle *gravity* - constant downward force
+ - But what really happens? We throw a stone / launch a missile
+   - And drag - acceleration changes every instant - requiring constant recalculation
+   
+
+---
+
+## Practice
+
+[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ballistic-computer-sim.html)
+
+---
+
+## Thought experiment: Throwing a Stone
+
+So let's throw a stone; we have essentially (simplistically) 4 variables:
+ - angle of release
+ - velocity (metres/yards per second)
+ - gravity (wants to pull the stone back to ground)
+ - drag (air resistance; varies with velocity, meaning we need to **calculate as we go** - not an analytic solution)
+ - So we now need fancy (17th century and beyond) math:
+   - Euler's method (following Newton / Leibniz): decompose the entire stone's thrown into a sequence:
+     - Step 1: x, y, velocity x, velocity y
+     - Step 2: new x, new y -> then new velocity x, new velocity y
+     - etc...
+
+Can be done by hand, but each angle + velocity needs a new set of values...
+New problems: mass, shape of stone (etc. etc)
+ - Euler: 1760s
+ - Runge–Kutta Corrections: 1890s/1900s
+ - Initial computation: Euler method (1940s); Runge–Kutta (late 1940s/50s) ... 
+ 
+---
+
+## Relevance to Education
+
+Now think about education as a parallael historical process. 
+
+For military purposes, we need trigonometry, calculus, physics, ordinary differential equations...
+
+The "computer" pre-1940s: a person (typically woman) calculating these trajectories
+
+Governmental, Industrial, Military uses: need a ready workforce of "calculaters", "computers", "coders".
+
+Curriculum: shaped by the growing need to throw stones (and other applications of calculus)
+
+
+---
+
+For those mathematically / philosophically minded:
+
+ - Much of AI-related - and general - computing from 1940s to 2020s involves mapping continuous (derivates) into discrete (very small differences). At least as far as *simulation* (from ballistics to language generation) are concerned.
+ - Note *analog* (non digital) calculators can compute continuities directly! Arguably what biological brains also do - open for debate. 
+ - Continuous > discrete is always "lossy" - loses definition. Think about how early pixels used RGB - so many values for red, green, blue. Detail, naunce is lost. Is digitization - conversion of continuous to discrete - an approximation but never realization of the real thing? (see interview with Yann LeCun next week). 
+
+
+
+---
 
 ### Looking ahead…  
 
-| | |
-|---|---|
-| What **fundamentals** makes for AI / Machine Learning / Deep Learning / Neural network?<br>Calculus (17th century – Leibniz, Newton)<br>Probability [think “stochastic parrots”] (18th/19th century – Euler, Gauss, Laplanche Fourier)<br>Linear algebra (19th century – James John Sylvester)<br>Markov Models (very early 20th century – Andrej Markov)<br><br> |  |
+What **fundamentals** makes for AI / Machine Learning / Deep Learning / Neural network?<br>Calculus (17th century – Leibniz, Newton)
 
+Probability [think “stochastic parrots”] (18th/19th century – Euler, Gauss, Laplanche Fourier)
 
+Linear algebra (19th century – James John Sylvester)
+
+Markov Models (very early 20th century – Andrej Markov)
 
 
 ---
 
-
-
-
-
 ### And a bold proposition…  
 
-| | |
-|---|---|
-| All the **mathematics** for AI in 2025 was developed by the end of the 19th century (with applications, like Markov models, in 1906/1913)<br>Are the last 125 years just **hardware**, **networks** & **data **(see LeCun 2021 - who doesn’t (quite) say this)?<br>Is our sense of **modernity **just the long shadow cast by the Enlightenment (17th / 18th century)?<br><br> |  |
+
+All the **mathematics** for AI in 2025 was developed by the end of the 19th century (with applications, like Markov models, in 1906/1913)
+
+Are the last 125 years just **hardware**, **networks** & **data **(see LeCun 2021 - who doesn’t (quite) say this)?
+
+Is our sense of **modernity **just the long shadow cast by the Enlightenment (17th / 18th century)?
+
+
+---
+
+Discussion / Break
+
+
+---
+
+## AI in 2026: An Opinionated Take on the Present
+
+What's going on in the world of AI today?
+
+
+---
+
+## AI Consolidation 
+
+ - "Big Three": OpenAI's ChatGPT, Anthropic's Claude, Google's Gemini
+   - Other big names have slowed down: Xai, Meta, Microsoft Copilot
+   - Apple: using Google Gemini
+   - Amazon: investor in Anthropic, provider for OpenAI
+ - Shift from free / $20 per month to:
+   - Advertising (ChatGPT)
+   - Higher tier models ($200 per month)
+   
+
+---
+
+## Rise of open source models
+
+ - Mostly developed in China
+   - Xiaomi
+   - Alibaba Qwen
+   - Kimi
+   - Minimax
+   - DeepSeek
+ - Mistral (France)
+ - Nemotron (Nvidia)
+ - Estimated 3-9 months beyond commercial models
+ - Issues around "benchmaxxing"; IP theft(!); hosting / exfiltration of data
+
+
+---
+
+## Contradictory tendencies: Increasing demand...
+
+ - Scaling laws (Week 3)
+ - Bigger models 
+ - More "thinking" (inference) time
+ - Huge investment data centers, power plants
+
+
+---
+
+## ...but also: 
+
+ - More efficient GPUs (see Nvidia)
+ - Better algorithms (especially from Chinese labs)
+ - Better hardware (Apple): Open source models run locally
+
+In Workshop 4 we'll be examining criticisms of the environmental and social costs of AI. As a note for now: these differing trends make long term estimation hard to predict.
+
+
+---
+
+## Agentive AI
+
+ - Code automation
+   - OpenAI Codex
+   - Claude Code
+   - Google Gemini
+ - Computer use:
+   - OpenClaw: local agent, social media for chatbots
+   - Claude Cowork
+ - Design:
+   - Google Stitch, Nano Banana 2, Midjourney
+   - Embedded tools in Adobe, Figma etc
+
+
+---
+
+## Education Issues: Cons
+
+ - Plagiarism & Cognitive Offloading
+ - Biased Results & Unequal Access
+ - Potential Obsolescence of Teachers?
+ - Perverse Effects: Automated Assignments > Automated Grading
+   - Bernard Stiegler's *The Automatic Society*?
+ - Subtle Changes: transfer of expertise from human to machine?
+
+
+---
+
+## Education Issues: Pros
+
+
+ - Personalized, adaptive learning
+ - Accessibility
+ - Can support Universal Design for Learning
+   - Attractive as a form of inclusive education
+   - But expensive, time-consuming
+   - Can AI generate multiple forms of engagement, representation, activities?
+
+---
+
+## However: "Bigger Picture" Issues
+
+1. Predicted Erasure of White-Collar (Cognitive) Labor
+   - Programming
+   - Design
+   - Games
+   - Entry-level professions 
+2. What happens When AI works properly? Social media as Harbinger: Addictive, Compulsive AI; AI "Psychosis"
+3. Concentration of Power: Owners of AI; Power Users of AI; The rest of us?
+
+
+---
+
+## What do we need to learn now? What do we need to teach?
+
+No easy answers:
+ - "Core" Machine Learning? highly specialized (calculus, probability, linear algebra) 
+ - "Prompt engineering"? But AI can write prompts...
+ - Hardware? Again, specialized - traditionally male dominated
+ - Services? 
+   - plumbing, electrician - Jensen Huang - but what about robots?
+   - Care industries? (hospitals, childcare, counselling)
+ - Humanities? Peter Thiel...
+
+![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
+
+
+---
+
+## Crisis in Higher Ed
+
+ - Spiralling costs
+ - Increased distrust in "traditional" knowledge, expertise (the COVID effect? Mis/disinformation?)
+ - Lack of effective pathways to professional, higher paid labor
+ - Not yet, but anticipated
+
+
+---
+
+## Next Week: The Technological Lens
+
+
+Unpacking the Black Box?
+
+Don't panic if next week's materials look complex...
+
+[cgscholar.com](https://cgscholar.com/posts/1200?communityId=141)
+
+
+
+
 
 
 
@@ -512,13 +482,3 @@ For those mathematically / philosophically minded:
 -->
 
  
----
-
-## Next Week: The Technological Lens
-
-
-Unpacking the Black Box?
-
-[cgscholar.com](https://cgscholar.com/posts/1200?communityId=141)
-
-
