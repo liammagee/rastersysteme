@@ -493,6 +493,21 @@ function parseMarkdown(md) {
 
     if (slide.blockquote) slide.blockquote = slide.blockquote.trim();
 
+    // Promote sectionLabel to subtitle when no title exists (PowerPoint export fix)
+    if (!slide.title && !slide.subtitle && slide.sectionLabel) {
+      slide.subtitle = slide.sectionLabel;
+      slide.sectionLabel = null;
+    }
+
+    // Last resort: promote first short body line to subtitle when no heading exists at all
+    if (!slide.title && !slide.subtitle && !slide.sectionLabel && slide.body.length > 0) {
+      const first = slide.body[0].replace(/<br\s*\/?>/gi, " ").replace(/\*\*/g, "").trim();
+      if (first.length > 3 && first.length < 120) {
+        slide.subtitle = first;
+        slide.body.shift();
+      }
+    }
+
     return slide;
   }).filter(s => s.raw.length > 0);
 }

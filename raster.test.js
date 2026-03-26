@@ -195,9 +195,10 @@ describe("Markdown parser", () => {
       assert.equal(s.title, null);
     });
 
-    it("parses ### as section label", () => {
+    it("### alone promotes to subtitle (no title on slide)", () => {
       const [s] = parseMarkdown("### SECTION");
-      assert.equal(s.sectionLabel, "SECTION");
+      assert.equal(s.subtitle, "SECTION");
+      assert.equal(s.sectionLabel, null);
     });
 
     it("does not confuse ## with #", () => {
@@ -206,10 +207,16 @@ describe("Markdown parser", () => {
       assert.equal(s.subtitle, "Not a title");
     });
 
-    it("does not confuse ### with ##", () => {
-      const [s] = parseMarkdown("### Not a subtitle");
-      assert.equal(s.subtitle, null);
-      assert.equal(s.sectionLabel, "Not a subtitle");
+    it("### becomes subtitle when no title exists (PowerPoint export)", () => {
+      const [s] = parseMarkdown("### Section heading");
+      assert.equal(s.subtitle, "Section heading");
+      assert.equal(s.sectionLabel, null);
+    });
+
+    it("### stays as sectionLabel when title exists", () => {
+      const [s] = parseMarkdown("## Main Title\n### SECTION");
+      assert.equal(s.subtitle, "Main Title");
+      assert.equal(s.sectionLabel, "SECTION");
     });
   });
 
@@ -509,6 +516,7 @@ Some body text`;
 
     it("renders body zone content", () => {
       const md = `<!-- design: { "zones": [{ "role": "body", "col": 30, "span": 28, "row": 0, "rowSpan": 40 }] } -->
+## Heading
 Body line one
 Body line two`;
       const [slide] = parseMarkdown(md);
