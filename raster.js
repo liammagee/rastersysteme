@@ -271,8 +271,12 @@ function parseMarkdownTable(lines, slide) {
 
   const rows = lines.slice(2).map(parseCells);
 
-  // Extract images and body text from table cells (handles PowerPoint export format)
-  if (slide) {
+  // Classify: layout table (empty headers) vs data table (real headers)
+  const isLayoutTable = headers.every(h => !h.trim());
+
+  // Only extract images/text from LAYOUT tables (PowerPoint export containers).
+  // Data tables with real headers are preserved intact for rendering.
+  if (slide && isLayoutTable) {
     const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
     const allCells = [...headers, ...rows.flat()];
     for (const cell of allCells) {
@@ -305,7 +309,7 @@ function parseMarkdownTable(lines, slide) {
     }
   }
 
-  return { headers, alignments, rows };
+  return { headers, alignments, rows, isLayoutTable };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1610,13 +1614,38 @@ function bulletsToHTML(bullets) {
   }).join("\n") + "</div>";
 }
 
-function tableToHTML(table) {
+// Render markdown-ish cell content: images, bold, italic, links, <br>
+function richCell(text) {
+  if (!text || !text.trim()) return "";
+  let out = esc(text);
+  // Restore markdown images → <img> (esc() escaped the brackets)
+  out = out.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) =>
+    `<img src="${src}" alt="${alt}" style="max-width:100%;max-height:8vmin;object-fit:contain;display:block;margin:0.3vmin 0">`);
+  // Bold
+  out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  // Italic
+  out = out.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  // Links
+  out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+  // <br>
+  out = out.replace(/&lt;br\s*\/?&gt;/gi, "<br>");
+  return out;
+}
+
+function tableToHTML(table, options = {}) {
   const align = (i) => table.alignments[i] || "left";
-  let h = '<table><thead><tr>' +
-    table.headers.map((c, i) => `<th style="text-align:${align(i)}">${esc(c)}</th>`).join("") +
-    '</tr></thead><tbody>';
+  const colCount = table.headers.length;
+  // Skip header row for layout tables with empty headers
+  const hasHeaders = !table.isLayoutTable && table.headers.some(h => h.trim());
+  let h = '<table' + (options.role ? ` role="${options.role}"` : '') + '>';
+  if (hasHeaders) {
+    h += '<thead><tr>' +
+      table.headers.map((c, i) => `<th style="text-align:${align(i)}">${richCell(c)}</th>`).join("") +
+      '</tr></thead>';
+  }
+  h += '<tbody>';
   table.rows.forEach(row => {
-    h += '<tr>' + row.map((c, i) => `<td style="text-align:${align(i)}">${esc(c)}</td>`).join("") + '</tr>';
+    h += '<tr>' + row.map((c, i) => `<td style="text-align:${align(i)}">${richCell(c)}</td>`).join("") + '</tr>';
   });
   return h + '</tbody></table>';
 }
@@ -1938,6 +1967,11 @@ function renderDesigned(slide) {
         content = slide.codeBlocks.map(cb => codeToHTML(cb)).join("\n");
         break;
       }
+      case "table": {
+        const dataTables = slide.tables.filter(t => !t.isLayoutTable);
+        content = dataTables.map(t => tableToHTML(t, { role: "table" })).join("\n");
+        break;
+      }
       default:
         break;
     }
@@ -1945,11 +1979,22 @@ function renderDesigned(slide) {
     return `<div class="zone zone-${zone.role}" style="${style};padding:${gapVal}">${content}</div>`;
   }).join("\n");
 
-  // Append unzoned content: videos/images/links that have no matching zone in the design
+  // Append unzoned content: videos/images/tables/links that have no matching zone in the design
   const zonedRoles = new Set((design.zones || []).map(z => z.role));
   let extras = "";
   if (slide.videos.length && !zonedRoles.has("video")) {
     extras += videosHTML(slide.videos);
+  }
+  // Auto-append data tables when design has no table zone
+  const dataTables = slide.tables.filter(t => !t.isLayoutTable);
+  if (dataTables.length && !zonedRoles.has("table")) {
+    const tableHTML = dataTables.map(t => tableToHTML(t, { role: "table" })).join("\n");
+    // Position table in available space — prefer below title, spanning most of the slide
+    const zones = design.zones || [];
+    const titleZone = zones.find(z => z.role === "title");
+    const tableTop = titleZone ? ((titleZone.row + titleZone.rowSpan + 1) / 40 * 100).toFixed(1) : "15";
+    const tableHeight = (100 - parseFloat(tableTop) - 3).toFixed(1);
+    extras += `<div class="zone zone-table" style="position:absolute;left:3%;right:3%;top:${tableTop}%;height:${tableHeight}%;overflow:auto;z-index:2;padding:${gapVal}">${tableHTML}</div>`;
   }
   if (slide.images.length && !zonedRoles.has("image")) {
     // Smart image placement — overlap-aware, varied positions
