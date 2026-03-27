@@ -273,11 +273,18 @@ function parseMarkdownTable(lines, slide) {
 
   const rows = lines.slice(2).map(parseCells);
 
-  // Classify: layout table (empty headers) vs data table (real headers)
-  const isLayoutTable = headers.every(h => !h.trim());
+  // Classify: layout table (empty headers, only images/empty cells) vs data table
+  // A table is a layout container only if headers are empty AND rows contain
+  // nothing but images/whitespace. If any row has substantive text (>20 chars),
+  // it's a real content table that should render as a table.
+  const emptyHeaders = headers.every(h => !h.trim());
+  const hasSubstantiveText = rows.some(row =>
+    row.some(cell => cell.replace(/!\[[^\]]*\]\([^)]+\)/g, "").replace(/<br\s*\/?>/gi, "").trim().length > 20)
+  );
+  const isLayoutTable = emptyHeaders && !hasSubstantiveText;
 
   // Only extract images/text from LAYOUT tables (PowerPoint export containers).
-  // Data tables with real headers are preserved intact for rendering.
+  // Data tables with real headers or substantive text are preserved intact.
   if (slide && isLayoutTable) {
     const imgRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
     const allCells = [...headers, ...rows.flat()];

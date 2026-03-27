@@ -1290,10 +1290,12 @@ describe("Compose module", () => {
         "should ask for JSON array");
     });
 
-    it("prompt specifies layout, bg, font, label fields", () => {
+    it("prompt specifies bg, font, and zone fields", () => {
       const prompt = buildPrompt("# Title", { intensity: "moderate" });
-      assert.ok(prompt.includes('"layout"') && prompt.includes('"bg"') && prompt.includes('"font"'),
+      assert.ok(prompt.includes('"bg"') && prompt.includes('"font"'),
         "should specify directive fields");
+      assert.ok(prompt.includes("zones") || prompt.includes("zone"),
+        "should reference zones in the design brief");
     });
 
     it("DESIGN PLAN asks for accent strategy", () => {
