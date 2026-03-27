@@ -1620,7 +1620,7 @@ function richCell(text) {
   let out = esc(text);
   // Restore markdown images → <img> (esc() escaped the brackets)
   out = out.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, (_, alt, src) =>
-    `<img src="${src}" alt="${alt}" style="max-width:100%;max-height:8vmin;object-fit:contain;display:block;margin:0.3vmin 0">`);
+    `<img src="${src}" alt="${alt}" style="max-width:100%;max-height:22vmin;object-fit:contain;display:block;margin:0.5vmin auto">`);
   // Bold
   out = out.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   // Italic
@@ -1814,7 +1814,7 @@ const HTML_LAYOUTS = {
 // ═══════════════════════════════════════════════════════
 
 // Minimum font sizes by zone role — keeps text readable even when composition assigns small values
-const FONT_FLOOR = { title: 20, body: 14, bullets: 14, quote: 13, label: 10 };
+const FONT_FLOOR = { title: 22, body: 15, bullets: 15, quote: 14, label: 10 };
 
 function typographyToCSS(typo, role, bgHex) {
   if (!typo) return "";
@@ -2262,7 +2262,7 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
 /* Typography — uses CSS custom properties for per-slide overrides */
 h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
 h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
-p{font-size:var(--body-size,clamp(0.85rem,1.8vmin,1.2rem));line-height:1.5;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.95rem,2vmin,1.3rem));line-height:1.5;color:var(--text-mid)}
 .slide{gap:var(--slide-gap,2vmin)}
 .label{font-size:clamp(0.75rem,0.9vmin,0.85rem);letter-spacing:0.25em;text-transform:uppercase;
   color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
@@ -2274,7 +2274,7 @@ blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmi
 /* Bullets */
 .bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
 .bullet{display:flex;align-items:baseline;gap:1.2vmin}
-.bullet.level-0{font-size:clamp(0.9rem,2vmin,1.3rem);color:var(--text)}
+.bullet.level-0{font-size:clamp(1rem,2.2vmin,1.4rem);color:var(--text)}
 .bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
 .bullet.level-2,.bullet.level-3{font-size:clamp(0.8rem,1.6vmin,1rem);color:var(--text-light);padding-left:6vmin}
 .dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
@@ -2289,6 +2289,7 @@ thead th{background:var(--accent);color:var(--white);padding:1.2vmin 1.8vmin;fon
 tbody td{padding:1vmin 1.8vmin;border:1px solid var(--grey);line-height:1.5}
 tbody tr:nth-child(even){background:var(--bg)}
 tbody tr:nth-child(odd){background:var(--bg-alt)}
+td img{max-width:100%;max-height:22vmin;object-fit:contain;display:block;margin:0.5vmin auto;border-radius:0.3vmin}
 
 /* Code */
 .code-block{position:relative;background:var(--code-bg,#2D2D2D);border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
