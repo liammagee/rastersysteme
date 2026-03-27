@@ -1758,3 +1758,142 @@ describe("Integration: showcase.md", () => {
     assert.equal(errors.length, 0, `Expected 0 errors, got ${errors.length}: ${errors.map(e => e.message).join("; ")}`);
   });
 });
+
+// ═══════════════════════════════════════════════════════
+// CONTENT PRESERVATION IN DESIGNED SLIDES
+// ═══════════════════════════════════════════════════════
+
+describe("Designed slide content preservation", () => {
+  describe("double ### parsing", () => {
+    it("first short ### becomes sectionLabel, second becomes subtitle", () => {
+      const md = `<!-- design: {"zones":[{"role":"label","col":0,"span":20,"row":0,"rowSpan":5},{"role":"title","col":0,"span":40,"row":10,"rowSpan":10}]} -->
+### LABEL
+### Actual Title Text`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.sectionLabel, "LABEL", "first ### should be sectionLabel");
+      assert.equal(slide.subtitle, "Actual Title Text", "second ### should be subtitle");
+    });
+
+    it("single ### remains as sectionLabel", () => {
+      const md = `<!-- design: {"zones":[]} -->
+### ONLY LABEL
+## Real Title`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.sectionLabel, "ONLY LABEL");
+      assert.equal(slide.subtitle, "Real Title");
+    });
+
+    it("second ### does not overwrite subtitle if already set via ##", () => {
+      const md = `<!-- design: {"zones":[]} -->
+## My Subtitle
+### LABEL`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.subtitle, "My Subtitle");
+      assert.equal(slide.sectionLabel, "LABEL");
+    });
+  });
+
+  describe("body zone falls back to bullets", () => {
+    it("renders bullets in body zone when no body text exists", () => {
+      const md = `<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10},{"role":"body","col":0,"span":50,"row":12,"rowSpan":28}]} -->
+## Title
+- First bullet
+- Second bullet
+- Third bullet`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.bullets.length, 3, "should parse 3 bullets");
+      assert.equal(slide.body.length, 0, "should have no body text");
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("First bullet"), "body zone should contain bullet text");
+      assert.ok(html.includes("Second bullet"), "body zone should contain all bullets");
+    });
+
+    it("renders both body text AND bullets in body zone", () => {
+      const md = `<!-- design: {"zones":[{"role":"body","col":0,"span":50,"row":0,"rowSpan":40}]} -->
+## Heading
+Intro paragraph
+- Bullet one
+- Bullet two`;
+      const [slide] = parseMarkdown(md);
+      assert.ok(slide.body.length > 0, "should have body text");
+      assert.ok(slide.bullets.length > 0, "should have bullets");
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("Intro paragraph"), "should contain body text");
+      assert.ok(html.includes("Bullet one"), "should also contain bullets");
+    });
+  });
+
+  describe("bullets zone falls back to body text", () => {
+    it("renders body paragraphs in bullets zone when no bullets exist", () => {
+      const md = `<!-- design: {"zones":[{"role":"bullets","col":0,"span":50,"row":0,"rowSpan":40}]} -->
+## Heading
+A body paragraph here
+Another body paragraph`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.bullets.length, 0);
+      assert.ok(slide.body.length > 0, "should have body text");
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("A body paragraph"), "bullets zone should fall back to body text");
+    });
+  });
+
+  describe("quote zone falls back to body text", () => {
+    it("renders body text in quote zone when no blockquote exists", () => {
+      const md = `<!-- design: {"zones":[{"role":"label","col":0,"span":10,"row":0,"rowSpan":5},{"role":"quote","col":0,"span":50,"row":8,"rowSpan":30}]} -->
+### CRAWFORD
+Long prose paragraph that is not a blockquote but should render in the quote zone.`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.blockquote, null);
+      assert.ok(slide.body.length > 0);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("Long prose paragraph"), "quote zone should fall back to body text");
+    });
+  });
+
+  describe("unzoned body content appended as extras", () => {
+    it("body text renders when design has only a title zone", () => {
+      const md = `<!-- design: {"zones":[{"role":"title","col":0,"span":40,"row":5,"rowSpan":10}]} -->
+## Bold Proposition
+First paragraph of body text
+Second paragraph of body text`;
+      const [slide] = parseMarkdown(md);
+      assert.ok(slide.body.length >= 2, "should parse body paragraphs");
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("First paragraph"), "unzoned body should appear as extras");
+      assert.ok(html.includes("Second paragraph"), "all body paragraphs should appear");
+    });
+
+    it("bullets render when design has only a title zone", () => {
+      const md = `<!-- design: {"zones":[{"role":"title","col":0,"span":40,"row":5,"rowSpan":10}]} -->
+## Title
+- Alpha
+- Beta
+- Gamma`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.bullets.length, 3);
+      const html = renderDesigned(slide);
+      assert.ok(html.includes("Alpha"), "unzoned bullets should appear as extras");
+      assert.ok(html.includes("Gamma"), "all bullets should appear");
+    });
+  });
+
+  describe("no content loss in designed slides", () => {
+    it("every non-empty parsed field renders in the HTML", () => {
+      const md = `<!-- design: {"zones":[{"role":"label","col":0,"span":10,"row":0,"rowSpan":5},{"role":"title","col":0,"span":30,"row":5,"rowSpan":10},{"role":"body","col":0,"span":50,"row":16,"rowSpan":24}],"bg":"F8F5F0"} -->
+### SECTION LABEL
+## Main Title
+Body paragraph here
+- Bullet item A
+- Bullet item B
+> A blockquote line`;
+      const [slide] = parseMarkdown(md);
+      const html = renderDesigned(slide);
+      // All content types should appear somewhere
+      assert.ok(html.includes("SECTION LABEL"), "label should render in label zone");
+      assert.ok(html.includes("Main Title"), "title should render in title zone");
+      assert.ok(html.includes("Body paragraph"), "body should render in body zone");
+      assert.ok(html.includes("Bullet item A"), "bullets should render in body zone via inclusion");
+      assert.ok(html.includes("blockquote line"), "blockquote should render in body zone via inclusion");
+    });
+  });
+});

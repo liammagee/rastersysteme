@@ -4,6 +4,7 @@ Swiss 60-column grid slide system. Markdown → PPTX/HTML with Claude-directed d
 
 ## Shell Rules
 
+- **Never execute dynamic code via `node -e` or inline snippets.** Write scripts to a file first, validate them, then run with `node <file>`. This applies to all non-trivial code — even one-liners that do real work.
 - **Never embed multi-line programs in Bash commands.** If you need a helper script (server, one-off tool), write it to a temp file first, then execute the file.
 - **Never chain background servers with `&` + `sleep` + foreground commands.** Use existing project scripts (`server.js`, `qa-html.js`) or write a small orchestration script instead.
 - Keep Bash commands short, single-purpose, and readable.

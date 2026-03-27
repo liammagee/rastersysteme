@@ -56,6 +56,7 @@ async function evaluate(htmlPath, options = {}) {
     const bgs=[], titleSizes=new Set(), zoneStarts=new Set(), zoneWidths=new Set();
     const fonts=new Set(), imgPlacements=new Set();
     let slidesWithAccents=0;
+    let emptyBodyZones=0, contentlessSlides=0;
 
     slides.forEach((slide, idx) => {
       slide.style.display = "flex";
@@ -110,6 +111,14 @@ async function evaluate(htmlPath, options = {}) {
           if (tcx>ir.left&&tcx<ir.right&&tcy>ir.top&&tcy<ir.bottom) { const d=img.closest("div[style]"); if (d&&parseFloat(d.style.opacity||"1")>0.3) imgOverlaps++; }
         });
       });
+      // Content preservation: detect empty body zones and contentless slides
+      slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => {
+        if (!z.textContent.trim()) emptyBodyZones++;
+      });
+      const hasAnyText = slide.querySelector("h1,h2,h3,p,.bullet,.label,blockquote,td,a");
+      const hasImage = slide.querySelector("img");
+      if (!hasAnyText && !hasImage) contentlessSlides++;
+
       if (idx>0) slide.style.display="none";
     });
 
@@ -121,7 +130,8 @@ async function evaluate(htmlPath, options = {}) {
     return { total, titles, designed, contrastErrors, contrastWarnings, overflows, brokenImgs,
       uniqueBgs:uniqueBgs.size, bgPalette:[...uniqueBgs], maxConsecBg:maxConsec, hasArc,
       zoneStarts:zoneStarts.size, zoneWidths:zoneWidths.size, titleSizes:[...titleSizes], fontSets:fonts.size,
-      slidesWithAccents, totalImgs, imgOverlaps, imgPlacements:[...imgPlacements] };
+      slidesWithAccents, totalImgs, imgOverlaps, imgPlacements:[...imgPlacements],
+      emptyBodyZones, contentlessSlides };
   });
 
   if (options.screenshots) {
@@ -139,7 +149,7 @@ async function evaluate(htmlPath, options = {}) {
 
   // ── Score ──
   const scores = {};
-  scores.accessibility = Math.max(1, Math.min(10, 10 - metrics.contrastErrors*2 - metrics.contrastWarnings*0.3 - Math.min(metrics.overflows*0.1,2) - metrics.brokenImgs*2));
+  scores.accessibility = Math.max(1, Math.min(10, 10 - metrics.contrastErrors*2 - metrics.contrastWarnings*0.3 - Math.min(metrics.overflows*0.1,2) - metrics.brokenImgs*2 - metrics.emptyBodyZones*0.5 - metrics.contentlessSlides*2));
   scores.grid = Math.max(1, Math.min(10, (metrics.designed/metrics.total)*4 + Math.min(metrics.zoneStarts/4,1.5)*2 + Math.min(metrics.zoneWidths/3,1.5)*2 + (metrics.designed>0?2:0)));
   scores.color = Math.max(1, Math.min(10, Math.min(metrics.uniqueBgs/3,2)*2 + (metrics.hasArc?3:1) + (metrics.maxConsecBg<=3?3:metrics.maxConsecBg<=5?2:1) + (metrics.contrastErrors===0?2:0)));
   scores.coherence = Math.max(1, Math.min(10, (metrics.titleSizes.length>=2&&metrics.titleSizes.length<=6?3:1) + (metrics.fontSets>=2?2:1) + (metrics.uniqueBgs>=3?2:1) + (metrics.maxConsecBg<=3?2:0) + (metrics.designed>metrics.total*0.5?1:0)));
@@ -330,6 +340,12 @@ async function main() {
       process.stderr.write(`  ${icon} ${n.padEnd(16)} ${String(s).padStart(4)}\n`);
     });
     process.stderr.write(`  ${dim("Total:")} ${chalk.white.bold(r.computedTotal + "/50")} ${dim("(" + Math.round(r.computedTotal/50*100) + "%)")}\n`);
+    if (r.metrics.emptyBodyZones > 0) {
+      process.stderr.write(`  ${amber("⚠")} ${r.metrics.emptyBodyZones} empty body/bullets/quote zones (content loss)\n`);
+    }
+    if (r.metrics.contentlessSlides > 0) {
+      process.stderr.write(`  ${accent("✖")} ${r.metrics.contentlessSlides} completely contentless slides\n`);
+    }
   }
 
   printScores(result, "Baseline");

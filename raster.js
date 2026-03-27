@@ -484,6 +484,9 @@ function parseMarkdown(md) {
               slide.subtitle = paragraphs.shift();
             }
             paragraphs.forEach(p => slide.body.push(p));
+          } else if (slide.sectionLabel && !slide.subtitle) {
+            // Second ### becomes subtitle when a label is already set
+            slide.subtitle = cleaned;
           } else {
             slide.sectionLabel = cleaned;
           }
@@ -1920,6 +1923,8 @@ function renderDesigned(slide) {
     }
   }
 
+  const zonedRoles = new Set(deduped.map(z => z.role));
+
   const zonesHTML = deduped.map(zone => {
     const pos = zonePositionCSS(zone);
     const typoStyle = typographyToCSS(typography[zone.role] || {}, zone.role, slideBg);
@@ -1933,12 +1938,28 @@ function renderDesigned(slide) {
         break;
       }
       case "body": {
-        // Filter out stray slide separators that leaked from composition
-        content = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        // Gather all body-like content: paragraphs, bullets, blockquotes, links
+        const parts = [];
+        const bodyText = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        if (bodyText) parts.push(bodyText);
+        if (slide.bullets.length && !zonedRoles.has("bullets")) {
+          parts.push(bulletsToHTML(slide.bullets));
+        }
+        if (slide.blockquote && !zonedRoles.has("quote")) {
+          parts.push(`<blockquote style="${typoStyle}">${esc(slide.blockquote)}</blockquote>`);
+        }
+        if (slide.links.length && !zonedRoles.has("links")) {
+          parts.push(linksHTML(slide.links));
+        }
+        content = parts.join("\n");
         break;
       }
       case "bullets": {
         content = bulletsToHTML(slide.bullets);
+        // Fall back to body text if no bullets
+        if (!content && slide.body.length) {
+          content = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        }
         break;
       }
       case "label": {
@@ -1949,6 +1970,10 @@ function renderDesigned(slide) {
       }
       case "quote": {
         content = slide.blockquote ? `<blockquote style="${typoStyle}">${esc(slide.blockquote)}</blockquote>` : "";
+        // Fall back to body text (long prose often belongs in quote zone)
+        if (!content && slide.body.length) {
+          content = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
+        }
         break;
       }
       case "video": {
@@ -1979,9 +2004,23 @@ function renderDesigned(slide) {
     return `<div class="zone zone-${zone.role}" style="${style};padding:${gapVal}">${content}</div>`;
   }).join("\n");
 
-  // Append unzoned content: videos/images/tables/links that have no matching zone in the design
-  const zonedRoles = new Set((design.zones || []).map(z => z.role));
+  // Append unzoned content that has no matching zone in the design
   let extras = "";
+  // Unzoned body text / bullets — append below last zone
+  if (!zonedRoles.has("body") && !zonedRoles.has("bullets") && !zonedRoles.has("quote")) {
+    const parts = [];
+    if (slide.body.length) parts.push(slide.body.map(l => `<p>${esc(l)}</p>`).join("\n"));
+    if (slide.bullets.length) parts.push(bulletsToHTML(slide.bullets));
+    if (slide.blockquote) parts.push(`<blockquote>${esc(slide.blockquote)}</blockquote>`);
+    if (slide.links.length) parts.push(linksHTML(slide.links));
+    if (parts.length) {
+      const zones = design.zones || [];
+      const titleZone = zones.find(z => z.role === "title");
+      const bodyTop = titleZone ? ((titleZone.row + titleZone.rowSpan + 1) / 40 * 100).toFixed(1) : "25";
+      const bodyHeight = (100 - parseFloat(bodyTop) - 3).toFixed(1);
+      extras += `<div class="zone zone-body" style="position:absolute;left:5%;right:5%;top:${bodyTop}%;height:${bodyHeight}%;overflow:auto;z-index:2;padding:${gapVal}">${parts.join("\n")}</div>`;
+    }
+  }
   if (slide.videos.length && !zonedRoles.has("video")) {
     extras += videosHTML(slide.videos);
   }

@@ -1,14 +1,25 @@
 [
   {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-strata.html",
+    "name": "week-2-strata",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Themes: Cybernetics vs Artificial Intelligence?",
+    "size": "75K",
+    "modified": "2026-03-27T02:34:42.787Z"
+  },
+  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-light.spliced.html",
     "name": "week-2-light.spliced",
     "slides": 36,
     "theme": "light",
-    "firstTitle": "“La Longue Duree” (Annales School, Fernand Braudel)",
-    "size": "70K",
-    "modified": "2026-03-27T01:49:20.324Z"
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "98K",
+    "modified": "2026-03-27T02:30:28.504Z"
   },
   {
     "type": "deck",
@@ -17,9 +28,9 @@
     "name": "week-2-light",
     "slides": 36,
     "theme": "light",
-    "firstTitle": "“La Longue Duree” (Annales School, Fernand Braudel)",
-    "size": "63K",
-    "modified": "2026-03-27T01:48:34.436Z"
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "93K",
+    "modified": "2026-03-27T02:29:45.560Z"
   },
   {
     "type": "deck",
