@@ -17,7 +17,12 @@ Can every viewer read and perceive the content?
 | 8–9 | Exceeds AA: generous contrast margins (>5:1 body, >4:1 large), consistent font sizing, dark/light adaptation works perfectly |
 | 10 | AAA-level: >7:1 body contrast, scalable at all viewport sizes, fully navigable, semantic slide structure, alt text on all images |
 
-**Measurable:** contrast ratios, font sizes, overflow counts, broken image counts, font load status.
+**Computed metrics:**
+- `contrastErrors`: WCAG AA failures (<3:1 large, <4.5:1 body) — 2pt penalty each
+- `contrastWarnings`: near-miss contrast (2:1–4.5:1) — 0.3pt penalty each
+- `tinyTextCount`: text elements below 12px font-size floor — 0.3pt penalty each
+- `overflows`: text-bearing elements extending beyond slide bounds (ignoring decorative accents) — 0.2pt penalty each, capped at 2
+- `brokenImgs`: images that failed to load — 2pt penalty each
 
 ---
 
@@ -129,24 +134,51 @@ How well do images work within the design system?
 | 8–9 | Images as design elements: placement follows the grid, images have a visual thread (consistent palette/motif), the deck reads differently with and without images — both work |
 | 10 | Images and design are inseparable: each image's position is as deliberate as the text zones, the visual thread adds a narrative layer, image-text relationships create meaning beyond either alone |
 
-**Measurable:** text-image overlap count, placement variety distribution, opacity appropriateness, image zone presence in design directives.
+**Computed metrics:**
+- `textOnImageCount`: text elements whose bounding box overlaps an image by >30% area, where image opacity >0.2 (>0.5 opacity requires only 30% overlap; 0.2–0.5 opacity requires >70%) — 0.5pt penalty each, capped at 6
+- `imgPlacements`: set of placement positions used (right, left, top, bottom, centre) — 2pt penalty if fewer than 3 positions
+- `imgOverlaps`: total bounding-box text-image intersections (same as textOnImageCount)
+- `totalImgs`: total images across deck — 1pt penalty if fewer than 20% of slides have images
+
+---
+
+## 9. Content Completeness
+
+Does the rendered output preserve all source text and images?
+
+| Score | Criteria |
+|-------|----------|
+| 1–3 | Major content loss: >20% of source text or >50% of source images missing from rendered output, entire slides dropped or empty |
+| 4–5 | Moderate loss: 10–20% text missing, some images dropped by layout (arc, stagger, etc.), body text truncated on dense slides |
+| 6–7 | Minor loss: <10% text missing, all images present but some may overflow or be clipped, no dropped slides |
+| 8–9 | Near-complete: all source text and images render visibly, URLs/citations/references preserved, tables intact, only cosmetic trimming |
+| 10 | Perfect fidelity: every source image appears in HTML, every text block renders visibly, all URLs/links/citations preserved, slide count matches source |
+
+**Computed metrics:**
+- `emptyBodyZones`: body/bullets/quote zones that render with no text content — 0.5pt penalty each
+- `contentlessSlides`: slides with neither text nor images — 2pt penalty each
+- `tableTruncations`: tables wider than container, or rows hidden by overflow clipping — 1pt penalty each
+- `clippedContentSlides`: slides where overflow:hidden clips visible text inside a zone — 1.5pt penalty each
+- `slidesWithNoVisibleText`: slides whose total visible text is under 5 characters — 2pt penalty each
+- `perSlideTextLen`: array of visible character counts per slide (for diagnostics)
 
 ---
 
 ## Scoring Summary
 
-| Dimension | Weight | Method |
-|-----------|--------|--------|
-| Accessibility | 1× | Computed (JS audit) |
-| Communicability | 1× | Visual (Claude assessment) |
-| Taste | 1× | Visual (Claude assessment) |
-| Grid Utilization | 1× | Computed + Visual |
-| Color Harmonics | 1× | Computed + Visual |
-| Layout Balance | 1× | Visual (Claude assessment) |
-| Coherence & Variance | 1× | Computed + Visual |
-| Image Integration | 1× | Computed + Visual |
+| Dimension | Weight | Method | Headless |
+|-----------|--------|--------|----------|
+| Accessibility | 1× | Computed (Puppeteer audit) | Yes |
+| Communicability | 1× | Visual (Claude assessment) | No (stub) |
+| Taste | 1× | Visual (Claude assessment) | No (stub) |
+| Grid Utilization | 1× | Computed (zone analysis) | Yes |
+| Color Harmonics | 1× | Computed (palette analysis) | Yes |
+| Layout Balance | 1× | Visual (Claude assessment) | No (stub) |
+| Coherence & Variance | 1× | Computed (variety metrics) | Yes |
+| Image Integration | 1× | Computed (overlap detection) | Yes |
+| Content Completeness | 1× | Computed (rendered audit) | Yes |
 
-**Total: /80** → normalized to /100 for reporting.
+**Total: /90** → headless evaluator computes 6/9 dimensions (/60). Visual-only dimensions (Communicability, Taste, Balance) require Claude vision assessment and are reported as "—" in headless mode.
 
 ### Quality tiers
 

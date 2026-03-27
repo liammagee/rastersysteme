@@ -1,6 +1,6 @@
 const { describe, it } = require("node:test");
 const assert = require("node:assert/strict");
-const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned } = require("./raster.js");
+const { parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, renderDesigned, generateHTML, esc, attrEsc } = require("./raster.js");
 const { runQA, auditA11y, scoreDesign, validateLayouts, validateIntensity, validateContentPreservation, contrastRatio, relativeLuminance, INTENSITY_RULES } = require("./qa.js");
 const { buildPrompt, sanitizeClaudeOutput, DESIGN_BRIEF, DESIGN_MOODS, INTENSITY } = require("./compose.js");
 const { RUBRIC, buildEvalPrompt, parseEvaluation } = require("./compare.js");
@@ -789,6 +789,44 @@ describe("Layout renderers", () => {
     }
   });
 
+  it("all HTML layouts render source images when present", () => {
+    const testSlide = {
+      layout: null, title: "Test Title", subtitle: null,
+      bullets: [{ text: "bullet 1", level: 0 }],
+      body: ["Some body text"],
+      blockquote: null,
+      images: [{ src: "images/test-book-cover.png", alt: "Book cover" }],
+      videos: [], tables: [], codeBlocks: [],
+      links: [], label: "", designDirective: null,
+    };
+    // Layouts that should render source images (all except blank, video, and image which has its own handling)
+    const layoutsToCheck = ["title", "section", "bullets", "split", "stagger", "rotated",
+      "fragment", "overlap", "arc", "table", "code"];
+    for (const name of layoutsToCheck) {
+      const fn = HTML_LAYOUTS[name];
+      if (!fn) continue;
+      // Give table slides a table so the table layout works
+      const slideForLayout = { ...testSlide, tables: name === "table" ? [{ headers: ["Col A", "Col B"], alignments: ["left", "left"], rows: [["1", "2"]], isLayoutTable: false }] : [] };
+      const html = fn(slideForLayout);
+      assert.ok(html.includes("test-book-cover.png"),
+        `HTML_LAYOUTS.${name} should render source images, but image was dropped`);
+    }
+  });
+
+  it("arc layout renders images in right zone instead of decorative arc", () => {
+    const slide = {
+      layout: null, title: "Medieval Robots", subtitle: null,
+      bullets: [], body: ["Truitt (2015)"],
+      blockquote: null,
+      images: [{ src: "images/medieval-robots.png", alt: "Book cover" }],
+      videos: [], tables: [], codeBlocks: [],
+      links: [], label: "", designDirective: null,
+    };
+    const html = HTML_LAYOUTS.arc(slide);
+    assert.ok(html.includes("medieval-robots.png"), "arc should render the image");
+    assert.ok(!html.includes("arc-dot"), "arc should replace decorative dot with image when images present");
+  });
+
   it("HTML CSS generator returns a non-empty string", () => {
     const css = generateHTMLCSS();
     assert.ok(css.length > 500, "CSS should be substantial");
@@ -1145,6 +1183,104 @@ describe("Compose module", () => {
     assert.ok(prompt.includes("Slide 2"));
     assert.ok(!prompt.includes("Slide 1"));
     assert.ok(prompt.includes("1 objects"), "should request 1 directive");
+  });
+
+  describe("design system overrides", () => {
+    const testDS = {
+      aesthetic: "Test Codex — archival field notebook aesthetic",
+      palette: [
+        { hex: "2C2418", name: "Burnt Umber", role: "dominant" },
+        { hex: "F4EDE0", name: "Vellum", role: "ground" },
+        { hex: "B54B28", name: "Terra Sigillata", role: "accent" },
+        { hex: "3D6B5E", name: "Verdigris", role: "accent" },
+      ],
+      chromaticArc: "Opens on Vellum, deepens through Burnt Umber, closes with warmth",
+      gridStrategy: "60-column grid with 40px outer margin, titles anchor columns 1-36",
+      typeScale: { titleRange: [30, 42], bodySize: 15, labelSize: 9, titleWeightRange: [400, 700] },
+      fontStrategy: {
+        default: "Freight Text Pro",
+        secondary: "Founders Grotesk",
+        tertiary: "JetBrains Mono",
+        secondarySlides: "Founders Grotesk on section openers and timeline tables",
+      },
+      accentStrategy: "2px Terra Sigillata horizontal rule above titles",
+    };
+
+    it("injects design system palette into prompt", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal", designSystem: testDS });
+      assert.ok(prompt.includes("Burnt Umber"), "should include palette colour names");
+      assert.ok(prompt.includes("2C2418"), "should include palette hex values");
+      assert.ok(prompt.includes("F4EDE0"), "should include ground colour hex");
+    });
+
+    it("injects design system fonts into prompt", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS });
+      assert.ok(prompt.includes("Freight Text Pro"), "should include primary font");
+      assert.ok(prompt.includes("Founders Grotesk"), "should include secondary font");
+    });
+
+    it("injects design system aesthetic, arc, grid, and accent strategy", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS });
+      assert.ok(prompt.includes("Test Codex"), "should include aesthetic name");
+      assert.ok(prompt.includes("Opens on Vellum"), "should include chromatic arc");
+      assert.ok(prompt.includes("60-column grid with 40px outer margin"), "should include grid strategy");
+      assert.ok(prompt.includes("2px Terra Sigillata"), "should include accent strategy");
+    });
+
+    it("injects type scale into prompt", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal", designSystem: testDS });
+      assert.ok(prompt.includes("title 30-42px"), "should include title range");
+      assert.ok(prompt.includes("body 15px"), "should include body size");
+    });
+
+    it("uses design system aesthetic as creative direction (not random mood)", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS });
+      assert.ok(prompt.includes("CREATIVE DIRECTION: Test Codex"),
+        "creative direction should be the design system aesthetic, not a random mood");
+    });
+
+    it("explicit brief overrides design system aesthetic for creative direction", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS, brief: "dark brutalism" });
+      assert.ok(prompt.includes("CREATIVE DIRECTION: dark brutalism"),
+        "explicit brief should override design system aesthetic");
+    });
+
+    it("strips generic INVENT colours instruction when design system is provided", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal", designSystem: testDS });
+      assert.ok(!prompt.includes("INVENT 6-8 colours"),
+        "should not tell Claude to invent colours when a palette is provided");
+    });
+
+    it("strips hardcoded font names from intensity when design system is provided", () => {
+      const prompt = buildPrompt("# Title", { intensity: "maximal", designSystem: testDS });
+      assert.ok(!prompt.includes("Futura for declarations"),
+        "should not reference Futura when design system specifies different fonts");
+      assert.ok(!prompt.includes("Georgia for reflection"),
+        "should not reference Georgia when design system specifies different fonts");
+      assert.ok(!prompt.includes("Courier New for data"),
+        "should not reference Courier New when design system specifies different fonts");
+    });
+
+    it("includes BINDING constraint language", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS });
+      assert.ok(prompt.includes("BINDING DESIGN SYSTEM"),
+        "should mark the design system as binding");
+      assert.ok(prompt.includes("CRITICAL: Use ONLY colours from this palette"),
+        "should include strict constraint language");
+    });
+
+    it("includes tertiary font when provided", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate", designSystem: testDS });
+      assert.ok(prompt.includes("JetBrains Mono"), "should include tertiary font");
+    });
+
+    it("prompt without design system still uses random mood", () => {
+      const prompt = buildPrompt("# Title", { intensity: "moderate" });
+      // Should contain CREATIVE DIRECTION with some mood (not empty)
+      assert.ok(prompt.includes("CREATIVE DIRECTION:"), "should have creative direction");
+      assert.ok(!prompt.includes("BINDING DESIGN SYSTEM"),
+        "should not have binding design system block");
+    });
   });
 
   describe("JSON directives approach", () => {
@@ -1895,5 +2031,147 @@ Body paragraph here
       assert.ok(html.includes("Bullet item A"), "bullets should render in body zone via inclusion");
       assert.ok(html.includes("blockquote line"), "blockquote should render in body zone via inclusion");
     });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// ESCAPING — esc() vs attrEsc()
+// ═══════════════════════════════════════════════════════
+
+describe("Escaping functions", () => {
+  describe("attrEsc", () => {
+    it("escapes HTML special characters", () => {
+      assert.equal(attrEsc('<script>alert("xss")</script>'), '&lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;');
+    });
+
+    it("escapes ampersands", () => {
+      assert.equal(attrEsc("foo&bar"), "foo&amp;bar");
+    });
+
+    it("does NOT linkify URLs", () => {
+      const result = attrEsc("https://example.com/path?q=1");
+      assert.ok(!result.includes("<a"), "attrEsc must not produce <a> tags");
+      assert.ok(!result.includes("target="), "attrEsc must not add link attributes");
+    });
+
+    it("does NOT process markdown bold/italic", () => {
+      assert.ok(!attrEsc("**bold**").includes("<strong>"));
+      assert.ok(!attrEsc("*italic*").includes("<em>"));
+    });
+  });
+
+  describe("esc", () => {
+    it("auto-linkifies bare URLs", () => {
+      const result = esc("visit https://example.com today");
+      assert.ok(result.includes('href="https://example.com"'), "should linkify bare URL");
+    });
+
+    it("converts markdown links to anchor tags", () => {
+      const result = esc("[click here](https://example.com)");
+      assert.ok(result.includes('href="https://example.com"'));
+      assert.ok(result.includes("click here"));
+    });
+
+    it("processes markdown bold and italic", () => {
+      assert.ok(esc("**bold**").includes("<strong>bold</strong>"));
+      assert.ok(esc("*italic*").includes("<em>italic</em>"));
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// LINK RENDERING — regression test for double-encoding
+// ═══════════════════════════════════════════════════════
+
+describe("Link rendering", () => {
+  it("links in HTML output have clean href attributes (no nested <a> tags)", () => {
+    const md = `<!-- DESIGN PLAN
+{"aesthetic":"test","palette":[{"hex":"FFFFFF","name":"white","role":"ground"}],"chromaticArc":"none","gridStrategy":"simple","typeScale":{"titleRange":[32,72],"bodySize":14},"fontStrategy":{"default":"Helvetica"}}
+-->
+
+<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":4,"rowSpan":6},{"role":"body","col":4,"span":52,"row":12,"rowSpan":24}],"typography":{"title":{"size":36},"body":{"size":14}},"bg":"FFFFFF","font":"Helvetica"} -->
+# Slide with Link
+
+Some body text here.
+
+[cgscholar.com](https://cgscholar.com/posts/1200?communityId=141)
+`;
+    const fs = require("fs");
+    const tmpIn = "/tmp/test-link-render.composed.md";
+    const tmpOut = "/tmp/test-link-render.html";
+    fs.writeFileSync(tmpIn, md);
+    generateHTML(tmpIn, tmpOut);
+    const html = fs.readFileSync(tmpOut, "utf-8");
+
+    // Must NOT have nested <a> inside href
+    assert.ok(!html.includes('href="<a'), "href must not contain nested <a> tag (double-encoding bug)");
+    assert.ok(!html.includes('href="&lt;a'), "href must not contain escaped nested <a> tag");
+    // Must NOT have target/rel attributes appearing OUTSIDE of proper <a> tags (i.e. as visible text)
+    // The broken pattern was: href="<a href="..." target="_blank" rel="noopener noreferrer">url</a>"
+    // which caused the inner attributes to render as visible text
+    assert.ok(!html.includes('target=&quot;'), "escaped HTML attributes must not appear in href");
+    assert.ok(!html.includes('href="&lt;a'), "no escaped <a> tag inside href");
+
+    fs.unlinkSync(tmpIn);
+    fs.unlinkSync(tmpOut);
+  });
+
+  it("links with query parameters do not double-encode", () => {
+    const md = `<!-- DESIGN PLAN
+{"aesthetic":"test","palette":[{"hex":"FFFFFF","name":"white","role":"ground"}],"chromaticArc":"none","gridStrategy":"simple","typeScale":{"titleRange":[32,72],"bodySize":14},"fontStrategy":{"default":"Helvetica"}}
+-->
+
+<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":4,"rowSpan":6},{"role":"body","col":4,"span":52,"row":12,"rowSpan":24}],"typography":{"title":{"size":36},"body":{"size":14}},"bg":"FFFFFF","font":"Helvetica"} -->
+# Test
+
+Some content.
+
+[search](https://example.com/search?q=ai&lang=en)
+`;
+    const fs = require("fs");
+    const tmpIn = "/tmp/test-link-amp.composed.md";
+    const tmpOut = "/tmp/test-link-amp.html";
+    fs.writeFileSync(tmpIn, md);
+    generateHTML(tmpIn, tmpOut);
+    const html = fs.readFileSync(tmpOut, "utf-8");
+
+    assert.ok(!html.includes('href="<a'), "no double-encoding in href");
+
+    fs.unlinkSync(tmpIn);
+    fs.unlinkSync(tmpOut);
+  });
+
+  it("body text with bare URLs auto-links correctly via esc()", () => {
+    const result = esc("Visit https://example.com for more info.");
+    assert.ok(result.includes('href="https://example.com"'), "bare URL in text should be linkified");
+    // Should only linkify once
+    const hrefCount = (result.match(/href="https:\/\/example\.com"/g) || []).length;
+    assert.equal(hrefCount, 1, "should have exactly one link");
+  });
+
+  it("designed slides with links render cleanly", () => {
+    const md = `<!-- DESIGN PLAN
+{"aesthetic":"test","palette":[{"hex":"FFFFFF","name":"white","role":"ground"}],"chromaticArc":"none","gridStrategy":"simple","typeScale":{"titleRange":[32,72],"bodySize":14},"fontStrategy":{"default":"Helvetica"}}
+-->
+
+<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":4,"rowSpan":6},{"role":"body","col":4,"span":52,"row":12,"rowSpan":24}],"typography":{"title":{"size":36},"body":{"size":14}},"bg":"FFFFFF","font":"Helvetica"} -->
+# Test Slide
+
+Body content here.
+
+[visit site](https://example.com/path?key=value&other=2)
+`;
+    const fs = require("fs");
+    const tmpIn = "/tmp/test-designed-link.composed.md";
+    const tmpOut = "/tmp/test-designed-link.html";
+    fs.writeFileSync(tmpIn, md);
+    generateHTML(tmpIn, tmpOut);
+    const html = fs.readFileSync(tmpOut, "utf-8");
+
+    assert.ok(!html.includes('href="<a'), "designed slide href must not contain nested <a> tag");
+    assert.ok(html.includes("visit site"), "link text should appear");
+
+    fs.unlinkSync(tmpIn);
+    fs.unlinkSync(tmpOut);
   });
 });

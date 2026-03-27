@@ -1,14 +1,47 @@
 [
   {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v2.spliced.html",
+    "name": "week-2-v2.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "101K",
+    "modified": "2026-03-27T04:10:58.077Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v2.html",
+    "name": "week-2-v2",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "96K",
+    "modified": "2026-03-27T04:08:38.338Z"
+  },
+  {
     "type": "deck",
     "category": "decks",
     "path": "decks/week-2-strata.html",
     "name": "week-2-strata",
     "slides": 36,
     "theme": "light",
-    "firstTitle": "Themes: Cybernetics vs Artificial Intelligence?",
-    "size": "75K",
-    "modified": "2026-03-27T02:34:42.787Z"
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "102K",
+    "modified": "2026-03-27T04:02:24.515Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2.html",
+    "name": "week-2",
+    "slides": 21,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "68K",
+    "modified": "2026-03-27T03:59:59.484Z"
   },
   {
     "type": "spliced",
@@ -18,8 +51,8 @@
     "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "98K",
-    "modified": "2026-03-27T02:30:28.504Z"
+    "size": "96K",
+    "modified": "2026-03-27T03:53:21.625Z"
   },
   {
     "type": "deck",
@@ -29,19 +62,30 @@
     "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "93K",
-    "modified": "2026-03-27T02:29:45.560Z"
+    "size": "91K",
+    "modified": "2026-03-27T03:52:53.469Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-opus.spliced.html",
+    "name": "week-2-opus.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "104K",
+    "modified": "2026-03-27T03:16:01.023Z"
   },
   {
     "type": "deck",
     "category": "decks",
-    "path": "decks/week-2.html",
-    "name": "week-2",
-    "slides": 39,
+    "path": "decks/week-2-opus.html",
+    "name": "week-2-opus",
+    "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "101K",
-    "modified": "2026-03-27T01:45:20.750Z"
+    "size": "99K",
+    "modified": "2026-03-27T03:15:26.178Z"
   },
   {
     "type": "deck",

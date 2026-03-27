@@ -95,7 +95,9 @@ function adaptThemeForBg(theme, bgHex) {
     return {
       ...theme,
       text: "F0EBE3", textMid: "B8B0A2", textLight: "A09890",
-      accentLight: "F09080", white: "F0EBE3",
+      accent: "E8604A", accentLight: "F09080",
+      accent2: "5AADCC", accent3: "6EBB80", accent4: "D4A840",
+      white: "F0EBE3",
     };
   }
   if (!bgDark && themeBgDark) {
@@ -1588,6 +1590,12 @@ async function generate(inputPath, outputPath, options = {}) {
 // HTML SLIDESHOW GENERATOR
 // ═══════════════════════════════════════════════════════
 
+// Escape for HTML attribute values (URLs, alt text) — no linkification or markdown
+function attrEsc(str) {
+  return String(str || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+// Escape for HTML text content — includes markdown bold/italic/links and auto-linkification
 function esc(str) {
   return String(str || "")
     .replace(/&/g, "&amp;").replace(/</g, "&lt;")
@@ -1666,7 +1674,7 @@ function bodyHTML(body) {
 function linksHTML(links) {
   if (!links.length) return "";
   return '<div class="links">' +
-    links.map(l => `<a href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.text)} \u2192</a>`).join("\n") +
+    links.map(l => `<a href="${attrEsc(l.url)}" target="_blank" rel="noopener noreferrer">${attrEsc(l.text)} \u2192</a>`).join("\n") +
     '</div>';
 }
 
@@ -1674,7 +1682,7 @@ function imagesHTML(images) {
   if (!images.length) return "";
   const cls = images.length === 1 ? "images single" : "images grid";
   return `<div class="${cls}">` +
-    images.map(img => `<figure><img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy"><figcaption>${esc(img.alt)}</figcaption></figure>`).join("\n") +
+    images.map(img => `<figure><img src="${attrEsc(img.src)}" alt="${attrEsc(img.alt)}" loading="lazy"><figcaption>${esc(img.alt)}</figcaption></figure>`).join("\n") +
     '</div>';
 }
 
@@ -1721,18 +1729,18 @@ const HTML_LAYOUTS = {
       : "";
     const body = !slide.subtitle ? bodyHTML(slide.body) : "";
     return `<div class="title-left"><div class="accent-block">${slideTitle(slide, "h1")}</div></div>
-<div class="title-right">${slideSubtitle(slide)}${body}${pills}</div>`;
+<div class="title-right">${slideSubtitle(slide)}${body}${pills}${imagesHTML(slide.images)}</div>`;
   },
 
   section(slide) {
     const title = slide.title || slide.subtitle || slide.body[0] || "";
     const sub = slide.subtitle && slide.title ? slideSubtitle(slide) : "";
     return `${slideLabel(slide)}<h1 class="section-title">${esc(title)}</h1>${sub}
-<div class="accent-bar"></div>${linksHTML(slide.links)}`;
+<div class="accent-bar"></div>${imagesHTML(slide.images)}${linksHTML(slide.links)}`;
   },
 
   bullets(slide) {
-    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${bodyHTML(slide.body)}${bulletsToHTML(slide.bullets)}${slideBlockquote(slide)}`;
+    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${bodyHTML(slide.body)}${bulletsToHTML(slide.bullets)}${slideBlockquote(slide)}${imagesHTML(slide.images)}`;
   },
 
   stagger(slide) {
@@ -1745,7 +1753,7 @@ const HTML_LAYOUTS = {
       const ml = i * 8;
       return `<div class="stagger-bar" style="background:var(--${c});margin-left:${ml}%">${esc(text)}</div>`;
     }).join("\n");
-    return `${slideTitle(slide, "h1")}<div class="stagger-bars">${bars}</div>`;
+    return `${slideTitle(slide, "h1")}<div class="stagger-bars">${bars}</div>${imagesHTML(slide.images)}`;
   },
 
   split(slide) {
@@ -1758,7 +1766,7 @@ const HTML_LAYOUTS = {
     const mainText = slide.blockquote || slide.body.join("\n") || "";
     const bHTML = slide.bullets.map(b => `<p class="rotated-bullet">\u2014 ${esc(b.text)}</p>`).join("");
     return `<div class="rotated-bar"><span class="rotated-text">${esc(rotTitle.toUpperCase())}</span></div>
-<div class="rotated-content">${mainText ? `<p class="rotated-body">${esc(mainText)}</p>` : ""}${bHTML}</div>`;
+<div class="rotated-content">${mainText ? `<p class="rotated-body">${esc(mainText)}</p>` : ""}${bHTML}${imagesHTML(slide.images)}</div>`;
   },
 
   fragment(slide) {
@@ -1772,7 +1780,7 @@ const HTML_LAYOUTS = {
       const c = colors[i % 5];
       return `<div class="frag-cell" style="background:var(--${c})">${esc(item)}</div>`;
     }).join("\n");
-    return `${slideTitle(slide, "h1")}<div class="frag-grid">${cells}</div>`;
+    return `${slideTitle(slide, "h1")}<div class="frag-grid">${cells}</div>${imagesHTML(slide.images)}`;
   },
 
   overlap(slide) {
@@ -1781,12 +1789,13 @@ const HTML_LAYOUTS = {
     const right = slide.bullets.slice(half).map(b => `<p>${esc(b.text)}</p>`).join("");
     return `${slideTitle(slide, "h1")}<div class="overlap-fields">
 <div class="overlap-a">${left}${slide.body.length ? bodyHTML(slide.body) : ""}</div>
-<div class="overlap-b">${right}</div></div>`;
+<div class="overlap-b">${right}${imagesHTML(slide.images)}</div></div>`;
   },
 
   arc(slide) {
+    const imgs = slide.images.length ? imagesHTML(slide.images) : '<div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div>';
     return `<div class="arc-left">${slideTitle(slide, "h1")}${bodyHTML(slide.body)}</div>
-<div class="arc-right"><div class="arc-outer"><div class="arc-inner"><div class="arc-dot"></div></div></div></div>`;
+<div class="arc-right">${imgs}</div>`;
   },
 
   image(slide) {
@@ -1801,12 +1810,12 @@ const HTML_LAYOUTS = {
 
   table(slide) {
     const tables = slide.tables.map(t => tableToHTML(t)).join("\n");
-    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${tables}${bodyHTML(slide.body)}`;
+    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${tables}${bodyHTML(slide.body)}${imagesHTML(slide.images)}`;
   },
 
   code(slide) {
     const blocks = slide.codeBlocks.map(cb => codeToHTML(cb)).join("\n");
-    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${blocks}${bodyHTML(slide.body)}`;
+    return `${slideLabel(slide)}${slideTitle(slide, "h1")}${blocks}${bodyHTML(slide.body)}${imagesHTML(slide.images)}`;
   },
 
   blank() { return ""; },
@@ -2170,7 +2179,7 @@ function renderDesigned(slide) {
     const showImages = isImagePrimary ? slide.images : slide.images.slice(0, 3);
     const imgFit = `width:100%;height:100%;object-fit:cover;display:block`;
     const imgHTML = showImages.map(img =>
-      `<img src="${esc(img.src)}" alt="${esc(img.alt)}" loading="lazy" style="${imgFit}">`
+      `<img src="${attrEsc(img.src)}" alt="${attrEsc(img.alt)}" loading="lazy" style="${imgFit}">`
     ).join("");
     extras += `<div style="${imgStyle}">${imgHTML}</div>`;
   }
@@ -2872,7 +2881,7 @@ async function generateHTML(inputPath, outputPath, options = {}) {
     // Build per-slide inline styles — merge font, bg, and adapted colors
     const styleParts = [];
     if (slide.fontOverride) {
-      styleParts.push(`font-family:'${esc(slide.fontOverride)}',var(--font)`);
+      styleParts.push(`font-family:'${attrEsc(slide.fontOverride)}',var(--font)`);
     }
     if (slide.bgOverride) {
       styleParts.push(`background:#${slide.bgOverride}`);
@@ -2937,14 +2946,14 @@ async function generateHTML(inputPath, outputPath, options = {}) {
           designStyle.push(`--accent4:#${adapted.accent4}`);
         }
       }
-      if (slide.design.font) designStyle.push(`font-family:'${esc(slide.design.font)}',var(--font)`);
+      if (slide.design.font) designStyle.push(`font-family:'${attrEsc(slide.design.font)}',var(--font)`);
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
-      const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${esc(slide.title)}"` : ` aria-roledescription="slide"`;
+      const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${attrEsc(slide.title)}"` : ` aria-roledescription="slide"`;
       return `<section class="slide designed"${ds}${trans}${slideAria}>${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
     }
 
-    const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${esc(slide.title)}"` : ` aria-roledescription="slide"`;
+    const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${attrEsc(slide.title)}"` : ` aria-roledescription="slide"`;
     return `<section class="slide layout-${layout}"${style}${trans}${slideAria}>${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
   }).join("\n");
 
@@ -3079,7 +3088,7 @@ async function generateReview(inputPath, outputPath, options = {}) {
   const cards = slides.map((slide, idx) => {
     const layout = detectLayout(slide, idx, slides.length);
     const renderer = HTML_LAYOUTS[layout] || HTML_LAYOUTS.split;
-    const fontStyle = slide.fontOverride ? `font-family:'${esc(slide.fontOverride)}',var(--font);` : "";
+    const fontStyle = slide.fontOverride ? `font-family:'${attrEsc(slide.fontOverride)}',var(--font);` : "";
     const bgStyle = slide.bgOverride ? `background:#${slide.bgOverride};` : "";
     let adaptedVars = "";
     if (slide.bgOverride) {
@@ -3108,7 +3117,7 @@ async function generateReview(inputPath, outputPath, options = {}) {
     <span class="card-status">${statusIcon}</span>
   </div>
   <div class="card-preview">
-    <div class="slide-scaled ${slide.design ? "designed" : `layout-${layout}`}" style="${slide.design ? (slide.design.bg ? `background:#${slide.design.bg.replace(/^#/, "")};` : "") + (slide.design.font ? `font-family:'${esc(slide.design.font)}',var(--font);` : "") + slideStyle + "position:relative;overflow:hidden;padding:0" : slideStyle}">${slide.design ? renderDesigned(slide) : renderer(slide)}</div>
+    <div class="slide-scaled ${slide.design ? "designed" : `layout-${layout}`}" style="${slide.design ? (slide.design.bg ? `background:#${slide.design.bg.replace(/^#/, "")};` : "") + (slide.design.font ? `font-family:'${attrEsc(slide.design.font)}',var(--font);` : "") + slideStyle + "position:relative;overflow:hidden;padding:0" : slideStyle}">${slide.design ? renderDesigned(slide) : renderer(slide)}</div>
   </div>
   <div class="card-meta">
     <div class="tags">${contentHTML}</div>
@@ -3471,4 +3480,4 @@ if (require.main === module) {
     });
 }
 
-module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, generateHTMLJS, generateExternalCSS, renderDesigned };
+module.exports = { generate, generateHTML, generateReview, parseMarkdown, createGrid, THEMES, LAYOUTS, HTML_LAYOUTS, detectLayout, adaptThemeForBg, generateHTMLCSS, generateHTMLJS, generateExternalCSS, renderDesigned, esc, attrEsc };

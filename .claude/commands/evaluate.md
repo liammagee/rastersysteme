@@ -27,7 +27,7 @@ This runs all available evaluators in parallel:
 - **screenshot-vision**: Puppeteer screenshots + Anthropic API vision (3 visual dimensions)
 - **claude-textual**: Claude textual evaluation (content fidelity, narrative coherence)
 
-Results are confidence-weighted and merged into a 10-dimension scorecard:
+Results are confidence-weighted and merged into an 11-dimension scorecard:
 
 | Dimension | Type | Primary evaluator |
 |-----------|------|-------------------|
@@ -39,10 +39,27 @@ Results are confidence-weighted and merged into a 10-dimension scorecard:
 | Layout Balance | visual | screenshot-vision (0.85) |
 | Coherence & Variance | computed | headless-rubric (0.90) |
 | Image Integration | computed | headless-rubric (0.95) |
+| Content Completeness | computed | source-vs-rendered diff (0.95) |
 | Content Fidelity | textual | claude-textual (0.95) |
 | Narrative Coherence | textual | claude-textual (0.90) |
 
 The scorecard is automatically persisted to `logs/qa/<deckname>-scorecard.json`.
+
+### 1b. Content completeness audit (always run)
+
+This audit compares the **source markdown** against the **rendered HTML** to detect dropped content. It runs independently of the harness and produces hard numbers:
+
+1. **Image survival**: Count `![Image](...)` references in source markdown. Count corresponding `<img src="images/...">` tags in rendered HTML. Report: `N/M source images rendered (X% survival)`.
+2. **Text completeness**: Extract key text fragments from source (titles, citations, URLs, author names, dates). Grep for each in the rendered HTML. Report missing items.
+3. **Slide count**: Compare source slide count (number of `---` separators + 1) vs rendered slide count (`<section>` tags). Flag any mismatch.
+4. **Link/URL survival**: Extract all URLs from source. Check each appears in HTML.
+
+Score mapping:
+- 100% image + text + slide survival = 10/10
+- >90% survival with no dropped slides = 8-9/10
+- 80-90% = 6-7/10
+- <80% = 4-5/10
+- Dropped slides = max 5/10
 
 ### 2. Chrome visual enhancement (optional, best-effort)
 
@@ -69,10 +86,11 @@ Color Harmonics        10.0/10 0.95   headless-rubric
 Layout Balance         6.5/10  0.85   screenshot-vision
 Coherence & Variance   8.0/10  0.90   headless-rubric + markdown-qa
 Image Integration      9.0/10  0.95   headless-rubric
+Content Completeness   9.5/10  0.95   source-vs-rendered (11/11 images, 36/36 slides)
 Content Fidelity       8.5/10  0.95   claude-textual
 Narrative Coherence    7.0/10  0.90   claude-textual
 ──────────────────────────────────────────────────────────────────
-TOTAL                  81.7/100 (82% — Professional)
+TOTAL                  83.2/100 (83% — Professional)
 ```
 
 ### 4. Identify improvement priorities
