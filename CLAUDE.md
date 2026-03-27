@@ -60,7 +60,7 @@ Themes: `light` (default), `dark`, `red`, `blue`
 
 ## Skills
 
-> **Start here:** `/rs:help` — context-aware skill navigator. Scans your deck state and suggests what to do next.
+> **Start here:** `/rs` — context-aware skill navigator. Scans your deck state and suggests what to do next.
 
 **Composition & rendering:**
 
@@ -112,6 +112,6 @@ Themes: `light` (default), `dark`, `red`, `blue`
 
 | Skill | Description |
 |-------|-------------|
-| `/rs:help` | Skill navigator — deck state, skill guide, next steps |
+| `/rs` | Skill navigator — deck state, skill guide, next steps |
 | `/rs:batch <skill> [files]` | Run any skill across multiple decks |
 | `/rs:promote` | Triage untracked scripts into codebase or delete |
