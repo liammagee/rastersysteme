@@ -238,34 +238,80 @@ function buildPrompt(markdown, options = {}) {
 
   const parts = [DESIGN_BRIEF];
 
-  parts.push(INTENSITY[intensity] || INTENSITY.moderate);
+  // Load design system early — it overrides intensity defaults for palette/font/accent
+  let ds = null;
+  if (options.designSystem) {
+    ds = typeof options.designSystem === "string"
+      ? require("./design-system.js").loadSystem(options.designSystem)
+      : options.designSystem;
+    process.stderr.write(`  ${dim("Design system:")} ${teal(ds.aesthetic || "loaded")}\n`);
+  }
 
-  // Pick a random mood and seed for variation across runs
+  // Inject intensity guide — but strip hardcoded palette/font/accent lines when a design system overrides them
+  let intensityBlock = INTENSITY[intensity] || INTENSITY.moderate;
+  if (ds) {
+    // Remove lines that conflict with the design system's palette, font, and accent specs
+    intensityBlock = intensityBlock
+      .replace(/^.*INVENT \d+-\d+ colours.*$/gm, "")
+      .replace(/^.*Futura for declarations.*$/gm, "")
+      .replace(/^.*Georgia for reflection.*$/gm, "")
+      .replace(/^.*Courier New for data.*$/gm, "")
+      .replace(/^.*Helvetica Neue (default|ONLY).*$/gm, "")
+      .replace(/^.*Font:.*$/gim, "")
+      .replace(/^.*font:.*Helvetica.*$/gm, "")
+      .replace(/^.*Use Georgia on.*$/gm, "")
+      .replace(/^.*2-3 typefaces.*$/gm, "")
+      .replace(/\n{3,}/g, "\n\n");
+  }
+  parts.push(intensityBlock);
+
+  // Load design lessons from evaluation feedback (outer loop)
+  const lessonsPath = path.join(__dirname, "design-lessons.md");
+  if (fs.existsSync(lessonsPath)) {
+    const lessonsText = fs.readFileSync(lessonsPath, "utf-8");
+    // Extract just the lesson sections (skip evaluation log entries)
+    const sections = lessonsText.split(/\n## /);
+    const rules = sections
+      .filter(s => !s.startsWith("Evaluation Log"))
+      .map(s => s.replace(/^#.*\n/, "").trim())
+      .filter(s => s.length > 20)
+      .join("\n\n");
+    if (rules) {
+      parts.push(`DESIGN LESSONS (from prior evaluation feedback — follow these strictly):
+
+${rules}
+
+END DESIGN LESSONS`);
+      process.stderr.write(`  ${dim("Lessons:")} loaded from design-lessons.md\n`);
+    }
+  }
+
+  // Pick a random seed for variation across runs
   const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
   process.stderr.write(`  ${dim("Seed:")} ${chalk.italic(seed.slice(0, 70))}${dim("...")}\n`);
-  const direction = brief || getDefaultBrief();
+
+  // Creative direction: design system aesthetic takes priority, then --brief, then random mood
+  const direction = ds ? (brief || ds.aesthetic) : (brief || getDefaultBrief());
   parts.push(`CREATIVE DIRECTION: ${direction}
 
 COMPOSITIONAL EMPHASIS FOR THIS RUN: ${seed}`);
 
-  // Inject design system if provided — constrains Claude's choices
-  if (options.designSystem) {
-    const ds = typeof options.designSystem === "string"
-      ? require("./design-system.js").loadSystem(options.designSystem)
-      : options.designSystem;
+  // Inject full design system constraints — these override all generic palette/font/accent guidance above
+  if (ds) {
     const palette = (ds.palette || []).map(c => `${c.hex} (${c.name}, ${c.role})`).join(", ");
     const fonts = ds.fontStrategy
-      ? `Primary: ${ds.fontStrategy.default}` + (ds.fontStrategy.secondary ? `, Secondary: ${ds.fontStrategy.secondary}` : "")
+      ? `Primary: ${ds.fontStrategy.default}` + (ds.fontStrategy.secondary ? `, Secondary: ${ds.fontStrategy.secondary}` : "") + (ds.fontStrategy.tertiary ? `, Tertiary: ${ds.fontStrategy.tertiary}` : "")
       : "";
-    parts.push(`DESIGN SYSTEM (use these specific colours, fonts, and strategies):
+    parts.push(`BINDING DESIGN SYSTEM — these constraints override ALL generic guidance above:
 Aesthetic: ${ds.aesthetic || ""}
 Palette: ${palette}
 Chromatic arc: ${ds.chromaticArc || ""}
 Grid strategy: ${ds.gridStrategy || ""}
-Font strategy: ${fonts}${ds.fontStrategy?.secondarySlides ? " — " + ds.fontStrategy.secondarySlides : ""}
+Type scale: title ${ds.typeScale?.titleRange?.[0] || 30}-${ds.typeScale?.titleRange?.[1] || 44}px, body ${ds.typeScale?.bodySize || 14}px, label ${ds.typeScale?.labelSize || 8}px, title weight ${ds.typeScale?.titleWeightRange?.[0] || 400}-${ds.typeScale?.titleWeightRange?.[1] || 700}
+Font strategy: ${fonts}${ds.fontStrategy?.secondarySlides ? "\n  Secondary usage: " + ds.fontStrategy.secondarySlides : ""}
 Accent strategy: ${ds.accentStrategy || ""}
-IMPORTANT: Use ONLY colours from this palette for bg overrides. Use ONLY the specified fonts.`);
-    process.stderr.write(`  ${dim("Design system:")} ${teal(ds.aesthetic || "loaded")}\n`);
+
+CRITICAL: Use ONLY colours from this palette for bg overrides. Use ONLY the specified fonts. Follow the chromatic arc, grid strategy, and accent strategy exactly. Do NOT invent colours, fonts, or accent patterns outside this system.`);
   }
 
   // Strip multi-line HTML comments before processing (prevents leaked <!-- --> in output)
@@ -302,7 +348,44 @@ YOUR TASK: Output ONLY a JSON array with exactly ${sourceSlides.length} objects 
 one directive per source slide. Do NOT reproduce the slide content.
 We will inject your directives into the original slides programmatically.
 
-Each object specifies the visual treatment for that slide:
+${ds ? `Each object specifies the FULL grid-based visual treatment for that slide.
+You MUST use the design system's palette, fonts, grid strategy, accent strategy, and type scale.
+
+{
+  "slide": 1,
+  "zones": [
+    { "role": "title", "col": 0, "span": 36, "row": 2, "rowSpan": 15 },
+    { "role": "body", "col": 0, "span": 40, "row": 18, "rowSpan": 20 }
+  ],
+  "accents": [
+    { "type": "bar", "col": 0, "span": 60, "row": 1, "rowSpan": 1, "color": "B54B28" }
+  ],
+  "typography": {
+    "title": { "size": 38, "weight": 700 },
+    "body": { "size": 15 }
+  },
+  "bg": "F4EDE0",
+  "font": "Founders Grotesk",
+  "label": "INTRODUCTION",
+  "notes": "Design rationale"
+}
+
+ZONE ROLES: title, body, bullets, label, quote, image
+COLUMNS: 0-59 (col + span <= 60). ROWS: 0-39 (row + rowSpan <= 40).
+ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
+TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
+
+RULES:
+- Return EXACTLY ${sourceSlides.length} objects in a JSON array
+- Every slide MUST have zones, bg, and font
+- Each slide should be a UNIQUE composition on the 60x40 grid — no two slides share the same zone arrangement
+- Use ONLY colours from the design system palette for bg and accent colors
+- Use ONLY the design system fonts (primary, secondary, tertiary)
+- Follow the chromatic arc described in the design system
+- Follow the accent strategy — place accent elements as specified
+- Follow the type scale — title sizes within the specified range
+- Labels should create Swiss-scale texture (tiny caps against large titles)` :
+`Each object specifies the visual treatment for that slide:
 {
   "slide": 1,
   "layout": "split",          // one of: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank
@@ -318,7 +401,7 @@ RULES:
 - Vary layouts: use at least 5 different types, no 3× consecutive repeats
 - Build a chromatic arc with bg overrides (vary darkness, use the palette from your mood)
 - Use font overrides sparingly (10-25% of slides) for typographic contrast
-- Labels should create Swiss-scale texture (tiny caps against large titles)
+- Labels should create Swiss-scale texture (tiny caps against large titles)`}
 - The JSON array must be valid JSON — no trailing commas, no comments
 
 Output ONLY the JSON array. No commentary, no code fences, no preamble.
@@ -724,14 +807,21 @@ function assembleComposed(sourceMd, directives) {
 
     const parts = [];
 
-    // Layout directive
-    if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
-
-    // Background override
-    if (d.bg) parts.push(`<!-- bg: ${d.bg} -->`);
-
-    // Font override
-    if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+    // Full design directive (zones, accents, typography) — takes priority over layout
+    if (d.zones) {
+      const designObj = {};
+      if (d.zones) designObj.zones = d.zones;
+      if (d.accents) designObj.accents = d.accents;
+      if (d.typography) designObj.typography = d.typography;
+      if (d.bg) designObj.bg = d.bg;
+      if (d.font) designObj.font = d.font;
+      parts.push(`<!-- design: ${JSON.stringify(designObj)} -->`);
+    } else {
+      // Simple layout directive fallback
+      if (d.layout) parts.push(`<!-- layout: ${d.layout} -->`);
+      if (d.bg) parts.push(`<!-- bg: ${d.bg} -->`);
+      if (d.font) parts.push(`<!-- font: ${d.font} -->`);
+    }
 
     // Section label
     if (d.label) parts.push(`### ${d.label}`);
@@ -977,7 +1067,15 @@ async function composeIncremental(inputPath, outputPath, options = {}) {
   const designSystemPath = path.join(workDir, "design-system.json");
   let designSystem;
 
-  if (fs.existsSync(designSystemPath)) {
+  // If a named design system was passed via --design-system, load and use it directly
+  if (options.designSystem) {
+    designSystem = typeof options.designSystem === "string"
+      ? require("./design-system.js").loadSystem(options.designSystem)
+      : options.designSystem;
+    // Cache it to the work dir so incremental reruns reuse it
+    fs.writeFileSync(designSystemPath, JSON.stringify(designSystem, null, 2));
+    process.stderr.write(`  ${sage("✓")} Stage 1: ${chalk.white(designSystem.aesthetic || "Design system loaded")} ${dim("(from --design-system)")}\n`);
+  } else if (fs.existsSync(designSystemPath)) {
     process.stderr.write(`  ${sage("✓")} Stage 1: Design system ${dim("(cached)")}\n`);
     designSystem = JSON.parse(fs.readFileSync(designSystemPath, "utf-8"));
   } else {
@@ -1193,7 +1291,7 @@ CRITICAL IMAGE-AWARE LAYOUT RULE:
     const examples = {
       minimal: `{"slide":1, "zones":[{"role":"title","col":6,"span":30,"row":12,"rowSpan":16},{"role":"body","col":6,"span":36,"row":20,"rowSpan":18}], "typography":{"title":{"size":32,"weight":400},"body":{"size":14}}, "bg":"F8F5F0", "font":"${defaultFont}"${imgExample}}`,
       moderate: `{"slide":1, "zones":[{"role":"title","col":4,"span":24,"row":4,"rowSpan":14},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}], "accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"${accentHex}"}], "typography":{"title":{"size":42,"weight":700},"body":{"size":14}}, "bg":"F8F5F0", "font":"${defaultFont}", "label":"SECTION NAME"${imgExample}}`,
-      maximal: `{"slide":1, "zones":[{"role":"label","col":4,"span":20,"row":2,"rowSpan":4},{"role":"title","col":0,"span":58,"row":10,"rowSpan":20},{"role":"body","col":30,"span":26,"row":32,"rowSpan":8}], "accents":[{"type":"bar","col":26,"span":3,"row":0,"rowSpan":40,"color":"${accentHex}"},{"type":"dot","col":55,"span":3,"row":3,"rowSpan":3,"color":"${(designSystem.palette?.[3]?.hex) || 'FFD700'}"}], "typography":{"title":{"size":72,"weight":900,"tracking":"0.08em"},"body":{"size":13},"label":{"size":9,"tracking":"0.3em","transform":"uppercase"}}, "bg":"0A1628", "font":"Futura", "label":"PROVOCATION"${imgExample}}`,
+      maximal: `{"slide":1, "zones":[{"role":"label","col":4,"span":20,"row":2,"rowSpan":4},{"role":"title","col":0,"span":58,"row":10,"rowSpan":20},{"role":"body","col":30,"span":26,"row":32,"rowSpan":8}], "accents":[{"type":"bar","col":26,"span":3,"row":0,"rowSpan":40,"color":"${accentHex}"},{"type":"dot","col":55,"span":3,"row":3,"rowSpan":3,"color":"${(designSystem.palette?.[3]?.hex) || 'FFD700'}"}], "typography":{"title":{"size":72,"weight":900,"tracking":"0.08em"},"body":{"size":13},"label":{"size":9,"tracking":"0.3em","transform":"uppercase"}}, "bg":"${(designSystem.palette?.[0]?.hex) || '0A1628'}", "font":"${defaultFont}", "label":"PROVOCATION"${imgExample}}`,
     };
 
     return `You are a Swiss-trained art director who DESIGNS slides on a 60-column × 40-row grid.

@@ -1,0 +1,55 @@
+{
+  "aesthetic": "Strata Codex — An archival design language drawn from archaeological field notebooks, Enlightenment-era scientific plates, and 20th-century academic press typography. Information is presented as layered sediment: each historical epoch earns its own visual register while belonging to a unified intellectual excavation. The system rejects startup gloss in favor of the quiet authority of a well-annotated monograph.",
+  "palette": [
+    {
+      "hex": "2C2418",
+      "name": "Burnt Umber",
+      "role": "dominant"
+    },
+    {
+      "hex": "F4EDE0",
+      "name": "Vellum",
+      "role": "ground"
+    },
+    {
+      "hex": "B54B28",
+      "name": "Terra Sigillata",
+      "role": "accent"
+    },
+    {
+      "hex": "3D6B5E",
+      "name": "Verdigris",
+      "role": "accent"
+    },
+    {
+      "hex": "C4A24F",
+      "name": "Ochre Folio",
+      "role": "signal"
+    },
+    {
+      "hex": "8A7E6D",
+      "name": "Fieldstone",
+      "role": "dominant"
+    },
+    {
+      "hex": "1B3A4B",
+      "name": "Deep Archive",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Opens on Vellum grounds with Burnt Umber type — the feel of a freshly opened codex. Terra Sigillata appears from slide 3 as the cybernetics-vs-AI rivalry heats up, marking moments of intellectual friction. The deep historical middle section (slides 7-14, proto-computing through industrialization) shifts to Deep Archive backgrounds with Vellum type for gravitas — these are the excavated strata. Verdigris carries all comparative structures (tables, timelines, side-by-side layouts) as cell borders and column separators, evoking copper-plate engraving. Ochre Folio appears only for propositions and key quotations — the marginalia that changes how you read the rest. The ballistics/computation section (slides 15-20) returns to Vellum with Terra Sigillata accents to signal urgency. The final contemporary section softens back to Vellum/Burnt Umber with Fieldstone supporting elements, closing the codex with composure.",
+  "gridStrategy": "60-column grid with a 40px outer margin. Titles anchor to columns 1-36 on standard slides, with a 2px Terra Sigillata rule extending from the left margin to column 40, positioned 32px above the title baseline — the persistent excavation mark. Section-break slides center the title vertically spanning columns 5-55, flanked by thin Fieldstone rules above and below. Split layouts: text occupies columns 1-32, visual/data zone columns 36-60, with a 1px Verdigris vertical rule at column 34. Dense comparative slides (the grand timeline table) use the full 60 columns with Verdigris cell borders at 0.5px — legible structure that never competes with content. Quotation slides compress text to columns 8-48 with generous vertical centering and an Ochre Folio left-border bar (4px, columns 6-7). Bottom margin: 1px Fieldstone rule, slide number flush right at column 60, section epoch label flush left at column 1, both at 7pt.",
+  "typeScale": {
+    "titleRange": [30, 42],
+    "bodySize": 15,
+    "labelSize": 9,
+    "titleWeightRange": [400, 700]
+  },
+  "fontStrategy": {
+    "default": "Freight Text Pro — editorial serif with warm ink-trap details and strong readability at body sizes; carries all running text, bullet points, and table content. Its slightly old-style proportions evoke scholarly publishing without feeling antiquarian.",
+    "secondary": "Founders Grotesk — a grotesque with humanist warmth and strong geometric bones; used for all titles, section labels, and navigational elements. Its restrained character width provides density for long historical titles without crowding. Set at -1% tracking.",
+    "tertiary": "JetBrains Mono — reserved for dates, mathematical notation, and technical references (calculus expressions, model names). Its programming-register clarity distinguishes temporal and quantitative content from discursive text.",
+    "secondarySlides": "Founders Grotesk takes over entirely on section openers and the grand timeline table, where typographic uniformity prevents the serif/sans tension from fragmenting dense information. On quotation slides, Freight Text Pro leads at 24-28pt — the serif earns its full voice when given space."
+  },
+  "accentStrategy": "The 2px Terra Sigillata horizontal rule above titles is the excavation line — it appears on every standard slide, varying in length to reflect content weight (shorter for breathing-room slides, spanning full width on dense ones). Verdigris 0.5px rules structure all tabular and comparative content — they are architectural, never decorative. The Ochre Folio left-border bar (4px) marks exactly one quotation or key proposition per section — it is the scholar's marginal flag. Deep Archive is used as full-bleed background on no more than 4 slides total, reserved for moments of historical depth that need visual gravity. Fieldstone carries all secondary annotations, footnote-style references, and the persistent bottom rule. No gradients, no shadows, no rounded corners. The only curves permitted are the 8px Ochre Folio circle used as a bullet replacement on key-proposition slides."
+}
