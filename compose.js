@@ -348,8 +348,8 @@ YOUR TASK: Output ONLY a JSON array with exactly ${sourceSlides.length} objects 
 one directive per source slide. Do NOT reproduce the slide content.
 We will inject your directives into the original slides programmatically.
 
-${ds ? `Each object specifies the FULL grid-based visual treatment for that slide.
-You MUST use the design system's palette, fonts, grid strategy, accent strategy, and type scale.
+Each object specifies the FULL grid-based visual treatment for that slide.
+${ds ? `You MUST use the design system's palette, fonts, grid strategy, accent strategy, and type scale.` : `INVENT a 4-colour palette (ground, dominant, accent, signal) and use it consistently. Use Helvetica Neue as default, Georgia as secondary serif.`}
 
 {
   "slide": 1,
@@ -365,7 +365,7 @@ You MUST use the design system's palette, fonts, grid strategy, accent strategy,
     "body": { "size": 15 }
   },
   "bg": "F4EDE0",
-  "font": "Founders Grotesk",
+  "font": "Helvetica Neue",
   "label": "INTRODUCTION",
   "notes": "Design rationale"
 }
@@ -377,31 +377,17 @@ TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align
 
 RULES:
 - Return EXACTLY ${sourceSlides.length} objects in a JSON array
-- Every slide MUST have zones, bg, and font
+- Every slide MUST have zones, bg, and font — the "zones" array is MANDATORY
 - Each slide should be a UNIQUE composition on the 60x40 grid — no two slides share the same zone arrangement
-- Use ONLY colours from the design system palette for bg and accent colors
+${ds ? `- Use ONLY colours from the design system palette for bg and accent colors
 - Use ONLY the design system fonts (primary, secondary, tertiary)
 - Follow the chromatic arc described in the design system
 - Follow the accent strategy — place accent elements as specified
-- Follow the type scale — title sizes within the specified range
-- Labels should create Swiss-scale texture (tiny caps against large titles)` :
-`Each object specifies the visual treatment for that slide:
-{
-  "slide": 1,
-  "layout": "split",          // one of: title, section, bullets, stagger, split, rotated, fragment, overlap, arc, blank
-  "bg": "0F2A4A",             // background hex (6 chars, no #) — or null for theme default
-  "font": "Georgia",          // font override — or null for default Helvetica Neue
-  "label": "INTRODUCTION",    // ### section label to add — or null for none
-  "notes": "Design rationale" // append to speaker notes — or null
-}
-
-RULES:
-- Return EXACTLY ${sourceSlides.length} objects in a JSON array
-- Every slide MUST have a layout
-- Vary layouts: use at least 5 different types, no 3× consecutive repeats
-- Build a chromatic arc with bg overrides (vary darkness, use the palette from your mood)
+- Follow the type scale — title sizes within the specified range` :
+`- Build a chromatic arc: vary bg darkness across the deck (light ground → dark dividers → light)
 - Use font overrides sparingly (10-25% of slides) for typographic contrast
-- Labels should create Swiss-scale texture (tiny caps against large titles)`}
+- Vary layouts: rotate through 4+ zone archetypes, no 3x consecutive repeats`}
+- Labels should create Swiss-scale texture (tiny caps against large titles)
 - The JSON array must be valid JSON — no trailing commas, no comments
 
 Output ONLY the JSON array. No commentary, no code fences, no preamble.
