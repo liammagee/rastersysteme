@@ -1,14 +1,25 @@
 [
   {
-    "type": "deck",
+    "type": "spliced",
     "category": "decks",
-    "path": "decks/week-2-strata.html",
-    "name": "week-2-strata",
+    "path": "decks/week-2-v3.spliced.html",
+    "name": "week-2-v3.spliced",
     "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "104K",
-    "modified": "2026-03-27T04:51:18.244Z"
+    "size": "95K",
+    "modified": "2026-03-27T05:03:19.486Z"
+  },
+  {
+    "type": "deck",
+    "category": "root",
+    "path": "week-1-broker-test.html",
+    "name": "week-1-broker-test",
+    "slides": 5,
+    "theme": "light",
+    "firstTitle": "Introduction to Generative AI for Education",
+    "size": "39K",
+    "modified": "2026-03-27T05:00:55.612Z"
   },
   {
     "type": "deck",
@@ -19,7 +30,18 @@
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "90K",
-    "modified": "2026-03-27T04:50:31.381Z"
+    "modified": "2026-03-27T04:59:55.102Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-strata.html",
+    "name": "week-2-strata",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "104K",
+    "modified": "2026-03-27T04:51:18.244Z"
   },
   {
     "type": "deck",

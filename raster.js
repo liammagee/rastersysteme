@@ -2022,6 +2022,12 @@ function renderDesigned(slide) {
 
   // Append unzoned content that has no matching zone in the design
   let extras = "";
+  // Unzoned title — slide has a heading but no title zone
+  if (!zonedRoles.has("title") && (slide.title || slide.subtitle)) {
+    const titleText = slide.title || slide.subtitle;
+    const titleStyle = typographyToCSS(typography.title || {}, "title", slideBg);
+    extras += `<div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:${gapVal}"><h1 style="${titleStyle}">${esc(titleText)}</h1></div>`;
+  }
   // Unzoned body text / bullets — append below last zone
   if (!zonedRoles.has("body") && !zonedRoles.has("bullets") && !zonedRoles.has("quote")) {
     const parts = [];

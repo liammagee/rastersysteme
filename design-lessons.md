@@ -7,6 +7,9 @@ future composition. Updated by `rubric-headless.js` after each evaluation run.
 
 ## Zone Sizing
 
+- **Every slide with a heading (# or ##) MUST have a title zone.** Without a title
+  zone, the heading text vanishes. This was the second most common compose error:
+  7/36 slides had headings but no title zone.
 - **Tables with >5 rows** need a dedicated `"table"` zone with `rowSpan >= 30`
   and body font-size <= 11px. Never rely on a generic body zone for large tables.
 - **Body zones** need `rowSpan >= 24` when the slide has >5 bullets or >3 body
@@ -169,3 +172,9 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-27] **week-2-strata.html**: 7 empty body zones. Remove body zones from image-only and table-only slides. Match zone roles to actual content type.
 - [2026-03-27] **week-2-strata.html**: 12 WCAG contrast failures. On dark backgrounds (lum < 0.2), use FFFFFF/F8F5F0 for titles, F0EBE3 for body. Avoid mid-tone text on any background.
 - [2026-03-27] **week-2-strata.html**: 43 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+
+- [2026-03-27] **week-2-v3.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v3.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v3.spliced.html**: All computed dimensions scored >= 8. No new lessons.
