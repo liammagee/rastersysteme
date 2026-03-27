@@ -40,6 +40,9 @@ decks/*.html           → final slide decks
 | `qa.js` | Markdown-level QA (WCAG, design scoring, validation) |
 | `qa-html.js` | Headless browser QA via Puppeteer |
 | `qa-live.js` | Injectable browser audit overlay (press A in deck) |
+| `brief-extract.js` | Design fingerprinting — extract zone archetypes, palette, typography from composed markdown |
+| `rubric-jsdom.js` | Offline rubric evaluation via jsdom (no Puppeteer/Chrome needed) |
+| `run-rubric-eval.js` | Wrapper: starts temp HTTP server + runs rubric-headless evaluation |
 
 ## Rendering
 
