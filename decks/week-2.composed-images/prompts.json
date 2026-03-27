@@ -1,0 +1,395 @@
+{
+  "visualThread": {
+    "palette": [
+      "aged parchment #C8B89A",
+      "prussian blue #1A2C4E",
+      "warm copper #9B6B3A",
+      "cool silver-grey #B8BCC4",
+      "burnt sienna #7A3A2A"
+    ],
+    "motif": "Layered translucent geometric forms — coordinate grids, branching paths, concentric circles, Saul Bass simplified figures — suggesting accumulated knowledge across centuries, like scientific diagrams from different eras overlaid on aged paper. Every image anchors to at least one grid or network element.",
+    "atmosphere": "Diffused raking light from a single tall window, casting soft long shadows across textured parchment surfaces. Scholarly and contemplative — warm parchment tones contrasting cold indigo shadows. 35mm film grain throughout. Suspended between eras, neither nostalgic nor futuristic."
+  },
+  "prompts": [
+    {
+      "slide": 1,
+      "title": "Gen AI - Week 2 - Pathways to AI",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. A network of branching geometric lines on aged parchment, prussian blue veins splitting and reconnecting, warm copper nodes at each junction. Raking light from upper left casts long soft shadows across the surface. Semi-abstract, suggests a cartographic diagram of possible routes rather than a literal map. Saul Bass poster minimalism. Muted palette: parchment, deep indigo, copper. No text, no labels.",
+      "negativePrompt": "literal roads, actual map labels, GPS UI, clip art, stock photo aesthetic, HDR, oversaturation, 3D render",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 2,
+      "title": "Initial Definition: Artificial Intelligence (McCarthy et al., 1955)",
+      "prompt": "Editorial photography, 35mm film grain. Aged document fragment on parchment texture, overlaid with emerging abstract geometric forms — branching decision trees morphing into mathematical symbols, cool silver outlines dissolving into deep indigo. A single worn sheet under raking window light, strong diagonal shadows. The moment language and machine logic first intersect. Otl Aicher pictogram aesthetic. Muted parchment and prussian blue palette. No readable text.",
+      "negativePrompt": "literal typewriter photograph, actual readable text, stock office imagery, modern computer, HDR, clip art",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 3,
+      "title": "Themes: Cybernetics vs Artificial Intelligence",
+      "prompt": "Editorial photography, 35mm film grain. Two overlapping but distinct circular systems on parchment: one organic and looping in warm copper — soft curves, feedback arrows — the other angular and recursive in prussian blue — precise grids, sharp corners. A translucent silver zone where the two systems intersect. Raking window light, shallow DOF. Otl Aicher pictogram aesthetic. Competing visions given equal visual weight.",
+      "negativePrompt": "Venn diagram labels, text overlays, literal robot vs human, clip art, HDR, stock imagery, named logos",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 4,
+      "title": "Roll Forward — Symbiosis, Human-AI Teaming",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. Two simplified Saul Bass silhouettes — one organic with warm copper contours, one geometric with prussian blue grid-lines — their forms interlacing and overlapping, neither separable from the other. Aged parchment background with faint coordinate grid. Diffused window light, gentle soft shadows. Suggests co-intelligence and partnership rather than dominance or replacement.",
+      "negativePrompt": "literal cyborg prosthetics, robotic arm, sci-fi aesthetic, stock partnership photo, HDR, clip art, text",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 5,
+      "title": "AI in 2026: An Opinionated Take",
+      "prompt": "Editorial photography, 35mm film grain. Wide flat horizon: deep prussian blue gradient sky above a parchment-toned open plane, scattered copper-colored nodes like distant unresolved landmarks. The composition suggests survey — an observer's gaze across a complex and ambiguous terrain. Near-empty foreground. Weight concentrated in the upper half. Saul Bass landscape reduction. Minimal, contemplative, unresolved.",
+      "negativePrompt": "literal cityscape, technology product imagery, glowing screens, futuristic UI, HDR, stock panorama, text labels",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 6,
+      "title": "AI Consolidation — The Big Three",
+      "prompt": "Editorial photography, 35mm film grain. Three large translucent prussian blue geometric cylinders standing close together, their cast shadows merging into a single unified dark mass on the parchment floor below. Small scattered copper fragments at the periphery suggest displaced alternatives. Raking cold light from one side, long dramatic shadows. Cold, architectural, monumental. Concentration of power rendered as spatial fact.",
+      "negativePrompt": "company logos, brand colors, literal building photography, HDR, clip art, stock corporate imagery, named entities",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 7,
+      "title": "Rise of Open Source Models",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. A constellation of small copper nodes scattered across a parchment field, connected by fine silver threads, collectively forming an emergent distributed network. No dominant central node — power dispersed across the plane. Faint multilingual script characters barely legible at some nodes. Diffused raking light. Peripheral emergence as structural principle.",
+      "negativePrompt": "corporate network diagrams, labeled nodes, flag imagery, tech UI mockups, HDR, clip art, high contrast",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 8,
+      "title": "Contradictory Tendencies: Increasing Demand",
+      "prompt": "Editorial photography, 35mm film grain. Ascending vertical bars of increasing height, deep prussian blue on aged parchment, the tallest bars exceeding and cut off by the top frame edge. A faint power grid pattern overlaid suggests data center infrastructure. Raking cold light from the right, long horizontal shadows across the parchment floor. Cold, monumental, scale exceeding the frame. Isotype chart rendered as editorial still life.",
+      "negativePrompt": "literal bar charts with labels, data visualization UI, server rack photography, HDR, stock tech imagery, clip art, text axes",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 9,
+      "title": "...But Also: Efficiency, Local Models",
+      "prompt": "Editorial photography, 35mm film grain. A single refined copper-toned geometric form — dense, compressed, precisely faceted — surrounded by generous negative space on parchment. Warm diffused light emphasizes its compactness and elegance. Deliberate visual contrast to the towering verticals preceding it: this image is about reduction and optimization. Otl Aicher aesthetic. No wasted visual mass.",
+      "negativePrompt": "laptop photography, product shots, literal smartphone, HDR, stock tech imagery, clip art, text labels",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 10,
+      "title": "Agentive AI",
+      "prompt": "Editorial photography, 35mm film grain, slight motion blur on moving elements. Several small prussian blue Saul Bass geometric figures moving independently across a parchment grid, each trailing a faint copper path behind them. No central controller visible; trajectories diverge and intersect organically. Raking light from above, overlapping long shadows. Distributed autonomous action without visible orchestration. Kinetic.",
+      "negativePrompt": "literal robots, drone swarms, sci-fi imagery, futuristic UI, HDR, stock tech photo, clip art, humanoid faces",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 11,
+      "title": "Education Issues: Cons",
+      "prompt": "Editorial photography, 35mm film grain. A simplified parchment-toned Saul Bass figure beneath a descending accumulation of overlapping prussian blue geometric forms — not crushing but encroaching, crowding available cognitive space. Warm raking light from behind the figure; the overhanging mass in cold shadow. Quiet visual pressure. Suggests epistemic displacement without melodrama. Contemplative and restrained.",
+      "negativePrompt": "literal student at desk, exam imagery, dramatic collapse, HDR, clip art, stock education photo, text labels",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 12,
+      "title": "Education Issues: Pros",
+      "prompt": "Editorial photography, 35mm film grain. A simplified Saul Bass figure reaching toward concentric rings radiating outward in copper and silver on parchment — each ring slightly different in character, suggesting varied modalities of access and engagement. Warm diffused light, soft shadows, open composition. Expansive and inviting. Universal design as visual metaphor: many distinct paths converging on a shared center.",
+      "negativePrompt": "stock learning imagery, smiling student, laptop photography, HDR, clip art, literal classroom, text labels, bright colors",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 13,
+      "title": "However: Bigger Picture Issues",
+      "prompt": "Editorial photography, 35mm film grain. A single large dark prussian blue monolith dominates the right two-thirds of the frame, its top exceeding the frame edge. On the parchment ground before it: small scattered copper figures, diminished by scale. The monolith casts a long cold shadow across them. Raking side light. Monumental and quietly ominous. Power concentration as spatial geometry.",
+      "negativePrompt": "literal protest imagery, dystopian CGI, dramatic lighting, HDR, stock corporate villain, text labels, clip art",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 14,
+      "title": "What Do We Need to Learn Now?",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. Multiple branching paths in faint silver lines on parchment, all diverging from a single warm copper point of origin at center-left, none reaching the frame edge — all fading before any conclusion. Diffused even light, no strong shadows. Open-ended questioning with no resolved destination. Quiet, unresolved, honest.",
+      "negativePrompt": "literal question marks, textbook imagery, arrows with labels, HDR, clip art, stock education, literal roads or paths",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 15,
+      "title": "WEEK 2 — Section Divider",
+      "prompt": "Editorial photography, 35mm film grain, extreme shallow DOF. A nearly empty parchment field with a single thin horizontal prussian blue line bisecting the frame at mid-height. A faint coordinate grid barely visible in the soft-focused background. Raking late-afternoon window light from the left, the gentlest possible shadow gradient. Meditative, transitional — the visual equivalent of turning a page.",
+      "negativePrompt": "text overlays, dramatic lighting, complex composition, HDR, clip art, stock imagery, decorative elements",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 16,
+      "title": "Crisis in Higher Education",
+      "prompt": "Editorial photography, 35mm film grain. A classical Ionic column fragment, abstracted in Saul Bass style, parchment-toned, visibly cracked and tilted slightly off plumb. Prussian blue fracture lines run diagonally upward from base to capital. Around the base: scattered copper fragments of eroded institutional trust. Raking side light emphasizes textured damage. Melancholic but measured — erosion, not catastrophe.",
+      "negativePrompt": "literal campus photography, dramatic ruin, protest crowds, HDR, stock university imagery, clip art, text signage",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 17,
+      "title": "WEEK 2 — How Did We Get Here?",
+      "prompt": "Editorial photography, 35mm film grain, strong shallow DOF. A copper timeline thread recedes into background blur, disappearing into a warm parchment horizon. The near end is sharp and present; the far end dissolves into soft focus. Suggests the act of looking backward through accumulated historical time. A long shadow falls from just outside the left frame edge. Contemplative and directional.",
+      "negativePrompt": "literal clock imagery, calendar, labeled timeline diagrams, HDR, clip art, stock history imagery, text dates",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 18,
+      "title": "La Longue Durée — Braudel, Deep History",
+      "prompt": "Editorial photography, 35mm film grain. Cross-section of geological strata rendered as abstract horizontal bands: parchment, copper, silver, deep indigo — each layer containing faint diagrammatic marks from different historical eras, circuits layered over equations layered over pictograms. Raking light from the left reveals depth and texture in each stratum. History as physical sediment, accumulation as structure. No single layer dominant.",
+      "negativePrompt": "literal geology photography, labeled historical periods, illustrated timeline with text, HDR, clip art, stock history imagery",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 19,
+      "title": "WEEK 2 — WWII Computing and Decryption",
+      "prompt": "Editorial photography, 35mm film grain. A grid of abstract glyphs and geometric symbols on aged parchment: some resolved into recognizable Saul Bass-style forms in prussian blue (decoded), others remaining opaque copper fragments (still encrypted). A single ray of raking light illuminates the decoded section; the surrounding area in partial shadow. The moment of partial legibility. Quiet tension between order and opacity.",
+      "negativePrompt": "literal Enigma machine photograph, portrait of Turing, WWII war imagery, HDR, clip art, actual readable text or code",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 20,
+      "title": "WEEK 2 — Parabola, Ballistics, Galileo",
+      "prompt": "Editorial photography, 35mm film grain. A single clean parabolic arc traced in warm copper on a prussian blue coordinate grid set against parchment. Mathematically pure — Saul Bass reduction of ballistic motion. A small circle marks the launch point; the arc fades at the descent. Raking light from upper left. The elegant pre-calculus universe: one clean curve, constant gravity, no drag.",
+      "negativePrompt": "literal cannonball, soldier imagery, war photography, HDR, clip art, stock physics diagram with text labels, CGI",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 21,
+      "title": "WEEK 2 — Euler's Method, Discrete Decomposition",
+      "prompt": "Editorial photography, 35mm film grain. A smooth organic curve decomposed into a staircase of tiny prussian blue rectangles — Riemann approximation rendered as abstract art on parchment. At the edge of each step: a small copper node. The regularity of the steps suggests systematic computational patience. Raking light creates shadow depth within each rectangular step. The beauty of approximation made visible.",
+      "negativePrompt": "labeled mathematical diagrams, text equations, literal textbook page, HDR, clip art, stock mathematics imagery, chalkboard",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 22,
+      "title": "WEEK 2 — Interlude",
+      "prompt": "Editorial photography, 35mm film grain. A dense regular field of tiny equidistant coordinate points on parchment — a raw data grid before any interpretation. Loose clusters of copper-colored emphasis points scatter through the field with no connecting lines yet drawn. Suggests latent potential before pattern emerges. Diffused even light, no directional shadow. The stillness before structure.",
+      "negativePrompt": "labeled scatter plots, data visualization UI, HDR, clip art, colorful charts, stock data imagery, text axes",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 23,
+      "title": "WEEK 2 — Interlude",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. Three overlapping translucent circles on parchment — one prussian blue, one warm copper, one silver-grey — their intersections creating subtle muted secondary zones. Saul Bass geometric minimalism. Raking window light creates delicate shadows within each overlap region. Quiet, structural, contemplative. Three systems sharing contested space.",
+      "negativePrompt": "Venn diagram labels, text labels, bright saturated colors, HDR, clip art, stock diagram imagery",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 24,
+      "title": "WEEK 2 — Continuous to Discrete, Analog to Digital",
+      "prompt": "Editorial photography, 35mm film grain. Split composition: left half shows a smooth flowing copper curve — organic, continuous, analog; right half shows the same curve rendered as a pixelated staircase of silver-grey blocks — digital, stepped, lossy. At their boundary: a subtle transitional zone where one bleeds into the other. Raking light emphasizes the contrast. The philosophical cost of digitization.",
+      "negativePrompt": "literal pixels on screen, computer display, binary code text, HDR, clip art, stock digital imagery, text labels",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 25,
+      "title": "WEEK 2 — Financial Markets, 2025",
+      "prompt": "Editorial photography, 35mm film grain. An abstract market chart rendered as ascending and descending copper lines on a parchment field with a thin prussian blue coordinate grid. Vertical axis unmarked; horizontal axis compressed into shallow time. The overall waveform resembles a vital-sign monitor. Raking light from the right. Suggestive of markets as biological phenomenon, not literal financial data.",
+      "negativePrompt": "literal stock ticker, brand names, labeled axes, computer screen display, HDR, clip art, stock finance imagery",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 26,
+      "title": "WEEK 2 — Al-Khwarizmi, Proto-Computing, 8th–13th Century",
+      "prompt": "Editorial photography, 35mm film grain. Geometric Islamic tessellation — interlocking stars and polygons — rendered in muted copper on deeply aged parchment, as if printed from a worn woodblock. A prussian blue diagonal shadow falls across one corner. The pattern is simultaneously mathematical and ornamental: Otl Aicher meets the Alhambra. Raking oblique light. The algorithmic foundation beneath the decorative surface.",
+      "negativePrompt": "literal mosque photography, orientalist imagery, HDR, tourist photography, clip art, modern geometric design, bright saturated colors",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 27,
+      "title": "WEEK 2 — Historical Palimpsest",
+      "prompt": "Editorial photography, 35mm film grain. Aged parchment with layers of partially erased diagrams beneath the surface — faint arcs, coordinate grids, and circles from different historical eras, each generation of marks in a slightly different tone. Prussian blue the most recent stratum, copper the oldest, deepest. Sharp raking light at oblique angle reveals the depth of the palimpsest. History written over history.",
+      "negativePrompt": "literal archaeological photograph, text overlays, dramatic lighting effects, HDR, clip art, stock history imagery",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 28,
+      "title": "WEEK 2 — Bridge Between Eras",
+      "prompt": "Editorial photography, 35mm film grain. Two isolated geometric forms at opposite ends of a parchment field: a circle at left (organic, warm copper) and a square at right (rational, prussian blue). A single fine silver thread connects them across the empty middle distance. The intervening space is the subject. Raking light, long shadows from both forms. Minimalist, Saul Bass. Distance as meaning.",
+      "negativePrompt": "literal bridge photography, text labels, crowded composition, HDR, clip art, stock connectivity imagery, decorative elements",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 29,
+      "title": "WEEK 2 — AI Reliability and High-Stakes Decisions",
+      "prompt": "Editorial photography, 35mm film grain. A small simplified parchment-toned Saul Bass figure faces a large prussian blue geometric form — taller, more substantial — from which fine silver radiating lines emanate, suggesting assessment or judgment. Power asymmetry visual but quiet, not violent. The blue form is the light source, illuminating the small figure before it. Cool raking light. Authority rendered as geometry.",
+      "negativePrompt": "literal courtroom, hospital, robot judge, sci-fi aesthetic, HDR, clip art, stock authority imagery, humanoid robot",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 30,
+      "title": "WEEK 2 — 17th/18th Century: Dawn of Modernity",
+      "prompt": "Editorial photography, 35mm film grain. A stylized mechanical form — angular, copper-toned, Saul Bass industrial — rises from a base of stacked horizontal banded strata suggesting accumulated social and economic layers. Background: aged parchment with faint illegible gestural mathematical notations. Candlelight-warm raking light from the left. The birth of rational computation in the era of early capitalism.",
+      "negativePrompt": "literal printing press photograph, steam engine, industrial photography, HDR, clip art, stock history imagery, literal machines",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 31,
+      "title": "WEEK 2 — Threshold of Modernity",
+      "prompt": "Editorial photography, 35mm film grain. A single sharp diagonal line — prussian blue, precise, thin — crosses the parchment field from lower-left to upper-right, dividing the composition into two tonal zones: warm copper-tinted left (before) and cool silver-grey right (after). The line itself is the event, the historical threshold. Raking overhead light. Absolute and minimal.",
+      "negativePrompt": "text labels, historical scene photography, dramatic contrast, HDR, clip art, stock history imagery, illustrated timeline",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 32,
+      "title": "WEEK 2 — Timeline of Modernity",
+      "prompt": "Editorial photography, 35mm film grain. A long horizontal copper thread extends across a parchment field, five evenly-spaced prussian blue vertical markers of gradually increasing height rising from it, each casting a slightly longer shadow than the last — shadows falling leftward into the past. Raking light from the right. Saul Bass historical chart aesthetic. Each era standing taller on accumulated foundations.",
+      "negativePrompt": "text date labels, illustrated historical scenes, HDR, clip art, stock timeline infographic, labeled periods",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 33,
+      "title": "Looking Ahead — Fundamentals of AI",
+      "prompt": "Editorial photography, 35mm film grain. Three foundational geometric forms as a triptych on parchment: a derivative curve in warm copper (calculus), a probability bell in prussian blue (statistics), a matrix grid in silver-grey (linear algebra). Each simple, clean, essential — Otl Aicher pictograms for mathematical concepts. Unified by single raking window light catching all three equally. Ancient foundations, modern edifice.",
+      "negativePrompt": "math textbook page, equation text, chalkboard, literal academic imagery, HDR, clip art, labeled diagrams, bright colors",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 34,
+      "title": "A Bold Proposition — 19th Century Mathematics",
+      "prompt": "Editorial photography, 35mm film grain. A dense ornate Victorian-era mathematical diagram — differential curves and integrals as abstract art — rendered in aged copper on crumbling parchment with visible foxing and edge damage. In one corner: a single pristine prussian blue geometric overlay, contemporary computation built upon ancient substrate. Raking warm light. The Victorian foundation beneath modern AI. Deep palimpsest.",
+      "negativePrompt": "labeled equations, readable text, chalkboard, modern tech imagery, HDR, clip art, stock science photography",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 35,
+      "title": "Case Study: Geist in the Machine",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. Two simplified Saul Bass profile faces in mirror opposition — one warm copper, one prussian blue — their forms slightly overlapping at center. Between them: a luminous silver zone, the intersubjective space of recognition. Raking light illuminates the copper face fully; the blue face remains in partial shadow. The phenomenology of mutual recognition rendered as geometry.",
+      "negativePrompt": "literal portrait photography, Hegelian illustration, sci-fi AI face, HDR, clip art, stock human-robot imagery, named characters",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 36,
+      "title": "Case Study: Key Concepts — Vibe Coding, Recognition",
+      "prompt": "Editorial photography, 35mm film grain. A stratigraphic cross-section: on the surface, a clean prussian blue geometric form (the conscious, deliberate); just beneath, partially visible warm copper shapes (the nonconscious); at depth, barely discernible silver forms (the unconscious). Raking light reveals only the topmost layer clearly; deeper layers suggested by translucency and shadow. Psychological depth through literal visual depth.",
+      "negativePrompt": "brain imagery, literal Freudian imagery, text layer labels, HDR, clip art, stock psychology imagery, bright colors",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 37,
+      "title": "What AI Can Do for Research",
+      "prompt": "Editorial photography, 35mm film grain. A circular feedback loop rendered as a continuous copper ring, five evenly-spaced prussian blue geometric nodes at intervals around it — each a different shape suggesting a different research stage. At the top of the ring: a small silver parchment-toned figure, the human-in-the-loop, irreducible. Raking light from the right. The loop is beautiful; the figure is essential.",
+      "negativePrompt": "literal research laboratory, flowchart with text labels, clipboard, HDR, clip art, stock academic imagery, humanoid robot",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 38,
+      "title": "Connection to This Course",
+      "prompt": "Editorial photography, 35mm film grain, shallow DOF. The network of branching paths from the opening image echoed — but now some paths glow with traveled copper warmth while others remain cool silver-grey and untraveled. At the convergence point: a small warm light emanates from the parchment surface itself. The journey partially complete, many paths still open. Visual rhyme with Slide 1 — same composition, added depth.",
+      "negativePrompt": "literal graduation imagery, academic ceremony, triumphant imagery, HDR, clip art, stock education, conclusion text, roads",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    }
+  ]
+}

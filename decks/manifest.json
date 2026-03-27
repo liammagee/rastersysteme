@@ -1,5 +1,27 @@
 [
   {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-light.spliced.html",
+    "name": "week-2-light.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "“La Longue Duree” (Annales School, Fernand Braudel)",
+    "size": "70K",
+    "modified": "2026-03-27T01:49:20.324Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-light.html",
+    "name": "week-2-light",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "“La Longue Duree” (Annales School, Fernand Braudel)",
+    "size": "63K",
+    "modified": "2026-03-27T01:48:34.436Z"
+  },
+  {
     "type": "deck",
     "category": "decks",
     "path": "decks/week-2.html",
