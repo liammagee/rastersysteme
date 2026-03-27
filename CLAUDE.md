@@ -45,6 +45,7 @@ decks/*.html           → final slide decks
 | `corpus-synthesize.js` | Cross-deck analysis → data-driven composition rules in design-insights.md |
 | `rubric-jsdom.js` | Offline rubric evaluation via jsdom (no Puppeteer/Chrome needed) |
 | `run-rubric-eval.js` | Wrapper: starts temp HTTP server + runs rubric-headless evaluation |
+| `visual-audit.js` | Puppeteer visual flaw detector — zone collisions, image overflow, broken images, text-image overlaps |
 
 ## Rendering
 

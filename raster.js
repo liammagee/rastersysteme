@@ -1691,7 +1691,7 @@ function imagesHTML(images) {
   if (!images.length) return "";
   const cls = images.length === 1 ? "images single" : "images grid";
   return `<div class="${cls}">` +
-    images.map(img => `<figure><img src="${attrEsc(img.src)}" alt="${attrEsc(img.alt)}" loading="lazy"><figcaption>${esc(img.alt)}</figcaption></figure>`).join("\n") +
+    images.map(img => `<figure><img src="${attrEsc(img.src)}" alt="${attrEsc(img.alt)}" loading="lazy" style="max-width:100%;object-fit:contain"><figcaption>${esc(img.alt)}</figcaption></figure>`).join("\n") +
     '</div>';
 }
 
@@ -2019,7 +2019,12 @@ function renderDesigned(slide) {
         break;
     }
 
-    return `<div class="zone zone-${zone.role}" style="${style};padding:${gapVal}">${content}</div>`;
+    // Image zones: constrain images to zone boundaries
+    const overflowRule = "overflow:hidden";
+    const imageConstraint = zone.role === "image"
+      ? ";display:flex;align-items:center;justify-content:center"
+      : "";
+    return `<div class="zone zone-${zone.role}" style="${style};${overflowRule}${imageConstraint};padding:${gapVal}">${content}</div>`;
   }).join("\n");
 
   // Append unzoned content that has no matching zone in the design

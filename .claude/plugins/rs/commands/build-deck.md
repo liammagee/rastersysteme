@@ -32,16 +32,34 @@ Read the output. Verify:
 - All slides got design directives (count `<!-- design:` occurrences vs slide count)
 - No smart quotes in JSON directives (fix with `sed` if found)
 
-### Phase 2: Initial render + evaluate
+### Phase 2: Render, splice images, evaluate
+
+Write a temp render script (never use inline `node -e`):
 
 ```bash
-node -e "require('./raster.js').generateHTML('decks/<name>.composed.md', 'decks/<name>.html'); console.log('OK')"
+# Write to tmp file, then execute
+cat > /tmp/render-deck.js << 'EOF'
+const r = require('./raster.js');
+r.generateHTML('decks/<name>.composed.md', 'decks/<name>.html');
+console.log('OK');
+EOF
+node /tmp/render-deck.js
+```
+
+**Always splice images before evaluating** if an image set exists for the source content:
+
+```bash
+# Check for images
+ls content/week-N/images/ content/week-N/week-N-images/ 2>/dev/null
+# If found, splice them in
+node splice-images.js decks/<name>.html <images-dir>
+# Evaluate the spliced version
 ```
 
 Start a file server if not already running (use `/tmp/serve-deck.js` or `server.js --port 8701`), then evaluate:
 
 ```bash
-node rubric-headless.js decks/<name>.html --json
+node run-rubric-eval.js decks/<name>.html --json
 ```
 
 Record baseline scores. Print a summary table:

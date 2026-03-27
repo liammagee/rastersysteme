@@ -222,3 +222,17 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-27] **week-2-v7.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
 - [2026-03-27] **week-2-v7.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
 - [2026-03-27] **week-2-v7.html**: 5 empty body zones. Remove body zones from image-only and table-only slides. Match zone roles to actual content type.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-27] **week-2-v7.html**: All computed dimensions scored >= 8. No new lessons.

@@ -18,7 +18,7 @@ const EVALUATORS = {
 // Evaluator group aliases
 const GROUPS = {
   static: ["markdown-qa"],
-  headless: ["headless-rubric", "headless-qa"],
+  headless: ["headless-rubric", "headless-qa", "screenshot-vision"],
   jsdom: ["jsdom-rubric"],
   vision: ["screenshot-vision"],
   textual: ["claude-textual"],

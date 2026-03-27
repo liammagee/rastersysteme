@@ -14,6 +14,39 @@ Score a rendered HTML deck against the design rubric (see RUBRIC.md) using all a
 
 ## How to work
 
+### 0. Pre-eval: Splice images if available
+
+Before running any evaluation, **always** check if an image set exists for the deck and splice it in. Images affect visual scoring and image integration scores.
+
+```bash
+# Check for images directory matching the deck name
+ls content/week-*/images/ content/week-*/*-images/ decks/images/ 2>/dev/null
+```
+
+If images exist and the deck doesn't already have `.spliced` in its name:
+
+```bash
+node splice-images.js <deck.html> <images-dir>
+```
+
+Then evaluate the `.spliced.html` output instead.
+
+### 0b. Visual audit (always run)
+
+Run the Puppeteer visual flaw detector to catch rendering bugs the rubric misses:
+
+```bash
+node visual-audit.js <deck.html>
+```
+
+This checks every slide for: broken images, zone-zone collisions, text-image overlaps, content overflow, tiny text. Issues are classified as critical/warning/info.
+
+**Any critical issues must be fixed before proceeding.** Common fixes:
+- **broken-image**: source asset missing from `decks/images/`
+- **zone-collision**: zones overlap in the composed markdown — adjust `col`/`row`/`span`/`rowSpan`
+- **overflow (visible)**: content exceeds zone — increase `rowSpan` or reduce font size
+- **text-image-collision**: text overlaps image — separate into distinct zones or use a table zone
+
 ### 1. Run the evaluation harness
 
 ```bash

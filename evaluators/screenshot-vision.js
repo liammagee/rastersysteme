@@ -9,6 +9,7 @@
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
+const { execFileSync } = require("child_process");
 // Load .env keys directly to avoid circular dependency with index.js
 const envPath = require("path").join(__dirname, "..", ".env");
 function loadEnvKeys() {
@@ -143,10 +144,51 @@ Return ONLY valid JSON:
   });
 }
 
+function buildVisionPrompt(screenshotPaths, slideCount) {
+  return `You are evaluating a Swiss-grid slide deck design. I am providing ${screenshotPaths.length} slide screenshots from a ${slideCount}-slide deck.
+
+Score each of these three visual dimensions (1-10 scale):
+
+1. COMMUNICABILITY: Does the design serve the content hierarchy? Can you find the point of each slide quickly? Is the reading order clear? Do headings, labels, and body text create a clear information architecture?
+
+2. TASTE: Does this exhibit Swiss/modernist quality (Muller-Brockmann, Ruder, Hofmann)? Is there restraint? Typography as primary design element? Or is it generic/corporate? Is the grid visible as an organizing principle?
+
+3. LAYOUT BALANCE: Does each slide feel visually balanced? Is whitespace intentional and purposeful? Is there dynamic tension between elements (asymmetric balance), or static centering? Do accents and images create visual rhythm?
+
+Return ONLY valid JSON:
+{
+  "communicability": { "score": <1-10>, "rationale": "..." },
+  "taste": { "score": <1-10>, "rationale": "..." },
+  "layoutBalance": { "score": <1-10>, "rationale": "..." }
+}`;
+}
+
+function callClaudeCLI(screenshotPaths, slideCount) {
+  const prompt = buildVisionPrompt(screenshotPaths, slideCount);
+  // Build args: pass screenshot paths as file attachments
+  const args = ["-p", prompt, "--output-format", "json"];
+  for (const p of screenshotPaths) {
+    args.push("--file", p);
+  }
+  const result = execFileSync("claude", args, {
+    encoding: "utf-8",
+    timeout: 300000,
+    maxBuffer: 10 * 1024 * 1024,
+  });
+
+  // claude --output-format json returns { result: "..." }
+  const parsed = JSON.parse(result);
+  const text = parsed.result || parsed;
+  const textStr = typeof text === "string" ? text : JSON.stringify(text);
+  const jsonMatch = textStr.match(/\{[\s\S]*\}/);
+  if (!jsonMatch) throw new Error("No JSON in claude CLI response");
+  return JSON.parse(jsonMatch[0]);
+}
+
 module.exports = {
   name: "screenshot-vision",
   dimensions: ["communicability", "taste", "layoutBalance"],
-  requires: ["puppeteer", "anthropic-api"],
+  requires: ["puppeteer"],  // Only Puppeteer required for capture; API is best-effort for scoring
   confidences: {
     communicability: 0.85,
     taste: 0.8,
@@ -154,13 +196,13 @@ module.exports = {
   },
 
   // Phase 1: capture screenshots (needs Puppeteer page)
+  // Always captures ALL slides — sampling misses key conflicts
   async captureScreenshots(page, slideCount, deckName, options = {}) {
-    const samples = options.samples || 5;
-    const indices = options.slides || sampleSlideIndices(slideCount, samples);
+    const indices = options.slides || Array.from({ length: slideCount }, (_, i) => i);
     return captureScreenshots(page, slideCount, deckName, indices);
   },
 
-  // Phase 2: call API (no Puppeteer needed)
+  // Phase 2: call API if available, otherwise return screenshots only
   async evaluate(deckPath, options = {}) {
     const screenshots = options.screenshots;
     if (!screenshots || screenshots.length === 0) {
@@ -168,23 +210,46 @@ module.exports = {
     }
 
     const slideCount = options.slideCount || screenshots.length;
-    const result = await callAnthropicVision(screenshots, slideCount);
+    const screenshotPaths = screenshots.map(s => s.path);
 
-    const dims = {};
-    for (const dim of ["communicability", "taste", "layoutBalance"]) {
-      if (result[dim]) {
-        dims[dim] = {
-          score: result[dim].score,
-          confidence: this.confidences[dim],
-          source: "screenshot-vision",
-          details: { rationale: result[dim].rationale, perSlide: result.perSlide },
-        };
+    // Scoring chain: Anthropic API → Claude CLI → capture-only
+    const parseDims = (result, source) => {
+      const dims = {};
+      for (const dim of ["communicability", "taste", "layoutBalance"]) {
+        if (result[dim]) {
+          dims[dim] = {
+            score: result[dim].score,
+            confidence: this.confidences[dim],
+            source,
+            details: { rationale: result[dim].rationale, perSlide: result.perSlide },
+          };
+        }
+      }
+      return dims;
+    };
+
+    // 1. Try Anthropic API (fastest, cheapest)
+    const envKeys = loadEnvKeys();
+    if (envKeys.ANTHROPIC_API_KEY) {
+      try {
+        const result = await callAnthropicVision(screenshots, slideCount);
+        return { dimensions: parseDims(result, "screenshot-vision-api"), screenshotPaths };
+      } catch (err) {
+        process.stderr.write("  \x1b[33m\u26A0\x1b[0m API scoring failed: " + err.message + "\n");
       }
     }
 
-    return {
-      dimensions: dims,
-      screenshotPaths: screenshots.map(s => s.path),
-    };
+    // 2. Fall back to Claude CLI (uses session auth, no API credits needed)
+    try {
+      process.stderr.write("  \x1b[2mFalling back to claude CLI for visual scoring...\x1b[0m\n");
+      const result = callClaudeCLI(screenshotPaths, slideCount);
+      return { dimensions: parseDims(result, "screenshot-vision-cli"), screenshotPaths };
+    } catch (err) {
+      process.stderr.write("  \x1b[33m\u26A0\x1b[0m Claude CLI scoring failed: " + err.message + "\n");
+    }
+
+    // 3. Capture-only fallback
+    process.stderr.write("  \x1b[2m  Screenshots saved for manual review at: " + screenshotPaths[0].replace(/[^/]+$/, "") + "\x1b[0m\n");
+    return { dimensions: {}, screenshotPaths, captureOnly: true };
   },
 };

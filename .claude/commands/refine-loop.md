@@ -19,12 +19,16 @@ The inner loop runs entirely on headless evaluation (Puppeteer). Chrome is not r
 
 ## How to work
 
+### 0. Pre-eval: Splice images if available
+
+Before any evaluation, **always** splice in available images. Check for an image directory matching the source content (e.g., `content/week-N/images/`). If found and deck is not already `.spliced.html`, run `node splice-images.js <deck.html> <images-dir>` and use the spliced output for all subsequent steps.
+
 ### 1. Initial headless evaluation
 
 Run the headless rubric to establish baseline scores:
 
 ```bash
-node rubric-headless.js <deck.html> --json
+node run-rubric-eval.js <deck.html> --json
 ```
 
 Record baseline in the persistent scorecard (`logs/qa/<deckname>-scorecard.json`).

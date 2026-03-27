@@ -173,12 +173,12 @@ async function evalHarness(deckPath, options = {}) {
         }
       }
 
-      // screenshot capture (before closing page)
+      // screenshot capture — always all slides (before closing page)
       const svCheck = available.find(c => c.name === "screenshot-vision");
       if (svCheck) {
-        process.stderr.write(`  ${dim("Capturing")} ${samples} screenshots${dim("...")}\n`);
+        process.stderr.write(`  ${dim("Capturing")} ${slideCount} slide screenshots${dim("...")}\n`);
         try {
-          screenshots = await svCheck.evaluator.captureScreenshots(page, slideCount, deckName, { samples });
+          screenshots = await svCheck.evaluator.captureScreenshots(page, slideCount, deckName);
           process.stderr.write(`  ${sage("✓")} ${screenshots.length} screenshots captured\n`);
         } catch (err) {
           process.stderr.write(`  ${accent("✗")} screenshot capture: ${err.message}\n`);
