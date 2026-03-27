@@ -60,47 +60,58 @@ Themes: `light` (default), `dark`, `red`, `blue`
 
 ## Skills
 
+> **Start here:** `/rs:help` — context-aware skill navigator. Scans your deck state and suggests what to do next.
+
 **Composition & rendering:**
 
 | Skill | Description |
 |-------|-------------|
-| `/compose <source.md>` | Claude-directed composition with design directives |
-| `/render <deck.composed.md>` | Re-render HTML from composed markdown |
-| `/compare <source.md>` | Multi-variant comparison (3-way or 12-way explosive) with rubric |
-| `/design-system list\|show\|generate` | Manage saved design systems |
+| `/rs:compose <source.md>` | Claude-directed composition with design directives |
+| `/rs:build-deck <source.md>` | Full pipeline: compose → render → evaluate → fix → converge |
+| `/rs:render <deck.composed.md>` | Re-render HTML from composed markdown |
+| `/rs:compare <source.md>` | Multi-variant comparison (3-way or 12-way explosive) with rubric |
+| `/rs:design-system list\|show\|generate` | Manage saved design systems |
 
 **Slide editing:**
 
 | Skill | Description |
 |-------|-------------|
-| `/insert-slide <deck> after N` | Add a new slide with context-aware design |
-| `/edit-slide <deck> slide N` | Edit content, design, bg, font, typography |
-| `/delete-slide <deck> slide N` | Remove slide(s) with re-render |
-| `/diff <before> <after>` | Visual diff between deck versions |
+| `/rs:insert-slide <deck> after N` | Add a new slide with context-aware design |
+| `/rs:edit-slide <deck> slide N` | Edit content, design, bg, font, typography |
+| `/rs:delete-slide <deck> slide N` | Remove slide(s) with re-render |
+| `/rs:diff <before> <after>` | Visual diff between deck versions |
 
 **Images:**
 
 | Skill | Description |
 |-------|-------------|
-| `/imagine <source.md>` | Generate image prompts with visual thread |
-| `/splice-images <deck.html>` | Merge images with collision-aware placement |
+| `/rs:imagine <source.md>` | Generate image prompts with visual thread |
+| `/rs:splice-images <deck.html>` | Merge images with collision-aware placement |
 
 **QA & presentation:**
 
 | Skill | Description |
 |-------|-------------|
-| `/qa-visual <deck.html>` | A11y + design consistency audit via Chrome |
-| `/qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle (design-aware) |
-| `/preview <deck.html> slide N` | Interactive slide browsing in Chrome |
-| `/studio <deck.html>` | Open studio viewer (present + grid + QA) |
-| `/pace <deck> --duration N` | Add timing cues to speaker notes |
-| `/export <deck> --pdf\|--pptx` | Export to PDF or PowerPoint |
+| `/rs:qa-visual <deck.html>` | A11y + design consistency audit via Chrome |
+| `/rs:qa-fix-loop <deck.html>` | Autonomous audit-fix-verify cycle (design-aware) |
+| `/rs:preview <deck.html> slide N` | Interactive slide browsing in Chrome |
+| `/rs:studio <deck.html>` | Open studio viewer (present + grid + QA) |
+| `/rs:pace <deck> --duration N` | Add timing cues to speaker notes |
+| `/rs:export <deck> --pdf\|--pptx` | Export to PDF or PowerPoint |
 
 **Design rubric (see RUBRIC.md):**
 
 | Skill | Description |
 |-------|-------------|
-| `/evaluate <deck.html>` | Score deck against 10-dimension rubric (computed + visual) |
+| `/evaluate <deck.html>` | Score deck against 8-dimension rubric (computed + visual) |
 | `/design <deck.composed.md>` | Apply rubric-targeted improvements to design directives |
 | `/refine-loop <deck.html>` | Recursive evaluate → design → re-render until scores plateau |
 | `/audit` | Scan decks/, extract fingerprints, pair with scores, synthesize corpus insights |
+
+**Utilities:**
+
+| Skill | Description |
+|-------|-------------|
+| `/rs:help` | Skill navigator — deck state, skill guide, next steps |
+| `/rs:batch <skill> [files]` | Run any skill across multiple decks |
+| `/rs:promote` | Triage untracked scripts into codebase or delete |

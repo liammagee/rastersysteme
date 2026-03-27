@@ -2,6 +2,7 @@
   "name": "rs",
   "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more",
   "commands": [
+    { "name": "help", "description": "Context-aware skill navigator — scans deck state, shows relevant skills, suggests next steps. The entry point for the toolkit.", "file": "commands/help.md" },
     { "name": "batch", "description": "Run a skill across all decks in batch, or 'all' for full pipeline (compose → render → splice) per content/week-*/ folder.", "file": "commands/batch.md" },
     { "name": "compare", "description": "Run multi-variant comparison of a deck across intensity levels and themes, with rubric evaluation and side-by-side review.", "file": "commands/compare.md" },
     { "name": "compose", "description": "Run Claude-directed composition on source markdown — assigns design directives (grid zones, typography, colors, accents) to each slide.", "file": "commands/compose.md" },
@@ -18,6 +19,8 @@
     { "name": "qa-visual", "description": "Run a visual accessibility and design consistency audit on an HTML slideshow using Claude in Chrome.", "file": "commands/qa-visual.md" },
     { "name": "render", "description": "Re-render an HTML slide deck from its composed markdown source. Rebuilds after edits, optionally splices images and reloads in Chrome.", "file": "commands/render.md" },
     { "name": "splice-images", "description": "Merge generated images into an HTML slide deck with intelligent, collision-aware placement.", "file": "commands/splice-images.md" },
-    { "name": "studio", "description": "Open the studio viewer — a precision presentation tool with grid view, QA panel, and speaker notes.", "file": "commands/studio.md" }
+    { "name": "studio", "description": "Open the studio viewer — a precision presentation tool with grid view, QA panel, and speaker notes.", "file": "commands/studio.md" },
+    { "name": "build-deck", "description": "End-to-end pipeline: compose (opus) → render → evaluate → design-fix → loop until rubric scores converge.", "file": "commands/build-deck.md" },
+    { "name": "promote", "description": "Triage untracked scripts — classify as reusable tools or one-off hacks, promote or delete.", "file": "commands/promote.md" }
   ]
 }
