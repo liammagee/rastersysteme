@@ -1,0 +1,135 @@
+{
+  "deck": "week-2-v3",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v3.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v3.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.618Z",
+  "fingerprint": {
+    "slideCount": 36,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "F5F2EB",
+        "EDE7D9",
+        "1A1A2E",
+        "0F0F1E"
+      ],
+      "bgFrequency": {
+        "F5F2EB": 16,
+        "EDE7D9": 14,
+        "1A1A2E": 5,
+        "0F0F1E": 1
+      },
+      "lightPct": 83,
+      "darkCount": 6,
+      "arcCrossings": 11,
+      "dominantBg": "F5F2EB"
+    },
+    "typography": {
+      "titleSizeRange": [
+        32,
+        44
+      ],
+      "titleSizeAvg": 35,
+      "bodySizeRange": [
+        10,
+        18
+      ],
+      "titleWeightRange": [
+        700,
+        900
+      ],
+      "fontUsage": {
+        "Futura": 3,
+        "Helvetica Neue": 26,
+        "Georgia": 7
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "other": 5,
+        "minimal": 2,
+        "multi-zone": 2,
+        "monument": 5,
+        "standard": 7,
+        "empty": 7,
+        "image-only": 1,
+        "sidebar-left": 1,
+        "title-only": 2,
+        "right-anchored": 2,
+        "narrow-column": 1,
+        "editorial": 1
+      },
+      "uniqueArchetypes": 12,
+      "maxConsecutiveSame": 5,
+      "uniqueColStarts": 8,
+      "uniqueSpanWidths": 15
+    },
+    "accents": {
+      "slidesWithAccents": 30,
+      "accentPct": 83,
+      "types": {
+        "dot": 30,
+        "line": 2,
+        "bar": 5
+      },
+      "colors": [
+        "D62828",
+        "2B6CB0",
+        "F2C744",
+        "4A4A6A"
+      ]
+    }
+  },
+  "scores": {
+    "dimensions": {
+      "accessibility": 8.2,
+      "communicability": null,
+      "taste": null,
+      "grid": 10,
+      "color": 10,
+      "balance": null,
+      "coherence": 10,
+      "images": 9,
+      "contentCompleteness": 9.5
+    },
+    "total": 56.7,
+    "max": 60,
+    "normalized": 95,
+    "tier": "Exhibition",
+    "runCount": 2
+  },
+  "analysis": {
+    "strengths": [
+      "grid",
+      "color",
+      "coherence",
+      "contentCompleteness",
+      "images",
+      "accessibility"
+    ],
+    "weaknesses": [],
+    "missing": [
+      "communicability",
+      "taste",
+      "balance"
+    ]
+  },
+  "lessons": [
+    {
+      "dimension": "grid",
+      "finding": "High archetype diversity produces strong grid scores",
+      "parameter": "12 archetypes, 8 col starts",
+      "recommendation": "Maintain this level of zone variety in future compositions",
+      "positive": true
+    },
+    {
+      "dimension": "color",
+      "finding": "Strong chromatic arc produces excellent color scores",
+      "parameter": "11 light/dark crossings",
+      "recommendation": "Maintain >=3 arc crossings per deck",
+      "positive": true
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "deck": "week-2-light.spliced",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-light.spliced.html",
+  "sourcePath": null,
+  "sourceType": null,
+  "timestamp": "2026-03-27T14:09:15.613Z",
+  "fingerprint": null,
+  "scores": {
+    "dimensions": {
+      "accessibility": 9.1,
+      "communicability": null,
+      "taste": null,
+      "grid": 10,
+      "color": 10,
+      "balance": null,
+      "coherence": 8,
+      "images": 10,
+      "contentCompleteness": 9.5
+    },
+    "total": 56.6,
+    "max": 60,
+    "normalized": 94,
+    "tier": "Exhibition",
+    "runCount": 1
+  },
+  "analysis": {
+    "strengths": [
+      "grid",
+      "color",
+      "images",
+      "contentCompleteness",
+      "accessibility",
+      "coherence"
+    ],
+    "weaknesses": [],
+    "missing": [
+      "communicability",
+      "taste",
+      "balance"
+    ]
+  },
+  "lessons": []
+}

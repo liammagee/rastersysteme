@@ -1,0 +1,62 @@
+{
+  "deck": "week-1.maximal-light",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/compare-week-1-2026-03-21-10-45/maximal-light/week-1.maximal-light.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/compare-week-1-2026-03-21-10-45/maximal-light/week-1.maximal-light.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.595Z",
+  "fingerprint": {
+    "slideCount": 127,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "0D1117",
+        "2E7D6E",
+        "C85A3E",
+        "E8B75F"
+      ],
+      "bgFrequency": {
+        "0D1117": 89,
+        "2E7D6E": 14,
+        "C85A3E": 16,
+        "E8B75F": 7
+      },
+      "lightPct": 6,
+      "darkCount": 119,
+      "arcCrossings": 14,
+      "dominantBg": "0D1117"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Futura": 31,
+        "Helvetica Neue": 61,
+        "Courier New": 11,
+        "Georgia": 24
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

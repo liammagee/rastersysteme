@@ -1,0 +1,57 @@
+{
+  "deck": "week-1-composed",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-composed.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-composed.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.598Z",
+  "fingerprint": {
+    "slideCount": 39,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "minimal",
+    "palette": {
+      "backgrounds": [
+        "1A1A2E",
+        "2D2D2D",
+        "8B0000"
+      ],
+      "bgFrequency": {
+        "1A1A2E": 2,
+        "2D2D2D": 2,
+        "8B0000": 2
+      },
+      "lightPct": 0,
+      "darkCount": 6,
+      "arcCrossings": 0,
+      "dominantBg": "1A1A2E"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 39
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

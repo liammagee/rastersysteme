@@ -1,0 +1,71 @@
+{
+  "deck": "week-1-radical",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-radical.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-radical.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.601Z",
+  "fingerprint": {
+    "slideCount": 26,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "minimal",
+    "palette": {
+      "backgrounds": [
+        "0F2A4A",
+        "C0392B",
+        "0A0A0A",
+        "F5F0EB",
+        "16213E",
+        "111111",
+        "B7410E",
+        "1B4332",
+        "B7860B",
+        "6B2D0F"
+      ],
+      "bgFrequency": {
+        "111111": 2,
+        "0F2A4A": 2,
+        "C0392B": 2,
+        "0A0A0A": 3,
+        "F5F0EB": 11,
+        "16213E": 2,
+        "B7410E": 1,
+        "1B4332": 1,
+        "B7860B": 1,
+        "6B2D0F": 1
+      },
+      "lightPct": 46,
+      "darkCount": 14,
+      "arcCrossings": 16,
+      "dominantBg": "F5F0EB"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 26
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

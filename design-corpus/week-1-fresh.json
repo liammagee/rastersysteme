@@ -1,0 +1,68 @@
+{
+  "deck": "week-1-fresh",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-fresh.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-fresh.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.599Z",
+  "fingerprint": {
+    "slideCount": 30,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "minimal",
+    "palette": {
+      "backgrounds": [
+        "0F2A4A",
+        "111111",
+        "1A1A1A",
+        "3D0A06",
+        "0A0A0A",
+        "1B4332",
+        "2C3E50",
+        "B7311A"
+      ],
+      "bgFrequency": {
+        "111111": 6,
+        "0F2A4A": 6,
+        "1A1A1A": 5,
+        "3D0A06": 3,
+        "0A0A0A": 4,
+        "1B4332": 3,
+        "2C3E50": 1,
+        "B7311A": 1
+      },
+      "lightPct": 0,
+      "darkCount": 29,
+      "arcCrossings": 0,
+      "dominantBg": "111111"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 27,
+        "Georgia": 3
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

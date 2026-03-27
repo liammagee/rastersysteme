@@ -1,0 +1,61 @@
+{
+  "deck": "test-mood",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/test-mood.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/test-mood.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.598Z",
+  "fingerprint": {
+    "slideCount": 28,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "minimal",
+    "palette": {
+      "backgrounds": [
+        "111111",
+        "2A2A2A",
+        "876512",
+        "1B5E80",
+        "A0522D"
+      ],
+      "bgFrequency": {
+        "111111": 4,
+        "876512": 1,
+        "2A2A2A": 19,
+        "1B5E80": 2,
+        "A0522D": 2
+      },
+      "lightPct": 0,
+      "darkCount": 28,
+      "arcCrossings": 0,
+      "dominantBg": "2A2A2A"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 28
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

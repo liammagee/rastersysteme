@@ -1,0 +1,135 @@
+{
+  "deck": "week-2-opus",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-opus.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-opus.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.614Z",
+  "fingerprint": {
+    "slideCount": 36,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "0A1628",
+        "FAFAF7",
+        "F0EDE8",
+        "E8E0D8",
+        "0F2A4A",
+        "F8F5F0",
+        "F5F0EB",
+        "F0EDE6",
+        "E8E3DA",
+        "EDE8E0"
+      ],
+      "bgFrequency": {
+        "0A1628": 1,
+        "FAFAF7": 4,
+        "F0EDE8": 4,
+        "E8E0D8": 6,
+        "0F2A4A": 2,
+        "F8F5F0": 3,
+        "F5F0EB": 4,
+        "F0EDE6": 5,
+        "E8E3DA": 3,
+        "EDE8E0": 4
+      },
+      "lightPct": 92,
+      "darkCount": 3,
+      "arcCrossings": 5,
+      "dominantBg": "E8E0D8"
+    },
+    "typography": {
+      "titleSizeRange": [
+        28,
+        52
+      ],
+      "titleSizeAvg": 38,
+      "bodySizeRange": [
+        14,
+        14
+      ],
+      "titleWeightRange": [
+        700,
+        700
+      ],
+      "fontUsage": {
+        "Georgia": 12,
+        "Courier New": 9,
+        "Helvetica Neue": 15
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "monument": 5,
+        "title-only": 6,
+        "sidebar-left": 8,
+        "multi-zone": 7,
+        "image-only": 1,
+        "editorial": 5,
+        "right-anchored": 4
+      },
+      "uniqueArchetypes": 7,
+      "maxConsecutiveSame": 3,
+      "uniqueColStarts": 5,
+      "uniqueSpanWidths": 8
+    },
+    "accents": {
+      "slidesWithAccents": 24,
+      "accentPct": 67,
+      "types": {
+        "bar": 12,
+        "line": 8,
+        "dot": 4
+      },
+      "colors": [
+        "F0A090",
+        "2B7038",
+        "761B0E",
+        "711F10",
+        "73560F",
+        "D4CEC4",
+        "1B5E80"
+      ]
+    }
+  },
+  "scores": {
+    "dimensions": {
+      "accessibility": 6.5,
+      "grid": 10,
+      "color": 10,
+      "coherence": 8,
+      "images": 9
+    },
+    "total": 43.5,
+    "max": 50,
+    "normalized": 87,
+    "tier": "Exhibition",
+    "runCount": 2
+  },
+  "analysis": {
+    "strengths": [
+      "grid",
+      "color",
+      "images",
+      "coherence"
+    ],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": [
+    {
+      "dimension": "grid",
+      "finding": "High archetype diversity produces strong grid scores",
+      "parameter": "7 archetypes, 5 col starts",
+      "recommendation": "Maintain this level of zone variety in future compositions",
+      "positive": true
+    },
+    {
+      "dimension": "color",
+      "finding": "Strong chromatic arc produces excellent color scores",
+      "parameter": "5 light/dark crossings",
+      "recommendation": "Maintain >=3 arc crossings per deck",
+      "positive": true
+    }
+  ]
+}

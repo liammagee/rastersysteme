@@ -1,0 +1,67 @@
+{
+  "deck": "week-1.moderate-light",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/compare-week-1-2026-03-21-10-45/moderate-light/week-1.moderate-light.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/compare-week-1-2026-03-21-10-45/moderate-light/week-1.moderate-light.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.597Z",
+  "fingerprint": {
+    "slideCount": 56,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "moderate",
+    "palette": {
+      "backgrounds": [
+        "0A1628",
+        "1C1C1C",
+        "457B9D",
+        "2D2D2D",
+        "E63946",
+        "F4B860",
+        "F5E6D0"
+      ],
+      "bgFrequency": {
+        "0A1628": 5,
+        "1C1C1C": 4,
+        "457B9D": 11,
+        "2D2D2D": 18,
+        "E63946": 9,
+        "F4B860": 5,
+        "F5E6D0": 4
+      },
+      "lightPct": 16,
+      "darkCount": 47,
+      "arcCrossings": 1,
+      "dominantBg": "2D2D2D"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 51,
+        "Futura": 3,
+        "Georgia": 2
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

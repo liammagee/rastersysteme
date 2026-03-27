@@ -1,0 +1,39 @@
+{
+  "deck": "week-2-v3.spliced",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v3.spliced.html",
+  "sourcePath": null,
+  "sourceType": null,
+  "timestamp": "2026-03-27T14:09:15.618Z",
+  "fingerprint": null,
+  "scores": {
+    "dimensions": {
+      "accessibility": null,
+      "communicability": 6.5,
+      "taste": 7,
+      "balance": 5.5,
+      "grid": null,
+      "color": null,
+      "coherence": null,
+      "images": null,
+      "contentCompleteness": null
+    },
+    "normalized": 0,
+    "tier": "Broken",
+    "runCount": 2
+  },
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [
+      "balance (5.5)"
+    ],
+    "missing": [
+      "accessibility",
+      "grid",
+      "color",
+      "coherence",
+      "images",
+      "contentCompleteness"
+    ]
+  },
+  "lessons": []
+}

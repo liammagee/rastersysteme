@@ -1,0 +1,126 @@
+{
+  "deck": "week-1e",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1e.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1e.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.607Z",
+  "fingerprint": {
+    "slideCount": 8,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "0D0D0D",
+        "1A1A1A",
+        "111111",
+        "2E5BFF",
+        "2A2A2A"
+      ],
+      "bgFrequency": {
+        "111111": 2,
+        "0D0D0D": 3,
+        "1A1A1A": 1,
+        "2E5BFF": 1,
+        "2A2A2A": 1
+      },
+      "lightPct": 0,
+      "darkCount": 8,
+      "arcCrossings": 0,
+      "dominantBg": "0D0D0D"
+    },
+    "typography": {
+      "titleSizeRange": [
+        42,
+        72
+      ],
+      "titleSizeAvg": 55,
+      "bodySizeRange": [
+        13,
+        14
+      ],
+      "titleWeightRange": [
+        100,
+        900
+      ],
+      "fontUsage": {
+        "Futura": 3,
+        "Georgia": 1,
+        "Courier New": 4
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "narrow-column": 2,
+        "multi-zone": 4,
+        "sidebar-left": 1,
+        "right-anchored": 1
+      },
+      "uniqueArchetypes": 4,
+      "maxConsecutiveSame": 2,
+      "uniqueColStarts": 13,
+      "uniqueSpanWidths": 17
+    },
+    "accents": {
+      "slidesWithAccents": 8,
+      "accentPct": 100,
+      "types": {
+        "bar": 9,
+        "dot": 8,
+        "block": 3
+      },
+      "colors": [
+        "D42B2B",
+        "E8E3D9",
+        "F5C623",
+        "2A2A2A",
+        "3DFFA2",
+        "1A1A1A"
+      ]
+    }
+  },
+  "scores": {
+    "dimensions": {
+      "accessibility": 3.7,
+      "grid": 10,
+      "color": 9.3,
+      "coherence": 7,
+      "images": 8
+    },
+    "total": 38,
+    "max": 50,
+    "normalized": 38,
+    "tier": "Broken",
+    "runCount": 3
+  },
+  "analysis": {
+    "strengths": [
+      "grid",
+      "color",
+      "images"
+    ],
+    "weaknesses": [
+      "accessibility (3.7)"
+    ],
+    "missing": []
+  },
+  "lessons": [
+    {
+      "dimension": "accessibility",
+      "finding": "Heavy dark palette correlated with low accessibility",
+      "parameter": "8/8 dark slides (100%)",
+      "recommendation": "Reduce dark backgrounds to <20% of slides; use >7:1 contrast text on dark"
+    },
+    {
+      "dimension": "accessibility",
+      "finding": "Insufficient light orientation",
+      "parameter": "lightPct=0%",
+      "recommendation": "Target >=80% light backgrounds per design-lessons.md"
+    },
+    {
+      "dimension": "typography",
+      "finding": "Large average title size risks overflow on content-heavy slides",
+      "parameter": "avgTitleSize=55px",
+      "recommendation": "Cap titles at 44px for most slides; reserve 48-52px for section dividers"
+    }
+  ]
+}

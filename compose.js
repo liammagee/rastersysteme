@@ -290,6 +290,29 @@ END DESIGN LESSONS`);
     }
   }
 
+  // Load corpus-derived design insights (data-driven rules from deck-audit)
+  const insightsPath = path.join(__dirname, "design-insights.md");
+  if (fs.existsSync(insightsPath)) {
+    const insightsText = fs.readFileSync(insightsPath, "utf-8");
+    // Extract the Composition Rules section (machine-readable rules)
+    const rulesMatch = insightsText.match(/## Composition Rules[\s\S]*$/);
+    if (rulesMatch) {
+      const ruleLines = rulesMatch[0]
+        .split("\n")
+        .filter(l => l.startsWith("- **["))
+        .map(l => l.replace(/^- \*\*\[(\w+)\]\*\* /, "$1: ").replace(/_Evidence:.*_/, "").trim())
+        .join("\n");
+      if (ruleLines) {
+        parts.push(`CORPUS-DERIVED RULES (data-driven — from evaluating ${insightsText.match(/from (\d+) scored/)?.[1] || "N"} prior decks):
+
+${ruleLines}
+
+END CORPUS RULES`);
+        process.stderr.write(`  ${dim("Insights:")} loaded from design-insights.md\n`);
+      }
+    }
+  }
+
   // Pick a random seed for variation across runs
   const seed = DESIGN_SEEDS[Math.floor(Math.random() * DESIGN_SEEDS.length)];
   process.stderr.write(`  ${dim("Seed:")} ${chalk.italic(seed.slice(0, 70))}${dim("...")}\n`);

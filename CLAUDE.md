@@ -41,6 +41,8 @@ decks/*.html           → final slide decks
 | `qa-html.js` | Headless browser QA via Puppeteer |
 | `qa-live.js` | Injectable browser audit overlay (press A in deck) |
 | `brief-extract.js` | Design fingerprinting — extract zone archetypes, palette, typography from composed markdown |
+| `deck-audit.js` | Batch scanner: pair HTML decks with fingerprints + scores, write corpus entries |
+| `corpus-synthesize.js` | Cross-deck analysis → data-driven composition rules in design-insights.md |
 | `rubric-jsdom.js` | Offline rubric evaluation via jsdom (no Puppeteer/Chrome needed) |
 | `run-rubric-eval.js` | Wrapper: starts temp HTTP server + runs rubric-headless evaluation |
 
@@ -98,6 +100,7 @@ Themes: `light` (default), `dark`, `red`, `blue`
 
 | Skill | Description |
 |-------|-------------|
-| `/evaluate <deck.html>` | Score deck against 8-dimension rubric (computed + visual) |
+| `/evaluate <deck.html>` | Score deck against 10-dimension rubric (computed + visual) |
 | `/design <deck.composed.md>` | Apply rubric-targeted improvements to design directives |
 | `/refine-loop <deck.html>` | Recursive evaluate → design → re-render until scores plateau |
+| `/audit` | Scan decks/, extract fingerprints, pair with scores, synthesize corpus insights |

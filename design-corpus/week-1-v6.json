@@ -1,0 +1,69 @@
+{
+  "deck": "week-1-v6",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-v6.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-1-v6.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-27T14:09:15.602Z",
+  "fingerprint": {
+    "slideCount": 32,
+    "directiveFormat": "legacy",
+    "inferredIntensity": "minimal",
+    "palette": {
+      "backgrounds": [
+        "0A0A0A",
+        "111111",
+        "0F2A4A",
+        "F5F0EB",
+        "16213E",
+        "C0392B",
+        "B7410E",
+        "1B4332",
+        "B7860B"
+      ],
+      "bgFrequency": {
+        "111111": 5,
+        "0A0A0A": 7,
+        "0F2A4A": 4,
+        "F5F0EB": 6,
+        "16213E": 4,
+        "C0392B": 2,
+        "B7410E": 1,
+        "1B4332": 2,
+        "B7860B": 1
+      },
+      "lightPct": 22,
+      "darkCount": 25,
+      "arcCrossings": 12,
+      "dominantBg": "0A0A0A"
+    },
+    "typography": {
+      "titleSizeRange": null,
+      "titleSizeAvg": null,
+      "bodySizeRange": null,
+      "titleWeightRange": null,
+      "fontUsage": {
+        "Helvetica Neue": 32
+      }
+    },
+    "zones": {
+      "archetypes": {},
+      "uniqueArchetypes": 0,
+      "maxConsecutiveSame": 1,
+      "uniqueColStarts": 0,
+      "uniqueSpanWidths": 0
+    },
+    "accents": {
+      "slidesWithAccents": 0,
+      "accentPct": 0,
+      "types": {},
+      "colors": []
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

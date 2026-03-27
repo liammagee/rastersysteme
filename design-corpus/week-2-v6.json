@@ -1,0 +1,36 @@
+{
+  "deck": "week-2-v6",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v6.html",
+  "sourcePath": null,
+  "sourceType": null,
+  "timestamp": "2026-03-27T14:09:15.620Z",
+  "fingerprint": null,
+  "scores": {
+    "dimensions": {
+      "accessibility": 10,
+      "communicability": 7,
+      "taste": 7,
+      "grid": 10,
+      "color": 10,
+      "balance": 6,
+      "coherence": 7,
+      "images": 7,
+      "contentCompleteness": 2
+    },
+    "normalized": 0,
+    "tier": "Broken",
+    "runCount": 1
+  },
+  "analysis": {
+    "strengths": [
+      "accessibility",
+      "grid",
+      "color"
+    ],
+    "weaknesses": [
+      "contentCompleteness (2)"
+    ],
+    "missing": []
+  },
+  "lessons": []
+}
