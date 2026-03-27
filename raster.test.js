@@ -2034,6 +2034,43 @@ Body paragraph here
       assert.ok(html.includes("blockquote line"), "blockquote should render in body zone via inclusion");
     });
   });
+
+  describe("table classification", () => {
+    it("table with substantive text in rows is NOT a layout table", () => {
+      const md = `## Slide
+| | | |
+|---|---|---|
+| Andrew Pickering (2010) *The Cybernetic Brain* | Donna Haraway (2016) *Staying with the Trouble* | Ethan Mollick (2024) *Co-intelligence* |
+| ![Image](images/a.png) | ![Image](images/b.png) | ![Image](images/c.png) |`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.tables.length, 1, "should have 1 table");
+      assert.equal(slide.tables[0].isLayoutTable, false, "table with author names should NOT be layout table");
+      assert.equal(slide.images.length, 0, "images should stay in table, not extracted");
+    });
+
+    it("table with only images and empty cells IS a layout table", () => {
+      const md = `## Slide
+| | |
+|---|---|
+| ![Image](images/a.png) | ![Image](images/b.png) |`;
+      const [slide] = parseMarkdown(md);
+      assert.equal(slide.tables[0].isLayoutTable, true, "image-only table should be layout table");
+      assert.equal(slide.images.length, 2, "images should be extracted from layout table");
+    });
+  });
+
+  describe("content fidelity", () => {
+    it("compose prompt forbids inventing labels", () => {
+      const { DESIGN_BRIEF } = require("./compose.js");
+      assert.ok(DESIGN_BRIEF.includes("NEVER add a ### line"), "prompt should forbid invented labels");
+      assert.ok(DESIGN_BRIEF.includes("ONLY if the source slide already has"), "prompt should restrict ### to source");
+    });
+
+    it("compose prompt forbids inventing any text", () => {
+      const { DESIGN_BRIEF } = require("./compose.js");
+      assert.ok(DESIGN_BRIEF.includes("Every word in the output must trace back"), "prompt should require source traceability");
+    });
+  });
 });
 
 // ═══════════════════════════════════════════════════════

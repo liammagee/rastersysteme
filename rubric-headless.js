@@ -509,6 +509,56 @@ function applyFixes(composedPath, scores, metrics) {
 }
 
 // ═══════════════════════════════════════════════════════
+// CONTENT FIDELITY — compare source vs composed markdown
+// ═══════════════════════════════════════════════════════
+
+function checkContentFidelity(composedPath) {
+  // Try to find the source markdown
+  const composed = fs.readFileSync(composedPath, "utf-8");
+  const compSlides = composed.split(/\n---\n/).map(s => s.trim()).filter(s => s);
+
+  // Look for source path — extract "week-N" from names like "week-2-v2.composed.md"
+  const fileName = path.basename(composedPath);
+  const weekMatch = fileName.match(/(week-\d+)/);
+  const baseName = weekMatch ? weekMatch[1] : fileName.replace(/[.-].*$/, "");
+  const possibleSources = [
+    path.join(path.dirname(composedPath), "..", "content", baseName, baseName + ".md"),
+    path.join(path.dirname(composedPath), "..", "content", baseName, baseName.replace(/-/g, "_") + ".md"),
+  ];
+  const sourcePath = possibleSources.find(p => fs.existsSync(p));
+  if (!sourcePath) return null;
+
+  const source = fs.readFileSync(sourcePath, "utf-8");
+  const srcSlides = source.split(/\n---\n/).map(s => s.trim()).filter(s => s && !s.startsWith("<!---"));
+
+  const issues = [];
+
+  // Check for invented labels (### lines in composed that don't exist in source)
+  let inventedLabels = 0;
+  compSlides.forEach((cs, i) => {
+    const labels = cs.match(/^### (.+)$/gm) || [];
+    const srcClean = (srcSlides[i] || "").replace(/<!--[\s\S]*?-->/g, "");
+    for (const label of labels) {
+      const text = label.replace(/^### /, "").trim();
+      if (text.length > 2 && !srcClean.includes(text)) {
+        inventedLabels++;
+      }
+    }
+  });
+
+  if (inventedLabels > 0) {
+    issues.push(`${inventedLabels} invented labels (### text not in source)`);
+  }
+
+  // Check slide count
+  if (compSlides.length !== srcSlides.length) {
+    issues.push(`slide count mismatch: source ${srcSlides.length} vs composed ${compSlides.length}`);
+  }
+
+  return { inventedLabels, slideCountMatch: compSlides.length === srcSlides.length, issues };
+}
+
+// ═══════════════════════════════════════════════════════
 // LESSON EXTRACTION — feed evaluation insights back to compose
 // ═══════════════════════════════════════════════════════
 
@@ -630,14 +680,40 @@ async function main() {
   const doScreenshots = args.includes("--screenshots");
   const jsonOutput = args.includes("--json");
 
-  const composedPath = htmlPath.replace(/\.html$/, ".composed.md");
+  // Strip .spliced or .merged suffixes to find the composed markdown
+  const basePath = htmlPath.replace(/\.(spliced|merged)\.html$/, ".html");
+  const composedPath = basePath.replace(/\.html$/, ".composed.md");
   const hasComposed = fs.existsSync(composedPath);
 
   process.stderr.write(`\n  ${accent("■")} ${chalk.white.bold("rubric-headless")}\n`);
   process.stderr.write(`  ${dim("Deck:")} ${teal(htmlPath)}\n`);
 
+  // Check content fidelity (source vs composed) if composed markdown exists
+  let fidelity = null;
+  if (hasComposed) {
+    fidelity = checkContentFidelity(composedPath);
+    if (fidelity && fidelity.issues.length > 0) {
+      process.stderr.write(`  ${accent("⚠ Content fidelity:")}\n`);
+      fidelity.issues.forEach(issue => {
+        process.stderr.write(`    ${accent("✖")} ${issue}\n`);
+      });
+    }
+  }
+
   const scoreHistory = [];
   const result = await evaluate(htmlPath, { screenshots: doScreenshots });
+  // Inject fidelity data into metrics
+  if (fidelity) {
+    result.metrics.inventedLabels = fidelity.inventedLabels;
+    // Penalize content completeness for invented content
+    if (fidelity.inventedLabels > 0) {
+      result.scores.contentCompleteness = Math.max(1, result.scores.contentCompleteness - fidelity.inventedLabels * 0.3);
+      result.scores.contentCompleteness = Math.round(result.scores.contentCompleteness * 10) / 10;
+      // Recompute total
+      const computedDims = Object.entries(result.scores).filter(([, v]) => v !== null);
+      result.computedTotal = Math.round(computedDims.reduce((a, [, v]) => a + v, 0) * 10) / 10;
+    }
+  }
   scoreHistory.push({ iteration: 0, ...result });
 
   function printScores(r, label) {

@@ -65,7 +65,7 @@ FONTS: Helvetica Neue (default), Georgia (serif), Palatino (classical), Courier 
 CONTENT SYNTAX (after the design directive):
   # Title text
   ## Subtitle
-  ### LABEL (small-caps, wide tracking)
+  ### Section label (ONLY if the source slide already has a ### heading)
   - Bullet item
   > Blockquote
   Bare text = body
@@ -73,9 +73,13 @@ CONTENT SYNTAX (after the design directive):
 RULES:
   1. Output ONLY slides separated by ---. No commentary, no code fences.
   2. Every slide MUST have a <!-- design: {...} --> directive as its FIRST line.
-  3. Do NOT invent facts, URLs, dates. Content comes from the source only.
+  3. Do NOT invent, rewrite, or add ANY text. Content comes from the source ONLY.
+     This includes ### labels — NEVER add a ### line that does not exist in the source.
+     If the source has no ### heading, the slide gets NO label. Labels are NOT decoration.
   4. Speaker notes from the source MUST be preserved (append design rationale).
   5. ALL substantive information must survive: URLs, emails, dates, names, criteria.
+  6. Every word in the output must trace back to the source. If you cannot find it in
+     the source, do not include it.
 
 DESIGN PRINCIPLES (Swiss/New Wave):
 - Typographic scale: the RATIO between title size and body size IS the hierarchy.
@@ -138,7 +142,7 @@ GRID PHILOSOPHY: wide margins, generous whitespace, quiet precision.
 - Backgrounds: 80%+ slides use light/no-bg (F8F5F0, FAFAF8, FFFFFF). Max 3 slides
   with a mid-tone bg for chapter breaks. NO dark backgrounds.
 - Font: Helvetica Neue ONLY. No font overrides.
-- Tracking: 0–0.04em on body, 0.1–0.15em on ### labels.
+- Tracking: 0-0.04em on body, 0.1-0.15em on ### labels (only if source has ###).
 
 EVERY SLIDE should look like a well-typeset page from a Swiss design annual.
 Wide left margins. Clean type. Paper-white ground. Nothing decorative.
@@ -188,8 +192,8 @@ the same zone arrangement. The grid is an arena of opposing forces.
   Sometimes body ABOVE title. Sometimes body at col:0, title at col:40 (inverted).
 - Accent elements: BOLD. Thick bars (span 4–8), colour blocks (type: "block"),
   dots as visual anchors. Use on 50%+ of slides.
-- ### labels: on 70%+ of slides. Size 8–9px, tracking 0.2–0.4em, transform uppercase.
-  The tiny label against the huge title IS the Weingart scale relationship.
+- ### labels: ONLY on slides that already have ### headings in the source. Size 12–14px,
+  tracking 0.15–0.3em, transform uppercase. Never invent labels.
 - Backgrounds: INVENT 6-8 colours. HIGH CONTRAST: alternate near-black, vivid
   saturated (bright red, electric blue, golden yellow), and near-white.
   Adjacent slides must NEVER have similar brightness.

@@ -34,8 +34,7 @@
 
  - Attempts to reclaim the more "human" form
  - An Era of Symbiotic (or Sympoetic / Co-intelligent / Cyber-social) Pedagogy?   
- - 
- - **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI  **AI to Human**  
+
 
 | | | |
 |---|---|---|
