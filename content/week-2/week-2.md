@@ -121,34 +121,21 @@
 
 ---
 
-
-
-
-
 ![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
 
 | | |
 |---|---|
 | **17th/****18th**** Century**<br>** – final days of feudalism**<br>** – computation as *****rational (human)***<br><br><br><br>**18th/19th Century**<br>** – first days of industrial capitalism**<br>** – computation as *****mechanical (machine)***<br><br> |  |
 
+---
 
+| Feudalism | Capitalism |
+|---|---|
+| ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png) |
+| **“The hand-mill gives you society with the feudal lord;** | **the steam-mill society with the industrial capitalist.” (Marx, 1847)** |
 
 
 ---
-
-
-
-
-
-![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**  
-
-
-
-
----
-
-
-
 
 [The Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)
 

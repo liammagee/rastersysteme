@@ -1,5 +1,60 @@
 [
   {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2.html",
+    "name": "week-2",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "98K",
+    "modified": "2026-03-27T14:01:34.419Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v6.html",
+    "name": "week-2-v6",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "96K",
+    "modified": "2026-03-27T13:54:42.344Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v5.spliced.html",
+    "name": "week-2-v5.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "89K",
+    "modified": "2026-03-27T05:33:51.355Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v5.html",
+    "name": "week-2-v5",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "89K",
+    "modified": "2026-03-27T05:30:13.218Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v4.html",
+    "name": "week-2-v4",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "92K",
+    "modified": "2026-03-27T05:23:38.787Z"
+  },
+  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-v3.spliced.html",
@@ -42,17 +97,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "104K",
     "modified": "2026-03-27T04:51:18.244Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/week-2.html",
-    "name": "week-2",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "92K",
-    "modified": "2026-03-27T04:25:08.629Z"
   },
   {
     "type": "spliced",
