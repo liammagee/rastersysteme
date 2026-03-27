@@ -1,6 +1,7 @@
 ---
 name: audit
 description: Scan existing decks, extract design fingerprints, evaluate, and synthesize corpus insights to improve future compositions.
+user_invocable: true
 ---
 
 # Audit
@@ -9,10 +10,10 @@ Scan the `decks/` folder, extract design briefs/parameters from composed sources
 
 ## Arguments
 
-`/audit`                              — full cycle: scan, synthesize, report
-`/audit decks/week-2-v3.html`         — audit a single deck
-`/audit --eval`                       — also run rubric-eval on unscored decks
-`/audit --report`                     — only print report from existing corpus
+`/rs:audit`                              — full cycle: scan, synthesize, report
+`/rs:audit decks/week-2-v3.html`         — audit a single deck
+`/rs:audit --eval`                       — also run rubric-eval on unscored decks
+`/rs:audit --report`                     — only print report from existing corpus
 
 ## How to work
 
@@ -70,7 +71,7 @@ Read the generated files and present findings to the user:
 If the user wants to improve specific decks based on audit findings:
 - Suggest running `/design <deck.composed.md>` on low-scoring decks
 - Or `/refine-loop <deck.html>` for autonomous improvement
-- The corpus insights will automatically inform the next `/compose` run
+- The corpus insights will automatically inform the next `/rs:compose` run
 
 ## Pipeline
 

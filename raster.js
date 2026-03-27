@@ -501,9 +501,10 @@ function parseMarkdown(md) {
           }
         }
       }
-      // Images or YouTube videos: ![alt](path) — standalone line
+      // Images or YouTube videos: ![alt](path) — standalone line (may have trailing text)
       else if (/^!\[([^\]]*)\]\(([^)]+)\)/.test(trimmed)) {
-        extractInlineImages(trimmed);
+        const remainingText = extractInlineImages(trimmed);
+        if (remainingText) slide.body.push(remainingText);
       }
       // Bullets with nesting (detect indent from original line)
       else if (/^\s*[-*]\s+/.test(line)) {
@@ -552,7 +553,8 @@ function parseMarkdown(md) {
     }
 
     // Last resort: promote first short body line to subtitle when no heading exists at all
-    if (!slide.title && !slide.subtitle && !slide.sectionLabel && slide.body.length > 0) {
+    // Skip promotion when slide has images — body text is likely a caption, not a title
+    if (!slide.title && !slide.subtitle && !slide.sectionLabel && slide.body.length > 0 && slide.images.length === 0) {
       const first = slide.body[0].replace(/<br\s*\/?>/gi, " ").replace(/\*\*/g, "").trim();
       if (first.length > 3 && first.length < 120) {
         slide.subtitle = first;

@@ -106,7 +106,7 @@ Themes: `light` (default), `dark`, `red`, `blue`
 | `/evaluate <deck.html>` | Score deck against 8-dimension rubric (computed + visual) |
 | `/design <deck.composed.md>` | Apply rubric-targeted improvements to design directives |
 | `/refine-loop <deck.html>` | Recursive evaluate → design → re-render until scores plateau |
-| `/audit` | Scan decks/, extract fingerprints, pair with scores, synthesize corpus insights |
+| `/rs:audit` | Scan decks/, extract fingerprints, pair with scores, synthesize corpus insights |
 
 **Utilities:**
 

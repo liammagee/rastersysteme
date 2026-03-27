@@ -20,6 +20,7 @@
     { "name": "render", "description": "Re-render an HTML slide deck from its composed markdown source. Rebuilds after edits, optionally splices images and reloads in Chrome.", "file": "commands/render.md" },
     { "name": "splice-images", "description": "Merge generated images into an HTML slide deck with intelligent, collision-aware placement.", "file": "commands/splice-images.md" },
     { "name": "studio", "description": "Open the studio viewer — a precision presentation tool with grid view, QA panel, and speaker notes.", "file": "commands/studio.md" },
+    { "name": "audit", "description": "Scan decks, extract design fingerprints, evaluate, and synthesize corpus insights.", "file": "commands/audit.md" },
     { "name": "build-deck", "description": "End-to-end pipeline: compose (opus) → render → evaluate → design-fix → loop until rubric scores converge.", "file": "commands/build-deck.md" },
     { "name": "promote", "description": "Triage untracked scripts — classify as reusable tools or one-off hacks, promote or delete.", "file": "commands/promote.md" }
   ]

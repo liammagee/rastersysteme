@@ -18,7 +18,7 @@ function loadEnvKeys() {
     const keys = {};
     for (const line of lines) {
       const match = line.match(/^([A-Z_]+)=(.+)$/);
-      if (match) keys[match[1]] = match[2].trim();
+      if (match) keys[match[1]] = match[2].trim().replace(/^["']|["']$/g, "");
     }
     return keys;
   } catch { return {}; }

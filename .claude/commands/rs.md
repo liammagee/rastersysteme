@@ -143,7 +143,7 @@ Note: `/compose`, `/build-deck`, and `/compare` are in the `rs` plugin. Invoke a
 
 | Skill | What it does | Use when |
 |-------|-------------|----------|
-| `/audit` | Extract fingerprints, evaluate, synthesize insights | Cross-deck learning |
+| `/rs:audit` | Extract fingerprints, evaluate, synthesize insights | Cross-deck learning |
 
 #### Suggested next steps
 
@@ -171,7 +171,7 @@ Pick the most useful suggestions, not all of them. Prioritize gaps in the pipeli
 | "Run everything at once" | `/rs:batch all --week N` |
 | "What design systems exist?" | `/rs:design-system list` |
 | "Clean up temp scripts" | `/rs:promote` |
-| "Learn from past decks" | `/audit` |
+| "Learn from past decks" | `/rs:audit` |
 
 ### Key disambiguation
 

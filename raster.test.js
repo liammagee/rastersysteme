@@ -270,6 +270,27 @@ describe("Markdown parser", () => {
       const [s] = parseMarkdown("see ![icon](x.png) here");
       assert.equal(s.images.length, 0);
     });
+
+    it("extracts trailing text from image lines into body", () => {
+      const [s] = parseMarkdown("![Image](book.png)   Truitt, E. R. (2015). *Medieval robots*. UPenn Press.");
+      assert.equal(s.images.length, 1);
+      assert.equal(s.images[0].src, "book.png");
+      assert.ok(s.body.length >= 1, "trailing text should be in body");
+      assert.ok(s.body[0].includes("Truitt"), "body should contain the citation text");
+    });
+
+    it("handles image-only lines without trailing text", () => {
+      const [s] = parseMarkdown("![Image](photo.png)");
+      assert.equal(s.images.length, 1);
+      assert.equal(s.body.length, 0, "no trailing text means no body");
+    });
+
+    it("extracts text between multiple images on one line", () => {
+      const [s] = parseMarkdown("![Image](a.png)   Caption text here   ![Image](b.png)");
+      assert.equal(s.images.length, 2);
+      assert.ok(s.body.length >= 1, "text between images should be in body");
+      assert.ok(s.body[0].includes("Caption text here"), "body should contain interstitial text");
+    });
   });
 
   describe("tables", () => {
