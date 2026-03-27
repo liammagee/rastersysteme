@@ -3,34 +3,41 @@
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v6.html",
   "sourcePath": null,
   "sourceType": null,
-  "timestamp": "2026-03-27T14:36:27.398Z",
+  "timestamp": "2026-03-27T15:02:07.755Z",
   "fingerprint": null,
   "scores": {
     "dimensions": {
-      "accessibility": 10,
-      "communicability": 7,
-      "taste": 7,
+      "accessibility": 8,
+      "communicability": null,
+      "taste": null,
       "grid": 10,
       "color": 10,
-      "balance": 6,
-      "coherence": 7,
-      "images": 7,
-      "contentCompleteness": 2
+      "balance": null,
+      "coherence": 8,
+      "images": 9,
+      "contentCompleteness": 9.5
     },
-    "normalized": 0,
-    "tier": "Broken",
+    "total": 54.5,
+    "max": 60,
+    "normalized": 91,
+    "tier": "Exhibition",
     "runCount": 1
   },
   "analysis": {
     "strengths": [
-      "accessibility",
       "grid",
-      "color"
+      "color",
+      "contentCompleteness",
+      "images",
+      "accessibility",
+      "coherence"
     ],
-    "weaknesses": [
-      "contentCompleteness (2)"
-    ],
-    "missing": []
+    "weaknesses": [],
+    "missing": [
+      "communicability",
+      "taste",
+      "balance"
+    ]
   },
   "lessons": []
 }

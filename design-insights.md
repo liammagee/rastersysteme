@@ -8,9 +8,9 @@ Each rule is backed by corpus evidence (deck count, score correlation).
 
 ## Palette & Accessibility
 
-- **Light orientation >= 80%**: avg accessibility 8.3/10 (n=4)
-- **Light orientation < 60%**: avg accessibility 1.9/10 (n=3) — avoid
-- **Chromatic arc >= 3 crossings**: avg color 9.6/10 (n=6)
+- **Light orientation >= 80%**: avg accessibility 7.3/10 (n=5)
+- **Light orientation < 60%**: avg accessibility 2.4/10 (n=2) — avoid
+- **Chromatic arc >= 3 crossings**: avg color 9.7/10 (n=6)
 - **Background variety**: median 6 unique backgrounds across corpus
 
 ## Grid & Zone Archetypes
@@ -31,13 +31,13 @@ Each rule is backed by corpus evidence (deck count, score correlation).
 
 ## Content Completeness
 
-- **Corpus median content score**: 4/10
+- **Corpus median content score**: 6/10
 - **Content completeness is the weakest dimension** — prioritize zone-content matching
 
 ## Intensity Profile Patterns
 
-- **maximal**: avg normalized score 74% (n=7)
-  - Weak dimensions: contentCompleteness (4.8), accessibility (5.6)
+- **maximal**: avg normalized score 76% (n=7)
+  - Weak dimensions: contentCompleteness (5.5), accessibility (5.9)
 
 ## Exemplar Decks
 
@@ -58,6 +58,8 @@ Each rule is backed by corpus evidence (deck count, score correlation).
 
 _These rules are extracted by corpus-synthesize.js and injected into compose.js._
 
+- **[SHOULD]** Avoid <60% light backgrounds. Dark-heavy palettes correlate with accessibility failures.
+  _Evidence: 2 decks with <60% light: avg accessibility 2.4/10_
 - **[SHOULD]** Use 6+ unique background colors for palette diversity.
   _Evidence: Corpus median: 6 unique backgrounds_
 - **[SHOULD]** Limit consecutive same-archetype slides to <=2. Runs of 3+ reduce coherence-variance.
@@ -69,12 +71,10 @@ _These rules are extracted by corpus-synthesize.js and injected into compose.js.
 - **[SHOULD]** Target ~83% of slides with accent elements. Over-accenting reduces clarity.
   _Evidence: Corpus median: 83% accent frequency_
 - **[MUST]** Use >=80% light backgrounds (lightPct >= 80).
-  _Evidence: 4 decks with >=80% light: avg accessibility 8.3/10_
-- **[MUST]** Avoid <60% light backgrounds. Dark-heavy palettes correlate with accessibility failures.
-  _Evidence: 3 decks with <60% light: avg accessibility 1.9/10_
+  _Evidence: 5 decks with >=80% light: avg accessibility 7.3/10_
 - **[MUST]** Maintain >=3 light/dark chromatic arc crossings across the deck.
-  _Evidence: 6 decks with >=3 crossings: avg color 9.6/10_
+  _Evidence: 6 decks with >=3 crossings: avg color 9.7/10_
 - **[MUST]** Use >=5 distinct zone archetypes (monument, sidebar-left, editorial, right-anchored, narrow-column, etc.).
   _Evidence: 6 decks with >=5 archetypes: avg grid 10.0/10_
 - **[MUST]** Content completeness is the weakest dimension in the corpus. Prioritize: remove empty body zones from image-only slides, expand table zones, verify all body text has a zone.
-  _Evidence: Median content score: 4/10 (lowest across dimensions)_
+  _Evidence: Median content score: 6/10 (lowest across dimensions)_

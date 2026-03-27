@@ -3,7 +3,7 @@
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2.html",
   "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2.composed.md",
   "sourceType": "file",
-  "timestamp": "2026-03-27T14:36:27.399Z",
+  "timestamp": "2026-03-27T15:02:07.756Z",
   "fingerprint": {
     "slideCount": 36,
     "directiveFormat": "json",
@@ -87,12 +87,12 @@
       "color": 10,
       "balance": null,
       "coherence": 8,
-      "images": 9,
-      "contentCompleteness": 3.5
+      "images": 10,
+      "contentCompleteness": 1.4
     },
-    "total": 41.5,
+    "total": 40.4,
     "max": 60,
-    "normalized": 69,
+    "normalized": 67,
     "tier": "Competent",
     "runCount": 1
   },
@@ -105,7 +105,7 @@
     ],
     "weaknesses": [
       "accessibility (1)",
-      "contentCompleteness (3.5)"
+      "contentCompleteness (1.4)"
     ],
     "missing": [
       "communicability",

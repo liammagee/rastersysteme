@@ -3,7 +3,7 @@
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-strata.html",
   "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-strata.composed.md",
   "sourceType": "file",
-  "timestamp": "2026-03-27T14:36:27.313Z",
+  "timestamp": "2026-03-27T15:02:07.690Z",
   "fingerprint": {
     "slideCount": 36,
     "directiveFormat": "json",
@@ -12,18 +12,16 @@
       "backgrounds": [
         "2C2418",
         "F4EDE0",
-        "8A7E6D",
         "1B3A4B"
       ],
       "bgFrequency": {
-        "2C2418": 7,
-        "F4EDE0": 17,
-        "8A7E6D": 3,
-        "1B3A4B": 9
+        "2C2418": 2,
+        "F4EDE0": 31,
+        "1B3A4B": 3
       },
-      "lightPct": 47,
-      "darkCount": 19,
-      "arcCrossings": 16,
+      "lightPct": 86,
+      "darkCount": 5,
+      "arcCrossings": 9,
       "dominantBg": "F4EDE0"
     },
     "typography": {
@@ -33,7 +31,7 @@
       ],
       "titleSizeAvg": 42,
       "bodySizeRange": [
-        11,
+        15,
         18
       ],
       "titleWeightRange": [
@@ -48,19 +46,18 @@
     "zones": {
       "archetypes": {
         "monument": 8,
-        "image-only": 4,
-        "other": 6,
+        "image-only": 7,
+        "minimal": 2,
         "right-anchored": 1,
-        "multi-zone": 2,
-        "title-only": 2,
+        "title-only": 3,
+        "other": 3,
         "editorial": 10,
-        "standard": 1,
         "narrow-column": 2
       },
-      "uniqueArchetypes": 9,
-      "maxConsecutiveSame": 3,
-      "uniqueColStarts": 23,
-      "uniqueSpanWidths": 23
+      "uniqueArchetypes": 8,
+      "maxConsecutiveSame": 6,
+      "uniqueColStarts": 21,
+      "uniqueSpanWidths": 22
     },
     "accents": {
       "slidesWithAccents": 36,
@@ -82,30 +79,31 @@
   },
   "scores": {
     "dimensions": {
-      "accessibility": 1,
+      "accessibility": 3.4,
       "communicability": null,
       "taste": null,
       "grid": 10,
-      "color": 7.7,
+      "color": 8,
       "balance": null,
       "coherence": 6,
       "images": 10,
-      "contentCompleteness": 4
+      "contentCompleteness": 9.5
     },
-    "total": 38.7,
+    "total": 46.9,
     "max": 60,
-    "normalized": 65,
-    "tier": "Competent",
+    "normalized": 78,
+    "tier": "Professional",
     "runCount": 1
   },
   "analysis": {
     "strengths": [
       "grid",
-      "images"
+      "images",
+      "contentCompleteness",
+      "color"
     ],
     "weaknesses": [
-      "accessibility (1)",
-      "contentCompleteness (4)"
+      "accessibility (3.4)"
     ],
     "missing": [
       "communicability",
@@ -115,41 +113,17 @@
   },
   "lessons": [
     {
-      "dimension": "accessibility",
-      "finding": "Heavy dark palette correlated with low accessibility",
-      "parameter": "19/36 dark slides (53%)",
-      "recommendation": "Reduce dark backgrounds to <20% of slides; use >7:1 contrast text on dark"
-    },
-    {
-      "dimension": "accessibility",
-      "finding": "Insufficient light orientation",
-      "parameter": "lightPct=47%",
-      "recommendation": "Target >=80% light backgrounds per design-lessons.md"
-    },
-    {
       "dimension": "grid",
       "finding": "High archetype diversity produces strong grid scores",
-      "parameter": "9 archetypes, 23 col starts",
+      "parameter": "8 archetypes, 21 col starts",
       "recommendation": "Maintain this level of zone variety in future compositions",
       "positive": true
     },
     {
       "dimension": "coherence",
       "finding": "Consecutive same-archetype runs reduce coherence score",
-      "parameter": "maxConsecutiveSame=3",
+      "parameter": "maxConsecutiveSame=6",
       "recommendation": "Break runs of >2 consecutive same-archetype slides"
-    },
-    {
-      "dimension": "contentCompleteness",
-      "finding": "Excessive empty body zones degrade content score",
-      "parameter": "7 empty body zones",
-      "recommendation": "Remove body zones from image-only slides; match zone roles to content"
-    },
-    {
-      "dimension": "contentCompleteness",
-      "finding": "Table truncation causes content loss",
-      "parameter": "1 tables truncated",
-      "recommendation": "Tables need span>=50 and rowSpan>=30 with body size 10-11px"
     }
   ]
 }
