@@ -8,6 +8,7 @@ const path = require("path");
 const EVALUATORS = {
   "markdown-qa": require("./markdown-qa"),
   "headless-rubric": require("./headless-rubric"),
+  "jsdom-rubric": require("./jsdom-rubric"),
   "headless-qa": require("./headless-qa"),
   "claude-textual": require("./claude-textual"),
   "screenshot-vision": require("./screenshot-vision"),
@@ -18,6 +19,7 @@ const EVALUATORS = {
 const GROUPS = {
   static: ["markdown-qa"],
   headless: ["headless-rubric", "headless-qa"],
+  jsdom: ["jsdom-rubric"],
   vision: ["screenshot-vision"],
   textual: ["claude-textual"],
   chrome: ["chrome-visual"],

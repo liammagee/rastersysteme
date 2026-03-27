@@ -226,6 +226,16 @@ async function evalHarness(deckPath, options = {}) {
     );
   }
 
+  const jrCheck = available.find(c => c.name === "jsdom-rubric");
+  if (jrCheck) {
+    process.stderr.write(`  ${dim("Running")} jsdom-rubric${dim("...")}\n`);
+    phase2.push(
+      jrCheck.evaluator.evaluate(deckPath, options)
+        .then(r => { r.evaluatorName = "jsdom-rubric"; return r; })
+        .catch(err => { process.stderr.write(`  ${accent("✗")} jsdom-rubric: ${err.message}\n`); return null; })
+    );
+  }
+
   const svCheck2 = available.find(c => c.name === "screenshot-vision");
   if (svCheck2 && screenshots && screenshots.length > 0) {
     process.stderr.write(`  ${dim("Running")} screenshot-vision API${dim("...")}\n`);

@@ -44,5 +44,8 @@
     "midjourney": "^4.3.18",
     "pptxgenjs": "^4.0.1",
     "puppeteer": "^24.40.0"
+  },
+  "devDependencies": {
+    "jsdom": "^29.0.1"
   }
 }
