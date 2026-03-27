@@ -470,9 +470,12 @@ function callClaudeAsync(prompt, options = {}) {
       const now = Math.floor((Date.now() - startTime) / 1000);
       if (now > 0 && now % 10 === 0 && now !== lastHeartbeat) {
         lastHeartbeat = now;
-        const charInfo = chars > 0 ? ` ${amber(chars + " chars")}` : "";
+        // Count completed slide directives in streamed output
+        const slideMatches = streamedText.match(/"slide"\s*:\s*\d+/g);
+        const slideCount = slideMatches ? slideMatches.length : 0;
+        const slideInfo = slideCount > 0 ? ` ${sage("slide " + slideCount)}` : "";
         const modelInfo = model ? ` ${dim(model)}` : "";
-        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${dim(phase)} ${amber(now + "s")}${charInfo}${modelInfo}\n`);
+        process.stderr.write(`  ${dim("[")}${accent(label)}${dim("]")} ${dim(phase)} ${amber(now + "s")}${slideInfo}${modelInfo}\n`);
       }
     }, 1000);
 
