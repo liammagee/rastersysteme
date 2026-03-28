@@ -81,7 +81,9 @@ function mergeScores(evaluatorResults) {
 
     // Weighted average by confidence
     const totalWeight = contributions.reduce((sum, c) => sum + c.confidence, 0);
-    const weightedScore = contributions.reduce((sum, c) => sum + c.score * c.confidence, 0) / totalWeight;
+    const weightedScore = totalWeight > 0
+      ? contributions.reduce((sum, c) => sum + c.score * c.confidence, 0) / totalWeight
+      : contributions.reduce((sum, c) => sum + c.score, 0) / contributions.length;
 
     merged[dimName] = {
       score: Math.round(weightedScore * 10) / 10,
@@ -419,4 +421,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { evalHarness };
+module.exports = { evalHarness, mergeScores };

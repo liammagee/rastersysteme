@@ -326,3 +326,30 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: 3 empty body zones. Remove body zones from image-only and table-only slides. Match zone roles to actual content type.
+- [2026-03-28] **week-2-v11.spliced.html**: 1 slides with no visible text (and no images). Ensure every non-image slide has a body or quote zone with content.
+
+- [2026-03-28] **week-2-v11.spliced.html**: 3 empty body zones. Remove body zones from image-only and table-only slides. Match zone roles to actual content type.
+- [2026-03-28] **week-2-v11.spliced.html**: 1 slides with no visible text (and no images). Ensure every non-image slide has a body or quote zone with content.
+
+- [2026-03-28] **week-2-v11.spliced.html**: 3 empty body zones. Remove body zones from image-only and table-only slides. Match zone roles to actual content type.
+- [2026-03-28] **week-2-v11.spliced.html**: 1 slides with no visible text (and no images). Ensure every non-image slide has a body or quote zone with content.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.

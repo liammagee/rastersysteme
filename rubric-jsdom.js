@@ -271,17 +271,41 @@ function evaluate(htmlPath) {
       else imgPlacements.add('centre');
     });
 
-    // Text-on-image overlap (simplified: count text near images)
-    // Without real bounding boxes, we approximate by counting text and images on same slide
-    const imgCount = slide.querySelectorAll('img').length;
-    const textEls = slide.querySelectorAll('h1,h2,h3,p,.bullet,blockquote,.label,td,th,a,code');
-    if (imgCount > 0 && textEls.length > 0) {
-      // Conservative estimate: if both text and images exist, assume some overlap
-      const overlapRatio = Math.min(textEls.length * 0.1, imgCount * 0.3);
-      if (overlapRatio > 0.3) {
-        textOnImageCount += Math.round(overlapRatio);
-        imgOverlaps += Math.round(overlapRatio);
-        slideIssues.push('text-on-image');
+    // Text-on-image overlap: CSS rect intersection between image zones and text zones
+    // Replaces the old approximation which produced false positives
+    const imgZoneRects = [];
+    const textZoneRects = [];
+    slide.querySelectorAll('[class*="zone-"]').forEach(z => {
+      if (z.className.includes('accent') || z.classList.contains('zone-extras')) return;
+      const s = parseInlineStyle(z);
+      const left = parseFloat(s['left']) || 0;
+      const top = parseFloat(s['top']) || 0;
+      let width = parseFloat(s['width']) || 0;
+      let height = parseFloat(s['height']) || 0;
+      if (!width && s['right']) width = 100 - left - (parseFloat(s['right']) || 0);
+      if (!height && s['bottom']) height = 100 - top - (parseFloat(s['bottom']) || 0);
+      if (width <= 0 || height <= 0) return;
+      const rect = { left, top, right: left + width, bottom: top + height };
+      // Only count dedicated image zones (role="image"), not body zones that happen to contain images
+      if (z.classList.contains('zone-image')) {
+        imgZoneRects.push(rect);
+      } else if (z.textContent.trim().length > 10) {
+        textZoneRects.push(rect);
+      }
+    });
+    // Check for zone-level overlaps between text zones and image zones
+    for (const ir of imgZoneRects) {
+      for (const tr of textZoneRects) {
+        const ox = Math.max(0, Math.min(ir.right, tr.right) - Math.max(ir.left, tr.left));
+        const oy = Math.max(0, Math.min(ir.bottom, tr.bottom) - Math.max(ir.top, tr.top));
+        const area = ox * oy;
+        const imgArea = (ir.right - ir.left) * (ir.bottom - ir.top);
+        if (area > imgArea * 0.2 && area > 50) {
+          textOnImageCount++;
+          imgOverlaps++;
+          slideIssues.push('text-on-image');
+          break;
+        }
       }
     }
 
@@ -351,6 +375,19 @@ function evaluate(htmlPath) {
           slideIssues.push('zone-collision');
         }
       }
+    }
+
+    // ── Visual utilization (% of slide area covered by content zones) ──
+    let slideUtilization = 0;
+    for (const r of zoneRects) {
+      slideUtilization += (r.right - r.left) * (r.bottom - r.top);
+    }
+    // Normalize to 0-1 (100% = zones cover entire 100x100 area)
+    slideUtilization = Math.min(slideUtilization / 10000, 1);
+    const hasContentImg = slide.querySelector('img:not(.splice-img)');
+    const isDark = false; // can't reliably check bg in jsdom — skip dark divider exemption here
+    if (slideUtilization < 0.25 && !hasContentImg && idx > 0 && perSlideTextLen[idx] > 30) {
+      slideIssues.push('low-utilization');
     }
 
     // ── Content preservation ──
@@ -510,10 +547,12 @@ function evaluate(htmlPath) {
   let duplicateTextSlides = 0;
   let genericAltTotal = 0;
   let zoneCollisionSlides = 0;
+  let lowUtilizationSlides = 0;
   perSlideIssues.forEach(issues => {
     if (issues.includes('link-only')) linkOnlySlides++;
     if (issues.includes('duplicate-text')) duplicateTextSlides++;
     if (issues.includes('zone-collision')) zoneCollisionSlides++;
+    if (issues.includes('low-utilization')) lowUtilizationSlides++;
     genericAltTotal += issues.filter(i => i === 'generic-alt').length;
   });
 
@@ -534,7 +573,7 @@ function evaluate(htmlPath) {
     inventedLabels: 0, // populated by content fidelity check
     // v3 banality metrics
     lowDensitySlides, linkOnlySlides, duplicateTextSlides, sparseSlides, genericAltTotal,
-    zoneCollisionSlides
+    zoneCollisionSlides, lowUtilizationSlides
   };
 }
 

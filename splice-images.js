@@ -454,7 +454,9 @@ if (require.main === module) {
     // 2. decks/<base>-images/         (e.g. decks/week-2-images/ for week-2-v7)
     // 3. decks/<base>.composed-images/ (e.g. decks/week-2.composed-images/)
     // 4. content/week-N/week-N-images/
-    const base = deckName.replace(/-v\d+$/, "").replace(/-\w+$/, "");
+    const base = /-v\d+$/.test(deckName)
+      ? deckName.replace(/-v\d+$/, "")
+      : deckName.replace(/-\w+$/, "");
     const candidates = [
       path.join("decks", `${deckName}-images`),
       path.join("decks", `${base}-images`),
@@ -516,4 +518,4 @@ if (require.main === module) {
   process.stderr.write(`  ${sage("✓")} Spliced → ${teal(outputPath)}\n`);
 }
 
-module.exports = { spliceImages, placementCSS, algorithmicPlan };
+module.exports = { spliceImages, placementCSS, algorithmicPlan, contentAwarePlan };

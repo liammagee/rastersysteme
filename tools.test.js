@@ -868,3 +868,613 @@ describe("validateSource", () => {
     assert.equal(errors.length, 0);
   });
 });
+
+// ═══════════════════════════════════════════════════════
+// RUBRIC-SCORES
+// ═══════════════════════════════════════════════════════
+
+describe("rubric-scores.js", () => {
+  const { computeScores } = require("./rubric-scores.js");
+
+  // Full valid metrics fixture (representative of a well-designed deck)
+  function goodMetrics() {
+    return {
+      contrastErrors: 0, contrastWarnings: 0, brokenImgs: 0,
+      tinyTextCount: 0, overflows: 0,
+      total: 10, designed: 10, totalZones: 30, nonDefaultZones: 25,
+      uniqueArchetypes: 6, maxArchetypeRun: 2, zoneStarts: 8,
+      zoneCollisionSlides: 0,
+      hasArc: true, avgTransition: 160, transitionVariance: 400,
+      uniqueBgs: 5, maxConsecBg: 2, contrastErrors_color: 0,
+      titleSizes: [24, 32, 48], fontSets: 3, densityCV: 0.8,
+      accentRatio: 0.5, typographyRatio: 2.2,
+      totalImgs: 5, textOnImageCount: 0, imgOverlaps: 0,
+      genericAltTotal: 0, imgPlacements: ["right", "left", "inset-tr", "background"],
+      emptyBodyZones: 0, contentlessSlides: 0, tableTruncations: 0,
+      clippedContentSlides: 0, slidesWithNoVisibleText: 0,
+      inventedLabels: 0, lowDensitySlides: 0, sparseSlides: 0,
+      linkOnlySlides: 0, duplicateTextSlides: 0,
+    };
+  }
+
+  // ── Structure ──
+
+  it("returns scores, computedTotal, maxComputed", () => {
+    const result = computeScores(goodMetrics());
+    assert.ok("scores" in result);
+    assert.ok("computedTotal" in result);
+    assert.ok("maxComputed" in result);
+    assert.equal(typeof result.computedTotal, "number");
+    assert.equal(typeof result.maxComputed, "number");
+  });
+
+  it("visual-only dimensions are null", () => {
+    const { scores } = computeScores(goodMetrics());
+    assert.equal(scores.communicability, null);
+    assert.equal(scores.taste, null);
+    assert.equal(scores.balance, null);
+  });
+
+  it("maxComputed is 60 (6 computed dims x 10)", () => {
+    const { maxComputed } = computeScores(goodMetrics());
+    assert.equal(maxComputed, 60);
+  });
+
+  it("all non-null scores are clamped [1, 10]", () => {
+    const { scores } = computeScores(goodMetrics());
+    for (const [k, v] of Object.entries(scores)) {
+      if (v !== null) {
+        assert.ok(v >= 1, `${k} should be >= 1, got ${v}`);
+        assert.ok(v <= 10, `${k} should be <= 10, got ${v}`);
+      }
+    }
+  });
+
+  it("computedTotal equals sum of non-null scores within 0.1", () => {
+    const { scores, computedTotal } = computeScores(goodMetrics());
+    const sum = Object.values(scores).filter(v => v !== null).reduce((a, b) => a + b, 0);
+    assert.ok(Math.abs(sum - computedTotal) < 0.15, `sum ${sum} vs total ${computedTotal}`);
+  });
+
+  // ── Accessibility ──
+
+  it("accessibility: zero errors yields cap", () => {
+    const m = goodMetrics();
+    const { scores } = computeScores(m, { accessibilityCap: 10 });
+    assert.equal(scores.accessibility, 10);
+  });
+
+  it("accessibility: jsdom cap of 8 is respected", () => {
+    const m = goodMetrics();
+    const { scores } = computeScores(m, { accessibilityCap: 8 });
+    assert.equal(scores.accessibility, 8);
+  });
+
+  it("accessibility: contrast errors reduce score", () => {
+    const m = goodMetrics();
+    m.contrastErrors = 2;
+    const { scores } = computeScores(m, { accessibilityCap: 10 });
+    assert.equal(scores.accessibility, 6);
+  });
+
+  it("accessibility: overflow penalty caps at 3", () => {
+    const m = goodMetrics();
+    m.overflows = 100;
+    const { scores } = computeScores(m, { accessibilityCap: 10 });
+    assert.equal(scores.accessibility, 7);
+  });
+
+  it("accessibility: extreme errors floor at 1", () => {
+    const m = goodMetrics();
+    m.contrastErrors = 50; m.brokenImgs = 50; m.overflows = 100;
+    const { scores } = computeScores(m);
+    assert.equal(scores.accessibility, 1);
+  });
+
+  it("accessibility: missing fields default to zero (no NaN)", () => {
+    const m = goodMetrics();
+    delete m.contrastErrors; delete m.contrastWarnings;
+    delete m.brokenImgs; delete m.tinyTextCount; delete m.overflows;
+    const { scores } = computeScores(m);
+    assert.ok(!isNaN(scores.accessibility), "should not be NaN");
+    assert.equal(scores.accessibility, 10);
+  });
+
+  // ── Grid ──
+
+  it("grid: fully designed deck scores high", () => {
+    const { scores } = computeScores(goodMetrics());
+    assert.ok(scores.grid >= 7, `expected >= 7, got ${scores.grid}`);
+  });
+
+  it("grid: zero designed slides score low", () => {
+    const m = goodMetrics();
+    m.designed = 0; m.nonDefaultZones = 0; m.uniqueArchetypes = 0; m.zoneStarts = 0;
+    const { scores } = computeScores(m);
+    assert.ok(scores.grid <= 3, `expected <= 3, got ${scores.grid}`);
+  });
+
+  it("grid: collisions reduce score", () => {
+    const m = goodMetrics();
+    m.zoneCollisionSlides = 4;
+    const noCollision = computeScores(goodMetrics()).scores.grid;
+    const { scores } = computeScores(m);
+    assert.ok(scores.grid < noCollision, `collisions should reduce: ${scores.grid} vs ${noCollision}`);
+  });
+
+  it("grid: archetype run of 4 penalizes more than 3", () => {
+    const m3 = goodMetrics(); m3.maxArchetypeRun = 3;
+    const m4 = goodMetrics(); m4.maxArchetypeRun = 4;
+    const s3 = computeScores(m3).scores.grid;
+    const s4 = computeScores(m4).scores.grid;
+    assert.ok(s4 < s3, `run4 ${s4} should be < run3 ${s3}`);
+  });
+
+  // ── Color ──
+
+  it("color: smooth arc with ideal transition scores higher", () => {
+    const mArc = goodMetrics();
+    const mNoArc = goodMetrics(); mNoArc.hasArc = false;
+    const arcScore = computeScores(mArc).scores.color;
+    const noArcScore = computeScores(mNoArc).scores.color;
+    assert.ok(arcScore > noArcScore, `arc ${arcScore} should > no-arc ${noArcScore}`);
+  });
+
+  it("color: maxConsecBg <= 2 earns max run bonus", () => {
+    const m2 = goodMetrics(); m2.maxConsecBg = 2;
+    const m4 = goodMetrics(); m4.maxConsecBg = 4;
+    const s2 = computeScores(m2).scores.color;
+    const s4 = computeScores(m4).scores.color;
+    assert.ok(s2 > s4, `consec2 ${s2} should > consec4 ${s4}`);
+  });
+
+  // ── Coherence ──
+
+  it("coherence: 2-5 title sizes earns full title score", () => {
+    const m = goodMetrics(); m.titleSizes = [24, 32, 48];
+    const { scores } = computeScores(m);
+    assert.ok(scores.coherence >= 6, `expected >= 6, got ${scores.coherence}`);
+  });
+
+  it("coherence: single title size earns partial score", () => {
+    const m1 = goodMetrics(); m1.titleSizes = [32];
+    const m3 = goodMetrics(); m3.titleSizes = [24, 32, 48];
+    const s1 = computeScores(m1).scores.coherence;
+    const s3 = computeScores(m3).scores.coherence;
+    assert.ok(s3 > s1, `3 sizes ${s3} should > 1 size ${s1}`);
+  });
+
+  it("coherence: Set input for titleSizes works (no NaN)", () => {
+    const m = goodMetrics();
+    m.titleSizes = new Set([24, 32, 48]);
+    const { scores } = computeScores(m);
+    assert.ok(!isNaN(scores.coherence), "should handle Set input");
+  });
+
+  it("coherence: typographyRatio in [1.8, 3.0] earns 2 points", () => {
+    const mGood = goodMetrics(); mGood.typographyRatio = 2.5;
+    const mBad = goodMetrics(); mBad.typographyRatio = 1.0;
+    assert.ok(computeScores(mGood).scores.coherence > computeScores(mBad).scores.coherence);
+  });
+
+  // ── Images ──
+
+  it("images: zero images returns 5", () => {
+    const m = goodMetrics(); m.totalImgs = 0;
+    const { scores } = computeScores(m);
+    assert.equal(scores.images, 5);
+  });
+
+  it("images: diverse placements score higher", () => {
+    const mGood = goodMetrics();
+    mGood.imgPlacements = ["right", "left", "inset-tr", "background"];
+    const mBad = goodMetrics();
+    mBad.imgPlacements = ["right"];
+    assert.ok(computeScores(mGood).scores.images > computeScores(mBad).scores.images);
+  });
+
+  it("images: Set input for imgPlacements works (no NaN)", () => {
+    const m = goodMetrics();
+    m.imgPlacements = new Set(["right", "left", "inset-tr", "background"]);
+    const { scores } = computeScores(m);
+    assert.ok(!isNaN(scores.images), "should handle Set input");
+  });
+
+  it("images: text overlap penalizes", () => {
+    const m = goodMetrics(); m.textOnImageCount = 4;
+    const clean = computeScores(goodMetrics()).scores.images;
+    const { scores } = computeScores(m);
+    assert.ok(scores.images < clean, `overlap ${scores.images} should < clean ${clean}`);
+  });
+
+  // ── Content Completeness ──
+
+  it("contentCompleteness: clean deck scores 10", () => {
+    const { scores } = computeScores(goodMetrics());
+    assert.equal(scores.contentCompleteness, 10);
+  });
+
+  it("contentCompleteness: empty body zones reduce score", () => {
+    const m = goodMetrics(); m.emptyBodyZones = 3;
+    const { scores } = computeScores(m);
+    assert.ok(scores.contentCompleteness < 10);
+  });
+
+  it("contentCompleteness: extreme penalties floor at 1", () => {
+    const m = goodMetrics();
+    m.emptyBodyZones = 10; m.contentlessSlides = 10; m.clippedContentSlides = 10;
+    const { scores } = computeScores(m);
+    assert.equal(scores.contentCompleteness, 1);
+  });
+
+  it("contentCompleteness: missing optional fields default to zero", () => {
+    const m = goodMetrics();
+    delete m.inventedLabels; delete m.lowDensitySlides;
+    delete m.sparseSlides; delete m.linkOnlySlides; delete m.duplicateTextSlides;
+    const { scores } = computeScores(m);
+    assert.ok(!isNaN(scores.contentCompleteness));
+    assert.equal(scores.contentCompleteness, 10);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// RUBRIC-PERSIST
+// ═══════════════════════════════════════════════════════
+
+describe("rubric-persist.js", () => {
+  const { getTier, deckKey, appendRun } = require("./rubric-persist.js");
+
+  // ── getTier ──
+
+  it("getTier: 85+ is Exhibition", () => {
+    assert.equal(getTier(85), "Exhibition");
+    assert.equal(getTier(100), "Exhibition");
+  });
+
+  it("getTier: 70-84 is Professional", () => {
+    assert.equal(getTier(70), "Professional");
+    assert.equal(getTier(84), "Professional");
+  });
+
+  it("getTier: 55-69 is Competent", () => {
+    assert.equal(getTier(55), "Competent");
+    assert.equal(getTier(69), "Competent");
+  });
+
+  it("getTier: 40-54 is Draft", () => {
+    assert.equal(getTier(40), "Draft");
+    assert.equal(getTier(54), "Draft");
+  });
+
+  it("getTier: below 40 is Broken", () => {
+    assert.equal(getTier(39), "Broken");
+    assert.equal(getTier(0), "Broken");
+  });
+
+  // ── deckKey ──
+
+  it("deckKey extracts basename without extension", () => {
+    assert.equal(deckKey("/path/to/week-1.html"), "week-1");
+    assert.equal(deckKey("decks/week-2-v3.spliced.html"), "week-2-v3.spliced");
+  });
+
+  // ── appendRun ──
+
+  it("appendRun adds run and updates latest", () => {
+    const scorecard = {
+      deck: "test.html", source: "test.composed.md",
+      slideCount: 10, runs: [], latest: null, trajectory: [],
+    };
+    const run = {
+      engine: "jsdom",
+      computed: { accessibility: { score: 8 }, grid: { score: 7 } },
+    };
+    appendRun(scorecard, run);
+    assert.equal(scorecard.runs.length, 1);
+    assert.ok(scorecard.runs[0].id, "run should have an id");
+    assert.ok(scorecard.runs[0].timestamp, "run should have a timestamp");
+    assert.ok(scorecard.latest, "latest should be set");
+    assert.equal(scorecard.latest.total, 15);
+    assert.equal(scorecard.latest.max, 20);
+    assert.equal(scorecard.trajectory.length, 1);
+  });
+
+  it("appendRun merges computed + visual from separate runs", () => {
+    const scorecard = {
+      deck: "test.html", source: "test.composed.md",
+      slideCount: 10, runs: [], latest: null, trajectory: [],
+    };
+    appendRun(scorecard, {
+      engine: "jsdom",
+      computed: { accessibility: { score: 8 }, grid: { score: 7 } },
+    });
+    appendRun(scorecard, {
+      engine: "chrome-mcp",
+      visual: { communicability: { score: 9 }, taste: { score: 6 } },
+    });
+    assert.equal(scorecard.runs.length, 2);
+    assert.equal(scorecard.latest.total, 30); // 8+7+9+6
+    assert.equal(scorecard.latest.max, 40);   // 4 dims * 10
+    assert.ok(scorecard.latest.computed);
+    assert.ok(scorecard.latest.visual);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// EVALUATORS/INDEX
+// ═══════════════════════════════════════════════════════
+
+describe("evaluators/index.js", () => {
+  const { GROUPS, getAvailableEvaluators } = require("./evaluators/index.js");
+
+  it("GROUPS.all contains all evaluator names", () => {
+    assert.ok(GROUPS.all.includes("jsdom-rubric"));
+    assert.ok(GROUPS.all.includes("headless-rubric"));
+    assert.ok(GROUPS.all.includes("screenshot-vision"));
+    assert.ok(GROUPS.all.length >= 6);
+  });
+
+  it("GROUPS.jsdom expands to jsdom-rubric", () => {
+    assert.deepEqual(GROUPS.jsdom, ["jsdom-rubric"]);
+  });
+
+  it("getAvailableEvaluators expands group aliases", () => {
+    const results = getAvailableEvaluators(["jsdom"], "nonexistent.html");
+    assert.equal(results.length, 1);
+    assert.equal(results[0].name, "jsdom-rubric");
+  });
+
+  it("getAvailableEvaluators marks unknown evaluators unavailable", () => {
+    const results = getAvailableEvaluators(["nonexistent"], "test.html");
+    assert.equal(results[0].available, false);
+    assert.ok(results[0].reason.includes("unknown"));
+  });
+
+  it("getAvailableEvaluators deduplicates when group + name overlap", () => {
+    const results = getAvailableEvaluators(["jsdom", "jsdom-rubric"], "test.html");
+    assert.equal(results.length, 1);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// EVAL-HARNESS (mergeScores)
+// ═══════════════════════════════════════════════════════
+
+describe("eval-harness.js mergeScores", () => {
+  const { mergeScores } = require("./eval-harness.js");
+
+  it("returns null score for dimensions with no evaluator", () => {
+    const merged = mergeScores([]);
+    assert.equal(merged.accessibility.score, null);
+    assert.equal(merged.accessibility.confidence, 0);
+  });
+
+  it("single evaluator contribution passes through", () => {
+    const merged = mergeScores([{
+      evaluatorName: "test",
+      dimensions: {
+        accessibility: { score: 8, confidence: 0.9 },
+      },
+    }]);
+    assert.equal(merged.accessibility.score, 8);
+    assert.equal(merged.accessibility.confidence, 0.9);
+    assert.equal(merged.accessibility.sources.length, 1);
+  });
+
+  it("multiple evaluators produce weighted average", () => {
+    const merged = mergeScores([
+      { evaluatorName: "a", dimensions: { accessibility: { score: 10, confidence: 0.8 } } },
+      { evaluatorName: "b", dimensions: { accessibility: { score: 6, confidence: 0.2 } } },
+    ]);
+    // Weighted: (10*0.8 + 6*0.2) / (0.8+0.2) = 9.2
+    assert.equal(merged.accessibility.score, 9.2);
+    assert.equal(merged.accessibility.sources.length, 2);
+  });
+
+  it("confidence is max across sources", () => {
+    const merged = mergeScores([
+      { evaluatorName: "a", dimensions: { accessibility: { score: 8, confidence: 0.5 } } },
+      { evaluatorName: "b", dimensions: { accessibility: { score: 7, confidence: 0.9 } } },
+    ]);
+    assert.equal(merged.accessibility.confidence, 0.9);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// SPLICE-IMAGES (placementCSS, algorithmicPlan)
+// ═══════════════════════════════════════════════════════
+
+describe("splice-images.js", () => {
+  const { placementCSS, algorithmicPlan } = require("./splice-images.js");
+
+  // ── placementCSS ──
+
+  it("placementCSS right produces absolute-positioned right div", () => {
+    const css = placementCSS("right", "slide-01.png");
+    assert.ok(css.after.includes("right:0"));
+    assert.ok(css.after.includes("splice-img"));
+    assert.ok(css.after.includes("slide-01.png"));
+  });
+
+  it("placementCSS left produces left-aligned div", () => {
+    const css = placementCSS("left", "slide-02.png");
+    assert.ok(css.after.includes("left:0"));
+  });
+
+  it("placementCSS background uses before slot", () => {
+    const css = placementCSS("background", "bg.png");
+    assert.ok(css.before.includes("inset:0"), "background should use inset:0");
+    assert.equal(css.after, "");
+  });
+
+  it("placementCSS none returns empty strings", () => {
+    const css = placementCSS("none", "x.png");
+    assert.equal(css.wrapper, "");
+    assert.equal(css.before, "");
+    assert.equal(css.after, "");
+  });
+
+  it("placementCSS respects size option", () => {
+    const css = placementCSS("right", "x.png", { size: 25 });
+    assert.ok(css.after.includes("width:25%"));
+  });
+
+  it("placementCSS all modes return valid objects", () => {
+    const modes = ["right", "left", "top", "bottom", "inset-tr", "inset-bl", "background", "overlay", "none"];
+    for (const mode of modes) {
+      const css = placementCSS(mode, "test.png");
+      assert.ok("wrapper" in css, `${mode} should have wrapper`);
+      assert.ok("before" in css, `${mode} should have before`);
+      assert.ok("after" in css, `${mode} should have after`);
+    }
+  });
+
+  // ── algorithmicPlan ──
+
+  it("algorithmicPlan returns one entry per slide", () => {
+    const plan = algorithmicPlan(10);
+    assert.equal(plan.length, 10);
+    plan.forEach((p, i) => assert.equal(p.slide, i + 1));
+  });
+
+  it("algorithmicPlan cycles through modes", () => {
+    const plan = algorithmicPlan(11);
+    // 11th slide should cycle back to first mode
+    assert.equal(plan[10].mode, plan[0].mode);
+  });
+
+  it("algorithmicPlan sizes are in 30-44 range", () => {
+    const plan = algorithmicPlan(20);
+    plan.forEach(p => {
+      assert.ok(p.size >= 30 && p.size <= 44, `size ${p.size} out of range`);
+    });
+  });
+
+  // ── contentAwarePlan ──
+
+  const { contentAwarePlan } = require("./splice-images.js");
+
+  it("contentAwarePlan returns mode:none for blank slides", () => {
+    const html = '<section class="slide layout-blank">   </section>';
+    const plan = contentAwarePlan(html);
+    assert.equal(plan[0].mode, "none");
+  });
+
+  it("contentAwarePlan returns mode:none for designed slides with existing <img>", () => {
+    const html = '<section class="slide designed"><div class="zone zone-title" style="left:5%;width:50%;top:5%;height:20%">Title</div><img src="photo.png"></section>';
+    const plan = contentAwarePlan(html);
+    assert.equal(plan[0].mode, "none");
+  });
+
+  it("contentAwarePlan returns non-none for designed slide with free space", () => {
+    const html = '<section class="slide designed"><div class="zone zone-title" style="left:0%;width:40%;top:5%;height:15%">Title</div></section>';
+    const plan = contentAwarePlan(html);
+    assert.notEqual(plan[0].mode, "none");
+  });
+
+  it("contentAwarePlan uses inset/none for text-heavy designed slides", () => {
+    const html = '<section class="slide designed">'
+      + '<div class="zone zone-body" style="left:0%;width:90%;top:0%;height:90%">Dense</div>'
+      + '</section>';
+    const plan = contentAwarePlan(html);
+    assert.ok(["inset-tr", "inset-bl", "none"].includes(plan[0].mode),
+      `text-heavy slide got ${plan[0].mode}`);
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// VISUAL-AUDIT (classifySeverity)
+// ═══════════════════════════════════════════════════════
+
+describe("visual-audit.js classifySeverity", () => {
+  const { classifySeverity } = require("./visual-audit.js");
+
+  it("broken-image is critical", () => {
+    assert.equal(classifySeverity({ type: "broken-image" }), "critical");
+  });
+
+  it("clipped-overflow is info", () => {
+    assert.equal(classifySeverity({ type: "clipped-overflow" }), "info");
+  });
+
+  it("overflow > 100px is critical", () => {
+    assert.equal(classifySeverity({ type: "overflow", detail: "overflows by 150px" }), "critical");
+  });
+
+  it("overflow 21-100px is warning", () => {
+    assert.equal(classifySeverity({ type: "overflow", detail: "overflows by 50px" }), "warning");
+  });
+
+  it("overflow <= 20px is info", () => {
+    assert.equal(classifySeverity({ type: "overflow", detail: "overflows by 10px" }), "info");
+  });
+
+  it("zone-collision with zone-extras is info", () => {
+    assert.equal(classifySeverity({ type: "zone-collision", detail: "zone-extras overlaps zone-body" }), "info");
+  });
+
+  it("zone-collision without zone-extras is critical", () => {
+    assert.equal(classifySeverity({ type: "zone-collision", detail: "zone-body overlaps zone-bullets" }), "critical");
+  });
+
+  it("text-image-collision in same cell is info", () => {
+    assert.equal(classifySeverity({ type: "text-image-collision", sameCell: true }), "info");
+  });
+
+  it("text-image-collision not in same cell is warning", () => {
+    assert.equal(classifySeverity({ type: "text-image-collision", sameCell: false }), "warning");
+  });
+
+  it("tiny-text is warning", () => {
+    assert.equal(classifySeverity({ type: "tiny-text" }), "warning");
+  });
+
+  it("out-of-bounds is info", () => {
+    assert.equal(classifySeverity({ type: "out-of-bounds" }), "info");
+  });
+
+  it("table-row-overlap is warning", () => {
+    assert.equal(classifySeverity({ type: "table-row-overlap" }), "warning");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// RASTER — normaliseDesign precedence regression
+// ═══════════════════════════════════════════════════════
+
+describe("raster.js normaliseDesign", () => {
+  const { parseMarkdown } = require("./raster.js");
+
+  it("preserves explicit transform values (not overwritten by uppercase)", () => {
+    const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"title":{"size":48,"transform":"lowercase"}} -->\n# Test';
+    const slides = parseMarkdown(md);
+    const typo = slides[0].design?.typography?.title;
+    assert.ok(typo, "should have title typography");
+    assert.equal(typo.transform, "lowercase", "explicit transform should be preserved");
+  });
+
+  it("converts case:upper to transform:uppercase when no explicit transform", () => {
+    const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"title":{"size":48,"case":"upper"}} -->\n# Test';
+    const slides = parseMarkdown(md);
+    const typo = slides[0].design?.typography?.title;
+    assert.ok(typo, "should have title typography");
+    assert.equal(typo.transform, "uppercase");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// EVAL-HARNESS — mergeScores zero-confidence regression
+// ═══════════════════════════════════════════════════════
+
+describe("eval-harness.js mergeScores zero-confidence", () => {
+  const { mergeScores } = require("./eval-harness.js");
+
+  it("does not produce NaN when all confidences are 0", () => {
+    const merged = mergeScores([
+      { evaluatorName: "a", dimensions: { accessibility: { score: 7, confidence: 0 } } },
+      { evaluatorName: "b", dimensions: { accessibility: { score: 9, confidence: 0 } } },
+    ]);
+    assert.ok(!isNaN(merged.accessibility.score), "score must not be NaN");
+    assert.equal(merged.accessibility.score, 8); // simple average fallback
+  });
+});

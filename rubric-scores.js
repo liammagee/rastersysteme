@@ -102,6 +102,7 @@ function computeScores(metrics, opts = {}) {
     - (m.inventedLabels || 0) * 0.3
     - (m.lowDensitySlides || 0) * 0.8
     - (m.sparseSlides || 0) * 0.5
+    - (m.lowUtilizationSlides || 0) * 0.8    // slides with <25% zone coverage
     - (m.linkOnlySlides || 0) * 1.5
     - (m.duplicateTextSlides || 0) * 1.5
   ));

@@ -56,7 +56,7 @@ function classifySeverity(issue) {
   return 'info';
 }
 
-(async () => {
+if (require.main === module) (async () => {
   const browser = await puppeteer.launch({ headless: 'new', args: ['--window-size=1920,1080'] });
   const page = await browser.newPage();
   await page.setViewport({ width: 1920, height: 1080 });
