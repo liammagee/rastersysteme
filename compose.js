@@ -63,7 +63,15 @@ ZONE ROLES: title, body, bullets, table, image, quote, code, links
   - Use "body" for paragraph text and mixed content
 ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
 TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
-FONTS: Helvetica Neue (default), Georgia (serif), Palatino (classical), Courier New (mono), Futura (geometric)
+  MINIMUM FONT SIZES: title >= 24px, body/bullets >= 15px, labels >= 13px, table cells >= 12px
+  Never set body text below 15px — it becomes illegible in presentation.
+FONTS: Pick ONE primary font and stick with it. Optionally add ONE contrast font for a specific purpose.
+  - 1-2 fonts: disciplined, professional (PREFERRED)
+  - 3 fonts: acceptable if each has a clear role (headings, body, code)
+  - 4+ fonts: chaotic mixing — NEVER do this
+  Good: "Futura for everything" or "Futura headings + Georgia body"
+  Bad: "Futura slide 1, Palatino slide 2, Georgia slide 3, Helvetica slide 4"
+  Available: Helvetica Neue, Georgia, Palatino, Courier New, Futura
 
 CONTENT SYNTAX (after the design directive):
   # Title text

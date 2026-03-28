@@ -33,6 +33,12 @@ Read the source markdown. Count slides (separated by `---`). Identify:
 - Use `"body"` for paragraph text and mixed content
 - The renderer routes content by zone role: wrong role = content in wrong place or duplicated
 
+### Font discipline (user outer-loop feedback)
+
+- Pick **1-2 fonts maximum**. 1 font is disciplined. 2 fonts with clear roles (headings/body) is professional. 3+ fonts is chaotic mixing.
+- Set the font in the design plan and use it consistently across all slides
+- **Minimum font sizes**: title >= 24px, body/bullets >= 15px, table cells >= 12px. Never go below 15px for body text.
+
 ### 2. Check for design systems
 
 List available saved design systems:

@@ -177,7 +177,7 @@ function algorithmicPlan(slideCount) {
 // Content-aware placement: read zone positions from HTML, place image in empty space
 function contentAwarePlan(html) {
   const slides = html.match(/<section[^>]*class="[^"]*slide[^"]*"[^>]*>[\s\S]*?<\/section>/g) || [];
-  let lastMode = "";
+  let lastMode = "", secondLastMode = "";
 
   return slides.map((slideHtml, idx) => {
     // Extract zone bounding boxes (left%, top%, width%, height%)
@@ -271,10 +271,21 @@ function contentAwarePlan(html) {
     // Sort by overlap ratio (least text in image region)
     candidates.sort((a, b) => (a.overlap / a.max) - (b.overlap / b.max));
 
-    // Pick the best, varying from last
+    // Pick the best, strongly varying from last to avoid inset saturation.
+    // Also avoid 3+ consecutive insets — switch to panel/strip/background.
     let pick = candidates[0];
-    if (pick.mode === lastMode && candidates.length > 1 &&
-        (candidates[1].overlap / candidates[1].max) <= (pick.overlap / pick.max) + 0.15) {
+    const isInset = (m) => m === "inset-tr" || m === "inset-bl";
+    const lastWasInset = isInset(lastMode);
+    const secondLastWasInset = isInset(secondLastMode || "");
+
+    // If we'd do 3 insets in a row, force a non-inset mode
+    if (isInset(pick.mode) && lastWasInset && secondLastWasInset) {
+      const nonInset = candidates.find(c => !isInset(c.mode) && c.mode !== "none");
+      if (nonInset) pick = nonInset;
+    }
+    // Otherwise just vary from last
+    else if (pick.mode === lastMode && candidates.length > 1 &&
+        (candidates[1].overlap / candidates[1].max) <= (pick.overlap / pick.max) + 0.25) {
       pick = candidates[1];
     }
 
@@ -291,6 +302,7 @@ function contentAwarePlan(html) {
       pick = candidates.find(c => c.overlap === 0 && c.mode !== lastMode) || pick;
     }
 
+    secondLastMode = lastMode;
     lastMode = pick.mode;
     return { slide: idx + 1, mode: pick.mode, size: pick.size };
   });
