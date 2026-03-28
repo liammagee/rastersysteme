@@ -2,7 +2,7 @@
   "slideCount": 36,
   "counts": {
     "critical": 0,
-    "warning": 63,
+    "warning": 75,
     "info": 14
   },
   "issues": [
@@ -315,6 +315,23 @@
       ]
     },
     {
+      "slide": 25,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"AI in 2026: An Opinionated Take on the P...\" over slide-25.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"What's going on in the world of AI today...\" over slide-25.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
       "slide": 26,
       "issues": [
         {
@@ -327,6 +344,66 @@
     {
       "slide": 27,
       "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Rise of open source models...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Mostly developed in China...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Xiaomi...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Alibaba Qwen...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Kimi...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Minimax...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—DeepSeek...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Mistral (France)...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Nemotron (Nvidia)...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Estimated 3-9 months beyond commercial ...\" over slide-27.png",
+          "severity": "warning"
+        },
         {
           "type": "text-image-collision",
           "sameCell": null,

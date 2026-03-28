@@ -401,3 +401,6 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: 88 text-on-image collisions. Use `--image-scale subtle` when splicing. Avoid `overlay` and `background` placement on text-heavy slides.
+- [2026-03-28] **week-2-v11.spliced.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.

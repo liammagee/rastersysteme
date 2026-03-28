@@ -213,19 +213,9 @@ function contentAwarePlan(html) {
       return { slide: idx + 1, mode: "none" };
     }
 
-    // Slides with existing content images: subtle inset only (don't compete visually)
+    // Slides with existing content images: skip entirely — they already have visuals
     const hasContentImages = /<img[^>]*src=/.test(slideHtml) && !/splice-img/.test(slideHtml);
     if (hasContentImages) {
-      const trFree = !zones.some(z => z.right > 85 && z.top < 15);
-      const blFree = !zones.some(z => z.left < 15 && z.bottom > 85);
-      if (trFree && lastMode !== "inset-tr") {
-        lastMode = "inset-tr";
-        return { slide: idx + 1, mode: "inset-tr", size: 15 };
-      }
-      if (blFree && lastMode !== "inset-bl") {
-        lastMode = "inset-bl";
-        return { slide: idx + 1, mode: "inset-bl", size: 15 };
-      }
       return { slide: idx + 1, mode: "none" };
     }
 
@@ -253,9 +243,12 @@ function contentAwarePlan(html) {
     // For top/bottom strips (~35% height = top/bottom 1 row of 4)
     const topRow = occupied[0].filter(Boolean).length; // 6 max
     const bottomRow = occupied[ROWS - 1].filter(Boolean).length;
-    // For insets (single corner cell)
-    const trCorner = [occupied[0][COLS-1], occupied[0][COLS-2]].filter(Boolean).length; // 2 max
-    const blCorner = [occupied[ROWS-1][0], occupied[ROWS-1][1]].filter(Boolean).length;
+    // For insets: check actual zone proximity, not just grid cells.
+    // A 25% inset at top-right occupies (75-100%, 0-25%); bottom-left occupies (0-25%, 75-100%).
+    const trOverlap = zones.some(z => z.right > 75 && z.top < 25) ? 2 : 0;
+    const blOverlap = zones.some(z => z.left < 25 && z.bottom > 75) ? 2 : 0;
+    const trCorner = trOverlap; // 0 or 2
+    const blCorner = blOverlap;
 
     // Calculate text density — how much of the slide is occupied by content
     const totalCells = ROWS * COLS;
