@@ -34,6 +34,18 @@ Defaults: target=8 per dimension, max iterations=4, model=opus, theme=light, int
 node compose.js <source.md> decks/<name>.composed.md --model opus [--theme T] [--intensity I] [--brief "..."]
 ```
 
+### Phase 1b: Post-compose fixup (automated)
+
+```bash
+node post-compose-fixup.js decks/<name>.composed.md
+```
+
+Fixes recurring composition patterns (learned from v1-v15):
+- Title size consolidation (opus always produces 6-10, fixup reduces to 3)
+- Accent saturation (strips to ~75% if > 85%)
+- Break slides: body→title zone
+- Heading slides without title zone: adds one
+
 Read the output. Verify:
 - Design plan is coherent (palette, arc, grid strategy)
 - All slides got design directives (count `<!-- design:` occurrences vs slide count)

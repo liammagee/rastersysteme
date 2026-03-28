@@ -61,10 +61,16 @@ ZONE ROLES: title, body, bullets, table, image, quote, code, links
   - Use "title" for ### headings (NOT "label" — "label" causes rendering duplication)
   - Use "table" for slides whose primary content is a markdown table (NOT "body")
   - Use "body" for paragraph text and mixed content
+  - EVERY slide with a heading or section title MUST have a "title" zone
+  - Tables with >5 rows: maximize zone (col:0-2, span:56-60, rowSpan:36-40, font size 9-11px)
 ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
-TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
-  MINIMUM FONT SIZES: title >= 24px, body/bullets >= 15px, labels >= 13px, table cells >= 12px
-  Never set body text below 15px — it becomes illegible in presentation.
+TYPOGRAPHY:
+  TITLE SIZES: Use EXACTLY 3 sizes across the deck: hero (42-48px), section (34-38px), standard (28-32px). NO other sizes.
+  BODY: 15-16px. Never below 15px.
+  TABLE CELLS: 11-13px for dense tables.
+  MINIMUM FONT SIZES: title >= 24px, body/bullets >= 15px, labels >= 13px, table cells >= 11px
+ACCENTS: Leave at LEAST 6 slides (out of 36) WITHOUT any accent elements. Target 70-80% accent coverage, NOT 100%.
+BACKGROUNDS: Use the EXACT hex colours from the creative brief. Do NOT substitute warm cream/beige. If the brief says blue-grey, EVERY light slide should be that blue-grey.
 FONTS: Pick ONE primary font and stick with it. Optionally add ONE contrast font for a specific purpose.
   - 1-2 fonts: disciplined, professional (PREFERRED)
   - 3 fonts: acceptable if each has a clear role (headings, body, code)
