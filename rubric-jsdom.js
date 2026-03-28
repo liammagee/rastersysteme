@@ -110,6 +110,7 @@ function evaluate(htmlPath) {
   let emptyBodyZones = 0, contentlessSlides = 0;
   let tinyTextCount = 0, tableTruncations = 0, clippedContentSlides = 0;
   let textOnImageCount = 0, imgOverlaps = 0;
+  let spliceCount = 0, spliceVisibleCount = 0, lowOpacitySpliceTotal = 0;
   const bgs = [], titleSizes = new Set(), zoneStarts = new Set(), zoneWidths = new Set();
   const fonts = new Set(), imgPlacements = new Set();
   let slidesWithAccents = 0;
@@ -243,15 +244,15 @@ function evaluate(htmlPath) {
       }
     });
 
-    let lowOpacitySplice = 0;
     slide.querySelectorAll('img').forEach(img => {
       const src = img.getAttribute('src');
       if (!src) return;
 
       totalImgs++;
 
-      // Check splice image visibility: walk up to find container opacity
+      // Check splice image inclusion and visibility
       if (img.classList.contains('splice-img')) {
+        spliceCount++;
         let el = img.parentElement;
         let opacity = 1;
         while (el && el !== slide) {
@@ -259,7 +260,9 @@ function evaluate(htmlPath) {
           if (s['opacity']) opacity *= parseFloat(s['opacity']);
           el = el.parentElement;
         }
-        if (opacity < 0.25) lowOpacitySplice++;
+        // Visible = opacity >= 0.4 (below this, images are imperceptible at projection distance)
+        if (opacity >= 0.4) spliceVisibleCount++;
+        else lowOpacitySpliceTotal++;
       }
 
       // Parse image position from inline style or nearest positioned parent
@@ -586,7 +589,9 @@ function evaluate(htmlPath) {
     inventedLabels: 0, // populated by content fidelity check
     // v3 banality metrics
     lowDensitySlides, linkOnlySlides, duplicateTextSlides, sparseSlides, genericAltTotal,
-    zoneCollisionSlides, lowUtilizationSlides
+    zoneCollisionSlides, lowUtilizationSlides,
+    // v4 splice metrics
+    spliceCount, spliceVisibleCount, lowOpacitySpliceTotal
   };
 }
 

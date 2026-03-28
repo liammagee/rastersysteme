@@ -213,13 +213,9 @@ function contentAwarePlan(html) {
       return { slide: idx + 1, mode: "none" };
     }
 
-    // Pre-check: if slide has body/bullets/quote text zones, only inset or skip.
-    // Side panels (left/right) and strips (top/bottom) overlap text on designed slides.
-    const hasTextContent = slideHtml.includes('zone-body') || slideHtml.includes('zone-bullets') ||
-      slideHtml.includes('zone-quote') || slideHtml.includes('zone-table') ||
-      slideHtml.includes('zone-extras');
-    if (hasTextContent) {
-      // Only allow small corner insets on text-heavy slides
+    // Slides with existing content images: subtle inset only (don't compete visually)
+    const hasContentImages = /<img[^>]*src=/.test(slideHtml) && !/splice-img/.test(slideHtml);
+    if (hasContentImages) {
       const trFree = !zones.some(z => z.right > 85 && z.top < 15);
       const blFree = !zones.some(z => z.left < 15 && z.bottom > 85);
       if (trFree && lastMode !== "inset-tr") {
@@ -232,6 +228,8 @@ function contentAwarePlan(html) {
       }
       return { slide: idx + 1, mode: "none" };
     }
+
+    // Text-only slides: full grid analysis — panels, strips, backgrounds, insets
 
     // Grid analysis: divide slide into 6 columns × 4 rows, mark cells with text
     const COLS = 6, ROWS = 4;
@@ -259,14 +257,23 @@ function contentAwarePlan(html) {
     const trCorner = [occupied[0][COLS-1], occupied[0][COLS-2]].filter(Boolean).length; // 2 max
     const blCorner = [occupied[ROWS-1][0], occupied[ROWS-1][1]].filter(Boolean).length;
 
+    // Calculate text density — how much of the slide is occupied by content
+    const totalCells = ROWS * COLS;
+    const occupiedCells = occupied.flat().filter(Boolean).length;
+    const density = occupiedCells / totalCells;
+
     const candidates = [
-      { mode: "right",    overlap: rightEdge, max: ROWS * 2, size: 35 },
-      { mode: "left",     overlap: leftEdge,  max: ROWS * 2, size: 35 },
       { mode: "bottom",   overlap: bottomRow, max: COLS,     size: 30 },
       { mode: "top",      overlap: topRow,    max: COLS,     size: 30 },
       { mode: "inset-tr", overlap: trCorner,  max: 2,        size: 22 },
       { mode: "inset-bl", overlap: blCorner,  max: 2,        size: 22 },
+      // Background: atmospheric full-bleed behind text (z-index:0, low opacity).
+      // Preferred over strips/insets that overlap >30% of text cells.
+      { mode: "background", overlap: Math.max(1, Math.ceil(density * 5)), max: 10, size: 100 },
     ];
+    // Side panels only when the edge is genuinely empty (zero occupied cells)
+    if (rightEdge === 0) candidates.push({ mode: "right", overlap: 0, max: ROWS * 2, size: 35 });
+    if (leftEdge === 0)  candidates.push({ mode: "left",  overlap: 0, max: ROWS * 2, size: 35 });
 
     // Sort by overlap ratio (least text in image region)
     candidates.sort((a, b) => (a.overlap / a.max) - (b.overlap / b.max));
@@ -278,22 +285,12 @@ function contentAwarePlan(html) {
       pick = candidates[1];
     }
 
-    // Calculate text density — how much of the slide is occupied by content
-    const totalCells = ROWS * COLS;
-    const occupiedCells = occupied.flat().filter(Boolean).length;
-    const density = occupiedCells / totalCells;
-
-    // If ALL placement options overlap >75% of text:
-    // - Sparse slides (density <= 0.3): use background at low opacity
-    // - Dense slides (density > 0.3): skip image entirely — text readability wins
+    // If ALL placement options overlap >75% of text, use atmospheric background.
+    // Denser slides get lower opacity to preserve readability.
     if (pick.overlap / pick.max > 0.75) {
-      if (density <= 0.3) {
-        lastMode = "background";
-        const bgOpacity = density > 0.2 ? 0.06 : 0.08;
-        return { slide: idx + 1, mode: "background", size: 100, bgOpacity };
-      }
-      // Dense slide — no good placement exists, skip this image
-      return { slide: idx + 1, mode: "none" };
+      lastMode = "background";
+      const bgOpacity = density > 0.5 ? 0.06 : density > 0.3 ? 0.08 : 0.12;
+      return { slide: idx + 1, mode: "background", size: 100, bgOpacity };
     }
 
     // If the best placement still overlaps text, prefer zero-overlap alternatives

@@ -63,13 +63,22 @@ into design-insights.md via `corpus-synthesize.js` before being pruned.
 
 ## Image Integration
 
-- **Splice with `--image-scale subtle`** to avoid text-on-image overlaps.
-  The `visible` and `bold` scales produce 40-50+ text-on-image collisions
-  per deck. `subtle` reduces opacity and sizing to near-zero collisions.
+- **Splice with `--image-scale visible`** (the default). The `subtle` scale
+  reduces opacity to 0.10–0.30 which is technically present but invisible
+  at projection distance — the rubric now penalizes this. Use `visible`
+  (0.45–0.70 opacity) for real aesthetic effect. Only use `bold` if
+  text-on-image collisions are acceptable.
+- **Decks MUST be spliced before evaluation.** The rubric penalizes unspliced
+  decks (-2 on Image Integration). Always run `splice-images.js` before
+  `run-rubric-eval.js`.
+- **Splice visibility threshold: opacity >= 0.4.** Below this, images count
+  as "present but invisible." If >50% of spliced images fall below 0.4
+  opacity, the rubric applies a -1.5 penalty. This catches the Goodhart
+  failure where subtle-scale decks score 98% with invisible images.
 - **Source images** (from the markdown) are placed by the renderer into image
   zones or as extras. They don't conflict with spliced images.
 - **Spliced image placement**: `right` and `left` sidebars are safest. `overlay`
-  and `background` modes risk text-on-image overlap even at subtle scale.
+  and `background` modes risk text-on-image overlap even at visible scale.
 
 ## Grid Composition
 
@@ -382,6 +391,8 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 

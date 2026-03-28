@@ -79,16 +79,24 @@ function computeScores(metrics, opts = {}) {
     titleSizeScore + fontScore + layoutVarietyScore + densityRhythm + accentBalance + typoHierarchy
   ));
 
-  // 8. Image Integration — overlap + generic alt + placement
+  // 8. Image Integration — overlap + generic alt + placement + splice inclusion/visibility
   const overlapPenalty = Math.min(Math.max(m.textOnImageCount || 0, m.imgOverlaps || 0) * 1, 4);
   const genericAltPenalty = Math.min((m.genericAltTotal || 0) * 0.15, 2);
   const imgPlacements = Array.isArray(m.imgPlacements) ? m.imgPlacements : [...(m.imgPlacements || [])];
+  // Splice inclusion: penalize if no splice images found (deck was not spliced)
+  const spliceCount = m.spliceCount || 0;
+  const spliceVisibleCount = m.spliceVisibleCount || 0;
+  const spliceMissing = spliceCount === 0 ? 2 : 0;
+  // Splice visibility: penalize if spliced but most are invisible (low opacity)
+  const spliceInvisible = spliceCount > 0 && spliceVisibleCount < spliceCount * 0.5 ? 1.5 : 0;
   scores.images = m.totalImgs === 0 ? 5 : Math.max(1, Math.min(10,
     10
     - overlapPenalty
     - genericAltPenalty
     - (imgPlacements.length < 3 ? 2 : imgPlacements.length < 4 ? 1 : 0)
     - (m.totalImgs < m.total * 0.15 ? 1 : 0)
+    - spliceMissing
+    - spliceInvisible
   ));
 
   // 9. Content Completeness — penalizes absence AND banality
