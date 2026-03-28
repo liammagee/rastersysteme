@@ -357,3 +357,13 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.

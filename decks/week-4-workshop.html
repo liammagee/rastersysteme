@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<title>Gen AI - Week 4 - Concentric Loops: Iterating with AI</title>
+<style>
+:root{--bg:#F8F5F0;--bg-alt:#FAFAF7;--bg-dark:#1A1A1A;--code-bg:#2D2D2D;--text:#1A1A1A;--text-mid:#5C5549;--text-light:#65594E;--accent:#B7311A;--accent-light:#F09080;--accent2:#1B5E80;--accent3:#2B7038;--accent4:#876512;--white:#FFFFFF;--black:#1A1A1A;--grey:#D4CEC4;--font:'Helvetica Neue','Helvetica Neue',Helvetica,Arial,sans-serif}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.deck{width:100vw;height:100vh;position:relative}
+.slide{position:absolute;inset:0;padding:5vmin;display:none;flex-direction:column;gap:2vmin;
+  font-family:var(--font);color:var(--text);background:var(--bg-alt);overflow:hidden}
+.slide.active{display:flex}
+
+/* === Designed slides (parameterised grid) === */
+.slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
+.slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;z-index:2}
+.slide.designed .accent-el{position:absolute;pointer-events:none}
+
+/* Typography — uses CSS custom properties for per-slide overrides */
+h1{font-size:var(--title-size,clamp(1.8rem,5vmin,3.5rem));font-weight:700;line-height:1.1;letter-spacing:-0.02em}
+h2.subtitle{font-size:var(--body-size,clamp(1rem,2.5vmin,1.6rem));font-weight:400;color:var(--text-mid)}
+p{font-size:var(--body-size,clamp(0.95rem,2vmin,1.3rem));line-height:1.5;color:var(--text-mid)}
+.slide{gap:var(--slide-gap,2vmin)}
+.label{font-size:clamp(0.75rem,0.9vmin,0.85rem);letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--accent);font-weight:700;display:block;margin-bottom:1vmin}
+.layout-section .label{color:var(--accent-light,var(--accent))}
+blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmin 0;
+  background:color-mix(in srgb,var(--accent) 6%,transparent);font-style:italic;color:var(--text-mid);
+  font-size:clamp(0.8rem,1.6vmin,1.1rem);line-height:1.5}
+
+/* Bullets */
+.bullets{display:flex;flex-direction:column;gap:1.2vmin;flex:1;min-height:0}
+.bullet{display:flex;align-items:baseline;gap:1.2vmin}
+.bullet.level-0{font-size:clamp(1rem,2.2vmin,1.4rem);color:var(--text)}
+.bullet.level-1{font-size:clamp(0.8rem,1.6vmin,1.1rem);color:var(--text-mid);padding-left:3vmin}
+.bullet.level-2,.bullet.level-3{font-size:clamp(0.8rem,1.6vmin,1rem);color:var(--text-light);padding-left:6vmin}
+.dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
+  font-size:clamp(0.7rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
+  justify-content:center;flex-shrink:0}
+.dash{color:var(--text-light);flex-shrink:0}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:clamp(0.8rem,1.6vmin,1.05rem)}
+thead th{background:var(--accent);color:var(--white);padding:1.2vmin 1.8vmin;font-weight:700;
+  border:1px solid var(--accent);line-height:1.4}
+tbody td{padding:1vmin 1.8vmin;border:1px solid var(--grey);line-height:1.5}
+tbody tr:nth-child(even){background:var(--bg)}
+tbody tr:nth-child(odd){background:var(--bg-alt)}
+td img{max-width:100%;max-height:22vmin;object-fit:contain;display:block;margin:0.5vmin auto;border-radius:0.3vmin}
+
+/* Code */
+.code-block{position:relative;background:var(--code-bg,#2D2D2D);border-radius:0.5vmin;flex:1;min-height:0;overflow:auto}
+.code-block pre{padding:2.5vmin;margin:0;overflow:auto;height:100%}
+.code-block code{font-family:'SF Mono','Fira Code','Cascadia Code','Courier New',monospace;
+  font-size:clamp(0.65rem,1.3vmin,0.9rem);color:#F8F8F2;line-height:1.6;white-space:pre;display:block}
+.code-lang{position:absolute;top:0.8vmin;right:1.2vmin;font-size:0.75rem;color:#888;
+  font-family:var(--font);text-transform:uppercase;letter-spacing:0.1em}
+
+/* Images */
+.images{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.images.grid{flex-wrap:wrap}
+.images figure{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;max-height:100%;max-width:100%}
+.images.single figure{max-height:100%;max-width:100%}
+.images img{max-width:100%;max-height:55vmin;object-fit:contain;border-radius:0.3vmin}
+.images img[src$=".png"],.images img[src$=".jpg"],.images img[src$=".jpeg"]{
+  /* Hide broken images gracefully */}
+img:not([src]),.images img[alt]:not([src]){display:none}
+/* Mixed layout: when image layout has bullets, split into flex row */
+.layout-image{flex-direction:row;gap:3vmin}
+.layout-image .images{flex:0 0 45%;max-height:100%}
+.layout-image .bullets{flex:1}
+.images figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Videos */
+.videos{flex:1;display:flex;align-items:center;justify-content:center;gap:2vmin;min-height:0}
+.videos.grid{flex-wrap:wrap}
+.videos figure.video-wrap{display:flex;flex-direction:column;align-items:center;gap:0.5vmin;flex:1;max-width:100%;min-width:0}
+.videos.single figure.video-wrap{max-width:85%;width:85%}
+.video-responsive{position:relative;width:100%;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:0.5vmin}
+.video-responsive iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+.extra-videos{position:absolute;right:5vmin;bottom:5vmin;width:45%;max-height:55%;z-index:5;
+  border-radius:0.5vmin;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.3)}
+.extra-videos .videos,.extra-videos .videos.single{width:100%;height:100%}
+.extra-videos .videos figure.video-wrap{max-width:100%;width:100%}
+.extra-videos .video-responsive{max-height:100%}
+.videos figcaption{font-size:0.7rem;color:var(--text-light);font-style:italic}
+
+/* Links */
+.links{display:flex;flex-direction:column;gap:0.8vmin}
+.links a{color:var(--accent2);text-decoration:none;font-size:clamp(0.75rem,1.5vmin,1rem)}
+.links a:hover{text-decoration:underline}
+a.auto-link{color:var(--accent2);text-decoration:underline;text-decoration-thickness:1px;
+  text-underline-offset:2px;word-break:break-all;font-size:inherit}
+a.auto-link:hover{color:var(--accent);text-decoration-thickness:2px}
+
+/* === LAYOUT: title === */
+.layout-title{background:var(--bg-dark);flex-direction:row;gap:5vmin;padding:0}
+.title-left{flex:0 0 40%;display:flex}
+.accent-block{background:var(--accent);padding:5vmin;display:flex;align-items:flex-start;width:100%}
+.accent-block h1{color:var(--white);font-size:clamp(1.5rem,4.5vmin,3rem)}
+.title-right{flex:1;display:flex;flex-direction:column;justify-content:center;gap:2vmin;padding:5vmin 5vmin 5vmin 0;color:var(--white)}
+.title-right .subtitle{color:rgba(255,255,255,0.7)}
+.title-right p{color:rgba(255,255,255,0.7)}
+.pills{display:flex;flex-direction:column;gap:0.8vmin;margin-top:auto}
+.pill{padding:1.2vmin 2vmin;color:var(--white);font-weight:700;font-size:clamp(0.75rem,1.3vmin,0.9rem)}
+
+/* === LAYOUT: section === */
+.layout-section{background:var(--bg-dark);justify-content:center;align-items:flex-start;padding:5vmin 8vmin}
+.layout-section h1,.layout-section .section-title{color:var(--white);font-size:clamp(2rem,6vmin,4rem)}
+.layout-section .subtitle{color:rgba(255,255,255,0.7);margin-top:1vmin}
+.accent-bar{width:8vmin;height:0.3vmin;background:var(--accent);margin:2vmin 0}
+.layout-section .links a{color:var(--accent2)}
+
+/* === LAYOUT: stagger === */
+.stagger-bars{display:flex;flex-direction:column;gap:0.6vmin;flex:1}
+.stagger-bar{padding:2vmin 3vmin;color:var(--white);font-weight:700;font-size:clamp(0.85rem,1.8vmin,1.2rem)}
+
+/* === LAYOUT: split === */
+.layout-split{flex-direction:row;gap:4vmin;padding:5vmin}
+.split-left{flex:0 0 38%;display:flex;flex-direction:column;gap:1.5vmin;
+  border-right:1px solid color-mix(in srgb,var(--accent) 15%,transparent);padding-right:4vmin}
+.split-right{flex:1;display:flex;flex-direction:column;gap:1.5vmin;overflow:auto}
+
+/* === LAYOUT: rotated === */
+.layout-rotated{flex-direction:row;padding:0}
+.rotated-bar{flex:0 0 15%;background:color-mix(in srgb,var(--accent) 85%,transparent);
+  display:flex;align-items:center;justify-content:center;overflow:hidden}
+.rotated-text{color:var(--white);font-weight:700;font-size:clamp(1.5rem,4vmin,3rem);
+  writing-mode:vertical-rl;transform:rotate(180deg);letter-spacing:0.05em}
+.rotated-content{flex:1;padding:5vmin;display:flex;flex-direction:column;justify-content:center;gap:2vmin}
+.rotated-body{font-size:clamp(0.95rem,2.2vmin,1.4rem);line-height:1.6;color:var(--text)}
+.rotated-bullet{color:var(--text-mid);font-size:clamp(0.8rem,1.5vmin,1rem)}
+
+/* === LAYOUT: fragment === */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5vmin;flex:1}
+.frag-cell{display:flex;align-items:center;padding:2vmin;color:var(--white);font-weight:700;
+  font-size:clamp(0.75rem,1.4vmin,0.95rem)}
+
+/* === LAYOUT: overlap === */
+.overlap-fields{display:flex;flex:1;position:relative;margin-top:2vmin}
+.overlap-a,.overlap-b{padding:3vmin;color:var(--white);flex:1;display:flex;flex-direction:column;gap:1vmin;
+  font-size:clamp(0.85rem,1.6vmin,1.1rem)}
+.overlap-a{background:color-mix(in srgb,var(--accent) 70%,transparent);margin-right:-5vmin;z-index:1}
+.overlap-b{background:color-mix(in srgb,var(--accent2) 65%,transparent);margin-left:-5vmin}
+
+/* === LAYOUT: arc === */
+.layout-arc{flex-direction:row;gap:3vmin}
+.arc-left{flex:0 0 45%;display:flex;flex-direction:column;gap:2vmin;justify-content:center}
+.arc-right{flex:1;display:flex;align-items:center;justify-content:center}
+.arc-outer{width:min(35vmin,300px);aspect-ratio:1;border-radius:50%;
+  border:3px solid var(--accent);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent) 5%,transparent)}
+.arc-inner{width:60%;aspect-ratio:1;border-radius:50%;
+  border:2px solid var(--accent2);display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb,var(--accent2) 5%,transparent)}
+.arc-dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+
+/* === LAYOUT: image === */
+.layout-image{gap:1.5vmin}
+.image-caption{font-size:clamp(0.65rem,1.2vmin,0.85rem);font-style:italic;color:var(--text-light);text-align:center}
+
+/* Progress & counter */
+.progress{position:fixed;bottom:0;left:0;right:0;height:3px;background:rgba(128,128,128,0.2);z-index:100}
+.progress-bar{height:100%;background:var(--accent);transition:width 0.3s ease;width:0}
+.counter{position:fixed;bottom:8px;right:16px;font-family:var(--font);font-size:11px;
+  color:rgba(128,128,128,0.5);z-index:100}
+
+/* Notes panel */
+.notes-panel{position:fixed;bottom:0;left:0;right:0;height:0;background:rgba(0,0,0,0.95);
+  color:#ccc;overflow:auto;transition:height 0.3s ease;z-index:200;padding:0}
+.notes-panel.open{height:25vh;padding:16px 24px}
+.notes-panel h3{font-size:11px;text-transform:uppercase;letter-spacing:0.15em;color:#666;margin-bottom:8px}
+.notes-content{font-family:var(--font);font-size:14px;line-height:1.6;white-space:pre-wrap}
+
+/* ═══ ENHANCED TYPOGRAPHY (Google Fonts loaded in HTML head) ═══ */
+h1{font-family:'DM Serif Display',var(--font),serif;letter-spacing:-0.03em;text-wrap:balance}
+.label{font-family:'Space Mono',var(--font),monospace;letter-spacing:0.3em}
+.layout-section h1{font-family:'DM Serif Display',var(--font),serif;font-weight:400;
+  font-size:clamp(2.5rem,7vmin,5rem);line-height:1.05;letter-spacing:-0.04em}
+.rotated-text{font-family:'DM Serif Display',var(--font),serif;text-shadow:0 2px 12px rgba(0,0,0,0.3)}
+.counter{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:0.15em}
+.notes-panel h3{font-family:'Space Mono',monospace;letter-spacing:0.2em;color:var(--accent)}
+blockquote{position:relative;border-left-width:2px;padding:2vmin 3vmin}
+
+/* ═══ SLIDE TRANSITIONS ═══ */
+:root{--t-duration:0.5s;--t-ease:cubic-bezier(0.16,1,0.3,1)}
+
+/* Default: fade */
+.slide{opacity:0;transition:opacity var(--t-duration) var(--t-ease),transform var(--t-duration) var(--t-ease)}
+.slide.active{opacity:1}
+
+/* fade (default) */
+.slide[data-transition="fade"]{transform:none}
+
+/* slide-up */
+.slide[data-transition="slide-up"]{transform:translateY(4vh)}
+.slide[data-transition="slide-up"].active{transform:translateY(0)}
+.slide[data-transition="slide-up"].exit-down{transform:translateY(-4vh);opacity:0}
+
+/* slide-down */
+.slide[data-transition="slide-down"]{transform:translateY(-4vh)}
+.slide[data-transition="slide-down"].active{transform:translateY(0)}
+
+/* slide-left */
+.slide[data-transition="slide-left"]{transform:translateX(5vw)}
+.slide[data-transition="slide-left"].active{transform:translateX(0)}
+.slide[data-transition="slide-left"].exit-left{transform:translateX(-5vw);opacity:0}
+
+/* slide-right */
+.slide[data-transition="slide-right"]{transform:translateX(-5vw)}
+.slide[data-transition="slide-right"].active{transform:translateX(0)}
+
+/* zoom */
+.slide[data-transition="zoom"]{transform:scale(0.92);opacity:0}
+.slide[data-transition="zoom"].active{transform:scale(1);opacity:1}
+
+/* zoom-out */
+.slide[data-transition="zoom-out"]{transform:scale(1.08);opacity:0}
+.slide[data-transition="zoom-out"].active{transform:scale(1);opacity:1}
+
+/* cut (instant, no animation) */
+.slide[data-transition="cut"]{transition:none}
+.slide[data-transition="cut"].active{opacity:1}
+
+/* none (same as cut) */
+.slide[data-transition="none"]{transition:none}
+.slide[data-transition="none"].active{opacity:1}
+
+/* Respect reduced motion */
+@media(prefers-reduced-motion:reduce){
+  .slide{transition:none !important;transform:none !important}
+  .slide.active{opacity:1}
+}
+
+/* ═══ MICRO-INTERACTIONS ═══ */
+.stagger-bar{border-radius:2px;transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.stagger-bar::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.08) 100%);pointer-events:none}
+.stagger-bar:hover{transform:translateX(8px)}
+.frag-cell{border-radius:3px;transition:transform 0.2s cubic-bezier(0.16,1,0.3,1);position:relative;overflow:hidden}
+.frag-cell::after{content:"";position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,transparent 50%);pointer-events:none}
+.pills .pill{transition:transform 0.3s cubic-bezier(0.16,1,0.3,1)}
+.pills .pill:hover{transform:translateX(4px)}
+.overlap-a,.overlap-b{border-radius:4px}
+.overlap-a{box-shadow:4px 4px 20px rgba(0,0,0,0.15)}
+
+/* ═══ GEOMETRIC ANIMATIONS ═══ */
+.arc-outer{animation:arc-breathe 6s ease-in-out infinite}
+@keyframes arc-breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+.arc-dot{animation:arc-pulse 2s ease-in-out infinite}
+@keyframes arc-pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+
+/* ═══ ACCENT DETAILS ═══ */
+.layout-section::before{content:"";position:absolute;top:0;left:0;width:100%;height:1px;
+  background:linear-gradient(90deg,var(--accent) 0%,transparent 60%)}
+.split-left::after{content:"";position:absolute;right:0;top:10%;bottom:10%;width:1px;
+  background:linear-gradient(180deg,transparent,var(--accent),transparent)}
+.layout-blank::after{content:"";position:absolute;top:50%;left:50%;width:4px;height:4px;
+  border-radius:50%;background:var(--accent);opacity:0.3;transform:translate(-50%,-50%)}
+.progress{height:2px;background:transparent}
+.progress-bar{box-shadow:0 0 8px var(--accent)}
+.notes-panel{backdrop-filter:blur(20px);background:rgba(0,0,0,0.88)}
+
+/* ═══ GRAIN TEXTURE ═══ */
+body::after{content:"";position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:0.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat:repeat}
+
+/* ═══ ACCESSIBILITY ═══ */
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:2px}
+.slide:focus-visible{outline:none}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+</style>
+</head>
+<body>
+<div class="deck" role="application" aria-roledescription="slide deck" aria-label="Gen AI - Week 4 - Concentric Loops: Iterating with AI">
+<section class="slide designed" style="background:#0B1D33;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#E8604A;--accent2:#5AADCC;--accent3:#6EBB80;--accent4:#D4A840;font-family:'Futura',var(--font)" data-transition="fade" aria-roledescription="slide" aria-label="Gen AI - Week 4 - Concentric Loops: Iterating with AI"><div class="accent-el accent-bar" style="left:6.6667%;width:46.6667%;top:50.0000%;height:2.5000%;background:#C4501A"></div>
+<div class="zone zone-title" style="left:6.6667%;width:86.6667%;top:10.0000%;height:35.0000%;font-size:40px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#FFFFFF;overflow:hidden;padding:2vmin"><h1 style="font-size:40px;font-weight:900;text-transform:uppercase;letter-spacing:0.06em;color:#FFFFFF">Gen AI - Week 4 - Concentric Loops: Iterating with AI</h1></div>
+<div class="zone zone-body" style="left:6.6667%;width:66.6667%;top:55.0000%;height:25.0000%;font-size:16px;line-height:1.6;color:#B8C4D4;overflow:hidden;padding:2vmin"></div>
+<div class="slide-notes" hidden>Design: Monument vertical stack on dark navy. Rust accent bar separates title from subtitle. Futura uppercase for geometric authority on the workshop opener.</div></section>
+<section class="slide designed" style="background:#F7F3ED;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:10.0000%;width:50.0000%;top:5.0000%;height:15.0000%;font-size:28px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:10.0000%;width:73.3333%;top:40.0000%;height:55.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A">A three-loop iteration system where:</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span><strong>You</strong> provide the content and aesthetic direction</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span><strong>Claude</strong> composes, renders, and evaluates the design</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span><strong>Together</strong> you calibrate what &quot;good&quot; means — and that calibration itself improves over time</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">What We'll Build Today</h1></div></div><div class="slide-notes" hidden>Design: Vertical stack — label anchored row 2, body drops to row 16 for vertical rhythm. Wide body span accommodates three-part build description. Warm cream ground.</div></section>
+<section class="slide designed" style="background:#F0EBE3;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-bar" style="left:38.3333%;width:1.6667%;top:5.0000%;height:90.0000%;background:#C4501A"></div>
+<div class="zone zone-label" style="left:6.6667%;width:30.0000%;top:5.0000%;height:20.0000%;font-size:26px;font-weight:700;letter-spacing:0.06em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:43.3333%;width:50.0000%;top:5.0000%;height:90.0000%;font-size:15px;line-height:1.6;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.6;color:#2A2A2A">Think of concentric circles — the inner loop spins fast (minutes), the outer loop spins slower (per session), the outer-outer loop evolves across weeks.</p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">The Three Loops</h1></div></div><div class="slide-notes" hidden>Design: Sidebar-left: label in narrow left column, body spans right two-thirds. Full-height rust bar at col 23 creates caesura dividing the concentric loop hierarchy from its explanation.</div></section>
+<section class="slide designed" style="background:#FAFAF7;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:13.3333%;width:73.3333%;top:5.0000%;height:15.0000%;font-size:24px;font-weight:700;letter-spacing:0.05em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:13.3333%;width:76.6667%;top:25.0000%;height:70.0000%;font-size:15px;line-height:1.6;color:#1A1A1A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.6;color:#1A1A1A">The machine does this on its own:</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">1. <strong>Evaluate</strong> — run the rubric against the rendered deck</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">2. <strong>Identify weaknesses</strong> — which dimensions score lowest?</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">3. <strong>Fix</strong> — edit design directives targeting the weak dimensions</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">4. <strong>Re-render</strong> — generate new HTML</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">5. <strong>Re-evaluate</strong> — did the scores improve?</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">6. <strong>Repeat</strong> until scores plateau</p>
+<p style="font-size:15px;line-height:1.6;color:#1A1A1A">In Claude Code: `/loop 2m /refine-step decks/my-deck.html`</p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Loop 1: The Inner Loop (Automated)</h1></div></div><div class="slide-notes" hidden>Design: Editorial wide — generous 46-col body for dense six-step numbered list. Near-white ground keeps focus on automated loop mechanics. Label row 2, body row 10.</div></section>
+<section class="slide designed" style="background:#F7F3ED;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-line" style="left:46.6667%;width:43.3333%;top:20.0000%;height:2.5000%;background:#C4501A;height:2px;top:20.0000%"></div>
+<div class="zone zone-label" style="left:46.6667%;width:46.6667%;top:5.0000%;height:15.0000%;font-size:24px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:6.6667%;width:86.6667%;top:25.0000%;height:70.0000%;font-size:15px;line-height:1.6;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.6;color:#2A2A2A">You do this with Claude:</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">1. <strong>Look at the deck</strong> — screenshot every slide</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">2. <strong>Tell Claude what you see</strong> — &quot;overlapping text on slide 7&quot;, &quot;too much whitespace on slide 20&quot;</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">3. <strong>Compare to scores</strong> — the rubric said 98%! But you see problems.</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">4. <strong>Fix the rubric</strong> — add checks for the issues you identified</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">5. <strong>Re-evaluate</strong> — does the rubric now agree with your eyes?</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">6. <strong>Run the inner loop again</strong> — with the calibrated rubric</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">The key insight: <strong>the rubric serves your eyes, not the other way around.</strong></p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Loop 2: The Outer Loop (Human + Machine)</h1></div></div><div class="slide-notes" hidden>Design: Right-anchored label creates visual counterpoint to previous slide. Full-width body below for dense human-machine loop steps. Thin rust line under label as section marker.</div></section>
+<section class="slide designed" style="background:#0B1D33;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#E8604A;--accent2:#5AADCC;--accent3:#6EBB80;--accent4:#D4A840;font-family:'Futura',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-bar" style="left:10.0000%;width:33.3333%;top:30.0000%;height:2.5000%;background:#C4501A"></div>
+<div class="zone zone-label" style="left:10.0000%;width:80.0000%;top:5.0000%;height:20.0000%;font-size:30px;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#FFFFFF;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:10.0000%;width:70.0000%;top:35.0000%;height:60.0000%;font-size:15px;line-height:1.7;color:#D0D8E4;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#D0D8E4">Across sessions, you notice patterns:</p>
+<p style="font-size:15px;line-height:1.7;color:#D0D8E4">These become <strong>methodology improvements</strong>:</p>
+<p style="font-size:15px;line-height:1.7;color:#D0D8E4">The outer-outer loop is <strong>the system learning to learn</strong>.</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>&quot;I keep having to tell Claude about overlapping zones&quot;</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>&quot;The rubric always misses whitespace problems&quot;</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>&quot;Composition keeps putting tables in body zones&quot;</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Add zone collision detection to the rubric permanently</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent)">5</span><span>Add visual utilization metrics</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">6</span><span>Fix the renderer's content routing</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Loop 3: The Outer-Outer Loop (Meta)</h1></div></div><div class="slide-notes" hidden>Design: Dark monument signals conceptual elevation to the meta-loop. Futura uppercase label at 30px, generous leading on light body text. Rust bar punctuates the transition from label to body.</div></section>
+<section class="slide designed" style="background:#EDE7DB;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:6.6667%;width:60.0000%;top:5.0000%;height:12.5000%;font-size:22px;font-weight:700;letter-spacing:0.05em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:6.6667%;width:90.0000%;top:20.0000%;height:75.0000%;font-size:15px;line-height:1.5;color:#1A1A1A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.5;color:#1A1A1A">1. <strong>Source content</strong> — write or choose a markdown file with slides</p>
+<p style="font-size:15px;line-height:1.5;color:#1A1A1A">2. <strong>Compose</strong> — Claude designs the grid layouts</p>
+<p style="font-size:15px;line-height:1.5;color:#1A1A1A">3. <strong>Render</strong> — generate HTML</p>
+<p style="font-size:15px;line-height:1.5;color:#1A1A1A">4. <strong>Splice images</strong> — add generated visuals</p>
+<p style="font-size:15px;line-height:1.5;color:#1A1A1A">5. <strong>Evaluate</strong> — run the rubric</p>
+<p style="font-size:15px;line-height:1.5;color:#1A1A1A">6. <strong>Compare wireframe to screenshot</strong></p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Practice: Set Up Your Pipeline</h1></div></div><div class="slide-notes" hidden>Design: Wide editorial maximizes space for six code-heavy pipeline steps. Body at 13px across 54-col span for dense technical content. Compact label frees early body start at row 8.</div></section>
+<section class="slide designed" style="background:#FAFAF7;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-dot" style="left:10.0000%;width:3.3333%;top:12.5000%;height:5.0000%;background:#C4501A;border-radius:50%;width:3.3333%;height:0;padding-bottom:3.3333%"></div>
+<div class="zone zone-label" style="left:16.6667%;width:66.6667%;top:10.0000%;height:15.0000%;font-size:24px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:16.6667%;width:60.0000%;top:50.0000%;height:45.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A">Watch the scores converge. Note what the rubric catches and what it misses.</p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Practice: Run the Inner Loop</h1></div></div><div class="slide-notes" hidden>Design: Narrow-column centered layout for lighter content. Vertical rhythm: label row 4, body drops to row 20. Generous margins frame the code block. Rust dot accent as visual anchor.</div></section>
+<section class="slide designed" style="background:#F7F3ED;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:6.6667%;width:46.6667%;top:5.0000%;height:15.0000%;font-size:24px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:6.6667%;width:83.3333%;top:30.0000%;height:65.0000%;font-size:15px;line-height:1.6;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.6;color:#2A2A2A">Look at the screenshots. Ask yourself:</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">Now tell Claude what you see. Watch as:</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">1. Claude adds checks to the rubric for your feedback</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">2. The rubric score drops (it's now catching real issues)</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">3. Claude fixes the design to address the new checks</p>
+<p style="font-size:15px;line-height:1.6;color:#2A2A2A">4. The score recovers — but honestly this time</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Are the images visible?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Is there overlapping text?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Which slides look weakest?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Does the design match the brief?</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Practice: Run the Outer Loop</h1></div></div><div class="slide-notes" hidden>Design: Vertical stack variant — label left-anchored row 2, body drops to row 12 with 50-col width for dense bullet and numbered content. Warm cream ground continues the practice section.</div></section>
+<section class="slide designed" style="background:#F0EBE3;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-line" style="left:53.3333%;width:36.6667%;top:30.0000%;height:2.5000%;background:#3D7B8A;height:2px;top:30.0000%"></div>
+<div class="zone zone-label" style="left:53.3333%;width:40.0000%;top:5.0000%;height:20.0000%;font-size:22px;font-weight:700;letter-spacing:0.06em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:6.6667%;width:80.0000%;top:40.0000%;height:55.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A">After running the outer loop a few times, notice:</p>
+<p style="font-size:15px;line-height:1.7;color:#2A2A2A">Document these in METHODOLOGY.md. Each observation becomes a permanent improvement to the system.</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>What kinds of issues do you keep reporting?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>What rubric checks keep producing false positives?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>What aspects of &quot;good design&quot; are fundamentally unmeasurable by automation?</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Practice: The Outer-Outer Loop</h1></div></div><div class="slide-notes" hidden>Design: Sidebar-right: label pushed to col 32 for asymmetry, body spans wide below. Teal line accent introduces secondary color, signaling shift from practice to reflection.</div></section>
+<section class="slide designed" style="background:#F5EFE0;font-family:'Georgia',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-bar" style="left:6.6667%;width:1.6667%;top:35.0000%;height:30.0000%;background:#C4501A"></div>
+<div class="zone zone-label" style="left:10.0000%;width:40.0000%;top:5.0000%;height:15.0000%;font-size:22px;font-weight:700;letter-spacing:0.06em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:10.0000%;width:73.3333%;top:35.0000%;height:60.0000%;font-size:16px;line-height:1.8;color:#3A3025;overflow:hidden;padding:2vmin"><p style="font-size:16px;line-height:1.8;color:#3A3025"><strong>Goodhart's Law</strong>: &quot;When a measure becomes a target, it ceases to be a good measure.&quot;</p>
+<p style="font-size:16px;line-height:1.8;color:#3A3025">The inner loop makes the rubric score go up. But if the rubric is wrong, you're optimizing toward the wrong target. The outer loop ensures the rubric stays honest.</p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Key Concepts</h1></div></div><div class="slide-notes" hidden>Design: Georgia serif for editorial register on key concepts. Thin rust bar beside body evokes a visual citation mark for Goodhart's Law. Larger body text at 16px for conceptual weight.</div></section>
+<section class="slide designed" style="background:#FAFAF7;font-family:'Georgia',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:6.6667%;width:33.3333%;top:5.0000%;height:20.0000%;font-size:26px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:46.6667%;width:46.6667%;top:5.0000%;height:90.0000%;font-size:15px;line-height:1.7;color:#1A1A1A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#1A1A1A"><strong>Cybernetics (from Week 2!)</strong>: The system observing and correcting itself.</p>
+<p style="font-size:15px;line-height:1.7;color:#1A1A1A">Norbert Wiener would recognize this as recursive self-regulation.</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Inner loop: first-order feedback (adjust the design)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Outer loop: second-order feedback (adjust the evaluation)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Outer-outer loop: third-order feedback (adjust how we adjust the evaluation)</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Key Concepts</h1></div></div><div class="slide-notes" hidden>Design: Sidebar-left: label occupies narrow left column, body spans right side for cybernetics content. Georgia continues the key concepts editorial register. No accent — clean Swiss restraint.</div></section>
+<section class="slide designed" style="background:#F7F3ED;font-family:'Georgia',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-line" style="left:10.0000%;width:80.0000%;top:30.0000%;height:2.5000%;background:#3D7B8A;height:2px;top:30.0000%"></div>
+<div class="zone zone-label" style="left:50.0000%;width:43.3333%;top:5.0000%;height:20.0000%;font-size:24px;font-weight:700;letter-spacing:0.05em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:10.0000%;width:83.3333%;top:35.0000%;height:60.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A"><strong>Co-intelligence (Mollick)</strong>: Human and AI each doing what they're best at.</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>AI is best at: fast iteration, metric collection, pattern application</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Human is best at: judging visual quality, identifying blind spots, defining &quot;good&quot;</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>Together: the human calibrates, the AI iterates</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Key Concepts</h1></div></div><div class="slide-notes" hidden>Design: Right-anchored label with full-width body below. Teal line introduces secondary accent for the final key concept. Georgia maintains editorial continuity across the concepts triad.</div></section>
+<section class="slide designed" style="background:#142740;--text:#F0EBE3;--text-mid:#B8B0A2;--text-light:#A09890;--accent:#E8604A;--accent2:#5AADCC;--accent3:#6EBB80;--accent4:#D4A840;font-family:'Futura',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-bar" style="left:0.0000%;width:3.3333%;top:0.0000%;height:100.0000%;background:#C4501A"></div>
+<div class="accent-el accent-bar" style="left:6.6667%;width:26.6667%;top:30.0000%;height:2.5000%;background:#C4501A"></div>
+<div class="zone zone-label" style="left:6.6667%;width:86.6667%;top:5.0000%;height:20.0000%;font-size:32px;font-weight:900;text-transform:uppercase;letter-spacing:0.1em;color:#FFFFFF;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:6.6667%;width:73.3333%;top:35.0000%;height:60.0000%;font-size:15px;line-height:1.7;color:#D0D8E4;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#D0D8E4">Our rubric scored 100% on decks with:</p>
+<p style="font-size:15px;line-height:1.7;color:#D0D8E4"><strong>A confident wrong answer is worse than an uncertain right one.</strong></p>
+<p style="font-size:15px;line-height:1.7;color:#D0D8E4">The process of making the rubric honest — from 100% down to 57% — was more valuable than any design fix.</p>
+<div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>Overlapping text</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Missing images</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>80% whitespace slides</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>Generic placeholder alt text</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">The Dangerous 100%</h1></div></div><div class="slide-notes" hidden>Design: Dark monument for the deck's pivotal moment. Full-height rust bar at left edge creates urgency. Futura uppercase label at 32px for maximum impact on the dangerous-100% warning.</div></section>
+<section class="slide designed" style="background:#F0EBE3;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide">
+<div class="zone zone-label" style="left:13.3333%;width:33.3333%;top:5.0000%;height:20.0000%;font-size:28px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:13.3333%;width:73.3333%;top:45.0000%;height:50.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A">1. Pick a topic. Write 10 slides in markdown.</p>
+<p style="font-size:15px;line-height:1.7;color:#2A2A2A">2. Run the full pipeline: compose → render → splice → evaluate</p>
+<p style="font-size:15px;line-height:1.7;color:#2A2A2A">3. Look at the deck. What does the rubric miss?</p>
+<p style="font-size:15px;line-height:1.7;color:#2A2A2A">4. Tell Claude. Watch the rubric evolve.</p>
+<p style="font-size:15px;line-height:1.7;color:#2A2A2A">5. Document what you learned about the gap between metrics and perception.</p></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Your Turn</h1></div></div><div class="slide-notes" hidden>Design: Vertical stack with generous left margin. Vertical rhythm: label row 2, body drops to row 18 for the five-step exercise. Clean Helvetica returns after the Georgia key concepts arc.</div></section>
+<section class="slide designed" style="background:#F7F3ED;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-dot" style="left:16.6667%;width:3.3333%;top:7.5000%;height:5.0000%;background:#3D7B8A;border-radius:50%;width:3.3333%;height:0;padding-bottom:3.3333%"></div>
+<div class="zone zone-label" style="left:23.3333%;width:53.3333%;top:5.0000%;height:15.0000%;font-size:26px;font-weight:700;letter-spacing:0.06em;text-align:center;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:13.3333%;width:73.3333%;top:40.0000%;height:55.0000%;font-size:15px;line-height:1.8;color:#2A2A2A;overflow:hidden;padding:2vmin"><div class="bullets"><div class="bullet level-0"><span class="dot" style="background:var(--accent)">1</span><span>When is automated evaluation sufficient? When is human judgment essential?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent2)">2</span><span>Can the outer-outer loop ever close? (Can we fully automate &quot;what good looks like&quot;?)</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent3)">3</span><span>What other domains could use concentric feedback loops?</span></div>
+<div class="bullet level-0"><span class="dot" style="background:var(--accent4)">4</span><span>How does this relate to assessment in education — rubrics that grade, but who grades the rubric?</span></div></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Discussion</h1></div></div><div class="slide-notes" hidden>Design: Centered editorial for discussion prompts. Teal dot accent beside label. Generous leading at 1.8 gives discussion questions room to breathe. Vertical gap to row 16.</div></section>
+<section class="slide designed" style="background:#FAFAF7;font-family:'Helvetica Neue',var(--font)" data-transition="fade" aria-roledescription="slide"><div class="accent-el accent-line" style="left:20.0000%;width:46.6667%;top:45.0000%;height:2.5000%;background:#C4501A;height:2px;top:45.0000%"></div>
+<div class="zone zone-label" style="left:20.0000%;width:60.0000%;top:5.0000%;height:20.0000%;font-size:26px;font-weight:700;letter-spacing:0.04em;color:#0B1D33;overflow:hidden;padding:2vmin"></div>
+<div class="zone zone-body" style="left:20.0000%;width:53.3333%;top:50.0000%;height:40.0000%;font-size:15px;line-height:1.7;color:#2A2A2A;overflow:hidden;padding:2vmin"><p style="font-size:15px;line-height:1.7;color:#2A2A2A">We'll look at the AI models themselves — how they generate, what they &quot;know&quot;, and what happens when we push them to evaluate their own output.</p>
+<div class="links"><a href="https://cgscholar.com/posts/1200?communityId=141" target="_blank" rel="noopener noreferrer">cgscholar.com →</a></div></div>
+<div class="zone zone-extras" style="position:absolute;left:10%;right:10%;top:5%;bottom:5%;display:flex;flex-direction:column;justify-content:center;z-index:1;pointer-events:auto"><div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:2vmin"><h1 style="">Next Week: Deeper into the Black Box</h1></div></div><div class="slide-notes" hidden>Design: Narrow editorial closing. Centered column with generous margins. Rust line separates label from body. Vertical rhythm: body at row 20 for the lightest content in the deck.</div></section>
+</div>
+<div class="progress" role="progressbar" aria-valuemin="1" aria-valuemax="17" aria-valuenow="1" aria-label="Slide progress"><div class="progress-bar"></div></div>
+<div class="counter" aria-live="polite" aria-atomic="true"></div>
+<div class="notes-panel"><h3>Speaker Notes</h3><div class="notes-content"></div></div>
+<script>
+
+(function(){
+  const slides=document.querySelectorAll('.slide');
+  const bar=document.querySelector('.progress-bar');
+  const counter=document.querySelector('.counter');
+  const notesPanel=document.querySelector('.notes-panel');
+  const notesContent=document.querySelector('.notes-content');
+  let cur=0,notesOpen=false;
+
+  function go(n){
+    if(n<0||n>=slides.length)return;
+    slides[cur].classList.remove('active');
+    slides[cur].removeAttribute('aria-current');
+    cur=n;
+    slides[cur].classList.add('active');
+    slides[cur].setAttribute('aria-current','true');
+    bar.style.width=((cur+1)/slides.length*100)+'%';
+    counter.textContent=(cur+1)+' / '+slides.length;
+    var prog=document.querySelector('.progress');
+    if(prog)prog.setAttribute('aria-valuenow',cur+1);
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    notesContent.textContent=noteEl?noteEl.textContent:'(no notes)';
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(cur+1)}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(cur-1)}
+    else if(e.key==='Home'){e.preventDefault();go(0)}
+    else if(e.key==='End'){e.preventDefault();go(slides.length-1)}
+    else if(e.key==='n'||e.key==='N'){
+      notesOpen=!notesOpen;
+      notesPanel.classList.toggle('open',notesOpen);
+    }
+    else if(e.key==='f'||e.key==='F'){
+      if(!document.fullscreenElement)document.documentElement.requestFullscreen().catch(function(){});
+      else document.exitFullscreen();
+    }
+  });
+
+  // Touch/swipe support
+  let tx=0;
+  document.addEventListener('touchstart',function(e){tx=e.touches[0].clientX},{passive:true});
+  document.addEventListener('touchend',function(e){
+    const dx=e.changedTouches[0].clientX-tx;
+    if(Math.abs(dx)>50){dx<0?go(cur+1):go(cur-1)}
+  },{passive:true});
+
+  // Click left/right halves
+  document.addEventListener('click',function(e){
+    if(e.target.tagName==='A'||e.target.closest('a'))return;
+    if(e.clientX>window.innerWidth*0.65)go(cur+1);
+    else if(e.clientX<window.innerWidth*0.35)go(cur-1);
+  });
+
+  // Presenter mode — press P to open synced notes window
+  const bc=new BroadcastChannel('rastersysteme-presenter');
+  let presenterWin=null;
+
+  function broadcastSlide(){
+    const noteEl=slides[cur].querySelector('.slide-notes');
+    const nextNoteEl=cur+1<slides.length?slides[cur+1].querySelector('.slide-notes'):null;
+    bc.postMessage({
+      type:'slide',
+      index:cur,
+      total:slides.length,
+      notes:noteEl?noteEl.innerHTML:'<span class="empty">(no notes)</span>',
+      nextNotes:nextNoteEl?nextNoteEl.innerHTML:'',
+      title:document.title
+    });
+  }
+
+  // Broadcast on every slide change
+  const origGo=go;
+  go=function(n){origGo(n);broadcastSlide()};
+
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();return}
+    presenterWin=window.open('','rastersysteme_notes','width=800,height=600');
+    if(!presenterWin)return;
+    presenterWin.document.write(`<!DOCTYPE html><html><head><title>Presenter Notes</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#0a0a0a;color:#e8e0d4;overflow-y:auto}
+
+/* Header bar */
+.header{display:flex;align-items:center;justify-content:space-between;
+  padding:1rem 2rem;border-bottom:1px solid #222;position:sticky;top:0;background:#0a0a0a;z-index:10}
+.slide-num{font-family:'Space Mono',monospace;font-size:.75rem;color:#8C8478;letter-spacing:0.15em}
+.elapsed{font-family:'Space Mono',monospace;font-size:1.8rem;color:#333;font-variant-numeric:tabular-nums}
+.progress-row{display:flex;gap:2px;align-items:center}
+.progress-dot{width:6px;height:6px;border-radius:50%;background:#333}
+.progress-dot.past{background:#548C5A}
+.progress-dot.current{background:#B7311A;width:8px;height:8px}
+
+/* Timing cue */
+.timing{display:flex;align-items:center;gap:1rem;padding:0.8rem 2rem;
+  background:#111;border-bottom:1px solid #1a1a1a;font-family:'Space Mono',monospace}
+.timing-icon{font-size:1rem}
+.timing-range{font-size:.85rem;color:#C79B38}
+.timing-duration{font-size:.85rem;color:#548C5A;margin-left:auto}
+
+/* Main notes */
+.notes-body{padding:2rem;min-height:40vh}
+.notes{font-size:1.25rem;line-height:1.8;color:#e8e0d4}
+.notes br{display:block;content:"";margin:0.3em 0}
+.notes em{color:#C79B38;font-style:italic}
+.notes strong{color:#fff;font-weight:700}
+.notes .empty{color:#555;font-style:italic}
+
+/* Next slide preview */
+.next-section{border-top:1px solid #222;padding:1.5rem 2rem}
+.next-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;
+  text-transform:uppercase;letter-spacing:0.2em;margin-bottom:0.8rem}
+.next-notes{font-size:.9rem;color:#666;line-height:1.6;max-height:15vh;overflow:hidden}
+.next-notes em{color:#876512}
+
+/* Keyboard hints */
+.countdown{font-family:'Space Mono',monospace;font-size:1rem;color:#2B7038;font-variant-numeric:tabular-nums;margin-top:0.2rem}
+.countdown.warning{color:#876512}
+.countdown.danger{color:#B7311A;animation:pulse 1s ease-in-out infinite}
+.countdown.over{color:#B7311A}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.duration-set{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 2rem;border-bottom:1px solid #1a1a1a}
+.duration-label{font-family:'Space Mono',monospace;font-size:.65rem;color:#555;letter-spacing:0.1em}
+.hints{padding:0.8rem 2rem;border-top:1px solid #1a1a1a;
+  font-family:'Space Mono',monospace;font-size:.6rem;color:#333;letter-spacing:0.1em}
+</style></head><body>
+<div class="header">
+  <div>
+    <div class="slide-num" id="pn-num">SLIDE 1</div>
+    <div class="progress-row" id="pn-progress"></div>
+  </div>
+  <div style="text-align:right">
+    <div class="elapsed" id="pn-timer">00:00</div>
+    <div class="countdown" id="pn-countdown" style="display:none">remaining</div>
+  </div>
+</div>
+<div class="timing" id="pn-timing" style="display:none">
+  <span class="timing-icon">\u23F1</span>
+  <span class="timing-range" id="pn-timing-range"></span>
+  <span class="timing-duration" id="pn-timing-dur"></span>
+</div>
+<div class="duration-set" id="pn-duration-set">
+  <span class="duration-label">Duration:</span>
+  <input type="number" id="pn-duration-input" min="1" max="600" placeholder="minutes" style="width:60px;background:#222;border:1px solid #333;color:#e8e0d4;padding:4px 8px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem">
+  <button id="pn-duration-btn" style="background:#222;border:1px solid #333;color:#8C8478;padding:4px 10px;border-radius:3px;font-family:'Space Mono',monospace;font-size:.75rem;cursor:pointer">Set</button>
+</div>
+<div class="notes-body">
+  <div class="notes" id="pn-notes">Press <strong>P</strong> in the slide window to sync.</div>
+</div>
+<div class="next-section">
+  <div class="next-label">NEXT</div>
+  <div class="next-notes" id="pn-next"></div>
+</div>
+<div class="hints">\u2190 \u2192 navigate &nbsp;&nbsp; N notes panel &nbsp;&nbsp; F fullscreen</div>
+<script>
+const bc2=new BroadcastChannel('rastersysteme-presenter');
+const startTime=Date.now();
+let totalSlides=1;
+
+bc2.onmessage=function(e){
+  if(e.data.type==='slide'){
+    const idx=e.data.index;
+    totalSlides=e.data.total;
+    document.getElementById('pn-num').textContent='SLIDE '+(idx+1)+' / '+totalSlides;
+    document.getElementById('pn-notes').innerHTML=e.data.notes;
+    document.getElementById('pn-next').innerHTML=e.data.nextNotes||'<span class="empty">(end of deck)</span>';
+
+    // Progress dots
+    const dots=document.getElementById('pn-progress');
+    dots.innerHTML='';
+    for(let i=0;i<totalSlides;i++){
+      const d=document.createElement('div');
+      d.className='progress-dot'+(i<idx?' past':i===idx?' current':'');
+      dots.appendChild(d);
+    }
+
+    // Extract timing cue if present (format: \u23F1 Xm \u2192 Ym (Z:ZZ))
+    const notesText=e.data.notes||'';
+    const timingMatch=notesText.match(/\u23F1\s*(\S+)\s*\u2192\s*(\S+)\s*\(([^)]+)\)/);
+    const timingEl=document.getElementById('pn-timing');
+    if(timingMatch){
+      timingEl.style.display='flex';
+      document.getElementById('pn-timing-range').textContent=timingMatch[1]+' \u2192 '+timingMatch[2];
+      document.getElementById('pn-timing-dur').textContent=timingMatch[3];
+    } else {
+      timingEl.style.display='none';
+    }
+
+    // Scroll to top
+    window.scrollTo(0,0);
+  }
+};
+
+let durationMinutes=0;
+document.getElementById('pn-duration-btn').addEventListener('click',function(){
+  const v=parseInt(document.getElementById('pn-duration-input').value);
+  if(v>0){durationMinutes=v;document.getElementById('pn-duration-set').style.display='none'}
+});
+document.getElementById('pn-duration-input').addEventListener('keydown',function(e){
+  if(e.key==='Enter'){document.getElementById('pn-duration-btn').click()}
+});
+
+setInterval(function(){
+  const s=Math.floor((Date.now()-startTime)/1000);
+  const h=Math.floor(s/3600);
+  const m=Math.floor((s%3600)/60);
+  const sec=s%60;
+  const t=h>0
+    ? h+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0')
+    : String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+  document.getElementById('pn-timer').textContent=t;
+
+  // Countdown
+  const cdEl=document.getElementById('pn-countdown');
+  if(durationMinutes>0){
+    cdEl.style.display='block';
+    const remaining=durationMinutes*60-s;
+    if(remaining<=0){
+      cdEl.textContent='OVER by '+Math.abs(Math.floor(remaining/60))+'m';
+      cdEl.className='countdown over';
+    } else {
+      const rm=Math.floor(remaining/60);
+      const rs=remaining%60;
+      cdEl.textContent=rm+':'+String(rs).padStart(2,'0')+' left';
+      const pct=remaining/(durationMinutes*60);
+      cdEl.className='countdown'+(pct<0.1?' danger':pct<0.25?' warning':'');
+    }
+  }
+},1000);
+<\/script></body></html>`);
+    presenterWin.document.close();
+    broadcastSlide();
+  }
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='p'||e.key==='P'){openPresenter()}
+  });
+
+  // Auto-fit: shrink text in designed zones that overflow their container
+  function autoFitZones(){
+    document.querySelectorAll('.slide.designed .zone').forEach(function(zone){
+      // Reset any previous auto-fit
+      zone.style.removeProperty('--auto-fit-size');
+      var els=zone.querySelectorAll('p,blockquote,h1,h2,span.label,.bullet,.bullets');
+      // Get the base font size from inline style or computed
+      var base=parseFloat(zone.style.fontSize)||parseFloat(getComputedStyle(zone).fontSize)||16;
+      var size=base;
+      var min=Math.max(8,base*0.45);
+      while(zone.scrollHeight>zone.clientHeight+1&&size>min){
+        size-=0.5;
+        els.forEach(function(el){el.style.fontSize=size+'px'});
+      }
+    });
+  }
+
+  // Run auto-fit on load and after each slide transition
+  var origGo2=go;
+  go=function(n){origGo2(n);autoFitZones()};
+  autoFitZones();
+
+  go(0);
+})();
+
+</script>
+</body>
+</html>
