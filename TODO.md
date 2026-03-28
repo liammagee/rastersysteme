@@ -53,7 +53,7 @@
 
 - [x] **Inner loop changelog** — logs/iterations/week-2-v11.md created. Per-deck iteration tracking. Each deck gets a `logs/<deck>-iterations.md` that records: iteration N, dimensions targeted, changes made, score before/after. Fed by /refine-step.
 - [x] **Outer loop changelog** — RUBRIC-CHANGELOG.md structured with 8 entries + outer-outer observations. user feedback → rubric change → score impact. One entry per outer loop iteration, committed separately.
-- [ ] **Outer-outer loop changelog** — methodology evolution. Track changes to METHODOLOGY.md itself, changes to the changelog format, changes to the evaluation pipeline. The meta-log.
+- [x] **Outer-outer loop changelog** — META-CHANGELOG.md created. Tracks methodology evolution with 7 iterations documented. Track changes to METHODOLOGY.md itself, changes to the changelog format, changes to the evaluation pipeline. The meta-log.
 
 ### User Acceptance Testing (outer loop automation)
 
