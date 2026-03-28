@@ -244,7 +244,7 @@ function normaliseDesign(raw) {
         d.typography[role] = {
           size: src.size || src.fontSize,
           weight: src.weight || src.fontWeight,
-          transform: src.transform || src.case === "upper" ? "uppercase" : undefined,
+          transform: src.transform || (src.case === "upper" ? "uppercase" : undefined),
           tracking: src.tracking || src.letterSpacing,
         };
       }
@@ -1978,6 +1978,16 @@ function renderDesigned(slide) {
           parts.push(linksHTML(slide.links));
           renderedContent.add("links");
         }
+        // Include data tables in body zone when no table zone exists
+        if (slide.tables.length && !zonedRoles.has("table")) {
+          const dataTables = slide.tables.filter(t => !t.isLayoutTable);
+          if (dataTables.length) {
+            parts.push(dataTables.map(t => tableToHTML(t, { role: "table" })).join("\n"));
+          }
+          renderedContent.add("table");
+        }
+        // Mark body content as rendered — prevents extras from duplicating
+        renderedContent.add("body");
         content = parts.join("\n");
         break;
       }
@@ -2022,6 +2032,7 @@ function renderDesigned(slide) {
       case "table": {
         const dataTables = slide.tables.filter(t => !t.isLayoutTable);
         content = dataTables.map(t => tableToHTML(t, { role: "table" })).join("\n");
+        renderedContent.add("table");
         break;
       }
       default:
@@ -2064,7 +2075,7 @@ function renderDesigned(slide) {
   }
   // Auto-append data tables when design has no table zone
   const dataTables = slide.tables.filter(t => !t.isLayoutTable);
-  if (dataTables.length && !zonedRoles.has("table")) {
+  if (dataTables.length && !zonedRoles.has("table") && !renderedContent.has("table")) {
     const tableHTML = dataTables.map(t => tableToHTML(t, { role: "table" })).join("\n");
     // Position table in available space — prefer below title, spanning most of the slide
     const zones = design.zones || [];

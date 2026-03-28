@@ -155,6 +155,7 @@ async function evaluate(htmlPath, options = {}) {
       if (hasClipped) { clippedContentSlides++; slideIssues.push("content-clipped"); }
 
       // ── Image analysis with bounding-box overlap ──
+      // Only check broken images on visible slide (hidden slides report naturalWidth=0)
       if (idx === 0) slide.querySelectorAll("img").forEach(img => { if (!img.complete||img.naturalWidth===0) brokenImgs++; });
       // Generic alt text detection — images with meaningless alt text
       slide.querySelectorAll("img").forEach(img => {
