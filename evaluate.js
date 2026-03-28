@@ -214,6 +214,22 @@ if (primary) {
     console.log(accent(`  ✖ FAILS automated acceptance: ${reasons.join(", ")}`));
   }
   console.log(dim("  (User acceptance via /rs:uat still required)\n"));
+
+  // ── Log results for paper/corpus mining ──
+  const resultsDir = path.join(projectRoot, "logs/results", path.basename(deckPath, ".html").replace(/\.spliced$/, ""));
+  fs.mkdirSync(resultsDir, { recursive: true });
+  const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const resultFile = path.join(resultsDir, `${timestamp}.json`);
+  fs.writeFileSync(resultFile, JSON.stringify({
+    date: new Date().toISOString(),
+    deck: deckPath,
+    mode: fullMode ? "full" : "fast",
+    jsdom: jsdomResult ? { total: jsdomResult.computedTotal, max: jsdomResult.maxComputed, scores: jsdomResult.scores } : null,
+    headless: primary ? { total: primary.computedTotal, max: primary.maxComputed, scores: primary.scores } : null,
+    visualAudit: auditResult ? auditResult.counts : null,
+    accepted,
+  }, null, 2));
+  console.log(dim(`  Results logged: ${resultFile}\n`));
 }
 
 if (jsonMode) {

@@ -63,7 +63,9 @@ async function evaluate(htmlPath, options = {}) {
     // NEW metrics
     let tinyTextCount=0, tableTruncations=0, clippedContentSlides=0;
     let textOnImageCount=0, imgOverlaps=0;
-    let spliceCount=0, spliceVisibleCount=0, lowOpacitySpliceTotal=0;
+    let spliceCount=0, spliceVisibleCount=0, spliceAtmosphericCount=0, lowOpacitySpliceTotal=0;
+    const splicePlacements = new Set();
+    let spliceBgOnDenseText=0;
     const bgs=[], titleSizes=new Set(), zoneStarts=new Set(), zoneWidths=new Set();
     const fonts=new Set(), imgPlacements=new Set();
     let slidesWithAccents=0;
@@ -177,7 +179,21 @@ async function evaluate(htmlPath, options = {}) {
         if (img.classList.contains("splice-img")) {
           spliceCount++;
           if (effectiveOpacity >= 0.4) spliceVisibleCount++;
+          else if (effectiveOpacity >= 0.15) spliceAtmosphericCount++;
           else lowOpacitySpliceTotal++;
+          // Track placement type and background-on-dense-text
+          const imgParent = img.parentElement;
+          const parentStyle = imgParent ? imgParent.getAttribute("style") || "" : "";
+          if (parentStyle.includes("inset:0") || (ir.width > window.innerWidth * 0.8 && ir.height > window.innerHeight * 0.8)) {
+            splicePlacements.add("background");
+            // Check if this slide has dense text (>300 chars)
+            const slideText = slide.textContent.trim().length;
+            if (slideText > 300) spliceBgOnDenseText++;
+          } else if (ir.width < window.innerWidth * 0.3) {
+            splicePlacements.add("inset");
+          } else {
+            splicePlacements.add("panel");
+          }
         }
         const cx=ir.left+ir.width/2, cy=ir.top+ir.height/2;
         imgPlacements.add(cx>window.innerWidth*0.65?"right":cx<window.innerWidth*0.35?"left":cy<window.innerHeight*0.35?"top":cy>window.innerHeight*0.65?"bottom":"centre");
@@ -391,7 +407,8 @@ async function evaluate(htmlPath, options = {}) {
       lowDensitySlides, linkOnlySlides, duplicateTextSlides,
       sparseSlides, genericAltTotal, zoneCollisionSlides,
       // v4 splice metrics
-      spliceCount, spliceVisibleCount, lowOpacitySpliceTotal };
+      spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal,
+      splicePlacementTypes: splicePlacements.size, spliceBgOnDenseText };
   });
 
   if (options.screenshots || options.screenshotsAll) {

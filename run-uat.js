@@ -221,6 +221,16 @@ const html = `<!DOCTYPE html>
   </div>
   <div class="meta">Generated ${new Date().toISOString().split("T")[0]} | Composed: ${path.basename(composedPath)}</div>
   ${scoresHTML}
+  <div class="qualitative" style="background:white;border-radius:8px;padding:1.5rem;margin-bottom:1.5rem;box-shadow:0 1px 3px rgba(0,0,0,0.1)">
+    <h2 style="font-size:1.1rem;margin-bottom:1rem">Qualitative Assessment (outer loop)</h2>
+    <div style="display:grid;gap:1rem">
+      <div><label style="font-weight:600">Did any slide make you pause or look twice?</label><br><textarea style="width:100%;height:2.5rem;border:1px solid #ddd;border-radius:4px;padding:0.5rem;font-size:0.85rem" placeholder="Which slide(s) and why..."></textarea></div>
+      <div><label style="font-weight:600">Which slide would you remember tomorrow?</label><br><textarea style="width:100%;height:2.5rem;border:1px solid #ddd;border-radius:4px;padding:0.5rem;font-size:0.85rem" placeholder="The one that stuck..."></textarea></div>
+      <div><label style="font-weight:600">Does this feel like a template or a composed piece?</label><br><textarea style="width:100%;height:2.5rem;border:1px solid #ddd;border-radius:4px;padding:0.5rem;font-size:0.85rem" placeholder="Template / composed / something else..."></textarea></div>
+      <div><label style="font-weight:600">Is the font usage consistent or chaotic?</label><br><textarea style="width:100%;height:2.5rem;border:1px solid #ddd;border-radius:4px;padding:0.5rem;font-size:0.85rem" placeholder="One system or random mixing..."></textarea></div>
+      <div><label style="font-weight:600">Overall impression in one sentence:</label><br><textarea style="width:100%;height:2.5rem;border:1px solid #ddd;border-radius:4px;padding:0.5rem;font-size:0.85rem" placeholder="..."></textarea></div>
+    </div>
+  </div>
   ${slideCards}
   <script>
     // Auto-uncheck slides with critical issues

@@ -107,6 +107,44 @@ Only after ALL 10 checks pass does the inner loop converge. Then generate the UA
 
 A deck at 51/60 with 2 zone collisions and 4 sparse slides is a draft, not a candidate for review. The human should see something that's at least 55/60 with zero structural defects. Anything below that is wasting the outer loop on issues the inner loop should have caught.
 
+## Evaluation Data Capture
+
+Every evaluation (inner or outer loop) writes results to `logs/results/`:
+
+```
+logs/results/<deck>/<timestamp>.json
+```
+
+Contains: full metrics, scores, wireframe diff, visual-audit issues, screenshots path, user feedback (if outer loop). The design paper mines this directory for evidence of methodology evolution.
+
+## Aesthetic Diversity (Anti-Convergence)
+
+The inner loop optimizes toward the rubric. Left unchecked, this produces bland convergence on a single aesthetic: cream backgrounds, Futura headings, red accents — the "safe" design that scores well on every metric.
+
+**Countermeasures:**
+1. **Vary the design brief** — each compose should specify a distinct aesthetic direction, not just "make it good"
+2. **Corpus diversity check** — `/rs:audit` should flag when >70% of scored decks share the same palette/font/accent system
+3. **The rubric should never reward sameness** — no metric should give points for looking like previous high-scoring decks
+
+**What the rubric CANNOT measure (and shouldn't try):**
+- Whether a design is surprising or delightful
+- Whether the visual metaphor supports the content's message
+- Whether the audience would be engaged
+- Whether the aesthetic is original vs derivative
+
+These are permanently outer-loop: human judgment territory. The rubric handles craft (readability, structure, accessibility). The human handles art (impact, meaning, surprise).
+
+## Do We Need Criteria for Surprise & Amazement?
+
+**No — not in the automated rubric.** Surprise is by definition unmeasurable by a system that defines what to expect. A rubric that rewards "surprise" would immediately converge on predictable surprise patterns.
+
+But the **outer loop should ASK about it:**
+- "Did any slide make you pause or look twice?"
+- "Which slide would you remember tomorrow?"
+- "Does this feel like a template or like a composed piece?"
+
+These questions belong in the UAT checklist, not in `rubric-scores.js`. They produce qualitative feedback that informs the next design brief, not a numeric score.
+
 ## Acceptance Threshold
 
 A deck is "accepted" when ALL of the following are true:
