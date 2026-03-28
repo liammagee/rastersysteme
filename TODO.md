@@ -75,7 +75,7 @@
 
 - [ ] **Corpus learning verification** — /rs:audit now includes learning verification (step 4). Run regularly to ensure rubric, skills, and compose pipeline reflect corpus data.
 - [ ] **Eliminate headless/jsdom scoring divergence** — both engines now use rubric-scores.js for scoring, but metric COLLECTION still differs (jsdom CSS parsing vs Puppeteer bounding boxes). Audit each metric: which are better in jsdom? Which need Puppeteer? Can we run BOTH collectors and take the more reliable value per metric? Goal: one evaluation that combines the best of both engines, not two evaluations that disagree.
-- [ ] **visual-audit.js vs rubric-headless.js redundancy** — both run Puppeteer, both check zones and images, but they report different things. visual-audit finds 9 criticals that rubric-headless misses. Merge visual-audit checks INTO rubric-headless so one Puppeteer session catches everything. Eliminate the need to run two separate tools.
+- [x] **visual-audit.js → rubric score merging** — evaluate.js now feeds visual-audit criticals back into rubric metrics before re-scoring. Broken images and zone collisions from visual-audit override rubric counts when visual-audit finds more. Two Puppeteer sessions remain but their data is merged into one score.
 - [x] **jsdom as fast pre-check, Puppeteer as authoritative** — evaluate.js --fast (jsdom <2s) vs --full (Puppeteer+visual-audit ~60s). Inner loop uses --fast; outer loop uses --full.
 - [x] **Single evaluation command** — evaluate.js runs jsdom → Puppeteer → visual-audit in sequence. Shows both scores side-by-side. Checks acceptance criteria.
 

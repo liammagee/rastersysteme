@@ -131,8 +131,36 @@ if (auditResult) {
   console.log(green(`  ✓ Visual audit: ${c.critical} critical, ${c.warning} warning, ${c.info} info`));
 }
 
-// ── Phase 4: Merge results ──
+// ── Phase 4: Merge results (visual-audit criticals penalize rubric scores) ──
 console.log(amber("\n  Phase 4: Merged assessment"));
+
+// Adjust rubric scores based on visual-audit findings
+if (headlessResult && auditResult) {
+  const issues = auditResult.issues || [];
+  let brokenImageSlides = 0, zoneCollisionSlides = 0, textImageSlides = 0;
+  issues.forEach(si => {
+    const crits = si.issues.filter(i => i.severity === "critical");
+    const warns = si.issues.filter(i => i.severity === "warning");
+    if (crits.some(i => i.type === "broken-image")) brokenImageSlides++;
+    if (crits.some(i => i.type === "zone-collision")) zoneCollisionSlides++;
+    if (warns.some(i => i.type === "text-image-collision")) textImageSlides++;
+  });
+
+  // Override rubric metrics with visual-audit findings (more reliable per-slide data)
+  if (brokenImageSlides > (headlessResult.metrics.brokenImgs || 0)) {
+    headlessResult.metrics.brokenImgs = brokenImageSlides;
+  }
+  if (zoneCollisionSlides > (headlessResult.metrics.zoneCollisionSlides || 0)) {
+    headlessResult.metrics.zoneCollisionSlides = zoneCollisionSlides;
+  }
+
+  // Re-score with merged metrics
+  const { computeScores } = require("./rubric-scores.js");
+  const merged = computeScores(headlessResult.metrics, { accessibilityCap: 10 });
+  headlessResult.scores = merged.scores;
+  headlessResult.computedTotal = merged.computedTotal;
+  headlessResult.maxComputed = merged.maxComputed;
+}
 
 // Use Puppeteer scores as primary (better metric collection), jsdom as supplementary
 const primary = headlessResult || jsdomResult;
