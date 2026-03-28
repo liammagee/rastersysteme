@@ -116,7 +116,7 @@ The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weinga
 - [ ] **Perceived balance** — does the slide "feel right"? Arnheim's visual weight can approximate this but calibration requires human feedback. RUBRIC.md dimension 6, currently null.
 
 **Missing from TODOs (identified during review):**
-- [ ] **Post-compose fixup integration test** — run fixup on a fresh compose and verify it catches S7/S21/S24 patterns automatically
+- [x] **Post-compose fixup integration test** — v16 verified: fixup auto-caught S24, source fix eliminated S7 garbled formatting permanently. — run fixup on a fresh compose and verify it catches S7/S21/S24 patterns automatically
 - [ ] **Cross-version palette comparison** — a tool that compares v10-v15 bg palettes side-by-side to detect convergence. Could integrate into `/rs:audit`
 - [ ] **Complete outer loop cycle** — still haven't done one: UAT checklist reviewed by user → feedback into rubric-blind-spot → rubric change → re-evaluate. The tools exist but the cycle hasn't run
 - [ ] **Deck-type parameter** — paper deck and lecture deck have different expectations. rubric should calibrate for type (lecture=dense, paper=editorial, workshop=code-heavy)
