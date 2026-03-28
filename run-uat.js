@@ -227,6 +227,49 @@ const html = `<!DOCTYPE html>
 </html>`;
 
 fs.writeFileSync(outputPath, html);
+
+// ── UAT History Log ──
+const historyPath = path.join(projectRoot, "logs/uat-history.json");
+const historyDir = path.dirname(historyPath);
+if (!fs.existsSync(historyDir)) fs.mkdirSync(historyDir, { recursive: true });
+
+const history = fs.existsSync(historyPath)
+  ? JSON.parse(fs.readFileSync(historyPath, "utf-8"))
+  : [];
+
+const criticalSlides = (auditResults.issues || [])
+  .filter(s => s.issues.some(i => i.severity === "critical"))
+  .map(s => s.slide);
+const warningSlides = (auditResults.issues || [])
+  .filter(s => s.issues.some(i => i.severity === "warning"))
+  .map(s => s.slide);
+
+history.push({
+  date: new Date().toISOString(),
+  deck: path.basename(deckPath),
+  composed: path.basename(composedPath),
+  slideCount,
+  scores: scores ? {
+    total: scores.computedTotal,
+    max: scores.maxComputed,
+    pct: scores.maxComputed > 0 ? Math.round(scores.computedTotal / scores.maxComputed * 100) : 0,
+    dimensions: Object.fromEntries(
+      Object.entries(scores.scores).filter(([, v]) => v !== null)
+    ),
+  } : null,
+  visualAudit: {
+    critical: auditResults.counts.critical,
+    warning: auditResults.counts.warning,
+    criticalSlides,
+    warningSlides,
+  },
+  autoFailSlides: criticalSlides,
+  wireframeCount: wireframes.length,
+  screenshotCount: screenshots.length,
+});
+
+fs.writeFileSync(historyPath, JSON.stringify(history, null, 2));
 console.log(chalk.green(`\n  ✓ UAT checklist → ${outputPath}`));
+console.log(chalk.green(`  ✓ UAT history → ${historyPath} (${history.length} sessions)`));
 console.log(chalk.dim(`  Open in browser to review: file://${path.resolve(outputPath)}`));
 console.log(chalk.dim(`  Slides with critical issues auto-marked as 'fail'\n`));

@@ -60,6 +60,10 @@
 - [x] **UAT protocol skill** — `/rs:uat` skill created + `run-uat.js` runner. Generates HTML checklist with screenshot+wireframe comparison per slide. that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
 - [x] **Per-slide acceptance checklist** — run-uat.js generates HTML with screenshot+wireframe, pass/fail checkboxes, auto-fail for critical issues.
 - [x] **Acceptance threshold** — defined in METHODOLOGY.md: 7 criteria including automated >= 9/10, zero criticals, zero user failures, 3x stability. all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
+- [x] **UAT history logging** — run-uat.js now writes to logs/uat-history.json after each session.
+- [x] **Regression testing** — regression.js: save baselines, check against them, generate visual-diff reports.
+- [x] **Design intent verification** — intent-verify.js: compare composed directive zone positions against rendered HTML zones. Flags missing, shifted, and empty zones.
+- [x] **Metric collection audit** — METRIC-AUDIT.md: 32 metrics assessed. Puppeteer authoritative for 14, jsdom for 1, equal for 17.
 - [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
 - [ ] **Regression testing** — after fixing a user-flagged issue, screenshot the fixed slide and verify the fix didn't break adjacent slides. Store acceptance baselines for comparison
 - [ ] **UAT history** — log each UAT session: date, deck version, slides reviewed, pass/fail counts, issues found, rubric gaps identified. Track acceptance rate over iterations
@@ -74,7 +78,7 @@
 ### Evaluation Redundancy
 
 - [ ] **Corpus learning verification** — /rs:audit now includes learning verification (step 4). Run regularly to ensure rubric, skills, and compose pipeline reflect corpus data.
-- [ ] **Eliminate headless/jsdom scoring divergence** — both engines now use rubric-scores.js for scoring, but metric COLLECTION still differs (jsdom CSS parsing vs Puppeteer bounding boxes). Audit each metric: which are better in jsdom? Which need Puppeteer? Can we run BOTH collectors and take the more reliable value per metric? Goal: one evaluation that combines the best of both engines, not two evaluations that disagree.
+- [x] **Metric collection divergence audited** — METRIC-AUDIT.md documents all 32 metrics. Puppeteer authoritative for 14 (contrast, overflow, bounding boxes). jsdom for 1 (lowUtilizationSlides). Equal for 17. evaluate.js merge strategy confirmed correct.
 - [x] **visual-audit.js → rubric score merging** — evaluate.js now feeds visual-audit criticals back into rubric metrics before re-scoring. Broken images and zone collisions from visual-audit override rubric counts when visual-audit finds more. Two Puppeteer sessions remain but their data is merged into one score.
 - [x] **jsdom as fast pre-check, Puppeteer as authoritative** — evaluate.js --fast (jsdom <2s) vs --full (Puppeteer+visual-audit ~60s). Inner loop uses --fast; outer loop uses --full.
 - [x] **Single evaluation command** — evaluate.js runs jsdom → Puppeteer → visual-audit in sequence. Shows both scores side-by-side. Checks acceptance criteria.
