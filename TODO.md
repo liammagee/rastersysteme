@@ -98,6 +98,17 @@ A minimalist slide with title + 3 bullets scores 10/10 on everything. There's no
 - [x] **jsdom as fast pre-check, Puppeteer as authoritative** — evaluate.js --fast (jsdom <2s) vs --full (Puppeteer+visual-audit ~60s). Inner loop uses --fast; outer loop uses --full.
 - [x] **Single evaluation command** — evaluate.js runs jsdom → Puppeteer → visual-audit in sequence. Shows both scores side-by-side. Checks acceptance criteria.
 
+### Generative Art Engine
+
+- [x] **generative-art.js v1** — Kandinsky-inspired algorithmic SVG art (concentric circles, fractal triangles, spiral paths, stochastic grids, intersecting arcs). 5 strategies, 5 palettes, seeded random for reproducibility. Content-weighted strategy selection with stochastic variation.
+- [ ] **Canvas/PNG native output** — currently requires ImageMagick SVG→PNG conversion. Add node-canvas for direct PNG rendering.
+- [ ] **More strategies** — L-systems (Lindenmayer), Voronoi tessellation, Perlin noise fields, reaction-diffusion patterns. Lean into the generative/fractal/concentric concepts.
+- [ ] **Slide-aware density** — reduce element density on text-heavy slides, increase on dividers. Read the design directive to adapt.
+- [ ] **Dark-bg variant** — invert palette for navy/dark background slides (currently generates light-bg art for all).
+- [ ] **Animation** — CSS keyframe animations for spiral/concentric elements. Subtle rotation on presentation load.
+- [ ] **Skill integration** — `/rs:generative-art <deck>` skill wrapping generative-art.js with automatic splice.
+- [ ] **Inter-slide visual thread** — carry geometric motifs across adjacent slides (e.g. a circle on slide N reappears offset on slide N+1).
+
 ### Infrastructure
 
 - [x] **Splice zone-collision avoidance** — contentAwarePlan already does grid-based collision analysis. Test confirmed working.

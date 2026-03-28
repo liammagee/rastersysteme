@@ -1,17 +1,17 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <rect width="1920" height="1080" fill="#FAF6EE" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="571.4" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="2.3" opacity="0.23" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="489.8" fill="none" fill-opacity="0.00" stroke="#B7311A" stroke-width="4.0" opacity="0.26" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="408.1" fill="#8B4513" fill-opacity="0.06" stroke="#8B4513" stroke-width="1.6" opacity="0.32" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="326.5" fill="none" fill-opacity="0.00" stroke="#2B7038" stroke-width="1.2" opacity="0.39" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="244.9" fill="#D4A843" fill-opacity="0.07" stroke="#D4A843" stroke-width="1.8" opacity="0.21" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="163.3" fill="none" fill-opacity="0.00" stroke="#1B5E80" stroke-width="3.1" opacity="0.44" />
-  <circle cx="869.8731140582527" cy="413.0798203072231" r="81.6" fill="#0A1628" fill-opacity="0.09" stroke="#0A1628" stroke-width="2.6" opacity="0.43" />
-  <path d="M 335.3 292.5 A 548.0 548.0 0 1 1 1333.6 705.1" fill="none" stroke="#0A1628" stroke-width="4.7" opacity="0.32" stroke-linecap="round" />
-  <path d="M 932.0 93.7 A 325.4 325.4 0 0 1 1195.0 425.0" fill="none" stroke="#0A1628" stroke-width="2.7" opacity="0.21" stroke-linecap="round" />
-  <path d="M 330.2 51.6 A 649.5 649.5 0 1 1 1340.0 861.3" fill="none" stroke="#D4A843" stroke-width="3.0" opacity="0.51" stroke-linecap="round" />
-  <path d="M 1133.8 340.8 A 273.7 273.7 0 0 1 618.9 522.2" fill="none" stroke="#0A1628" stroke-width="1.2" opacity="0.30" stroke-linecap="round" />
-  <path d="M 626.5 200.0 A 323.5 323.5 0 0 1 1105.9 191.9" fill="none" stroke="#D4A843" stroke-width="3.9" opacity="0.54" stroke-linecap="round" />
-  <path d="M 385.3 43.8 A 609.3 609.3 0 0 1 1378.0 749.2" fill="none" stroke="#B7311A" stroke-width="2.3" opacity="0.52" stroke-linecap="round" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="401.1" fill="#0A1628" fill-opacity="0.15" stroke="#0A1628" stroke-width="3.6" opacity="0.30" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="343.8" fill="#B7311A" fill-opacity="0.08" stroke="#B7311A" stroke-width="2.5" opacity="0.49" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="286.5" fill="#8B4513" fill-opacity="0.13" stroke="#8B4513" stroke-width="3.1" opacity="0.20" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="229.2" fill="#2B7038" fill-opacity="0.07" stroke="#2B7038" stroke-width="1.8" opacity="0.21" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="171.9" fill="none" fill-opacity="0.00" stroke="#D4A843" stroke-width="3.1" opacity="0.44" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="114.6" fill="#1B5E80" fill-opacity="0.09" stroke="#1B5E80" stroke-width="2.6" opacity="0.43" />
+  <circle cx="734.3641249906188" cy="653.8437217496903" r="57.3" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="3.6" opacity="0.34" />
+  <path d="M 868.9 1089.2 A 455.7 455.7 0 0 1 283.0 716.5" fill="none" stroke="#2B7038" stroke-width="2.0" opacity="0.28" stroke-linecap="round" />
+  <path d="M 724.8 944.8 A 291.1 291.1 0 0 1 509.5 838.8" fill="none" stroke="#D4A843" stroke-width="4.7" opacity="0.52" stroke-linecap="round" />
+  <path d="M 445.5 534.2 A 312.6 312.6 0 1 1 1014.6 792.5" fill="none" stroke="#8B4513" stroke-width="1.6" opacity="0.48" stroke-linecap="round" />
+  <path d="M 764.0 816.0 A 164.8 164.8 0 0 1 572.4 684.6" fill="none" stroke="#D4A843" stroke-width="2.0" opacity="0.31" stroke-linecap="round" />
+  <path d="M 349.4 607.1 A 387.8 387.8 0 1 1 1092.1 803.5" fill="none" stroke="#D4A843" stroke-width="4.4" opacity="0.49" stroke-linecap="round" />
+  <path d="M 987.7 688.2 A 255.7 255.7 0 1 1 490.7 576.3" fill="none" stroke="#0A1628" stroke-width="2.2" opacity="0.21" stroke-linecap="round" />
 
 </svg>

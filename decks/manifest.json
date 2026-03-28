@@ -2,6 +2,17 @@
   {
     "type": "spliced",
     "category": "decks",
+    "path": "decks/concentric-loops.spliced.html",
+    "name": "concentric-loops.spliced",
+    "slides": 47,
+    "theme": "light",
+    "firstTitle": "Concentric Loops in AI-Mediated Design",
+    "size": "143K",
+    "modified": "2026-03-28T18:28:10.869Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
     "path": "decks/week-2-v13.spliced.html",
     "name": "week-2-v13.spliced",
     "slides": 36,

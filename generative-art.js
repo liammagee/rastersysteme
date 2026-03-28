@@ -379,9 +379,9 @@ function generateArt(inputPath, options = {}) {
     }
 
     const slideContent = slides[i];
-    const strategy = analyzeSlide(slideContent, i, rand);
     const slideSeed = globalSeed + i * 7919; // prime offset for variation
     const rand = seededRandom(slideSeed);
+    const strategy = analyzeSlide(slideContent, i, rand);
 
     const svg = [
       `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`,
