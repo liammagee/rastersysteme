@@ -52,7 +52,7 @@ This checks every slide for: broken images, zone-zone collisions, text-image ove
 ### 1. Run the evaluation (every slide, all screenshots)
 
 ```bash
-node run-rubric-eval.js <deck.html> --screenshots-all --json
+node evaluate.js <deck.html> --screenshots-all --json
 ```
 
 This runs the unified rubric (rubric-scores.js) via Puppeteer on EVERY slide:

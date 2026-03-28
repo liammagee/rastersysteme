@@ -82,7 +82,7 @@ node splice-images.js decks/<name>.html decks/<source>.composed-images/
 Start a file server if not already running (use `/tmp/serve-deck.js` or `server.js --port 8701`), then evaluate:
 
 ```bash
-node run-rubric-eval.js decks/<name>.html --json
+node evaluate.js decks/<name>.html --json
 ```
 
 Record baseline scores. Print a summary table:

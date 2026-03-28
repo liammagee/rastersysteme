@@ -111,6 +111,7 @@ function evaluate(htmlPath) {
   let tinyTextCount = 0, tableTruncations = 0, clippedContentSlides = 0;
   let textOnImageCount = 0, imgOverlaps = 0;
   let spliceCount = 0, spliceVisibleCount = 0, spliceAtmosphericCount = 0, lowOpacitySpliceTotal = 0;
+  const splicePlacements = new Set();
   const bgs = [], titleSizes = new Set(), zoneStarts = new Set(), zoneWidths = new Set();
   const fonts = new Set(), imgPlacements = new Set();
   let slidesWithAccents = 0;
@@ -264,6 +265,18 @@ function evaluate(htmlPath) {
         if (opacity >= 0.4) spliceVisibleCount++;
         else if (opacity >= 0.15) spliceAtmosphericCount++;
         else lowOpacitySpliceTotal++;
+        // Classify splice placement from parent container style
+        const parentStyle = parseInlineStyle(img.parentElement || img);
+        const pw = parseFloat(parentStyle['width']) || 0;
+        const pinset = parentStyle['inset'];
+        if (pinset === '0' || pw >= 95) splicePlacements.add('background');
+        else if (parentStyle['bottom'] && parentStyle['left'] && pw < 30) splicePlacements.add('inset-bl');
+        else if (parentStyle['top'] && parentStyle['right'] && pw < 30) splicePlacements.add('inset-tr');
+        else if (parentStyle['left'] === '0' || parentStyle['left'] === '0%') splicePlacements.add('left');
+        else if (parentStyle['right'] === '0' || parentStyle['right'] === '0%') splicePlacements.add('right');
+        else if (parentStyle['bottom'] === '0') splicePlacements.add('bottom');
+        else if (parentStyle['top'] === '0') splicePlacements.add('top');
+        else splicePlacements.add('other');
       }
 
       // Parse image position from inline style or nearest positioned parent
@@ -611,6 +624,7 @@ function evaluate(htmlPath) {
     zoneCollisionSlides, lowUtilizationSlides,
     // v4 splice metrics
     spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal,
+    splicePlacementTypes: splicePlacements.size,
     // v9 diversity metrics
     bgHueRange
   };

@@ -31,7 +31,7 @@ Before any evaluation, **always** splice in available images. Check for an image
 Run the headless rubric to establish baseline scores:
 
 ```bash
-node run-rubric-eval.js <deck.html> --json
+node evaluate.js <deck.html> --json
 ```
 
 Record baseline in the persistent scorecard (`logs/qa/<deckname>-scorecard.json`).

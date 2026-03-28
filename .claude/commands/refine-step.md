@@ -107,7 +107,7 @@ node splice-images.js decks/<name>.html decks/<source>.composed-images/
 ### 6. Re-evaluate
 
 ```bash
-node run-rubric-eval.js decks/<name>.spliced.html --json
+node evaluate.js decks/<name>.spliced.html --json
 ```
 
 (Use the spliced version if images were spliced, otherwise the base HTML.)

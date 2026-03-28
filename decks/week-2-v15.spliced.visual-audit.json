@@ -1,0 +1,75 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 5,
+    "info": 3
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 88px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Material / Mathematical foundations (ca...\" over slide-06.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Development of statistics: again, 17th ...\" over slide-06.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Rise of industralialization, modernizat...\" over slide-06.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 489px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Fourth Figure. Ars brevis XVIII Century....\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Al-Khwarizmi - Esposito, John L., ed. (1...\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 476px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

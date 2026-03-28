@@ -1,0 +1,50 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 0,
+    "info": 4
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 256px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 487px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 312px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 612px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}
