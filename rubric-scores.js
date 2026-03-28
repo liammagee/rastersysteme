@@ -58,8 +58,9 @@ function computeScores(metrics, opts = {}) {
     ? (Math.sqrt(m.transitionVariance) / (m.avgTransition || 1) < 1.5 ? 1 : 0)
     : 0;
   // Palette monotony: penalize when all light bgs are within a narrow warm-beige band
-  // (hue 20-50, sat < 30% — the "everything is cream" problem)
   const paletteMonotony = (m.bgHueRange || 999) < 30 && (m.uniqueBgs || 0) > 2 ? -1.5 : 0;
+  // Color harmony bonus: named harmony system (complementary, analogous, triadic) = +1
+  const harmonyBonus = m.hasNamedHarmony ? 1 : 0;
 
   scores.color = Math.max(1, Math.min(10,
     Math.min((m.uniqueBgs || 0) / 4, 1.5) * 2
@@ -68,6 +69,7 @@ function computeScores(metrics, opts = {}) {
     + (m.maxConsecBg <= 2 ? 2.5 : m.maxConsecBg <= 3 ? 1.5 : 0.5)
     + (m.contrastErrors === 0 ? 1 : 0)
     + paletteMonotony
+    + harmonyBonus
   ));
 
   // ── 6. Balance (visual-only) ──
@@ -96,9 +98,17 @@ function computeScores(metrics, opts = {}) {
   const splicePlacementTypes = m.splicePlacementTypes || 0;
   const spliceMonotony = (m.spliceCount || 0) > 4 && splicePlacementTypes <= 2 ? -1 : 0;
 
+  // Modular scale bonus: title/body sizes follow a mathematical scale
+  const modularScale = (m.modularScaleScore || 0) >= 2 ? 1 : 0;
+
+  // Whitespace quality: reward 25-55% average whitespace (Warde's crystal goblet)
+  const ws = m.avgWhitespace || 0.5;
+  const whitespaceQuality = ws >= 0.25 && ws <= 0.55 ? 0.5 : 0;
+
   scores.coherence = Math.max(1, Math.min(10,
     titleSizeScore + fontConsistency + layoutVarietyScore
-    + densityRhythm + accentBalance + typoHierarchy + spliceMonotony
+    + densityRhythm + accentBalance + typoHierarchy
+    + spliceMonotony + modularScale + whitespaceQuality
   ));
 
   // ── 8. Image Integration ──

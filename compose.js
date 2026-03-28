@@ -71,6 +71,12 @@ TYPOGRAPHY:
   MINIMUM FONT SIZES: title >= 24px, body/bullets >= 15px, labels >= 13px, table cells >= 11px
 ACCENTS: Leave at LEAST 6 slides (out of 36) WITHOUT any accent elements. Target 70-80% accent coverage, NOT 100%.
 BACKGROUNDS: Use the EXACT hex colours from the creative brief. Do NOT substitute warm cream/beige. If the brief says blue-grey, EVERY light slide should be that blue-grey.
+
+DESIGN THEORY (apply these principles):
+  GESTALT PROXIMITY: Related content must be visually proximate. A label and its body should be closer together than unrelated zones. Use zone distance to encode information relationships.
+  TYPOGRAPHIC SCALE: Use a consistent mathematical ratio between type sizes. If hero title is 44px: section = 44/1.25 = 35px ≈ 36px, standard = 36/1.25 = 29px ≈ 32px. The eye should feel the mathematical rhythm.
+  VISUAL BALANCE (Arnheim): Visual weight = size × darkness × distance from center. Balance the slide: a large light zone on the left can be balanced by a small dark accent on the right. Avoid slides where all visual weight piles into one corner.
+  WHITESPACE (Warde): Negative space is an active design element, not leftover. Aim for 25-45% whitespace. A slide that fills 90% of the grid is as wrong as one that fills 10%.
 FONTS: Pick ONE primary font and stick with it. Optionally add ONE contrast font for a specific purpose.
   - 1-2 fonts: disciplined, professional (PREFERRED)
   - 3 fonts: acceptable if each has a clear role (headings, body, code)

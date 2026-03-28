@@ -116,6 +116,7 @@ function evaluate(htmlPath) {
   const fonts = new Set(), imgPlacements = new Set();
   let slidesWithAccents = 0;
   const perSlideTextLen = [];
+  const perSlideWhitespace = [];
   const perSlideIssues = [];
 
   slides.forEach((slide, idx) => {
@@ -419,6 +420,8 @@ function evaluate(htmlPath) {
     if (slideUtilization < 0.25 && !hasContentImg && idx > 0 && perSlideTextLen[idx] > 30) {
       slideIssues.push('low-utilization');
     }
+    // Whitespace ratio: 1 - utilization. Accumulate for deck-level average.
+    perSlideWhitespace.push(1 - slideUtilization);
 
     // ── Content preservation ──
     slide.querySelectorAll('.zone-body,.zone-bullets,.zone-quote').forEach(z => {
@@ -604,6 +607,81 @@ function evaluate(htmlPath) {
     genericAltTotal += issues.filter(i => i === 'generic-alt').length;
   });
 
+  // ── Design theory metrics (v10) ──
+
+  // Whitespace ratio: average across deck. Warde's crystal goblet: 25-45% is ideal.
+  const avgWhitespace = perSlideWhitespace.length > 0
+    ? perSlideWhitespace.reduce((s, v) => s + v, 0) / perSlideWhitespace.length : 0.5;
+
+  // Typographic modular scale: check if title/body sizes follow a mathematical ratio.
+  // Common scales: minor third (1.2x), major third (1.25x), perfect fourth (1.333x), golden (1.618x)
+  const allTitleArr = [...titleSizes];
+  const allBodyArr = [...bodySizes];
+  let modularScaleScore = 0;
+  if (allTitleArr.length > 0 && allBodyArr.length > 0) {
+    const maxTitle = Math.max(...allTitleArr);
+    const minTitle = Math.min(...allTitleArr);
+    const avgBody = allBodyArr.reduce((s, v) => s + v, 0) / allBodyArr.length;
+    if (avgBody > 0) {
+      // Check if title-to-body ratio approximates a known scale
+      const ratio = maxTitle / avgBody;
+      const knownScales = [1.2, 1.25, 1.333, 1.414, 1.5, 1.618, 2.0, 2.618];
+      const closestScale = knownScales.reduce((best, s) =>
+        Math.abs(ratio - s) < Math.abs(ratio - best) ? s : best, knownScales[0]);
+      const scaleFit = 1 - Math.abs(ratio - closestScale) / closestScale;
+      modularScaleScore = scaleFit > 0.85 ? 2 : scaleFit > 0.7 ? 1 : 0;
+
+      // Also check if title sizes form a consistent sequence
+      if (allTitleArr.length >= 2) {
+        const sorted = [...allTitleArr].sort((a, b) => b - a);
+        const ratios = [];
+        for (let i = 0; i < sorted.length - 1; i++) {
+          if (sorted[i + 1] > 0) ratios.push(sorted[i] / sorted[i + 1]);
+        }
+        // If all inter-title ratios are within 10% of each other, bonus
+        if (ratios.length > 0) {
+          const avgRatio = ratios.reduce((s, v) => s + v, 0) / ratios.length;
+          const ratioVariance = ratios.reduce((s, v) => s + (v - avgRatio) ** 2, 0) / ratios.length;
+          if (ratioVariance < 0.02) modularScaleScore = Math.min(modularScaleScore + 1, 3);
+        }
+      }
+    }
+  }
+
+  // Color harmony: classify the bg palette into a named harmony system.
+  // Extract hues from light backgrounds and check if they fit complementary/analogous/triadic/etc.
+  const bgHues = bgs
+    .map(b => {
+      const max = Math.max(b.r, b.g, b.b), min = Math.min(b.r, b.g, b.b);
+      if (max - min < 10) return -1; // achromatic
+      let h;
+      if (max === b.r) h = ((b.g - b.b) / (max - min)) % 6;
+      else if (max === b.g) h = (b.b - b.r) / (max - min) + 2;
+      else h = (b.r - b.g) / (max - min) + 4;
+      return Math.round(h * 60 + 360) % 360;
+    })
+    .filter(h => h >= 0);
+  const uniqueHues = [...new Set(bgHues.map(h => Math.round(h / 30) * 30))]; // quantize to 30-degree bins
+  let colorHarmonyType = "none";
+  if (uniqueHues.length >= 2) {
+    const hueGaps = [];
+    for (let i = 0; i < uniqueHues.length; i++) {
+      for (let j = i + 1; j < uniqueHues.length; j++) {
+        const gap = Math.abs(uniqueHues[i] - uniqueHues[j]);
+        hueGaps.push(Math.min(gap, 360 - gap));
+      }
+    }
+    const maxGap = Math.max(...hueGaps);
+    if (hueGaps.some(g => g >= 150 && g <= 210)) colorHarmonyType = "complementary";
+    else if (maxGap < 60) colorHarmonyType = "analogous";
+    else if (hueGaps.some(g => g >= 100 && g <= 140)) colorHarmonyType = "triadic";
+    else if (maxGap < 90) colorHarmonyType = "analogous-wide";
+    else colorHarmonyType = "mixed";
+  } else if (uniqueHues.length === 1) {
+    colorHarmonyType = "monochromatic";
+  }
+  const hasNamedHarmony = ["complementary", "analogous", "triadic", "monochromatic", "analogous-wide"].includes(colorHarmonyType);
+
   return {
     total, titles, designed, contrastErrors, contrastWarnings, overflows, brokenImgs,
     uniqueBgs: uniqueBgs.size, bgPalette: [...uniqueBgs], maxConsecBg: maxConsec, hasArc,
@@ -626,7 +704,9 @@ function evaluate(htmlPath) {
     spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal,
     splicePlacementTypes: splicePlacements.size,
     // v9 diversity metrics
-    bgHueRange
+    bgHueRange,
+    // v10 design theory metrics
+    avgWhitespace, modularScaleScore, colorHarmonyType, hasNamedHarmony
   };
 }
 
