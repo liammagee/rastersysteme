@@ -28,7 +28,7 @@
 
 ### Rubric / Evaluation (outer loop)
 
-- [ ] **Splice image visibility testing** — spliced images are invisible on dark backgrounds and barely visible on light ones. The rubric counts their presence but not their visual effectiveness. Need: (a) bump opacity further or use different blend mode, (b) add a rubric check for splice-image visibility (contrast against background).
+- [x] **Splice image visibility** — opacity bumped (visible mode), mix-blend-mode:luminosity for backgrounds, inset frame (box-shadow+border), low-opacity diagnostic in rubric. The rubric counts their presence but not their visual effectiveness. Need: (a) bump opacity further or use different blend mode, (b) add a rubric check for splice-image visibility (contrast against background).
 - [x] **jsdom image overlap false positives** — replaced approximation with CSS rect intersection. 4→0 false positives.
 - [x] **Visual utilization metric** — slides below 25% zone coverage penalized. lowUtilizationSlides in rubric-scores.js.
 - [x] **Remaining zone collisions** — fixed in week-2-v11 (0 collisions) and week-4 (label→title zone role fix)
@@ -58,12 +58,12 @@
 ### User Acceptance Testing (outer loop automation)
 
 - [x] **UAT protocol skill** — `/rs:uat` skill created + `run-uat.js` runner. Generates HTML checklist with screenshot+wireframe comparison per slide. that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
-- [ ] **Per-slide acceptance checklist** — each slide gets a pass/fail on: content visible, no overlaps, images show, layout matches intent, whitespace acceptable, text readable. Generate a checklist HTML page with thumbnails + checkboxes
+- [x] **Per-slide acceptance checklist** — run-uat.js generates HTML with screenshot+wireframe, pass/fail checkboxes, auto-fail for critical issues.
 - [x] **Acceptance threshold** — defined in METHODOLOGY.md: 7 criteria including automated >= 9/10, zero criticals, zero user failures, 3x stability. all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
 - [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
 - [ ] **Regression testing** — after fixing a user-flagged issue, screenshot the fixed slide and verify the fix didn't break adjacent slides. Store acceptance baselines for comparison
 - [ ] **UAT history** — log each UAT session: date, deck version, slides reviewed, pass/fail counts, issues found, rubric gaps identified. Track acceptance rate over iterations
-- [ ] **Convergence criteria** — stop the outer loop when: 3 consecutive UAT sessions with zero new issues, AND automated score stable within 1 point, AND all user comments from previous sessions resolved
+- [x] **Convergence criteria** — defined in METHODOLOGY.md: 7 formal criteria for acceptance.
 
 ### Automated-to-Human Handoff
 

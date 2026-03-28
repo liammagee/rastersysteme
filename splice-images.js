@@ -208,8 +208,8 @@ function contentAwarePlan(html) {
       return { slide: idx + 1, mode, size: 30 };
     }
 
-    // Pre-check: if slide already has <img> tags, skip (already has content images)
-    if (/<img\s/.test(slideHtml)) {
+    // Pre-check: if slide already has a SPLICED image, skip (prevent re-splicing)
+    if (/splice-img/.test(slideHtml)) {
       return { slide: idx + 1, mode: "none" };
     }
 

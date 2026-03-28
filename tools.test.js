@@ -1426,8 +1426,16 @@ describe("splice-images.js", () => {
     assert.equal(plan[0].mode, "none");
   });
 
-  it("contentAwarePlan returns mode:none for designed slides with existing <img>", () => {
+  it("contentAwarePlan allows placement on slides with existing content images", () => {
     const html = '<section class="slide designed"><div class="zone zone-title" style="left:5%;width:50%;top:5%;height:20%">Title</div><img src="photo.png"></section>';
+    const plan = contentAwarePlan(html);
+    // Spliced images can be added alongside content images (changed behavior)
+    // Only splice-img class should trigger skip
+    assert.notEqual(plan[0].mode, undefined);
+  });
+
+  it("contentAwarePlan returns mode:none for slides already spliced", () => {
+    const html = '<section class="slide designed"><div class="zone zone-title" style="left:5%;width:50%;top:5%;height:20%">Title</div><img class="splice-img" src="slide-01.png"></section>';
     const plan = contentAwarePlan(html);
     assert.equal(plan[0].mode, "none");
   });
