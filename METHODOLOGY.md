@@ -80,6 +80,33 @@ The wireframe shows what the design *intended*. The screenshot shows what *actua
 
 Every outer loop review should compare wireframes against screenshots for problem slides.
 
+## Inner Loop Convergence Standard
+
+The inner loop MUST run to convergence before presenting to the user. Never invite human review of a draft that hasn't been through automated refinement — it wastes human attention on problems the machine can fix itself.
+
+**Karpathy's "vibe coding" principle applied to design**: automate/auto-research to an at least reasonable approximation of quality before the human enters the loop. The human's time is the scarcest resource. Use it for calibration, not for catching bugs the rubric already knows about.
+
+### Inner Loop Checklist (run every iteration)
+
+Every refine-step MUST verify ALL of the following before declaring convergence:
+
+1. **Zero zone collisions** — `zoneCollisionSlides === 0` (CSS rect intersection)
+2. **Zero critical visual-audit issues** — run `visual-audit.js`, zero criticals
+3. **All computed dimensions >= 7** — no dimension catastrophically low
+4. **Zero empty body zones** — `emptyBodyZones === 0` (table/image exempt)
+5. **Zero duplicate text** — `duplicateTextSlides === 0`
+6. **Sparse slides <= 3** — some link/break slides are structural
+7. **Generic alt text === 0** — all content images have descriptive alt
+8. **Intent verification clean** — `intent-verify.js` shows zero zone-missing, <= 3 zone-shifted
+9. **Title sizes <= 5** — coherence requires controlled typography
+10. **Text-image collisions <= 2** — design-theory-classified, only genuine collisions
+
+Only after ALL 10 checks pass does the inner loop converge. Then generate the UAT checklist and invite the user.
+
+### Why This Matters
+
+A deck at 51/60 with 2 zone collisions and 4 sparse slides is a draft, not a candidate for review. The human should see something that's at least 55/60 with zero structural defects. Anything below that is wasting the outer loop on issues the inner loop should have caught.
+
 ## Acceptance Threshold
 
 A deck is "accepted" when ALL of the following are true:

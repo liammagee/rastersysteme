@@ -45,7 +45,9 @@ OUTER-OUTER LOOP: Methodological Evolution
    - How the rubric works: 11 metrics across 6 computed dimensions
    - The refine-step pattern: idempotent, scoreboard-driven, /loop-compatible
    - Convergence behavior: diminishing returns detection
-   - Limitation: optimizes toward the rubric, not toward visual quality
+   - **The Karpathy principle**: automate/auto-research to a reasonable approximation of quality before the human enters. The inner loop MUST converge to a 10-point structural checklist (zero collisions, zero criticals, all dims >= 7) before inviting human review. Human attention is the scarcest resource — don't waste it on problems the machine can fix itself.
+   - The inner loop convergence standard as a quality gate: the deck is not a "candidate" until it passes automated checks
+   - Limitation: optimizes toward the rubric, not toward visual quality — but that's the point. The rubric handles the automatable; the human handles the aesthetic.
 
 3. **The Outer Loop: When the Rubric Lies**
    - Case study: rubric scores 100% while user sees overlapping text and missing images
