@@ -2,6 +2,72 @@
   {
     "type": "spliced",
     "category": "decks",
+    "path": "decks/concentric-loops.spliced.html",
+    "name": "concentric-loops.spliced",
+    "slides": 49,
+    "theme": "light",
+    "firstTitle": "Concentric Loops in AI-Mediated Design",
+    "size": "133K",
+    "modified": "2026-03-28T21:47:54.625Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/concentric-loops.html",
+    "name": "concentric-loops",
+    "slides": 49,
+    "theme": "light",
+    "firstTitle": "Concentric Loops in AI-Mediated Design",
+    "size": "118K",
+    "modified": "2026-03-28T21:47:54.574Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v10.spliced.html",
+    "name": "week-2-v10.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "102K",
+    "modified": "2026-03-28T21:46:49.207Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v10.html",
+    "name": "week-2-v10",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "95K",
+    "modified": "2026-03-28T21:46:44.432Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v12.spliced.html",
+    "name": "week-2-v12.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "100K",
+    "modified": "2026-03-28T21:45:58.951Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v12.html",
+    "name": "week-2-v12",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "93K",
+    "modified": "2026-03-28T21:45:54.791Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
     "path": "decks/week-2-v13.spliced.html",
     "name": "week-2-v13.spliced",
     "slides": 36,
@@ -20,17 +86,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "96K",
     "modified": "2026-03-28T21:30:36.317Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/concentric-loops.spliced.html",
-    "name": "concentric-loops.spliced",
-    "slides": 47,
-    "theme": "light",
-    "firstTitle": "Concentric Loops in AI-Mediated Design",
-    "size": "143K",
-    "modified": "2026-03-28T21:15:17.367Z"
   },
   {
     "type": "spliced",
@@ -77,39 +132,6 @@
     "modified": "2026-03-28T18:48:16.106Z"
   },
   {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/concentric-loops.html",
-    "name": "concentric-loops",
-    "slides": 47,
-    "theme": "light",
-    "firstTitle": "Concentric Loops in AI-Mediated Design",
-    "size": "130K",
-    "modified": "2026-03-28T18:25:02.402Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/week-2-v12.html",
-    "name": "week-2-v12",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "93K",
-    "modified": "2026-03-28T18:07:30.401Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/week-2-v12.spliced.html",
-    "name": "week-2-v12.spliced",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "97K",
-    "modified": "2026-03-28T17:50:27.601Z"
-  },
-  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-v11.spliced.html",
@@ -119,28 +141,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "96K",
     "modified": "2026-03-28T17:24:24.398Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/week-2-v10.spliced.html",
-    "name": "week-2-v10.spliced",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "101K",
-    "modified": "2026-03-28T16:59:32.194Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/week-2-v10.html",
-    "name": "week-2-v10",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "95K",
-    "modified": "2026-03-28T16:59:27.640Z"
   },
   {
     "type": "deck",

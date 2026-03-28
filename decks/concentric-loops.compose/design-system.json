@@ -1,33 +1,33 @@
 {
-  "aesthetic": "Marginalia Moderna — Swiss-inflected academic journal where asymmetric column ratios and restrained vermillion accents evoke the controlled tension of a peer-reviewed broadsheet",
+  "aesthetic": "Journal Restraint — academic editorial with dark navy section dividers, warm cream body slides, and red accent bars that shift column position across the deck like marginalia in a scholarly journal.",
   "palette": [
-    {
-      "hex": "FAF6EE",
-      "name": "aged parchment",
-      "role": "ground"
-    },
-    {
-      "hex": "E5DFD3",
-      "name": "linen wash",
-      "role": "dominant"
-    },
-    {
-      "hex": "B7311A",
-      "name": "journal vermillion",
-      "role": "accent"
-    },
     {
       "hex": "0A1628",
       "name": "midnight navy",
+      "role": "accent"
+    },
+    {
+      "hex": "FAF6EE",
+      "name": "parchment cream",
+      "role": "ground"
+    },
+    {
+      "hex": "B7311A",
+      "name": "editorial red",
+      "role": "accent"
+    },
+    {
+      "hex": "2C3E50",
+      "name": "slate ink",
       "role": "signal"
     }
   ],
-  "chromaticArc": "Opens on navy signal, immediately lifts to parchment ground for 10+ body slides, touches linen wash at the first methodological pivot, returns to parchment through the core argument, drops to navy for one mid-deck divider, resurfaces through alternating parchment and linen, and closes on a final navy signal — three light-dark crossings total.",
-  "gridStrategy": "Title zones lock to a narrow 15-column rail (col 0–14 or col 45–59) while body zones claim the remaining 40 columns, with the rail flipping sides every 4–6 slides to prevent visual fatigue; divider slides break the pattern with full-width centred titles.",
+  "chromaticArc": "Opens on midnight navy title, crosses to parchment cream for body runs, dips to navy on three section dividers at slides 1, 17, and 33, with red accent bars intensifying through the middle third then receding to sparse punctuation in the final act.",
+  "gridStrategy": "Title zones alternate between left-anchored (col 0–2), centred (col 12–16), and right-offset (col 30–35) placements across consecutive slides; body zones vary from narrow 20-col emphasis columns to wide 40-col detail fields, with accent bars placed at shifting columns (col 0, col 57, col 28) to create a lateral rhythm across the deck.",
   "typeScale": {
     "titleRange": [
-      36,
-      48
+      32,
+      44
     ],
     "bodySize": 16,
     "labelSize": 12,
@@ -40,7 +40,7 @@
     "default": "Futura",
     "secondary": "Palatino",
     "tertiary": null,
-    "secondarySlides": "Palatino used for all body text, blockquotes, and extended prose; Futura reserved exclusively for headings, labels, and navigational elements"
+    "secondarySlides": "Palatino used for all body text and labels; Futura reserved for headings, titles, and slide numbers"
   },
-  "accentStrategy": "Thin 1px vermillion horizontal rules appear on ~65% of slides as zone dividers between title and body rails; on divider slides the accent becomes a 3-column vertical bar spanning the full grid height."
+  "accentStrategy": "Thin red (#B7311A) bars (span 1–2 cols, rowSpan 6–20) appear on ~65% of slides, each at a different column position — creating a staggered vertical rhythm across the deck like red thread stitching through a bound journal."
 }
