@@ -55,10 +55,27 @@
 - [ ] **Outer loop changelog** — rubric evolution log. RUBRIC-CHANGELOG.md exists but needs structured format: user feedback → rubric change → score impact. One entry per outer loop iteration, committed separately.
 - [ ] **Outer-outer loop changelog** — methodology evolution. Track changes to METHODOLOGY.md itself, changes to the changelog format, changes to the evaluation pipeline. The meta-log.
 
+### User Acceptance Testing (outer loop automation)
+
+- [ ] **UAT protocol skill** — new `/rs:uat` skill that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
+- [ ] **Per-slide acceptance checklist** — each slide gets a pass/fail on: content visible, no overlaps, images show, layout matches intent, whitespace acceptable, text readable. Generate a checklist HTML page with thumbnails + checkboxes
+- [ ] **Acceptance threshold** — define what "evaluates perfectly" means: all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
+- [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
+- [ ] **Regression testing** — after fixing a user-flagged issue, screenshot the fixed slide and verify the fix didn't break adjacent slides. Store acceptance baselines for comparison
+- [ ] **UAT history** — log each UAT session: date, deck version, slides reviewed, pass/fail counts, issues found, rubric gaps identified. Track acceptance rate over iterations
+- [ ] **Convergence criteria** — stop the outer loop when: 3 consecutive UAT sessions with zero new issues, AND automated score stable within 1 point, AND all user comments from previous sessions resolved
+
+### Automated-to-Human Handoff
+
+- [ ] **Visual diff between iterations** — when refine-step makes changes, generate a side-by-side diff of affected slides (before/after screenshots). Helps user spot regressions without reviewing every slide
+- [ ] **Issue-to-fix traceability** — when the inner loop fixes a rubric issue, link it to the original user feedback that created the rubric check. Closes the loop: user comment → rubric check → design fix → verification
+- [ ] **Design intent verification** — after each compose, compare the design plan text against the actual zone layout. Flag slides where the design plan says "sidebar left" but the zones are actually centered
+
 ### Infrastructure
 
 - [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
 - [ ] **Design-lessons.md accumulation** — add rotation/summary mechanism.
+- [ ] **Acceptance test runner** — `node run-uat.js <deck>` that orchestrates: screenshot-all → wireframe → visual-audit → present checklist → collect feedback → update rubric → re-evaluate
 
 ## Recently Closed
 
