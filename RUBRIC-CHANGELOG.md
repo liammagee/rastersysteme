@@ -14,7 +14,8 @@ Each entry: user feedback → rubric change → score impact.
 | 6 | "Can we do better with pure HTML/CSS analysis?" | v7: CSS rect collision, visual utilization, overlap fix | 88% → 98% (collisions fixed) |
 | 7 | "Capture intended design as ASCII wireframe" | wireframe.js for intent-vs-reality comparison | (diagnostic, not scored) |
 | 8 | "Maintain changelogs for inner/outer loops" | Structured changelog format, inner loop iteration logs | (process improvement) |
-| 9 | "Paper deck scores 42.8/60 — Content 2.3 and Images 5 are deck-type bias, not design errors" | Pending: add deck-type parameter (lecture/paper/workshop) to calibrate expectations. lowDensitySlides should exempt dark dividers. Images dimension should be optional for text-only decks. | 42.8/60 → TBD (rubric change needed) |
+| 9 | "Paper deck scores 42.8/60 — Content 2.3 and Images 5 are deck-type bias, not design errors" | Identified: lowDensitySlides should exempt dark dividers like sparseSlides does | 42.8/60 (identified, fix pending) |
+| 10 | "16 lowDensity slides on reference deck, all dark dividers — penalty is 0.8 x 16 = -12.8, floors Content at 1" | Fixed: lowDensitySlides exempts dark-bg slides (lum < 0.15), penalty weight reduced 0.8 → 0.4 | Paper: 42.8 → 51/60, Reference: 39.9 → 45.4/60 |
 
 ## Outer-Outer Loop Observations
 

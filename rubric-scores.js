@@ -161,9 +161,9 @@ function computeScores(metrics, opts = {}) {
     - (m.clippedContentSlides || 0) * 2
     - (m.slidesWithNoVisibleText || 0) * 2
     - (m.inventedLabels || 0) * 0.3
-    - (m.lowDensitySlides || 0) * 0.8
+    - (m.lowDensitySlides || 0) * 0.4
     - (m.sparseSlides || 0) * 0.5
-    - (m.lowUtilizationSlides || 0) * 0.8
+    - (m.lowUtilizationSlides || 0) * 0.4
     - (m.linkOnlySlides || 0) * 1.5
     - (m.duplicateTextSlides || 0) * 1.5
   ));

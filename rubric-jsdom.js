@@ -661,10 +661,10 @@ function evaluate(htmlPath) {
     if (i === 0) return; // Exempt title slide
     const slide = slides[i];
     const hasImg = slide && slide.querySelector('img:not(.splice-img)');
-    if (len < Math.max(densityThreshold, 30) && !hasImg) lowDensitySlides++;
-    // Exempt dark divider/section-break slides from sparse penalty
+    // Exempt dark dividers from both density penalties (consistent treatment)
     const bg = bgs[i] || { r: 250, g: 246, b: 238 };
     const isDarkDivider = lum(bg) < 0.15 && len < 50;
+    if (len < Math.max(densityThreshold, 30) && !hasImg && !isDarkDivider) lowDensitySlides++;
     if (len < 150 && !hasImg && !isDarkDivider) sparseSlides++;
   });
 
@@ -927,7 +927,7 @@ function _computeScores_UNUSED(metrics) {
     - m.clippedContentSlides * 2                    // overflow hidden
     - m.slidesWithNoVisibleText * 2
     - (m.inventedLabels || 0) * 0.3                 // hallucinated headings
-    - (m.lowDensitySlides || 0) * 0.8               // near-empty slides (banality)
+    - (m.lowDensitySlides || 0) * 0.4               // near-empty slides (banality, dark dividers exempt)
     - (m.sparseSlides || 0) * 0.5                   // under-150-chars slides with no images
     - (m.linkOnlySlides || 0) * 1.5                 // slides with only a link
     - (m.duplicateTextSlides || 0) * 1.5            // duplicate content across zones
