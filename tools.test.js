@@ -1755,3 +1755,223 @@ describe("splice-images zone-collision avoidance", () => {
     assert.ok(plan[0].mode !== "none", "should find an alternative placement");
   });
 });
+
+// ═══════════════════════════════════════════════════════
+// GENERATIVE ART
+// ═══════════════════════════════════════════════════════
+
+describe("generative-art.js", () => {
+  const {
+    generateArt, evaluateImageSet, diversityLoop,
+    extractFeatures, computeSimilarity, PALETTES, STRATEGIES
+  } = require("./generative-art.js");
+  const fs = require("fs");
+  const path = require("path");
+  const os = require("os");
+
+  // Helper: create a temp dir with a minimal markdown source
+  function makeTempDeck(slideCount) {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "genart-test-"));
+    const slides = Array.from({ length: slideCount }, (_, i) =>
+      `### Slide ${i + 1}\n\nContent for slide ${i + 1} about ${["loops", "grids", "fractals", "spirals", "rubrics"][i % 5]}.`
+    ).join("\n\n---\n\n");
+    const mdPath = path.join(tmpDir, "test.md");
+    fs.writeFileSync(mdPath, slides);
+    return { tmpDir, mdPath };
+  }
+
+  function cleanup(tmpDir) {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+
+  // ── Generation ──
+
+  it("generates one SVG per slide", () => {
+    const { tmpDir, mdPath } = makeTempDeck(5);
+    const outDir = path.join(tmpDir, "images");
+    try {
+      const result = generateArt(mdPath, { output: outDir, force: true });
+      assert.equal(result.generated, 5);
+      const svgs = fs.readdirSync(outDir).filter(f => f.endsWith(".svg"));
+      assert.equal(svgs.length, 5);
+    } finally { cleanup(tmpDir); }
+  });
+
+  it("respects --slides range", () => {
+    const { tmpDir, mdPath } = makeTempDeck(10);
+    const outDir = path.join(tmpDir, "images");
+    try {
+      const result = generateArt(mdPath, { output: outDir, slides: "2-4", force: true });
+      assert.equal(result.generated, 3);
+    } finally { cleanup(tmpDir); }
+  });
+
+  it("produces valid SVG content", () => {
+    const { tmpDir, mdPath } = makeTempDeck(3);
+    const outDir = path.join(tmpDir, "images");
+    try {
+      generateArt(mdPath, { output: outDir, force: true });
+      const svg = fs.readFileSync(path.join(outDir, "slide-01.svg"), "utf-8");
+      assert.ok(svg.startsWith("<svg"));
+      assert.ok(svg.includes("viewBox"));
+      assert.ok(svg.includes("</svg>"));
+    } finally { cleanup(tmpDir); }
+  });
+
+  it("uses all available palettes without error", () => {
+    const { tmpDir, mdPath } = makeTempDeck(3);
+    for (const paletteName of Object.keys(PALETTES)) {
+      const outDir = path.join(tmpDir, `images-${paletteName}`);
+      const result = generateArt(mdPath, { output: outDir, palette: paletteName, force: true });
+      assert.equal(result.generated, 3, `palette ${paletteName} should generate 3`);
+    }
+    cleanup(tmpDir);
+  });
+
+  it("seeded generation is deterministic", () => {
+    const { tmpDir, mdPath } = makeTempDeck(3);
+    const out1 = path.join(tmpDir, "run1");
+    const out2 = path.join(tmpDir, "run2");
+    try {
+      generateArt(mdPath, { output: out1, seed: 42, force: true });
+      generateArt(mdPath, { output: out2, seed: 42, force: true });
+      for (let i = 1; i <= 3; i++) {
+        const s = String(i).padStart(2, "0");
+        const a = fs.readFileSync(path.join(out1, `slide-${s}.svg`), "utf-8");
+        const b = fs.readFileSync(path.join(out2, `slide-${s}.svg`), "utf-8");
+        assert.equal(a, b, `slide-${s} should be identical with same seed`);
+      }
+    } finally { cleanup(tmpDir); }
+  });
+
+  it("different seeds produce different output", () => {
+    const { tmpDir, mdPath } = makeTempDeck(3);
+    const out1 = path.join(tmpDir, "seed1");
+    const out2 = path.join(tmpDir, "seed2");
+    try {
+      generateArt(mdPath, { output: out1, seed: 42, force: true });
+      generateArt(mdPath, { output: out2, seed: 9999, force: true });
+      const a = fs.readFileSync(path.join(out1, "slide-01.svg"), "utf-8");
+      const b = fs.readFileSync(path.join(out2, "slide-01.svg"), "utf-8");
+      assert.notEqual(a, b, "different seeds should produce different SVGs");
+    } finally { cleanup(tmpDir); }
+  });
+
+  // ── Feature Extraction ──
+
+  it("extractFeatures returns expected shape", () => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080">
+      <rect width="1920" height="1080" fill="#FAF6EE" />
+      <circle cx="960" cy="540" r="200" fill="#B7311A" opacity="0.3" />
+      <circle cx="800" cy="400" r="100" fill="#0A1628" opacity="0.2" />
+      <line x1="100" y1="100" x2="1800" y2="900" stroke="#000" opacity="0.1" />
+    </svg>`;
+    const f = extractFeatures(svg);
+    assert.equal(f.typeVec.length, 6, "typeVec should have 6 elements");
+    assert.ok(f.typeVec[0] > 0, "should detect circles");
+    assert.ok(f.centerX > 0 && f.centerX < 1, "centerX should be normalized");
+    assert.ok(f.centerY > 0 && f.centerY < 1, "centerY should be normalized");
+    assert.ok(f.totalElements >= 3, "should count elements");
+    assert.ok(f.colorCount >= 2, "should count colors");
+  });
+
+  // ── Similarity ──
+
+  it("identical features have similarity 1.0", () => {
+    const f = {
+      typeVec: [0.5, 0.3, 0.2, 0, 0, 0],
+      centerX: 0.5, centerY: 0.5,
+      totalElements: 20, maxRadius: 0.2,
+      meanOpacity: 0.25, colorCount: 4
+    };
+    assert.equal(computeSimilarity(f, f), 1);
+  });
+
+  it("very different features have low similarity", () => {
+    const a = {
+      typeVec: [1, 0, 0, 0, 0, 0],
+      centerX: 0.1, centerY: 0.1,
+      totalElements: 5, maxRadius: 0.05,
+      meanOpacity: 0.1, colorCount: 2
+    };
+    const b = {
+      typeVec: [0, 0, 0, 0, 1, 0],
+      centerX: 0.9, centerY: 0.9,
+      totalElements: 50, maxRadius: 0.5,
+      meanOpacity: 0.5, colorCount: 6
+    };
+    const sim = computeSimilarity(a, b);
+    assert.ok(sim < 0.5, `expected low similarity, got ${sim}`);
+  });
+
+  // ── Evaluator ──
+
+  it("evaluateImageSet scores identical images low", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "genart-eval-"));
+    try {
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="#FFF" />
+        <circle cx="50" cy="50" r="30" fill="#F00" opacity="0.3" />
+      </svg>`;
+      for (let i = 1; i <= 6; i++) {
+        fs.writeFileSync(path.join(tmpDir, `slide-${String(i).padStart(2, "0")}.svg`), svg);
+      }
+      const eval_ = evaluateImageSet(tmpDir);
+      assert.ok(eval_.score <= 5, `identical images should score low, got ${eval_.score}`);
+      assert.equal(eval_.similarPairs, 5, "all adjacent pairs should be similar");
+    } finally { cleanup(tmpDir); }
+  });
+
+  it("evaluateImageSet scores diverse images higher", () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "genart-eval-"));
+    try {
+      const templates = [
+        `<circle cx="100" cy="100" r="80" fill="#F00" opacity="0.3" />`,
+        `<line x1="0" y1="0" x2="100" y2="100" stroke="#00F" /><line x1="50" y1="0" x2="50" y2="100" stroke="#0F0" />`,
+        `<polygon points="50,10 90,90 10,90" fill="#FF0" opacity="0.2" />`,
+        `<path d="M 10 80 C 40 10, 65 10, 95 80" fill="none" stroke="#F0F" /><circle cx="80" cy="20" r="15" fill="#0FF" />`,
+      ];
+      for (let i = 0; i < templates.length; i++) {
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+          <rect width="100" height="100" fill="#FFF" />${templates[i]}</svg>`;
+        fs.writeFileSync(path.join(tmpDir, `slide-${String(i + 1).padStart(2, "0")}.svg`), svg);
+      }
+      const eval_ = evaluateImageSet(tmpDir);
+      assert.ok(eval_.score >= 5, `diverse images should score higher, got ${eval_.score}`);
+      assert.ok(eval_.similarPairs <= 1, `should have few similar pairs, got ${eval_.similarPairs}`);
+    } finally { cleanup(tmpDir); }
+  });
+
+  // ── Diversity Loop ──
+
+  it("diversity loop improves score", () => {
+    const { tmpDir, mdPath } = makeTempDeck(8);
+    const outDir = path.join(tmpDir, "images");
+    try {
+      // First generate with forced identical seed offsets (bad diversity)
+      generateArt(mdPath, { output: outDir, seed: 1, force: true });
+      const before = evaluateImageSet(outDir);
+
+      // Run diversity loop
+      const result = diversityLoop(mdPath, {
+        output: outDir, seed: 1, targetScore: 6, maxIters: 3, force: true
+      });
+
+      assert.ok(result.eval.score >= before.score,
+        `diversity should improve: ${before.score} -> ${result.eval.score}`);
+    } finally { cleanup(tmpDir); }
+  });
+
+  // ── Strategy Coverage ──
+
+  it("all 5 strategies produce valid SVG", () => {
+    for (const [name, fn] of Object.entries(STRATEGIES)) {
+      let seed = 12345;
+      const rand = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
+      const colors = ["#FF0000", "#0000FF", "#00FF00"];
+      const svg = fn(1920, 1080, rand, colors, "moderate");
+      assert.ok(svg.length > 0, `strategy ${name} should produce output`);
+      assert.ok(svg.includes("<"), `strategy ${name} should produce SVG elements`);
+    }
+  });
+});

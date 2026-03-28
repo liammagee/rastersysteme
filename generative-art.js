@@ -396,6 +396,12 @@ function generateArt(inputPath, options = {}) {
   }
 
   console.error(chalk.dim(`\n  Generated ${generated} images → ${outputDir}\n`));
+
+  // Auto-convert and splice if htmlPath available
+  if (generated > 0 && options.htmlPath) {
+    convertAndSplice(outputDir, options.htmlPath);
+  }
+
   return { outputDir, generated, total: slideIndices.length };
 }
 
@@ -565,15 +571,17 @@ function diversityLoop(inputPath, options = {}) {
   console.error(chalk.dim(`\n  ━━━ DIVERSITY LOOP ━━━━━━━━━━━━━━━━━━━━━━`));
   console.error(chalk.dim(`  Target: ${targetScore}/10  |  Max iterations: ${maxIters}\n`));
 
-  // Initial generation
-  const result = generateArt(inputPath, { ...options, force: true });
+  // Initial generation (no auto-splice yet — we'll splice at the end)
+  const result = generateArt(inputPath, { ...options, force: true, htmlPath: undefined });
 
   for (let iter = 0; iter < maxIters; iter++) {
     const eval_ = evaluateImageSet(result.outputDir);
     console.error(`  ${chalk.cyan("eval")} iter ${iter}: diversity ${eval_.score}/10  |  similar pairs: ${eval_.similarPairs}/${eval_.totalPairs}  |  dominant: ${eval_.dominantType} (${eval_.dominantRatio}%)`);
 
     if (eval_.score >= targetScore) {
-      console.error(chalk.green(`  ✓ Diversity target met (${eval_.score} >= ${targetScore})\n`));
+      console.error(chalk.green(`  ✓ Diversity target met (${eval_.score} >= ${targetScore})`));
+      if (options.htmlPath) convertAndSplice(result.outputDir, options.htmlPath);
+      console.error("");
       return { ...result, eval: eval_, iterations: iter + 1 };
     }
 
@@ -644,8 +652,59 @@ function diversityLoop(inputPath, options = {}) {
   }
 
   const finalEval = evaluateImageSet(result.outputDir);
-  console.error(`  ${chalk.cyan("final")} diversity ${finalEval.score}/10  |  similar: ${finalEval.similarPairs}/${finalEval.totalPairs}\n`);
+  console.error(`  ${chalk.cyan("final")} diversity ${finalEval.score}/10  |  similar: ${finalEval.similarPairs}/${finalEval.totalPairs}`);
+  if (options.htmlPath) convertAndSplice(result.outputDir, options.htmlPath);
+  console.error("");
   return { ...result, eval: finalEval, iterations: maxIters };
+}
+
+// ═══════════════════════════════════════════════
+// SVG → PNG CONVERSION + AUTO-SPLICE
+// Rule: every generation or regeneration must end
+// with PNGs converted and HTML spliced. The pipeline
+// is atomic — SVGs alone are not a deliverable.
+// ═══════════════════════════════════════════════
+
+function convertAndSplice(outputDir, htmlPath) {
+  const { execSync } = require("child_process");
+
+  // 1. Convert all SVGs to PNGs
+  const svgs = fs.readdirSync(outputDir).filter((f) => f.endsWith(".svg"));
+  let converted = 0;
+  for (const svg of svgs) {
+    const svgPath = path.join(outputDir, svg);
+    const pngPath = svgPath.replace(/\.svg$/, ".png");
+    const svgMtime = fs.statSync(svgPath).mtimeMs;
+    const pngMtime = fs.existsSync(pngPath) ? fs.statSync(pngPath).mtimeMs : 0;
+
+    if (svgMtime > pngMtime) {
+      try {
+        execSync(`convert "${svgPath}" -resize 1920x1080 "${pngPath}"`, { stdio: "pipe" });
+        converted++;
+      } catch (e) {
+        console.error(chalk.red(`  ✗ Failed to convert ${svg}: ${e.message}`));
+      }
+    }
+  }
+  if (converted > 0) {
+    console.error(chalk.dim(`  Converted ${converted} SVGs → PNGs`));
+  }
+
+  // 2. Splice into HTML if htmlPath provided
+  if (htmlPath && fs.existsSync(htmlPath)) {
+    try {
+      const spliceResult = execSync(
+        `node splice-images.js "${htmlPath}" "${outputDir}" --image-scale visible`,
+        { stdio: "pipe", cwd: path.dirname(path.resolve(htmlPath)) || "." }
+      ).toString();
+      const splicedPath = htmlPath.replace(/\.html$/, ".spliced.html");
+      console.error(chalk.dim(`  Spliced → ${path.basename(splicedPath)}`));
+      return splicedPath;
+    } catch (e) {
+      console.error(chalk.yellow(`  ⚠ Splice failed: ${e.message}`));
+    }
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════
@@ -676,6 +735,7 @@ if (require.main === module) {
     force: args.includes("--force"),
     maxIters: getFlag("--max-iters") ? parseInt(getFlag("--max-iters")) : 5,
     targetScore: getFlag("--target") ? parseFloat(getFlag("--target")) : 7,
+    htmlPath: getFlag("--html"),
   };
 
   if (args.includes("--eval")) {
@@ -698,4 +758,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { generateArt, evaluateImageSet, diversityLoop, PALETTES, STRATEGIES };
+module.exports = { generateArt, evaluateImageSet, diversityLoop, convertAndSplice, extractFeatures, computeSimilarity, PALETTES, STRATEGIES };
