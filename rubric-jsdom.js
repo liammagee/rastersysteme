@@ -118,6 +118,8 @@ function evaluate(htmlPath) {
   const perSlideTextLen = [];
   const perSlideWhitespace = [];
   const perSlideIssues = [];
+  const perSlideBalance = [];     // Arnheim visual weight balance per slide
+  const perSlideFlowScore = [];   // reading path quality per slide
 
   slides.forEach((slide, idx) => {
     const slideIssues = [];
@@ -423,6 +425,66 @@ function evaluate(htmlPath) {
     // Whitespace ratio: 1 - utilization. Accumulate for deck-level average.
     perSlideWhitespace.push(1 - slideUtilization);
 
+    // ── Gestalt proximity: are related zones (title+body) closer than unrelated? ──
+    // Simple heuristic: title zone center should be closer to body zone than to image zone
+    // Score 1 if title-body distance < title-image distance, 0 otherwise
+    const titleRect = zoneRects.find(r => r.cls.includes('title'));
+    const bodyRect = zoneRects.find(r => r.cls.includes('body') || r.cls.includes('bullets'));
+    const imageRect = zoneRects.find(r => r.cls.includes('image'));
+    if (titleRect && bodyRect) {
+      const titleCenter = { x: (titleRect.left + titleRect.right) / 2, y: (titleRect.top + titleRect.bottom) / 2 };
+      const bodyCenter = { x: (bodyRect.left + bodyRect.right) / 2, y: (bodyRect.top + bodyRect.bottom) / 2 };
+      const tbDist = Math.sqrt((titleCenter.x - bodyCenter.x) ** 2 + (titleCenter.y - bodyCenter.y) ** 2);
+      if (imageRect) {
+        const imgCenter = { x: (imageRect.left + imageRect.right) / 2, y: (imageRect.top + imageRect.bottom) / 2 };
+        const tiDist = Math.sqrt((titleCenter.x - imgCenter.x) ** 2 + (titleCenter.y - imgCenter.y) ** 2);
+        // Title should be closer to body than to image (Gestalt proximity)
+        if (tbDist >= tiDist * 0.9) slideIssues.push('gestalt-proximity-violation');
+      }
+    }
+
+    // ── Arnheim visual balance: weight = area × distance_from_center ──
+    // Compute center of visual weight; perfect balance = center of slide
+    if (zoneRects.length > 0) {
+      let totalWeight = 0, weightedX = 0, weightedY = 0;
+      for (const r of zoneRects) {
+        const area = (r.right - r.left) * (r.bottom - r.top);
+        const cx = (r.left + r.right) / 2;
+        const cy = (r.top + r.bottom) / 2;
+        totalWeight += area;
+        weightedX += area * cx;
+        weightedY += area * cy;
+      }
+      if (totalWeight > 0) {
+        const cogX = weightedX / totalWeight; // center of gravity X (0-100)
+        const cogY = weightedY / totalWeight; // center of gravity Y (0-100)
+        // Distance from slide center (50, 50). Normalize to 0-1.
+        const balanceDist = Math.sqrt((cogX - 50) ** 2 + (cogY - 50) ** 2) / 70.7; // 70.7 = max possible dist
+        perSlideBalance.push(1 - balanceDist); // 1 = perfectly centered, 0 = corner-heavy
+      }
+    }
+
+    // ── Reading path: zones should flow top-to-bottom ──
+    // Score based on whether zone vertical order matches semantic order (title → body → image)
+    const roleOrder = { title: 0, label: 0.5, body: 1, bullets: 1, table: 1.5, quote: 2, image: 2.5, links: 3 };
+    const orderedZones = zoneRects
+      .map(r => {
+        const roleMatch = r.cls.match(/zone-(\w+)/);
+        const role = roleMatch ? roleMatch[1] : 'unknown';
+        const midY = (r.top + r.bottom) / 2;
+        return { role, midY, order: roleOrder[role] ?? 2 };
+      })
+      .sort((a, b) => a.midY - b.midY); // sort by vertical position
+
+    let flowViolations = 0;
+    for (let i = 1; i < orderedZones.length; i++) {
+      // A zone that's lower on the page should have equal or higher semantic order
+      if (orderedZones[i].order < orderedZones[i - 1].order - 0.5) {
+        flowViolations++;
+      }
+    }
+    perSlideFlowScore.push(flowViolations === 0 ? 1 : flowViolations === 1 ? 0.5 : 0);
+
     // ── Content preservation ──
     slide.querySelectorAll('.zone-body,.zone-bullets,.zone-quote').forEach(z => {
       if (!z.textContent.trim()) {
@@ -706,7 +768,11 @@ function evaluate(htmlPath) {
     // v9 diversity metrics
     bgHueRange,
     // v10 design theory metrics
-    avgWhitespace, modularScaleScore, colorHarmonyType, hasNamedHarmony
+    avgWhitespace, modularScaleScore, colorHarmonyType, hasNamedHarmony,
+    // v10b: Gestalt, Arnheim, reading path
+    gestaltViolations: perSlideIssues.flat ? perSlideIssues.reduce((n, iss) => n + (iss.includes('gestalt-proximity-violation') ? 1 : 0), 0) : 0,
+    avgBalance: perSlideBalance.length > 0 ? perSlideBalance.reduce((s, v) => s + v, 0) / perSlideBalance.length : 0.5,
+    avgFlowScore: perSlideFlowScore.length > 0 ? perSlideFlowScore.reduce((s, v) => s + v, 0) / perSlideFlowScore.length : 1
   };
 }
 

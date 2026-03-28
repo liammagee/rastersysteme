@@ -40,13 +40,20 @@ function computeScores(metrics, opts = {}) {
   const archetypeRepeatPenalty = m.maxArchetypeRun >= 4 ? 2 : m.maxArchetypeRun >= 3 ? 1 : 0;
   const archetypeVariety = m.total > 0 ? Math.min((m.uniqueArchetypes || 0) / (m.total * 0.4), 1) : 0;
   const collisionPenalty = Math.min((m.zoneCollisionSlides || 0) * 1.5, 6);
+  // Visual balance bonus (Arnheim): reward balanced center of gravity
+  const balanceBonus = (m.avgBalance || 0.5) > 0.6 ? 0.5 : 0;
+  // Reading flow bonus: reward top-to-bottom semantic order
+  const flowBonus = (m.avgFlowScore || 1) > 0.8 ? 0.5 : 0;
+
   scores.grid = Math.max(1, Math.min(10,
-    designedRatio * 3
-    + nonDefaultRatio * 3
+    designedRatio * 2.5
+    + nonDefaultRatio * 2.5
     + archetypeVariety * 2
     - archetypeRepeatPenalty
-    + Math.min((m.zoneStarts || 0) / 6, 1) * 2
+    + Math.min((m.zoneStarts || 0) / 6, 1) * 1.5
     - collisionPenalty
+    + balanceBonus
+    + flowBonus
   ));
 
   // ── 5. Color Harmonics ──
