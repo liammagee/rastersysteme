@@ -93,6 +93,20 @@ CONTENT SYNTAX (after the design directive):
   > Blockquote
   Bare text = body
 
+LAYOUT ARCHETYPES (use at least 5 different ones across the deck):
+  - Monument: full-width title, centered, minimal body. For hero/section slides.
+  - Sidebar-L: narrow title column left, wide body right, vertical divider.
+  - Sidebar-R: content left, title/label right. Mirror of Sidebar-L.
+  - Editorial: centered narrow column (col 10-50), generous margins. For long text.
+  - Split: two equal columns for comparison/contrast.
+  - Typographic poster: oversized title as the main visual element, minimal body.
+  - Data wall: maximum-span table/list filling most of the slide.
+  - Filmstrip: two or more images in a horizontal row with captions below.
+  - Stagger: title and body at different offsets, creating diagonal rhythm.
+  - Pull-quote: large blockquote as focal point, small attribution below.
+  - Offset: content pushed to one side, dramatic empty space on the other.
+  DO NOT use the same archetype more than 3 times in a row.
+
 RULES:
   1. Output ONLY slides separated by ---. No commentary, no code fences.
   2. Every slide MUST have a <!-- design: {...} --> directive as its FIRST line.

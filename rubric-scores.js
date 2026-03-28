@@ -44,6 +44,8 @@ function computeScores(metrics, opts = {}) {
   const balanceBonus = (m.avgBalance || 0.5) > 0.6 ? 0.5 : 0;
   // Reading flow bonus: reward top-to-bottom semantic order
   const flowBonus = (m.avgFlowScore || 1) > 0.8 ? 0.5 : 0;
+  // Golden ratio bonus: reward zones with phi proportions
+  const goldenBonus = (m.goldenRatioFraction || 0) > 0.15 ? 0.5 : 0;
 
   scores.grid = Math.max(1, Math.min(10,
     designedRatio * 2.5
@@ -54,6 +56,7 @@ function computeScores(metrics, opts = {}) {
     - collisionPenalty
     + balanceBonus
     + flowBonus
+    + goldenBonus
   ));
 
   // ── 5. Color Harmonics ──

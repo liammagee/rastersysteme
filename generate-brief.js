@@ -111,6 +111,15 @@ function generateBrief(opts = {}) {
     `Swiss 60-column grid discipline — but push the layouts. Try offset compositions, dramatic whitespace, typographic posters, data walls.`,
   ];
 
+  // Anti-repetition: scan recent corpus and add avoidance
+  try {
+    const { execSync } = require("child_process");
+    const avoidance = execSync("node anti-repetition.js", { encoding: "utf-8", cwd: __dirname, timeout: 5000 }).trim();
+    if (avoidance && !avoidance.includes("No corpus") && !avoidance.includes("No recent")) {
+      parts.push(avoidance);
+    }
+  } catch (e) { /* ignore if anti-repetition fails */ }
+
   return {
     brief: parts.join(" "),
     palette,

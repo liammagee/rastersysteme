@@ -737,6 +737,28 @@ function evaluate(htmlPath) {
     })
     .filter(h => h >= 0);
   const uniqueHues = [...new Set(bgHues.map(h => Math.round(h / 30) * 30))]; // quantize to 30-degree bins
+  // Golden ratio detection: check if key zone proportions approximate 1:1.618
+  let goldenRatioHits = 0, goldenRatioChecks = 0;
+  const PHI = 1.618;
+  const PHI_TOLERANCE = 0.15; // within 15% of golden ratio
+  slides.forEach(slide => {
+    slide.querySelectorAll('[class*="zone-"]').forEach(z => {
+      if (z.classList.contains('zone-extras') || z.className.includes('accent')) return;
+      const s = parseInlineStyle(z);
+      const width = parseFloat(s['width']) || 0;
+      const height = parseFloat(s['height']) || 0;
+      if (width > 5 && height > 5) {
+        goldenRatioChecks++;
+        const ratio = Math.max(width, height) / Math.min(width, height);
+        if (Math.abs(ratio - PHI) / PHI < PHI_TOLERANCE ||
+            Math.abs(ratio - PHI * PHI) / (PHI * PHI) < PHI_TOLERANCE) {
+          goldenRatioHits++;
+        }
+      }
+    });
+  });
+  const goldenRatioFraction = goldenRatioChecks > 0 ? goldenRatioHits / goldenRatioChecks : 0;
+
   // Content density appropriateness
   let densityMismatches = 0;
   perSlideTextLen.forEach((len, i) => {
@@ -799,7 +821,8 @@ function evaluate(htmlPath) {
     focalPointViolations: perSlideIssues.reduce((n, iss) => n + (Array.isArray(iss) && iss.includes('focal-point-not-text') ? 1 : 0), 0),
     densityMismatches,
     avgBalance: perSlideBalance.length > 0 ? perSlideBalance.reduce((s, v) => s + v, 0) / perSlideBalance.length : 0.5,
-    avgFlowScore: perSlideFlowScore.length > 0 ? perSlideFlowScore.reduce((s, v) => s + v, 0) / perSlideFlowScore.length : 1
+    avgFlowScore: perSlideFlowScore.length > 0 ? perSlideFlowScore.reduce((s, v) => s + v, 0) / perSlideFlowScore.length : 1,
+    goldenRatioFraction
   };
 }
 
