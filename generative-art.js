@@ -400,6 +400,255 @@ function generateArt(inputPath, options = {}) {
 }
 
 // ═══════════════════════════════════════════════
+// IMAGE DIVERSITY EVALUATOR
+// ═══════════════════════════════════════════════
+
+function extractFeatures(svgContent) {
+  const circles = (svgContent.match(/<circle/g) || []).length;
+  const lines = (svgContent.match(/<line/g) || []).length;
+  const paths = (svgContent.match(/<path/g) || []).length;
+  const polys = (svgContent.match(/<polygon/g) || []).length;
+  const rects = (svgContent.match(/<rect/g) || []).length - 1; // minus bg
+  const polylines = (svgContent.match(/<polyline/g) || []).length;
+  const total = circles + lines + paths + polys + Math.max(rects, 0) + polylines;
+
+  // Extract spatial center of mass from coordinates
+  const coords = [];
+  for (const m of svgContent.matchAll(/(?:cx|x1|x)="([\d.]+)"/g)) coords.push(parseFloat(m[1]));
+  const meanX = coords.length ? coords.reduce((a, b) => a + b, 0) / coords.length : 960;
+
+  const ycoords = [];
+  for (const m of svgContent.matchAll(/(?:cy|y1|y)="([\d.]+)"/g)) ycoords.push(parseFloat(m[1]));
+  const meanY = ycoords.length ? ycoords.reduce((a, b) => a + b, 0) / ycoords.length : 540;
+
+  // Extract opacity distribution
+  const opacities = [];
+  for (const m of svgContent.matchAll(/opacity="([\d.]+)"/g)) opacities.push(parseFloat(m[1]));
+  const meanOpacity = opacities.length ? opacities.reduce((a, b) => a + b, 0) / opacities.length : 0.2;
+
+  // Extract radii for scale sense
+  const radii = [];
+  for (const m of svgContent.matchAll(/r="([\d.]+)"/g)) radii.push(parseFloat(m[1]));
+  const maxRadius = radii.length ? Math.max(...radii) : 100;
+
+  // Color palette used
+  const colors = new Set(svgContent.match(/#[0-9A-Fa-f]{6}/g) || []);
+
+  return {
+    // Element type vector (normalized)
+    typeVec: [circles, lines, paths, polys, Math.max(rects, 0), polylines].map(
+      (v) => v / (total || 1)
+    ),
+    // Spatial signature
+    centerX: meanX / 1920,
+    centerY: meanY / 1080,
+    // Scale and density
+    totalElements: total,
+    maxRadius: maxRadius / 1080,
+    meanOpacity,
+    // Color count
+    colorCount: colors.size,
+  };
+}
+
+function computeSimilarity(a, b) {
+  // Multi-dimensional similarity combining type, spatial, and density features
+
+  // 1. Element type cosine similarity (0-1, higher = more similar)
+  const dot = a.typeVec.reduce((sum, v, i) => sum + v * b.typeVec[i], 0);
+  const normA = Math.sqrt(a.typeVec.reduce((sum, v) => sum + v * v, 0)) || 1;
+  const normB = Math.sqrt(b.typeVec.reduce((sum, v) => sum + v * v, 0)) || 1;
+  const typeSim = dot / (normA * normB);
+
+  // 2. Spatial distance (0-1, lower = more similar)
+  const spatialDist = Math.sqrt(
+    (a.centerX - b.centerX) ** 2 + (a.centerY - b.centerY) ** 2
+  );
+  const spatialSim = 1 - Math.min(spatialDist / 0.5, 1);
+
+  // 3. Scale similarity
+  const scaleDiff = Math.abs(a.maxRadius - b.maxRadius);
+  const scaleSim = 1 - Math.min(scaleDiff / 0.3, 1);
+
+  // 4. Density similarity
+  const densityDiff = Math.abs(a.totalElements - b.totalElements) / Math.max(a.totalElements, b.totalElements, 1);
+  const densitySim = 1 - densityDiff;
+
+  // 5. Opacity similarity
+  const opacitySim = 1 - Math.abs(a.meanOpacity - b.meanOpacity);
+
+  // Weighted combination — type matters most, then spatial, then others
+  return typeSim * 0.35 + spatialSim * 0.25 + scaleSim * 0.15 + densitySim * 0.15 + opacitySim * 0.1;
+}
+
+function evaluateImageSet(outputDir) {
+  const files = fs.readdirSync(outputDir)
+    .filter((f) => f.match(/^slide-\d+\.svg$/))
+    .sort();
+
+  if (files.length < 2) return { score: 10, pairs: [], stats: {} };
+
+  const features = files.map((f) => ({
+    file: f,
+    ...extractFeatures(fs.readFileSync(path.join(outputDir, f), "utf-8")),
+  }));
+
+  // Pairwise adjacent similarity
+  const pairs = [];
+  for (let i = 0; i < features.length - 1; i++) {
+    const sim = computeSimilarity(features[i], features[i + 1]);
+    pairs.push({
+      a: features[i].file,
+      b: features[i + 1].file,
+      similarity: sim,
+      tooSimilar: sim > 0.85,
+    });
+  }
+
+  // Global diversity metrics
+  const strategies = features.map((f) => {
+    const maxIdx = f.typeVec.indexOf(Math.max(...f.typeVec));
+    return ["circles", "lines", "paths", "polys", "rects", "polylines"][maxIdx];
+  });
+  const uniqueStrategies = new Set(strategies).size;
+  const dominantCount = Math.max(
+    ...Object.values(
+      strategies.reduce((acc, s) => { acc[s] = (acc[s] || 0) + 1; return acc; }, {})
+    )
+  );
+  const dominantRatio = dominantCount / features.length;
+
+  // Spatial spread
+  const xs = features.map((f) => f.centerX);
+  const ys = features.map((f) => f.centerY);
+  const spatialVariance =
+    (variance(xs) + variance(ys)) / 2;
+
+  const similarPairs = pairs.filter((p) => p.tooSimilar).length;
+
+  // Score: 10 = perfect diversity, 1 = everything looks the same
+  const score = Math.max(1, Math.min(10,
+    10
+    - similarPairs * 0.4               // penalty per similar adjacent pair
+    - (dominantRatio > 0.5 ? (dominantRatio - 0.5) * 8 : 0)  // penalty for dominant element type
+    + (uniqueStrategies >= 4 ? 1 : 0)  // bonus for strategy variety
+    + (spatialVariance > 0.01 ? 1 : 0) // bonus for spatial spread
+  ));
+
+  return {
+    score: Math.round(score * 10) / 10,
+    similarPairs,
+    totalPairs: pairs.length,
+    dominantType: strategies.sort((a, b) =>
+      strategies.filter((s) => s === b).length - strategies.filter((s) => s === a).length
+    )[0],
+    dominantRatio: Math.round(dominantRatio * 100),
+    uniqueTypes: uniqueStrategies,
+    spatialVariance: Math.round(spatialVariance * 1000) / 1000,
+    pairs,
+  };
+}
+
+function variance(arr) {
+  const mean = arr.reduce((a, b) => a + b, 0) / arr.length;
+  return arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / arr.length;
+}
+
+// ═══════════════════════════════════════════════
+// DIVERSITY LOOP — regenerate similar images
+// ═══════════════════════════════════════════════
+
+function diversityLoop(inputPath, options = {}) {
+  const maxIters = options.maxIters || 5;
+  const targetScore = options.targetScore || 7;
+
+  console.error(chalk.dim(`\n  ━━━ DIVERSITY LOOP ━━━━━━━━━━━━━━━━━━━━━━`));
+  console.error(chalk.dim(`  Target: ${targetScore}/10  |  Max iterations: ${maxIters}\n`));
+
+  // Initial generation
+  const result = generateArt(inputPath, { ...options, force: true });
+
+  for (let iter = 0; iter < maxIters; iter++) {
+    const eval_ = evaluateImageSet(result.outputDir);
+    console.error(`  ${chalk.cyan("eval")} iter ${iter}: diversity ${eval_.score}/10  |  similar pairs: ${eval_.similarPairs}/${eval_.totalPairs}  |  dominant: ${eval_.dominantType} (${eval_.dominantRatio}%)`);
+
+    if (eval_.score >= targetScore) {
+      console.error(chalk.green(`  ✓ Diversity target met (${eval_.score} >= ${targetScore})\n`));
+      return { ...result, eval: eval_, iterations: iter + 1 };
+    }
+
+    // Find slides to regenerate: the second slide in each too-similar pair
+    const toRegenerate = new Set();
+    for (const pair of eval_.pairs) {
+      if (pair.tooSimilar) {
+        // Regenerate the second slide with a shifted seed
+        const slideNum = parseInt(pair.b.match(/\d+/)[0]);
+        toRegenerate.add(slideNum);
+      }
+    }
+
+    if (toRegenerate.size === 0) {
+      console.error(chalk.yellow(`  ⚠ No similar pairs to fix, but score below target\n`));
+      return { ...result, eval: eval_, iterations: iter + 1 };
+    }
+
+    console.error(chalk.dim(`  Regenerating ${toRegenerate.size} slides: ${[...toRegenerate].join(", ")}`));
+
+    // Regenerate with shifted seeds — each iteration shifts further
+    const md = fs.readFileSync(inputPath, "utf-8");
+    const slides = md.split(/\n---\n/).filter((s) => s.trim());
+    const paletteName = options.palette || "kandinsky";
+    const palette = PALETTES[paletteName] || PALETTES.kandinsky;
+    const density = options.density || "moderate";
+    const globalSeed = options.seed || hashString(inputPath);
+    const width = options.width || 1920;
+    const height = options.height || 1080;
+    const strategies = Object.keys(STRATEGIES);
+
+    for (const slideNum of toRegenerate) {
+      const i = slideNum - 1;
+      if (i >= slides.length) continue;
+
+      // Shift the seed significantly per iteration to get different output
+      const slideSeed = globalSeed + i * 7919 + (iter + 1) * 104729;
+      const rand = seededRandom(slideSeed);
+
+      // Force a different strategy than what the neighbor uses
+      const prevFile = path.join(result.outputDir, `slide-${String(slideNum - 1).padStart(2, "0")}.svg`);
+      let prevStrategy = null;
+      if (fs.existsSync(prevFile)) {
+        const prevFeatures = extractFeatures(fs.readFileSync(prevFile, "utf-8"));
+        const maxIdx = prevFeatures.typeVec.indexOf(Math.max(...prevFeatures.typeVec));
+        prevStrategy = ["concentric", "fractal", "spiral", "grid", "mixed"][maxIdx] || null;
+      }
+
+      // Pick a strategy that differs from the neighbor
+      let strategy;
+      let attempts = 0;
+      do {
+        strategy = analyzeSlide(slides[i], i + iter * 5, rand);
+        attempts++;
+      } while (strategy === prevStrategy && attempts < 10);
+
+      const svg = [
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}">`,
+        `  <rect width="${width}" height="${height}" fill="${palette.bg}" />`,
+        STRATEGIES[strategy](width, height, rand, palette.colors, density),
+        `</svg>`,
+      ].join("\n");
+
+      const outPath = path.join(result.outputDir, `slide-${String(slideNum).padStart(2, "0")}.svg`);
+      fs.writeFileSync(outPath, svg);
+      console.error(`  ${chalk.yellow("~")} S${String(slideNum).padStart(2, "0")}: ${strategy} (was too similar to S${String(slideNum - 1).padStart(2, "0")})`);
+    }
+  }
+
+  const finalEval = evaluateImageSet(result.outputDir);
+  console.error(`  ${chalk.cyan("final")} diversity ${finalEval.score}/10  |  similar: ${finalEval.similarPairs}/${finalEval.totalPairs}\n`);
+  return { ...result, eval: finalEval, iterations: maxIters };
+}
+
+// ═══════════════════════════════════════════════
 // CLI
 // ═══════════════════════════════════════════════
 
@@ -416,7 +665,7 @@ if (require.main === module) {
     return idx >= 0 && idx + 1 < args.length ? args[idx + 1] : undefined;
   }
 
-  generateArt(input, {
+  const opts = {
     palette: getFlag("--palette") || "kandinsky",
     density: getFlag("--density") || "moderate",
     seed: getFlag("--seed") ? parseInt(getFlag("--seed")) : undefined,
@@ -425,7 +674,28 @@ if (require.main === module) {
     width: getFlag("--width") ? parseInt(getFlag("--width")) : 1920,
     height: getFlag("--height") ? parseInt(getFlag("--height")) : 1080,
     force: args.includes("--force"),
-  });
+    maxIters: getFlag("--max-iters") ? parseInt(getFlag("--max-iters")) : 5,
+    targetScore: getFlag("--target") ? parseFloat(getFlag("--target")) : 7,
+  };
+
+  if (args.includes("--eval")) {
+    // Evaluate existing images only
+    const result = generateArt(input, { ...opts });
+    const eval_ = evaluateImageSet(result.outputDir);
+    console.error(`  Diversity: ${eval_.score}/10  |  Similar pairs: ${eval_.similarPairs}/${eval_.totalPairs}`);
+    console.error(`  Dominant type: ${eval_.dominantType} (${eval_.dominantRatio}%)  |  Unique types: ${eval_.uniqueTypes}`);
+    if (eval_.similarPairs > 0) {
+      console.error(chalk.dim(`  Similar pairs:`));
+      for (const p of eval_.pairs.filter((p) => p.tooSimilar)) {
+        console.error(chalk.dim(`    ${p.a} <-> ${p.b} (${(p.similarity * 100).toFixed(0)}%)`));
+      }
+    }
+  } else if (args.includes("--diverse")) {
+    // Generate with diversity loop
+    diversityLoop(input, opts);
+  } else {
+    generateArt(input, opts);
+  }
 }
 
-module.exports = { generateArt, PALETTES, STRATEGIES };
+module.exports = { generateArt, evaluateImageSet, diversityLoop, PALETTES, STRATEGIES };
