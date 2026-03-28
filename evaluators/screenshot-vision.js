@@ -69,13 +69,17 @@ function callAnthropicVision(screenshots, slideCount) {
   const apiKey = envKeys.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY not found in .env");
 
-  const model = envKeys.EVAL_VISION_MODEL || "claude-sonnet-4-5-20250929";
+  // Use haiku for vision scoring — much cheaper than sonnet, adequate for rubric assessment
+  const model = envKeys.EVAL_VISION_MODEL || "claude-haiku-4-5-20251001";
 
   const content = [];
   for (const ss of screenshots) {
+    const imgData = ss.buffer
+      ? ss.buffer.toString("base64")
+      : fs.readFileSync(ss.path).toString("base64");
     content.push({
       type: "image",
-      source: { type: "base64", media_type: "image/png", data: ss.buffer.toString("base64") },
+      source: { type: "base64", media_type: "image/png", data: imgData },
     });
   }
   content.push({

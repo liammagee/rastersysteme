@@ -111,6 +111,47 @@ if (headlessResult) {
   console.log(green(`  ✓ Puppeteer: ${headlessResult.computedTotal}/${headlessResult.maxComputed}`));
 }
 
+// ── Phase 2.5: Screenshot-vision scoring (3 visual dimensions) ──
+// Wrapped in a promise to handle async vision API call in sync flow
+let visionResult = null;
+const screenshotDir = "/tmp/rubric-screenshots";
+const visionPromise = (async () => {
+  if (!headlessResult || !fs.existsSync(screenshotDir)) return;
+  console.log(amber("\n  Phase 2.5: Vision scoring (communicability, taste, balance)..."));
+  try {
+    const screenshotVision = require("./evaluators/screenshot-vision");
+    const slideCount = headlessResult.metrics.total || 36;
+    const screenshots = fs.readdirSync(screenshotDir)
+      .filter(f => f.match(/^slide-\d+\.png$/))
+      .sort()
+      .map(f => {
+        const num = parseInt(f.match(/slide-(\d+)/)[1]);
+        return { path: path.join(screenshotDir, f), slide: num };
+      });
+
+    if (screenshots.length > 0) {
+      // Sample ~8 slides for vision API (full set is too large for base64 payload)
+      const sampleCount = Math.min(8, screenshots.length);
+      const step = Math.max(1, Math.floor(screenshots.length / sampleCount));
+      const sampled = screenshots.filter((_, i) => i % step === 0).slice(0, sampleCount);
+      console.log(dim(`  Sampling ${sampled.length}/${screenshots.length} slides for vision API...`));
+      visionResult = await screenshotVision.evaluate(deckPath, { screenshots: sampled, slideCount });
+      if (visionResult && visionResult.dimensions && Object.keys(visionResult.dimensions).length > 0) {
+        const dims = visionResult.dimensions;
+        const vScores = Object.entries(dims).map(([k, v]) => `${k}: ${v.score}`).join(", ");
+        console.log(green(`  ✓ Vision: ${vScores}`));
+      } else {
+        console.log(dim("  (vision scoring returned no dimensions — screenshots saved for manual review)"));
+      }
+    }
+  } catch (e) {
+    console.log(dim(`  (vision scoring failed: ${e.message})`));
+  }
+})();
+
+// Wait for vision scoring to complete before proceeding
+visionPromise.then(() => {
+
 // ── Phase 3: Visual audit ──
 console.log(amber("\n  Phase 3: Visual audit..."));
 let auditResult = null;
@@ -182,6 +223,18 @@ if (primary) {
     console.log(`  ${icon} ${k.padEnd(25)} ${v}/10${secScore}`);
   });
 
+  // Display vision dimensions (not part of computed total — separate visual assessment)
+  if (visionResult && visionResult.dimensions) {
+    const vd = visionResult.dimensions;
+    if (Object.keys(vd).length > 0) {
+      console.log(dim("\n  Visual dimensions (screenshot-vision):"));
+      for (const [k, v] of Object.entries(vd)) {
+        const icon = v.score >= 9 ? green("●") : v.score >= 7 ? amber("◐") : accent("○");
+        console.log(`  ${icon} ${k.padEnd(25)} ${v.score}/10 ${dim(`[${v.source}]`)}`);
+      }
+    }
+  }
+
   // Visual audit summary
   if (auditResult) {
     const c = auditResult.counts;
@@ -236,6 +289,9 @@ if (jsonMode) {
   console.log(JSON.stringify({
     jsdom: jsdomResult,
     headless: headlessResult,
+    vision: visionResult ? visionResult.dimensions : null,
     visualAudit: auditResult,
   }, null, 2));
 }
+
+}); // close visionPromise.then()
