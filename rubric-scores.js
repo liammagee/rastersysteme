@@ -17,11 +17,11 @@ function computeScores(metrics, opts = {}) {
   // 1. Accessibility — capped per engine (jsdom=8, Puppeteer=10)
   scores.accessibility = Math.max(1, Math.min(accessibilityCap,
     accessibilityCap
-    - m.contrastErrors * 2
-    - m.contrastWarnings * 0.5
-    - m.brokenImgs * 2
-    - m.tinyTextCount * 0.5
-    - Math.min(m.overflows * 0.5, 3)
+    - (m.contrastErrors || 0) * 2
+    - (m.contrastWarnings || 0) * 0.5
+    - (m.brokenImgs || 0) * 2
+    - (m.tinyTextCount || 0) * 0.5
+    - Math.min((m.overflows || 0) * 0.5, 3)
   ));
 
   // 2. Communicability (visual-only)
@@ -41,7 +41,7 @@ function computeScores(metrics, opts = {}) {
     + nonDefaultRatio * 3
     + archetypeVariety * 2
     - archetypeRepeatPenalty
-    + Math.min(m.zoneStarts / 6, 1) * 2
+    + Math.min((m.zoneStarts || 0) / 6, 1) * 2
     - collisionPenalty
   ));
 
@@ -64,7 +64,8 @@ function computeScores(metrics, opts = {}) {
   scores.balance = null;
 
   // 7. Coherence & Variance — typography hierarchy, layout variety, visual rhythm
-  const titleSizeCount = m.titleSizes.length;
+  const titleSizes = Array.isArray(m.titleSizes) ? m.titleSizes : [...(m.titleSizes || [])];
+  const titleSizeCount = titleSizes.length;
   const titleSizeScore = titleSizeCount >= 2 && titleSizeCount <= 5 ? 2
     : titleSizeCount === 1 ? 1
     : titleSizeCount <= 7 ? 1.5 : 0.5;
@@ -79,13 +80,14 @@ function computeScores(metrics, opts = {}) {
   ));
 
   // 8. Image Integration — overlap + generic alt + placement
-  const overlapPenalty = Math.min(Math.max(m.textOnImageCount, m.imgOverlaps) * 1, 4);
+  const overlapPenalty = Math.min(Math.max(m.textOnImageCount || 0, m.imgOverlaps || 0) * 1, 4);
   const genericAltPenalty = Math.min((m.genericAltTotal || 0) * 0.15, 2);
+  const imgPlacements = Array.isArray(m.imgPlacements) ? m.imgPlacements : [...(m.imgPlacements || [])];
   scores.images = m.totalImgs === 0 ? 5 : Math.max(1, Math.min(10,
     10
     - overlapPenalty
     - genericAltPenalty
-    - (m.imgPlacements.length < 3 ? 2 : m.imgPlacements.length < 4 ? 1 : 0)
+    - (imgPlacements.length < 3 ? 2 : imgPlacements.length < 4 ? 1 : 0)
     - (m.totalImgs < m.total * 0.15 ? 1 : 0)
   ));
 

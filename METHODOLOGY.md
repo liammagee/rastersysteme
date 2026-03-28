@@ -63,11 +63,28 @@ OUTER LOOP (human-in-the-loop, qualitative)
   └── Repeat until user is satisfied
 ```
 
+## Wireframe Comparison
+
+Each composed slide has a design directive that specifies intended zone layout. The `wireframe.js` tool renders this as ASCII art:
+
+```bash
+node wireframe.js <deck.composed.md>                # all slides
+node wireframe.js <deck.composed.md> --slide 7      # single slide
+```
+
+The wireframe shows what the design *intended*. The screenshot shows what *actually rendered*. Comparing them reveals:
+- **Zone misplacement** — content landed in the wrong zone
+- **Content routing failures** — body zone empty because content went to extras
+- **Overlap sources** — wireframe shows zones that share space
+- **Whitespace gaps** — intended layout fills the slide but actual doesn't
+
+Every outer loop review should compare wireframes against screenshots for problem slides.
+
 ## Feedback Protocol
 
 When presenting a deck to the user, always:
 
-1. **Screenshot at least 5 slides** (first, middle, last, one with images, one with tables)
+1. **Screenshot ALL slides** (`node run-rubric-eval.js <deck> --screenshots-all`) and generate wireframes (`node wireframe.js <deck.composed.md>`)
 2. **Ask specific questions**:
    - "Are the spliced images visible?"
    - "Any overlapping or duplicated text?"

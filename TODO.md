@@ -2,7 +2,11 @@
 
 ## Closed (2026-03-28)
 
-- [x] Rubric v1→v5: 11 new metrics, 6 formula rewrites across 8 iterations
+- [x] Rubric v1→v6: 11 new metrics, shared scoring module, zone collision detection
+- [x] Shared rubric-scores.js: single computeScores() imported by both engines
+- [x] Zone collision detection in BOTH jsdom and Puppeteer paths (4 collisions found)
+- [x] Every-slide screenshot pipeline: --screenshots-all captures all 36 slides
+- [x] wireframe.js: ASCII wireframe diagrams from composed markdown for visual comparison
 - [x] Zone collision detection: pure CSS rect intersection in rubric-jsdom.js
 - [x] Duplicate text renderer bug: `renderedContent` tracking set in raster.js
 - [x] Splice-images.js: default opacity subtle→visible, no longer blocks on content images
