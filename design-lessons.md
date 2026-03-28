@@ -431,3 +431,39 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 
 - [2026-03-28] **week-2-v15.spliced.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
 - [2026-03-28] **week-2-v15.spliced.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-28] **week-2-v15.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v15.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v15.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v15.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v12.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v13.spliced.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-28] **week-2-v14.spliced.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-28] **week-2-v14.spliced.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-28] **week-2-v14.spliced.html**: 49 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v12.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v13.spliced.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-28] **week-2-v14.spliced.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-28] **week-2-v14.spliced.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-28] **week-2-v14.spliced.html**: 49 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+
+- [2026-03-28] **week-2-v16.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v16.spliced.html**: All computed dimensions scored >= 8. No new lessons.

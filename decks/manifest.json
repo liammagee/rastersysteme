@@ -1,14 +1,47 @@
 [
   {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v16.spliced.html",
+    "name": "week-2-v16.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "98K",
+    "modified": "2026-03-28T22:26:24.266Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v16.html",
+    "name": "week-2-v16",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "91K",
+    "modified": "2026-03-28T22:26:24.205Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/fractal-reference.spliced.html",
+    "name": "fractal-reference.spliced",
+    "slides": 51,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "104K",
+    "modified": "2026-03-28T22:20:38.491Z"
+  },
+  {
     "type": "deck",
     "category": "decks",
     "path": "decks/fractal-reference.html",
     "name": "fractal-reference",
-    "slides": 40,
+    "slides": 51,
     "theme": "light",
     "firstTitle": "Fractal Design Reference Deck",
-    "size": "82K",
-    "modified": "2026-03-28T22:15:58.520Z"
+    "size": "91K",
+    "modified": "2026-03-28T22:20:38.433Z"
   },
   {
     "type": "spliced",
