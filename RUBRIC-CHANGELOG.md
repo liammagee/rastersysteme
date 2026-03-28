@@ -1,5 +1,36 @@
 # Rubric Scoring Methodology Changelog
 
+## Outer Loop Log (structured)
+
+Each entry: user feedback → rubric change → score impact.
+
+| # | User Feedback | Rubric Change | Score Impact |
+|---|---|---|---|
+| 1 | "Scores maxing out while design issues persist" | v1→v2: 11 new metrics, formula rewrites | 100% → 95% |
+| 2 | "Not seeing spliced images, overlapping text" | v3: duplicate text detection, banality checks | 95% → 91% |
+| 3 | "Rubric insufficiently critical" | v4: generic-alt, sparse slides, typography | 91% → 75% (v10 new compose) |
+| 4 | "Still no spliced images, overlapping text, rubric too lenient" | v5: calibrated empty zones, sparse exemptions | 75% → 87% |
+| 5 | "Need to evaluate every slide" | v6: shared scoring, zone collision in both engines | 88% → 88% (same score, new data) |
+| 6 | "Can we do better with pure HTML/CSS analysis?" | v7: CSS rect collision, visual utilization, overlap fix | 88% → 98% (collisions fixed) |
+| 7 | "Capture intended design as ASCII wireframe" | wireframe.js for intent-vs-reality comparison | (diagnostic, not scored) |
+| 8 | "Maintain changelogs for inner/outer loops" | Structured changelog format, inner loop iteration logs | (process improvement) |
+
+## Outer-Outer Loop Observations
+
+Patterns observed across the outer loop iterations:
+
+1. **The rubric grading itself is the fundamental problem.** Iterations 1-3 were the rubric trying to catch what it couldn't see. The turning point was iteration 4 when the user said "rubric insufficiently critical" — forcing a shift from absence-of-bad to presence-of-good metrics.
+
+2. **Every-slide evaluation matters more than aggregate metrics.** One broken slide in 36 disappears in the average. The move to per-slide screenshots (iteration 5) and wireframe comparison (iteration 7) was the key methodological advance.
+
+3. **Two scoring engines that diverge is worse than one honest engine.** The jsdom/Puppeteer split caused confusion about what the "real" score was. The shared scoring module (v6) resolved this structurally.
+
+4. **Renderer bugs masquerade as design problems.** Zone collisions scored as "bad grid design" when the actual cause was the extras fallback duplicating content. Fixing the renderer had more impact than any rubric change.
+
+5. **The user sees what metrics can't measure.** Splice image visibility, visual utilization, layout monotony — these required human observation to identify and multiple iterations to capture in code.
+
+---
+
 ## v4 — Demanding Critic (2026-03-28)
 
 ### Changes

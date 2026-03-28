@@ -17,26 +17,25 @@ For **outer loop** evaluation (rubric calibration + human review), see METHODOLO
 
 ## How to work
 
-### 0. Pre-eval: Splice images if available
+### 0. Pre-eval: Splice images
 
-Before running any evaluation, **always** check if an image set exists for the deck and splice it in. Images affect visual scoring and image integration scores.
-
-```bash
-# Check for images directory matching the deck name
-ls content/week-*/images/ content/week-*/*-images/ decks/images/ 2>/dev/null
-```
-
-If images exist and the deck doesn't already have `.spliced` in its name:
+**Always** splice from `decks/<source>.composed-images/` if it exists (contains `slide-NN.png`):
 
 ```bash
-node splice-images.js <deck.html> <images-dir>
+node splice-images.js <deck.html> decks/<source>.composed-images/
 ```
 
-Then evaluate the `.spliced.html` output instead.
+### 0b. Generate wireframes for comparison
 
-### 0b. Visual audit (always run)
+```bash
+node wireframe.js <deck.composed.md> > /tmp/wireframes.txt
+```
 
-Run the Puppeteer visual flaw detector to catch rendering bugs the rubric misses:
+These ASCII diagrams show the **intended** layout. Compare against screenshots to diagnose rendering failures.
+
+### 0c. Visual audit (always run)
+
+Run the Puppeteer visual flaw detector — checks EVERY slide for rendering bugs:
 
 ```bash
 node visual-audit.js <deck.html>
@@ -50,16 +49,18 @@ This checks every slide for: broken images, zone-zone collisions, text-image ove
 - **overflow (visible)**: content exceeds zone — increase `rowSpan` or reduce font size
 - **text-image-collision**: text overlaps image — separate into distinct zones or use a table zone
 
-### 1. Run the evaluation harness
+### 1. Run the evaluation (every slide, all screenshots)
 
 ```bash
-node eval-harness.js <deck.html> --json
+node run-rubric-eval.js <deck.html> --screenshots-all --json
 ```
 
-This runs all available evaluators in parallel:
-- **headless-rubric**: Puppeteer rubric audit (5 computed dimensions)
-- **headless-qa**: Puppeteer accessibility audit
-- **markdown-qa**: Markdown-level QA analysis
+This runs the unified rubric (rubric-scores.js) via Puppeteer on EVERY slide:
+- **6 computed dimensions**: accessibility, grid, color, coherence, images, content
+- **Zone collision detection**: CSS rect intersection on all zone pairs
+- **Per-slide issues**: zone-collision, text-on-image, generic-alt, sparse, low-utilization
+- **Screenshots**: saved to `/tmp/rubric-screenshots/` for outer loop review
+- **Scoring**: single `computeScores()` in rubric-scores.js (shared by both engines)
 - **screenshot-vision**: Puppeteer screenshots + Anthropic API vision (3 visual dimensions)
 - **claude-textual**: Claude textual evaluation (content fidelity, narrative coherence)
 

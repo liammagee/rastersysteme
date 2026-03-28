@@ -46,7 +46,7 @@
 
 ### Paper / Workshop
 
-- [ ] **Design paper: Concentric Loops in AI-Mediated Design** — see PAPER-SPEC.md for full spec. Render as rastersysteme HTML deck. ~40 slides, academic tone.
+- [ ] **Design paper: Concentric Loops in AI-Mediated Design** — tracked in [paper/TODO.md](paper/TODO.md), spec in [paper/SPEC.md](paper/SPEC.md).
 - [ ] **Week 4 workshop: Concentric Loops** — content/week-4/week-4-workshop.md drafted. Needs compose → render → evaluate cycle.
 
 ### Changelogs (concentric loop tracking)

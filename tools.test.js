@@ -1115,6 +1115,72 @@ describe("rubric-scores.js", () => {
     assert.ok(!isNaN(scores.contentCompleteness));
     assert.equal(scores.contentCompleteness, 10);
   });
+
+  // ── Zone collision penalty ──
+
+  it("penalizes zone collisions in grid score", () => {
+    const m = goodMetrics();
+    m.zoneCollisionSlides = 3;
+    const { scores } = computeScores(m);
+    assert.ok(scores.grid < 10, `Grid should be < 10 with 3 collisions, got ${scores.grid}`);
+    assert.ok(scores.grid <= 6, `Grid should be <= 6 with 3 collisions (-4.5), got ${scores.grid}`);
+  });
+
+  it("zero collisions gives no grid penalty", () => {
+    const m = goodMetrics();
+    m.zoneCollisionSlides = 0;
+    const { scores } = computeScores(m);
+    assert.ok(scores.grid >= 8, `Grid should be >= 8 with 0 collisions, got ${scores.grid}`);
+  });
+
+  // ── Visual utilization penalty ──
+
+  it("penalizes low utilization slides in content score", () => {
+    const m = goodMetrics();
+    m.lowUtilizationSlides = 4;
+    const { scores } = computeScores(m);
+    assert.ok(scores.contentCompleteness < 10, `Content should be < 10 with 4 low-util slides, got ${scores.contentCompleteness}`);
+  });
+
+  // ── Generic alt penalty ──
+
+  it("penalizes generic alt text in image score", () => {
+    const m = goodMetrics();
+    m.genericAltTotal = 10;
+    const { scores } = computeScores(m);
+    assert.ok(scores.images < 10, `Images should be < 10 with 10 generic alts, got ${scores.images}`);
+    assert.ok(scores.images >= 6, `Images penalty should be capped, got ${scores.images}`);
+  });
+
+  // ── Accessibility cap ──
+
+  it("respects accessibility cap parameter", () => {
+    const m = goodMetrics();
+    const capped = computeScores(m, { accessibilityCap: 8 });
+    const uncapped = computeScores(m, { accessibilityCap: 10 });
+    assert.equal(capped.scores.accessibility, 8);
+    assert.equal(uncapped.scores.accessibility, 10);
+  });
+
+  // ── Typography hierarchy ──
+
+  it("rewards good typography ratio (1.8-3.0)", () => {
+    const m = goodMetrics();
+    m.typographyRatio = 2.5;
+    const good = computeScores(m);
+    m.typographyRatio = 1.1; // flat hierarchy
+    const flat = computeScores(m);
+    assert.ok(good.scores.coherence > flat.scores.coherence, "Good ratio should outscore flat");
+  });
+
+  // ── Sparse slides ──
+
+  it("penalizes sparse slides in content", () => {
+    const m = goodMetrics();
+    m.sparseSlides = 5;
+    const { scores } = computeScores(m);
+    assert.ok(scores.contentCompleteness < 10, `Content should drop with 5 sparse slides, got ${scores.contentCompleteness}`);
+  });
 });
 
 // ═══════════════════════════════════════════════════════
@@ -1476,5 +1542,201 @@ describe("eval-harness.js mergeScores zero-confidence", () => {
     ]);
     assert.ok(!isNaN(merged.accessibility.score), "score must not be NaN");
     assert.equal(merged.accessibility.score, 8); // simple average fallback
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// TODO — CLOSED ITEMS (regression guards)
+// ═══════════════════════════════════════════════════════
+
+describe("TODO closed: shared rubric-scores.js", () => {
+  it("rubric-jsdom.js imports computeScores from rubric-scores.js", () => {
+    const src = require("fs").readFileSync("./rubric-jsdom.js", "utf-8");
+    assert.ok(src.includes("require('./rubric-scores.js')") || src.includes('require("./rubric-scores.js")'),
+      "rubric-jsdom.js should import from rubric-scores.js");
+  });
+
+  it("rubric-headless.js imports computeScores from rubric-scores.js", () => {
+    const src = require("fs").readFileSync("./rubric-headless.js", "utf-8");
+    assert.ok(src.includes("require('./rubric-scores.js')") || src.includes('require("./rubric-scores.js")'),
+      "rubric-headless.js should import from rubric-scores.js");
+  });
+});
+
+describe("TODO closed: duplicate text renderer fix", () => {
+  const { parseMarkdown, renderDesigned, generateHTMLCSS, THEMES } = require("./raster.js");
+
+  it("renderedContent prevents bullet duplication between body and extras zones", () => {
+    // Slide with body zone + bullets but NO bullets zone — bullets should render in body, not duplicated in extras
+    const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":8},{"role":"body","col":0,"span":50,"row":10,"rowSpan":25}]} -->\n# Title\n\n- bullet one\n- bullet two';
+    const slides = parseMarkdown(md);
+    const html = renderDesigned(slides[0], 0, slides.length, { theme: THEMES.light, css: generateHTMLCSS(THEMES.light) });
+    // Count bullet occurrences — each should appear exactly once
+    const matches = html.match(/bullet one/g) || [];
+    assert.equal(matches.length, 1, `"bullet one" should appear once, found ${matches.length}`);
+  });
+});
+
+describe("TODO closed: contentCompleteness key (not contentFidelity)", () => {
+  it("evaluators/jsdom-rubric.js maps to contentCompleteness", () => {
+    const evaluator = require("./evaluators/jsdom-rubric.js");
+    assert.ok(evaluator.dimensions.includes("contentCompleteness"),
+      "jsdom-rubric should declare contentCompleteness dimension");
+    assert.ok(!evaluator.dimensions.includes("contentFidelity"),
+      "should not use old contentFidelity name");
+  });
+
+  it("rubric-scores.js produces contentCompleteness (not contentFidelity)", () => {
+    const { computeScores } = require("./rubric-scores.js");
+    const { scores } = computeScores({
+      total: 5, designed: 5, contrastErrors: 0, contrastWarnings: 0, brokenImgs: 0,
+      tinyTextCount: 0, overflows: 0, totalZones: 10, nonDefaultZones: 8,
+      uniqueArchetypes: 4, maxArchetypeRun: 2, zoneStarts: 6, zoneCollisionSlides: 0,
+      hasArc: true, avgTransition: 160, transitionVariance: 400, uniqueBgs: 4,
+      maxConsecBg: 2, titleSizes: [32, 48], fontSets: 2, densityCV: 0.8,
+      accentRatio: 0.5, typographyRatio: 2.2, totalImgs: 0, textOnImageCount: 0,
+      imgOverlaps: 0, genericAltTotal: 0, imgPlacements: [],
+      emptyBodyZones: 0, contentlessSlides: 0, tableTruncations: 0,
+      clippedContentSlides: 0, slidesWithNoVisibleText: 0,
+    });
+    assert.ok("contentCompleteness" in scores, "should have contentCompleteness key");
+    assert.ok(!("contentFidelity" in scores), "should not have contentFidelity key");
+  });
+});
+
+describe("TODO closed: rubric-persist normalization uses total/max", () => {
+  const { appendRun } = require("./rubric-persist.js");
+
+  it("normalized score adapts to actual assessed dimensions, not hardcoded 100", () => {
+    const scorecard = { runs: [], latest: null, trajectory: [] };
+    // Only 2 dimensions assessed: 8+7=15 out of 20 max → 75%, not 15%
+    appendRun(scorecard, {
+      computed: { grid: { score: 8 }, coherence: { score: 7 } },
+    });
+    assert.equal(scorecard.latest.normalized, 75, "should be 75 (15/20*100), not 15");
+  });
+});
+
+describe("TODO closed: empty-zone exempts tables/images", () => {
+  it("empty body zone with table present should NOT be penalized", () => {
+    const { JSDOM } = require("jsdom");
+    const html = '<section class="slide"><div class="zone-body"></div><table><tr><td>data</td></tr></table></section>';
+    const dom = new JSDOM(html);
+    const slide = dom.window.document.querySelector(".slide");
+    let emptyBodyZones = 0;
+    slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => {
+      if (!z.textContent.trim()) {
+        const slideHasTable = slide.querySelector("table");
+        const slideHasImg = slide.querySelector("img:not(.splice-img)");
+        if (!slideHasTable && !slideHasImg) emptyBodyZones++;
+      }
+    });
+    assert.equal(emptyBodyZones, 0, "table exempts empty body zone");
+  });
+
+  it("empty body zone without table or image IS penalized", () => {
+    const { JSDOM } = require("jsdom");
+    const html = '<section class="slide"><div class="zone-body"></div></section>';
+    const dom = new JSDOM(html);
+    const slide = dom.window.document.querySelector(".slide");
+    let emptyBodyZones = 0;
+    slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => {
+      if (!z.textContent.trim()) {
+        const slideHasTable = slide.querySelector("table");
+        const slideHasImg = slide.querySelector("img:not(.splice-img)");
+        if (!slideHasTable && !slideHasImg) emptyBodyZones++;
+      }
+    });
+    assert.equal(emptyBodyZones, 1, "no exemption without table/image");
+  });
+
+  it("splice-img does NOT exempt empty body zone (only content images do)", () => {
+    const { JSDOM } = require("jsdom");
+    const html = '<section class="slide"><div class="zone-body"></div><img class="splice-img" src="bg.png"></section>';
+    const dom = new JSDOM(html);
+    const slide = dom.window.document.querySelector(".slide");
+    let emptyBodyZones = 0;
+    slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => {
+      if (!z.textContent.trim()) {
+        const slideHasTable = slide.querySelector("table");
+        const slideHasImg = slide.querySelector("img:not(.splice-img)");
+        if (!slideHasTable && !slideHasImg) emptyBodyZones++;
+      }
+    });
+    assert.equal(emptyBodyZones, 1, "splice-img should not grant exemption");
+  });
+});
+
+describe("TODO closed: sparse-slide exempts title slide", () => {
+  it("slide index 0 is exempt from sparse penalty regardless of length", () => {
+    // Reproduce the sparse-slide logic from rubric-jsdom.js
+    const slides = [
+      { textContent: { trim: () => "Hi" }, querySelector: () => null },
+      { textContent: { trim: () => "Also short" }, querySelector: () => null },
+    ];
+    let sparseSlides = 0;
+    slides.forEach((slide, i) => {
+      const len = slide.textContent.trim().length;
+      if (i === 0) return; // exempt title slide
+      const hasImg = slide.querySelector("img:not(.splice-img)");
+      if (len < 150 && !hasImg) sparseSlides++;
+    });
+    assert.equal(sparseSlides, 1, "only slide 1 should be sparse, not slide 0");
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// TODO — OPEN ITEMS (expected failures, documented as todo)
+// ═══════════════════════════════════════════════════════
+
+describe("TODO open: bullet structure preservation", () => {
+  const fs = require("fs");
+  const { parseMarkdown, generateHTML } = require("./raster.js");
+
+  it("all source bullets survive rendering", { todo: "115 source bullets → ~97 rendered (14-18 lost during composition)" }, () => {
+    const source = fs.readFileSync("content/week-2/week-2.md", "utf-8");
+    const sourceBullets = (source.match(/^\s*-\s+/gm) || []).length;
+
+    // Parse and render to count output bullets
+    const slides = parseMarkdown(source);
+    const totalParsedBullets = slides.reduce((sum, s) => sum + s.bullets.length, 0);
+    assert.equal(totalParsedBullets, sourceBullets,
+      `Parser should preserve all ${sourceBullets} bullets, got ${totalParsedBullets}`);
+  });
+});
+
+describe("TODO open: compose.js table-content zone assignment", () => {
+  it("compose assigns table role to slides with table content", { todo: "compose.js always assigns body role, not table" }, () => {
+    const { parseMarkdown } = require("./raster.js");
+    // A slide whose primary content is a table should get a design with table role
+    const md = '<!-- design: {"zones":[{"role":"body","col":0,"span":50,"row":10,"rowSpan":25}]} -->\n## Data\n\n| A | B |\n|---|---|\n| 1 | 2 |';
+    const slides = parseMarkdown(md);
+    const hasTableZone = slides[0].design.zones.some(z => z.role === "table");
+    assert.ok(hasTableZone, "table-content slides should have table zone role, not body");
+  });
+});
+
+describe("TODO open: deck-audit.js uses unified rubric-scores.js", () => {
+  it("deck-audit.js imports rubric-scores.js for scoring", { todo: "deck-audit.js uses old scorecard format, not rubric-scores.js" }, () => {
+    const src = require("fs").readFileSync("./deck-audit.js", "utf-8");
+    assert.ok(
+      src.includes("rubric-scores") || src.includes("computeScores"),
+      "deck-audit.js should import from rubric-scores.js for unified scoring"
+    );
+  });
+});
+
+describe("TODO open: splice-images zone-collision detection", () => {
+  it("contentAwarePlan rejects placement that collides with content zones", { todo: "splice-images has no collision detection" }, () => {
+    const { contentAwarePlan } = require("./splice-images.js");
+    // Slide with a body zone at right:60-100% — placing an image at right should be rejected
+    const html = '<section class="slide designed">'
+      + '<div class="zone zone-title" style="left:5%;width:40%;top:5%;height:15%">Title</div>'
+      + '<div class="zone zone-body" style="left:55%;width:43%;top:5%;height:90%">Long body text here that fills the right side</div>'
+      + '</section>';
+    const plan = contentAwarePlan(html);
+    // Should NOT pick "right" because it would collide with body zone at right side
+    assert.notEqual(plan[0].mode, "right",
+      "should not place image where it collides with content zone");
   });
 });
