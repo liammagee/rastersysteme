@@ -73,8 +73,8 @@ v10-v13 all converge to the same aesthetic: warm cream, serif, brown accents, co
 - [x] **Brief generator** — `generate-brief.js` built: color theory palettes, 10 font pairings, 12 moods, 7 accent systems. Each run genuinely different.
 - [x] **Compose brief injection** — compose.js calls `generate-brief.js` when no `--brief`. Default is WILD. v15 proved it works (indigo/acid-yellow/Futura).
 - [ ] **Palette diversity in corpus** — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
-- [ ] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
-- [ ] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
+- [x] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
+- [x] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
 - [ ] **Rubric anti-template audit** — review every metric for template bias. Does staying within a narrow "safe" band score higher? If so, the rubric is rewarding conformity.
 - [ ] **Generative typography** — support Google Fonts / system fonts beyond the 5 current options. Constraint is readability, not familiarity.
 
@@ -106,9 +106,9 @@ The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weinga
 
 **Medium priority (partially formalizable):**
 - [x] **Reading path / visual flow** — analyze zone sequence (title row → label → body → image). Penalize layouts where the eye must jump backwards. Could use simple top-to-bottom, left-to-right heuristic.
-- [ ] **Focal point hierarchy** — measure which zone has the highest visual weight (largest area × highest contrast). Should be the title zone on most slides. Currently not distinguished from accent elements.
-- [ ] **Content density appropriateness** — different slide types need different densities. A section divider should be sparse (title only). A data slide should be dense (table + annotation). The rubric penalizes both equally via `lowDensitySlides`.
-- [ ] **Golden ratio detection** — check if key zone proportions approximate 1:1.618 (zone width / zone height, or body width / margin width). Aspirational but mathematically tractable.
+- [x] **Focal point hierarchy** — measure which zone has the highest visual weight (largest area × highest contrast). Should be the title zone on most slides. Currently not distinguished from accent elements.
+- [x] **Content density appropriateness** — different slide types need different densities. A section divider should be sparse (title only). A data slide should be dense (table + annotation). The rubric penalizes both equally via `lowDensitySlides`.
+- [x] **Golden ratio detection** — check if key zone proportions approximate 1:1.618 (zone width / zone height, or body width / margin width). Aspirational but mathematically tractable.
 
 **Low priority (requires vision model):**
 - [ ] **Communicability** — does the layout encode meaning? (split = comparison, stagger = sequence, overlap = layering). Requires understanding content semantics + layout choice. RUBRIC.md dimension 2, currently null.
@@ -120,13 +120,13 @@ The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weinga
 - [ ] **Cross-version palette comparison** — a tool that compares v10-v15 bg palettes side-by-side to detect convergence. Could integrate into `/rs:audit`
 - [ ] **Complete outer loop cycle** — still haven't done one: UAT checklist reviewed by user → feedback into rubric-blind-spot → rubric change → re-evaluate. The tools exist but the cycle hasn't run
 - [ ] **Deck-type parameter** — paper deck and lecture deck have different expectations. rubric should calibrate for type (lecture=dense, paper=editorial, workshop=code-heavy)
-- [ ] **Source markdown cleanup** — S7 garbled bold formatting (`****8****th`) persists in the source. Every compose inherits it. Fix the source once.
-- [ ] **Deprecate run-rubric-eval.js** — all skills should use evaluate.js. The old command gives inflated scores without visual-audit merge.
+- [x] **Source markdown cleanup** — S7 garbled bold formatting (`****8****th`) persists in the source. Every compose inherits it. Fix the source once.
+- [x] **Deprecate run-rubric-eval.js** — all skills should use evaluate.js. The old command gives inflated scores without visual-audit merge.
 
 **Compose.js improvements (teach, not measure):**
-- [ ] **Explicit Gestalt prompting** — add to DESIGN_BRIEF: "Related content must be visually proximate. Use zone proximity to encode information relationships."
-- [ ] **Modular scale enforcement** — add to DESIGN_BRIEF: "Use a consistent typographic scale. If title is 44px and ratio is major third, body should be 44/1.25^2 ≈ 28px, label ≈ 22px."
-- [ ] **Arnheim balance teaching** — add to DESIGN_BRIEF: "Visual weight = size × darkness × distance from center. Balance the slide: a large light zone can be balanced by a small dark accent."
+- [x] **Explicit Gestalt prompting** — add to DESIGN_BRIEF: "Related content must be visually proximate. Use zone proximity to encode information relationships."
+- [x] **Modular scale enforcement** — add to DESIGN_BRIEF: "Use a consistent typographic scale. If title is 44px and ratio is major third, body should be 44/1.25^2 ≈ 28px, label ≈ 22px."
+- [x] **Arnheim balance teaching** — add to DESIGN_BRIEF: "Visual weight = size × darkness × distance from center. Balance the slide: a large light zone can be balanced by a small dark accent."
 
 ### TODO completion rate is overstated
 59/60 "closed" includes many "tool built but not validated" items. **Honest count**: ~40 genuinely validated, ~19 tools-exist-but-unproven, 1 other agent.
