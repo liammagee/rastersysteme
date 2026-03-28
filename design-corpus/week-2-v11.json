@@ -3,7 +3,7 @@
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v11.html",
   "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v11.composed.md",
   "sourceType": "file",
-  "timestamp": "2026-03-28T16:04:33.466Z",
+  "timestamp": "2026-03-28T16:54:10.741Z",
   "fingerprint": {
     "slideCount": 36,
     "directiveFormat": "json",
@@ -35,9 +35,9 @@
         28,
         44
       ],
-      "titleSizeAvg": 36,
+      "titleSizeAvg": 35,
       "bodySizeRange": [
-        11,
+        13,
         18
       ],
       "titleWeightRange": [
@@ -51,20 +51,20 @@
     },
     "zones": {
       "archetypes": {
-        "monument": 10,
-        "standard": 4,
+        "monument": 9,
+        "title-only": 3,
+        "multi-zone": 1,
         "right-anchored": 4,
-        "multi-zone": 2,
+        "image-only": 3,
         "sidebar-left": 4,
-        "image-only": 1,
-        "other": 5,
-        "minimal": 1,
-        "title-only": 1,
+        "other": 3,
+        "minimal": 2,
+        "standard": 3,
         "editorial": 2,
         "narrow-column": 2
       },
       "uniqueArchetypes": 11,
-      "maxConsecutiveSame": 3,
+      "maxConsecutiveSame": 2,
       "uniqueColStarts": 14,
       "uniqueSpanWidths": 16
     },

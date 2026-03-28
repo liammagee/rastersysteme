@@ -1,93 +1,10 @@
 {
   "deck": "week-2-v10",
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v10.html",
-  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v10.composed.md",
-  "sourceType": "file",
-  "timestamp": "2026-03-28T16:04:33.465Z",
-  "fingerprint": {
-    "slideCount": 36,
-    "directiveFormat": "json",
-    "inferredIntensity": "maximal",
-    "palette": {
-      "backgrounds": [
-        "F4EDE4",
-        "EBE3D5",
-        "F0F0EC",
-        "E8DFD0",
-        "F2EBE0",
-        "1A1F2E",
-        "F5F0E8",
-        "1E2A38",
-        "2C3440"
-      ],
-      "bgFrequency": {
-        "F4EDE4": 8,
-        "EBE3D5": 6,
-        "F0F0EC": 5,
-        "E8DFD0": 4,
-        "F2EBE0": 3,
-        "1A1F2E": 3,
-        "F5F0E8": 4,
-        "1E2A38": 2,
-        "2C3440": 1
-      },
-      "lightPct": 83,
-      "darkCount": 6,
-      "arcCrossings": 11,
-      "dominantBg": "F4EDE4"
-    },
-    "typography": {
-      "titleSizeRange": [
-        28,
-        48
-      ],
-      "titleSizeAvg": 35,
-      "bodySizeRange": [
-        10,
-        18
-      ],
-      "titleWeightRange": [
-        300,
-        900
-      ],
-      "fontUsage": {
-        "Helvetica Neue": 29,
-        "Georgia": 7
-      }
-    },
-    "zones": {
-      "archetypes": {
-        "monument": 8,
-        "standard": 5,
-        "right-anchored": 4,
-        "other": 8,
-        "sidebar-left": 3,
-        "image-only": 1,
-        "multi-zone": 1,
-        "narrow-column": 1,
-        "editorial": 4,
-        "title-only": 1
-      },
-      "uniqueArchetypes": 10,
-      "maxConsecutiveSame": 5,
-      "uniqueColStarts": 14,
-      "uniqueSpanWidths": 16
-    },
-    "accents": {
-      "slidesWithAccents": 26,
-      "accentPct": 72,
-      "types": {
-        "line": 9,
-        "bar": 16,
-        "dot": 2
-      },
-      "colors": [
-        "C45B28",
-        "2E6B50",
-        "D4A574"
-      ]
-    }
-  },
+  "sourcePath": null,
+  "sourceType": null,
+  "timestamp": "2026-03-28T16:54:10.740Z",
+  "fingerprint": null,
   "scores": null,
   "analysis": {
     "strengths": [],

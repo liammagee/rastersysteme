@@ -1,50 +1,48 @@
 # Design Insights
 
 Data-driven composition guidance derived from the design corpus.
-Generated: 2026-03-28 from 7 scored decks.
+Generated: 2026-03-28 from 9 scored decks.
 
 These rules are injected into Claude composition prompts alongside design-lessons.md.
 Each rule is backed by corpus evidence (deck count, score correlation).
 
 ## Palette & Accessibility
 
-- **Light orientation >= 80%**: avg accessibility 7.3/10 (n=5)
+- **Light orientation >= 80%**: avg accessibility 7.4/10 (n=7)
 - **Light orientation < 60%**: avg accessibility 2.4/10 (n=2) — avoid
-- **Chromatic arc >= 3 crossings**: avg color 9.7/10 (n=6)
+- **Chromatic arc >= 3 crossings**: avg color 9.8/10 (n=8)
 - **Background variety**: median 6 unique backgrounds across corpus
 
 ## Grid & Zone Archetypes
 
-- **>=5 archetypes**: avg grid 10.0/10 (n=6)
-- **Consecutive same archetype >=3**: avg coherence 8.0 vs <=2: 7.0
-- **Column start variety**: median 8 unique col starts
+- **>=5 archetypes**: avg grid 10.0/10 (n=7)
+- **Consecutive same archetype >=3**: avg coherence 8.5 vs <=2: 7.0
+- **Column start variety**: median 10 unique col starts
 
 ## Typography
 
 - **Title size**: median avg 36px across corpus
-- **Font variety**: median 2 fonts per deck
+- **Font variety**: median 3 fonts per deck
 
 ## Accents
 
 - **Accent frequency**: median 83% of slides have accents
-- **Most used accent types**: bar (99x), line (78x), dot (53x), block (3x)
+- **Most used accent types**: bar (130x), line (89x), dot (62x), block (11x)
 
 ## Content Completeness
 
-- **Corpus median content score**: 6/10
-- **Content completeness is the weakest dimension** — prioritize zone-content matching
+- **Corpus median content score**: 8.7/10
 
 ## Intensity Profile Patterns
 
-- **maximal**: avg normalized score 76% (n=7)
-  - Weak dimensions: contentCompleteness (5.5), accessibility (5.9)
+- **maximal**: avg normalized score 79% (n=9)
 
 ## Exemplar Decks
 
-**Best**: week-2-v3 (95% — Exhibition)
+**Best**: week-2-v7 (100% — Exhibition)
   - Intensity: maximal
-  - Palette: 4 bgs, 83% light
-  - Archetypes: 12 unique
+  - Palette: 7 bgs, 83% light
+  - Archetypes: 10 unique
   - Fonts: Futura, Helvetica Neue, Georgia
 
 **Weakest**: week-1e (38% — Broken)
@@ -63,18 +61,16 @@ _These rules are extracted by corpus-synthesize.js and injected into compose.js.
 - **[SHOULD]** Use 6+ unique background colors for palette diversity.
   _Evidence: Corpus median: 6 unique backgrounds_
 - **[SHOULD]** Limit consecutive same-archetype slides to <=2. Runs of 3+ reduce coherence-variance.
-  _Evidence: maxConsec>=3: avg coherence 8.0 vs maxConsec<=2: avg 7.0_
-- **[SHOULD]** Vary zone col starts across 8+ unique positions. Avoids monotonous left-anchoring.
-  _Evidence: Corpus median: 8 unique col starts_
-- **[SHOULD]** Use 2+ fonts with intentional alternation (serif/sans/mono).
-  _Evidence: Corpus median: 2 fonts per deck_
+  _Evidence: maxConsec>=3: avg coherence 8.5 vs maxConsec<=2: avg 7.0_
+- **[SHOULD]** Vary zone col starts across 10+ unique positions. Avoids monotonous left-anchoring.
+  _Evidence: Corpus median: 10 unique col starts_
+- **[SHOULD]** Use 3+ fonts with intentional alternation (serif/sans/mono).
+  _Evidence: Corpus median: 3 fonts per deck_
 - **[SHOULD]** Target ~83% of slides with accent elements. Over-accenting reduces clarity.
   _Evidence: Corpus median: 83% accent frequency_
 - **[MUST]** Use >=80% light backgrounds (lightPct >= 80).
-  _Evidence: 5 decks with >=80% light: avg accessibility 7.3/10_
+  _Evidence: 7 decks with >=80% light: avg accessibility 7.4/10_
 - **[MUST]** Maintain >=3 light/dark chromatic arc crossings across the deck.
-  _Evidence: 6 decks with >=3 crossings: avg color 9.7/10_
+  _Evidence: 8 decks with >=3 crossings: avg color 9.8/10_
 - **[MUST]** Use >=5 distinct zone archetypes (monument, sidebar-left, editorial, right-anchored, narrow-column, etc.).
-  _Evidence: 6 decks with >=5 archetypes: avg grid 10.0/10_
-- **[MUST]** Content completeness is the weakest dimension in the corpus. Prioritize: remove empty body zones from image-only slides, expand table zones, verify all body text has a zone.
-  _Evidence: Median content score: 6/10 (lowest across dimensions)_
+  _Evidence: 7 decks with >=5 archetypes: avg grid 10.0/10_

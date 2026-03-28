@@ -1,0 +1,131 @@
+{
+  "deck": "week-4-workshop",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-4-workshop.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-4-workshop.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-28T16:54:10.753Z",
+  "fingerprint": {
+    "slideCount": 17,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "0B1D33",
+        "F7F3ED",
+        "F0EBE3",
+        "FAFAF7",
+        "EDE7DB",
+        "F5EFE0",
+        "142740"
+      ],
+      "bgFrequency": {
+        "142740": 1,
+        "0B1D33": 2,
+        "F7F3ED": 5,
+        "F0EBE3": 3,
+        "FAFAF7": 4,
+        "EDE7DB": 1,
+        "F5EFE0": 1
+      },
+      "lightPct": 82,
+      "darkCount": 3,
+      "arcCrossings": 5,
+      "dominantBg": "F7F3ED"
+    },
+    "typography": {
+      "titleSizeRange": [
+        26,
+        40
+      ],
+      "titleSizeAvg": 33,
+      "bodySizeRange": [
+        13,
+        16
+      ],
+      "titleWeightRange": [
+        700,
+        900
+      ],
+      "fontUsage": {
+        "Futura": 3,
+        "Helvetica Neue": 11,
+        "Georgia": 3
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "title-only": 1,
+        "other": 14,
+        "standard": 1,
+        "sidebar-left": 1
+      },
+      "uniqueArchetypes": 4,
+      "maxConsecutiveSame": 8,
+      "uniqueColStarts": 10,
+      "uniqueSpanWidths": 16
+    },
+    "accents": {
+      "slidesWithAccents": 11,
+      "accentPct": 65,
+      "types": {
+        "bar": 6,
+        "line": 4,
+        "dot": 2
+      },
+      "colors": [
+        "C4501A",
+        "3D7B8A"
+      ]
+    }
+  },
+  "scores": {
+    "dimensions": {
+      "accessibility": 5,
+      "communicability": null,
+      "taste": null,
+      "grid": 10,
+      "color": 10,
+      "balance": null,
+      "coherence": 10,
+      "images": 5,
+      "contentCompleteness": 8.7
+    },
+    "total": 48.7,
+    "max": 60,
+    "normalized": 81,
+    "tier": "Professional",
+    "runCount": 1
+  },
+  "analysis": {
+    "strengths": [
+      "grid",
+      "color",
+      "coherence",
+      "contentCompleteness"
+    ],
+    "weaknesses": [
+      "accessibility (5)",
+      "images (5)"
+    ],
+    "missing": [
+      "communicability",
+      "taste",
+      "balance"
+    ]
+  },
+  "lessons": [
+    {
+      "dimension": "color",
+      "finding": "Strong chromatic arc produces excellent color scores",
+      "parameter": "5 light/dark crossings",
+      "recommendation": "Maintain >=3 arc crossings per deck",
+      "positive": true
+    },
+    {
+      "dimension": "images",
+      "finding": "Excessive accents may conflict with image integration",
+      "parameter": "65% slides with accents",
+      "recommendation": "Reduce accent density on image-heavy slides"
+    }
+  ]
+}

@@ -3,35 +3,34 @@
   "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v10.spliced.html",
   "sourcePath": null,
   "sourceType": null,
-  "timestamp": "2026-03-28T16:04:33.465Z",
+  "timestamp": "2026-03-28T16:54:10.741Z",
   "fingerprint": null,
   "scores": {
     "dimensions": {
-      "accessibility": 7.5,
+      "accessibility": 6.5,
       "communicability": null,
       "taste": null,
-      "grid": 10,
+      "grid": 4,
       "color": 10,
       "balance": null,
       "coherence": 8.5,
       "images": 8,
-      "contentCompleteness": 1
+      "contentCompleteness": 7
     },
-    "total": 45,
+    "total": 44,
     "max": 60,
-    "normalized": 75,
+    "normalized": 73,
     "tier": "Professional",
     "runCount": 1
   },
   "analysis": {
     "strengths": [
-      "grid",
       "color",
       "coherence",
       "images"
     ],
     "weaknesses": [
-      "contentCompleteness (1)"
+      "grid (4)"
     ],
     "missing": [
       "communicability",
