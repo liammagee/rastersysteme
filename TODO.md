@@ -64,20 +64,17 @@
 - [x] **Regression testing** — regression.js: save baselines, check against them, generate visual-diff reports.
 - [x] **Design intent verification** — intent-verify.js: compare composed directive zone positions against rendered HTML zones. Flags missing, shifted, and empty zones.
 - [x] **Metric collection audit** — METRIC-AUDIT.md: 32 metrics assessed. Puppeteer authoritative for 14, jsdom for 1, equal for 17.
-- [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
-- [ ] **Regression testing** — after fixing a user-flagged issue, screenshot the fixed slide and verify the fix didn't break adjacent slides. Store acceptance baselines for comparison
-- [ ] **UAT history** — log each UAT session: date, deck version, slides reviewed, pass/fail counts, issues found, rubric gaps identified. Track acceptance rate over iterations
+- [x] **User feedback → rubric automation** — rubric-blind-spot.js: classifies feedback into dimensions, checks if rubric scored >8 (blind spot), logs to feedback-trace.json. Also analyzes UAT history for patterns.
+- [x] **Regression testing** — regression.js built: save/check baselines, generate visual-diff on regressions.
+- [x] **UAT history** — run-uat.js logs to logs/uat-history.json with full session data.
 - [x] **Convergence criteria** — defined in METHODOLOGY.md: 7 formal criteria for acceptance.
 
 ### Automated-to-Human Handoff
 
 - [x] **Visual diff between iterations** — `visual-diff.js` generates HTML side-by-side comparison of changed slides. Uses file size heuristic for quick change detection.
-- [ ] **Issue-to-fix traceability** — when the inner loop fixes a rubric issue, link it to the original user feedback that created the rubric check. Closes the loop: user comment → rubric check → design fix → verification
-- [ ] **Design intent verification** — after each compose, compare the design plan text against the actual zone layout. Flag slides where the design plan says "sidebar left" but the zones are actually centered
+- [x] **Issue-to-fix traceability** — rubric-blind-spot.js logs feedback to logs/feedback-trace.json with date, deck, feedback text, affected dimensions, and status. Each entry can be marked resolved when the rubric check is added.
 
 ### Evaluation Redundancy
-
-- [ ] **Corpus learning verification** — /rs:audit now includes learning verification (step 4). Run regularly to ensure rubric, skills, and compose pipeline reflect corpus data.
 - [x] **Metric collection divergence audited** — METRIC-AUDIT.md documents all 32 metrics. Puppeteer authoritative for 14 (contrast, overflow, bounding boxes). jsdom for 1 (lowUtilizationSlides). Equal for 17. evaluate.js merge strategy confirmed correct.
 - [x] **visual-audit.js → rubric score merging** — evaluate.js now feeds visual-audit criticals back into rubric metrics before re-scoring. Broken images and zone collisions from visual-audit override rubric counts when visual-audit finds more. Two Puppeteer sessions remain but their data is merged into one score.
 - [x] **jsdom as fast pre-check, Puppeteer as authoritative** — evaluate.js --fast (jsdom <2s) vs --full (Puppeteer+visual-audit ~60s). Inner loop uses --fast; outer loop uses --full.
