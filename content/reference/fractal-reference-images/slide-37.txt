@@ -1,0 +1,8 @@
+# Slide 37: Section 7: Design Theory Tests
+
+Bauhaus geometric abstraction, four quadrants on warm white ground separated by thin near-black crosshairs — upper-left contains a vermillion red grid pattern, upper-right contains concentric ultramarine blue circles, lower-left contains cadmium yellow triangles in balance, lower-right contains black and white checkerboard. Four theories, four geometries, one system. Constructivist curriculum, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, books, recognizable objects, 3D rendering, blending between quadrants
+
+Aspect: 16:9
+Style: Bauhaus

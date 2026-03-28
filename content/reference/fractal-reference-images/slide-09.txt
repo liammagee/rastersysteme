@@ -1,0 +1,8 @@
+# Slide 9: Code Block (Long)
+
+Bauhaus geometric abstraction, a tall near-black rectangle occupying most of the frame on warm white ground, filled with twenty thin horizontal cadmium yellow lines of varying lengths creating a rhythm of long and short — some indented from the left edge. Vermillion red small squares mark four positions along the left margin at irregular intervals. Dense monospaced energy. Constructivist composition, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, code, recognizable objects, 3D rendering, curves
+
+Aspect: 16:9
+Style: Bauhaus

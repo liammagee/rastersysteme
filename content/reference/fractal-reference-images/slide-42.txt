@@ -1,0 +1,8 @@
+# Slide 42: Section 8: Fractal Design Self-Reference
+
+Bauhaus geometric abstraction, a composition that contains a smaller version of itself — a large vermillion red rectangle on near-black ground containing a medium ultramarine blue rectangle containing a small cadmium yellow rectangle, and within the yellow rectangle the pattern begins again at microscopic scale. Self-reference as infinite constructivist regression. Kandinsky-inspired, hard edges, flat color, recursive nesting, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, mirrors, recognizable objects, 3D rendering, natural fractals, Mandelbrot
+
+Aspect: 16:9
+Style: Bauhaus

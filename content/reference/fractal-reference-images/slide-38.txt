@@ -1,0 +1,8 @@
+# Slide 38: Muller-Brockmann Grid Test
+
+Bauhaus geometric abstraction, a precise 12-column grid rendered in thin near-black lines on warm white ground, with select grid cells filled — vermillion red rectangle offset from left edge by two columns, ultramarine blue rectangle spanning four columns in the middle, cadmium yellow bar spanning three columns at right with top margin. Deliberate grid discipline with intentional breathing room. Constructivist Swiss grid homage, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, elements at column zero, full-bleed
+
+Aspect: 16:9
+Style: Bauhaus

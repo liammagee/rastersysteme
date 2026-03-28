@@ -1,0 +1,8 @@
+# Slide 1: Fractal Design Reference Deck
+
+Bauhaus geometric abstraction, a single large vermillion red circle intersected by a bold ultramarine blue horizontal bar and a cadmium yellow vertical bar, forming a cross through the circle's center, on a warm white ground. Small black squares arranged in a Fibonacci spiral pattern radiating outward from the intersection point. Kandinsky-inspired hard edges, constructivist composition, flat color fields, 16:9 aspect ratio, no shadows, no gradients, suprematist precision
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, words, recognizable objects, nature, faces, 3D rendering, lens flare
+
+Aspect: 16:9
+Style: Bauhaus

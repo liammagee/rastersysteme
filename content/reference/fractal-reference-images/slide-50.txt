@@ -1,0 +1,8 @@
+# Slide 50: Failure: Generic Alt Text
+
+Bauhaus geometric abstraction, a single featureless gray rectangle centered on warm white ground — no color, no distinctive shape, no identifying characteristics. The most generic possible geometric form. A thin near-black border is its only feature. Faint cadmium yellow and vermillion red shapes visible at the far margins, excluded from the main element. Anonymity as constructivist anti-pattern, hard edges, flat non-color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, distinctive features, personality, vivid color
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 2: Section 1: Content Types
+
+Bauhaus geometric abstraction, seven distinct geometric primitives arranged in a horizontal row on a near-black ground — vermillion red triangle, cadmium yellow circle, ultramarine blue rectangle, black semicircle, red diamond, yellow hexagon, blue trapezoid — each separated by thin white vertical lines. Constructivist catalog layout, Moholy-Nagy grid discipline, flat hard-edged shapes, primary colors, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, texture, brushstrokes
+
+Aspect: 16:9
+Style: Bauhaus

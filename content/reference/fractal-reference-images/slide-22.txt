@@ -1,0 +1,8 @@
+# Slide 22: Section 3: Typography Stress Tests
+
+Bauhaus geometric abstraction, three horizontal bars of dramatically different heights stacked on warm white ground — top bar is extremely tall and vermillion red, middle bar is medium and ultramarine blue, bottom bar is very thin and cadmium yellow. The scale contrast creates visual tension and hierarchy stress. Black vertical line at left margin. Constructivist scale study, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, fonts, typography, recognizable objects, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

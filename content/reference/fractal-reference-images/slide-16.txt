@@ -1,0 +1,8 @@
+# Slide 16: The Rubric That Scored 100%
+
+Bauhaus geometric abstraction, a perfect vermillion red circle centered on warm white ground, surrounded by a cadmium yellow square frame rotated 45 degrees to form a diamond, surrounded by an ultramarine blue circle. The geometric perfection radiates false confidence — too centered, too balanced, too complete. Near-black thin orthogonal lines bisect the composition. Kandinsky-inspired dangerous symmetry, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, numbers, letters, recognizable objects, 3D rendering, imperfection
+
+Aspect: 16:9
+Style: Bauhaus

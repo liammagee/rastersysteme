@@ -1,0 +1,8 @@
+# Slide 40: Gestalt Proximity Test
+
+Bauhaus geometric abstraction, three clusters of geometric shapes on warm white ground clearly separated by whitespace — left cluster: three vermillion red squares tightly grouped (inner loop tools), center cluster: three ultramarine blue circles tightly grouped (outer loop tools), right cluster: three cadmium yellow triangles tightly grouped (artifacts). Large gaps between clusters, small gaps within. Proximity creates grouping. Constructivist Gestalt demonstration, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, labels, recognizable objects, 3D rendering, evenly spaced elements
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 7: Small Table
+
+Bauhaus geometric abstraction, a compact 3x3 grid of thick black lines centered on a warm white ground, cells filled with vermillion red, cadmium yellow, and ultramarine blue in a balanced arrangement. Generous white space surrounds the small grid. A single thin red horizontal line extends from the grid to the right edge. Minimalist constructivist table, Mondrian precision, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, complexity, density, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 23: Long Title That Wraps
+
+Bauhaus geometric abstraction, a single vermillion red horizontal bar that extends beyond the right edge of the frame, wrapping to continue on a second line below — two long parallel bars with the second slightly shorter, on warm white ground. Ultramarine blue small square anchors the upper left. Cadmium yellow thin line underscores both bars. Overflow as constructivist tension, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, words, recognizable objects, 3D rendering, containment
+
+Aspect: 16:9
+Style: Bauhaus

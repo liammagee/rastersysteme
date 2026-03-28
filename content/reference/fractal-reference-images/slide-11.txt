@@ -1,0 +1,8 @@
+# Slide 11: Mixed Content: Bullets + Table
+
+Bauhaus geometric abstraction, the composition divided into two zones — left half contains five horizontal vermillion red bars stacked vertically, right half contains a 3x4 grid of ultramarine blue and cadmium yellow filled cells with black grid lines. A thin black vertical line separates the two zones. The duality of list and table as pure constructivist geometry. Warm white ground, Moholy-Nagy inspired, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, curves, blending
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 45: Generative
+
+Bauhaus geometric abstraction, a single vermillion red square in the upper-left corner of warm white ground, with a simple rule visibly propagating — each iteration produces a slightly rotated and scaled copy, creating a cascade of red squares diminishing diagonally toward lower-right, shifting through ultramarine blue to cadmium yellow as they shrink. Simple rule, complex output. Constructivist emergence, hard edges, flat color, generative pattern, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, randomness, chaos, natural growth
+
+Aspect: 16:9
+Style: Bauhaus

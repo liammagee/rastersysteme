@@ -1,0 +1,8 @@
+# Slide 27: Content for Mid-Tone Testing
+
+Bauhaus geometric abstraction, the entire ground is a medium gray value (the danger zone), with geometric shapes struggling for visibility — faint vermillion red bars, dim ultramarine blue circles, muted cadmium yellow triangles, all barely distinguishable against the gray. Near-black and white thin lines cut through providing the only clear contrast. Constructivist visibility test, hard edges, flat color, uneasy equilibrium, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, high contrast, vibrant colors
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 3: Simple Bullets
+
+Bauhaus geometric abstraction, five horizontal vermillion red bars of equal width stacked vertically with even spacing on a warm white ground, each bar slightly offset to the right creating a gentle diagonal rhythm. A single ultramarine blue circle anchors the upper left. Cadmium yellow thin vertical line at the left margin. Kandinsky-inspired orderly rhythm, constructivist composition, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, curves, spirals, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

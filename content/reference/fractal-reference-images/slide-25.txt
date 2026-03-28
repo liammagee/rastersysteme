@@ -1,0 +1,8 @@
+# Slide 25: Section 4: Color & Contrast Edge Cases
+
+Bauhaus geometric abstraction, the warm white ground divided into three vertical zones — left zone transitions from near-black to dark gray, center zone is a dangerous mid-gray, right zone is bright cadmium yellow and vermillion red on white. Ultramarine blue circles appear in all three zones testing visibility. Contrast spectrum as constructivist color study, hard edges, flat color fields, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients blending between zones, decoration, text, letters, recognizable objects, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

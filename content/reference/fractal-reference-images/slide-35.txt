@@ -1,0 +1,8 @@
+# Slide 35: Slide With Only a Blockquote
+
+Bauhaus geometric abstraction, a bold cadmium yellow vertical bar at the left margin on near-black ground, with a single large ultramarine blue rectangle floating to its right in the center of the composition. Warm white thin horizontal line beneath the blue rectangle. Vermillion red small square at upper-right corner. Solitary statement as constructivist monument, Kandinsky-inspired gravitas, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, quotation marks, recognizable objects, 3D rendering, multiple elements, complexity
+
+Aspect: 16:9
+Style: Bauhaus

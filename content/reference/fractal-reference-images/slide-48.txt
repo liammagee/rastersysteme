@@ -1,0 +1,8 @@
+# Slide 48: Failure: All Zones at Col:0
+
+Bauhaus geometric abstraction, all elements crammed against the left edge of the frame on warm white ground — vermillion red bars, ultramarine blue circles, and cadmium yellow triangles all start at x-position zero with no margin, no offset, no breathing room. The right three-quarters of the composition is empty white. Claustrophobic left edge, wasted space. Deliberate constructivist anti-pattern, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, good margins, balanced layout, centered
+
+Aspect: 16:9
+Style: Bauhaus

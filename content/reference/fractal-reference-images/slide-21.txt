@@ -1,0 +1,8 @@
+# Slide 21: Image-Heavy Slide
+
+Bauhaus geometric abstraction, four large rectangles arranged in a 2x2 grid on near-black ground, each filled with a different bold composition — upper-left: vermillion red field with black circle, upper-right: cadmium yellow field with blue triangle, lower-left: ultramarine blue field with red bar, lower-right: white field with yellow semicircle. Gallery wall as constructivist mosaic. Hard edges, flat color, Kandinsky-inspired, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, photographs, recognizable objects, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

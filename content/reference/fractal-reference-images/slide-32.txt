@@ -1,0 +1,8 @@
+# Slide 32: ASCII Art (Large Code Block)
+
+Bauhaus geometric abstraction, a large near-black rectangle fills most of the frame on warm white ground, containing a precise grid of small cadmium yellow squares and dots arranged to form a larger geometric pattern — squares within squares, readable as pure grid logic. Vermillion red single dot at origin point upper-left. Ultramarine blue border. Monospaced grid as constructivist pixel art, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, ASCII characters, recognizable objects, 3D rendering, curves
+
+Aspect: 16:9
+Style: Bauhaus

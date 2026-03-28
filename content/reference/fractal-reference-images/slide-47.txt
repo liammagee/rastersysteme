@@ -1,0 +1,8 @@
+# Slide 47: Appendix: Failure Mode Catalog
+
+Bauhaus geometric abstraction, five vermillion red rectangles arranged in a row on near-black ground, each containing a visible geometric flaw — first has shapes touching all edges (no margin), second is overloaded with overlapping yellow elements, third contains only a gray void, fourth has elements that clip beyond its borders, fifth has misaligned grid lines. A catalog of imperfection. Constructivist failure taxonomy, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, perfection, beauty, harmony
+
+Aspect: 16:9
+Style: Bauhaus

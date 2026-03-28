@@ -1,0 +1,8 @@
+# Slide 8: Code Block (Short)
+
+Bauhaus geometric abstraction, a small near-black rectangle centered on warm white ground containing four thin horizontal cadmium yellow lines of varying length, evenly spaced. The black rectangle is crisp and precise. A single vermillion red small square sits at the upper-left corner of the black rectangle. Ultramarine blue thin border frames the entire composition. Constructivist terminal aesthetic, monospaced rhythm, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, code, recognizable objects, 3D rendering, curves
+
+Aspect: 16:9
+Style: Bauhaus

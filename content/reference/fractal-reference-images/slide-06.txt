@@ -1,0 +1,8 @@
+# Slide 6: Large Table
+
+Bauhaus geometric abstraction, a large orthogonal grid of thin black lines on warm white ground forming a 6x8 matrix, cells alternately filled with vermillion red, cadmium yellow, ultramarine blue, and white in a systematic pattern. Grid lines are precise and even. Mondrian-meets-Moholy-Nagy tabular structure, constructivist composition, hard edges, flat color fields, no decoration, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, diagonal lines, curves, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 10: Blockquote
+
+Bauhaus geometric abstraction, a thick cadmium yellow vertical bar on the left side of the composition, with a large ultramarine blue rectangular field to its right occupying the upper two-thirds of the frame. Below, a warm white field with thin vermillion red horizontal lines. The yellow bar acts as a quotation mark in pure geometry. Near-black ground at the margins. Kandinsky-inspired contemplative asymmetry, constructivist composition, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, quotation marks, recognizable objects, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

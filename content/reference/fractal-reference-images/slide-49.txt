@@ -1,0 +1,8 @@
+# Slide 49: Failure: Accent Overload
+
+Bauhaus geometric abstraction, the composition overwhelmed with accent elements — thick cadmium yellow diagonal bars, bold vermillion red circles, heavy ultramarine blue triangles all competing for attention on near-black ground. Every element screams for priority. Nothing recedes, nothing supports, everything is foreground. Visual noise as constructivist cautionary tale, hard edges, flat color, maximum saturation everywhere, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, subtlety, hierarchy, restraint, whitespace
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 15: Section 2: Layout Archetypes
+
+Bauhaus geometric abstraction, seven rectangles of different proportions arranged on a near-black ground — each filled with a different combination of vermillion red, cadmium yellow, ultramarine blue, and white. The rectangles overlap slightly at edges, forming a collage of layout possibilities. Each rectangle suggests a different spatial arrangement. Moholy-Nagy constructivist collage, hard edges, flat color, architectural, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, symmetry
+
+Aspect: 16:9
+Style: Bauhaus

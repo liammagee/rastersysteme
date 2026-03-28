@@ -1,0 +1,8 @@
+# Slide 4: Nested Bullets
+
+Bauhaus geometric abstraction, three columns of stacked rectangles in a hierarchical tree structure on warm white ground — leftmost column has three large ultramarine blue rectangles, middle column has six medium vermillion red rectangles branching from the blue, rightmost column has twelve small cadmium yellow squares branching further. Thin black lines connect parent to child shapes. Constructivist organizational chart as pure geometry, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, shadows
+
+Aspect: 16:9
+Style: Bauhaus

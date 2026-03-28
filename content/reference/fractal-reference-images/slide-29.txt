@@ -1,0 +1,8 @@
+# Slide 29: Accent-Worthy Slide
+
+Bauhaus geometric abstraction, warm white ground with a bold cadmium yellow diagonal bar cutting from lower-left to upper-right — the accent — intersecting a field of orderly ultramarine blue horizontal lines. Where the yellow bar crosses each blue line, a small vermillion red square marks the intersection. The accent disrupts and energizes the grid. Constructivist punctuation, Kandinsky-inspired, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, recognizable objects, 3D rendering, symmetry, static composition
+
+Aspect: 16:9
+Style: Bauhaus

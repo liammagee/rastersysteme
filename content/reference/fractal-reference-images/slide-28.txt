@@ -1,0 +1,8 @@
+# Slide 28: Section 5: Accent & Whitespace
+
+Bauhaus geometric abstraction, vast warm white ground with minimal elements — a single thin vermillion red horizontal line in the upper third, a small ultramarine blue circle in the lower right, and a cadmium yellow dot near the center. Maximum whitespace, minimum geometry. The silence between marks is the composition. Moholy-Nagy inspired restraint, constructivist minimalism, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, density, clutter, recognizable objects, 3D rendering, complexity
+
+Aspect: 16:9
+Style: Bauhaus

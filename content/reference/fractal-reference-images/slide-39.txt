@@ -1,0 +1,8 @@
+# Slide 39: Itten Color Contrast Test
+
+Bauhaus geometric abstraction, seven vertical strips on near-black ground demonstrating color relationships — vermillion red next to ultramarine blue (hue contrast), light yellow next to dark blue (value contrast), warm red next to cool blue (temperature), red next to green stripe (complementary), pure yellow next to muted ochre (saturation), large red field next to small blue dot (extension), simultaneous contrast gray strip between colors. Itten's seven contrasts as constructivist spectrum, hard edges, flat color, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients blending, decoration, text, letters, color wheels, recognizable objects, 3D rendering
+
+Aspect: 16:9
+Style: Bauhaus

@@ -1,0 +1,8 @@
+# Slide 26: Fractal Design
+
+Bauhaus geometric abstraction, a large vermillion red rectangle containing a medium ultramarine blue rectangle containing a small cadmium yellow rectangle containing a tiny near-black rectangle — nested concentrically on warm white ground. Each rectangle shares the same proportional aspect ratio. Self-similarity as constructivist recursion. Kandinsky-inspired, hard edges, flat color, geometric precision, 16:9 aspect ratio
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, letters, fractals, spirals, recognizable objects, 3D rendering, natural patterns
+
+Aspect: 16:9
+Style: Bauhaus
