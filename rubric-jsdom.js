@@ -461,6 +461,24 @@ function evaluate(htmlPath) {
   const uniqueBgs = new Set(bgs.map(hexRGB));
   const hasArc = bgs.length > 1 && [...new Set(bgs.map(b => lum(b) > 0.5 ? 'L' : 'D'))].length > 1;
 
+  // ── Background hue range (palette diversity) ──
+  // Convert light backgrounds to HSL hue, measure the range
+  const lightBgHues = bgs
+    .filter(b => lum(b) > 0.3) // light backgrounds only
+    .map(b => {
+      const max = Math.max(b.r, b.g, b.b), min = Math.min(b.r, b.g, b.b);
+      if (max === min) return 0; // achromatic
+      let h;
+      if (max === b.r) h = ((b.g - b.b) / (max - min)) % 6;
+      else if (max === b.g) h = (b.b - b.r) / (max - min) + 2;
+      else h = (b.r - b.g) / (max - min) + 4;
+      return Math.round(h * 60 + 360) % 360;
+    })
+    .filter(h => h > 0); // exclude achromatic
+  const bgHueRange = lightBgHues.length > 1
+    ? Math.max(...lightBgHues) - Math.min(...lightBgHues)
+    : lightBgHues.length === 1 ? 0 : 999; // 999 = no chromatic bgs (neutral)
+
   // ── NEW: Chromatic transition smoothness ──
   const bgTransitions = [];
   for (let i = 1; i < bgs.length; i++) {
@@ -592,7 +610,9 @@ function evaluate(htmlPath) {
     lowDensitySlides, linkOnlySlides, duplicateTextSlides, sparseSlides, genericAltTotal,
     zoneCollisionSlides, lowUtilizationSlides,
     // v4 splice metrics
-    spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal
+    spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal,
+    // v9 diversity metrics
+    bgHueRange
   };
 }
 

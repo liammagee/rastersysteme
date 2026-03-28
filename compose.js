@@ -1144,10 +1144,10 @@ COMPOSITIONAL EMPHASIS: ${seed}
 The source deck has ${total} slides. Design a COMPLETE visual system for it.
 IMPORTANT: Your palette MUST match the ${themeName.toUpperCase()} theme.
 ${themeName === "light" ? `LIGHT THEME RULES:
-- The ground/dominant colour MUST be a warm white or cream (luminance > 200). Examples: F8F5F0, FAFAF8, FFF8E7, EDE8E0.
-- NO dark colours (luminance < 100) in the "ground" or "dominant" role.
-- Dark colours are ONLY allowed in the "signal" or "accent" role, used on at most 1-2 slides.
-- 80%+ of slides must use the light ground colour as bg.` : themeName === "dark" ? "Include near-blacks (1A1A1A, 111111) as the DOMINANT ground. Every slide needs an explicit bg." : "Include theme-appropriate ground colours. Every slide needs an explicit bg."}
+- The ground colour should be DERIVED FROM THE CREATIVE BRIEF PALETTE — not defaulting to warm cream.
+- If the brief specifies a green palette, use tinted greens (e.g., E8F0E8, F0F5ED). If blue, use tinted blues (E8EDF5). If warm, use warm tones. FOLLOW THE BRIEF.
+- 80%+ of slides use the light ground. 2-3 slides use the dark bg from the brief palette.
+- DO NOT default to F8F5F0 or cream unless the brief specifically asks for warm/editorial.` : themeName === "dark" ? "Include near-blacks from the brief palette as the DOMINANT ground. Every slide needs an explicit bg." : "Include theme-appropriate ground colours from the brief palette. Every slide needs an explicit bg."}
 
 Output ONLY valid JSON (no code fences, no commentary):
 {
@@ -1201,8 +1201,9 @@ Output ONLY valid JSON (no code fences, no commentary):
           (c.role === "ground" || c.role === "dominant") &&
           parseInt(c.hex.slice(0, 2), 16) * 0.299 + parseInt(c.hex.slice(2, 4), 16) * 0.587 + parseInt(c.hex.slice(4, 6), 16) * 0.114 > 200);
         if (!hasLightGround) {
-          designSystem.palette.unshift({ hex: "F8F5F0", name: "Warm White", role: "ground" });
-          process.stderr.write(`  ${amber("⚠")} Added Warm White ground to palette\n`);
+          // Use a neutral light ground rather than warm cream — the brief palette should dominate
+          designSystem.palette.unshift({ hex: "F5F5F5", name: "Neutral Light", role: "ground" });
+          process.stderr.write(`  ${amber("⚠")} Added neutral light ground to palette\n`);
         }
       }
 

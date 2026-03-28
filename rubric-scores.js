@@ -57,12 +57,17 @@ function computeScores(metrics, opts = {}) {
   const transitionSmoothnessBonus = m.transitionVariance > 0
     ? (Math.sqrt(m.transitionVariance) / (m.avgTransition || 1) < 1.5 ? 1 : 0)
     : 0;
+  // Palette monotony: penalize when all light bgs are within a narrow warm-beige band
+  // (hue 20-50, sat < 30% — the "everything is cream" problem)
+  const paletteMonotony = (m.bgHueRange || 999) < 30 && (m.uniqueBgs || 0) > 2 ? -1.5 : 0;
+
   scores.color = Math.max(1, Math.min(10,
     Math.min((m.uniqueBgs || 0) / 4, 1.5) * 2
     + arcScore
     + transitionSmoothnessBonus
     + (m.maxConsecBg <= 2 ? 2.5 : m.maxConsecBg <= 3 ? 1.5 : 0.5)
     + (m.contrastErrors === 0 ? 1 : 0)
+    + paletteMonotony
   ));
 
   // ── 6. Balance (visual-only) ──
