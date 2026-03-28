@@ -41,48 +41,48 @@ function placementCSS(mode, imgPath, opts = {}) {
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:0;right:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "left":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:${size}%;height:100%;overflow:hidden;z-index:0;opacity:${scale.panel}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "top":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "bottom":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:0;left:0;width:100%;height:${size}%;overflow:hidden;z-index:0;opacity:${scale.strip}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-tr":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-bl":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "background":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${opts.bgOpacity || scale.bg};overflow:hidden"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${opts.bgOpacity || scale.bg};overflow:hidden"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
         after: ``,
       };
     case "overlay":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;overflow:hidden;opacity:${scale.overlay}"><img src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;overflow:hidden;opacity:${scale.overlay}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
         after: ``,
       };
     case "none":
@@ -256,13 +256,17 @@ function contentAwarePlan(html) {
     const occupiedCells = occupied.flat().filter(Boolean).length;
     const density = occupiedCells / totalCells;
 
-    // Only fall back to background if ALL options have >75% overlap
+    // If ALL placement options overlap >75% of text:
+    // - Sparse slides (density <= 0.3): use background at low opacity
+    // - Dense slides (density > 0.3): skip image entirely — text readability wins
     if (pick.overlap / pick.max > 0.75) {
-      lastMode = "background";
-      // Scale background opacity inversely with text density:
-      // dense slides (>60% occupied) get very low opacity
-      const bgOpacity = density > 0.6 ? 0.04 : density > 0.4 ? 0.06 : 0.08;
-      return { slide: idx + 1, mode: "background", size: 100, bgOpacity };
+      if (density <= 0.3) {
+        lastMode = "background";
+        const bgOpacity = density > 0.2 ? 0.06 : 0.08;
+        return { slide: idx + 1, mode: "background", size: 100, bgOpacity };
+      }
+      // Dense slide — no good placement exists, skip this image
+      return { slide: idx + 1, mode: "none" };
     }
 
     // If the best placement still overlaps text, prefer zero-overlap alternatives
@@ -338,8 +342,8 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
         return match; // Leave unchanged
       }
 
-      // Skip slides that already contain an image (from markdown or prior splice)
-      if (/<img\s/.test(content)) {
+      // Skip slides that already contain a SPLICED image (from prior splice) — not content images
+      if (/splice-img/.test(content)) {
         return match;
       }
 
@@ -375,12 +379,18 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
 if (require.main === module) {
   const args = process.argv.slice(2);
 
-  if (args.length < 2 || args.includes("--help")) {
+  if (args.length < 1 || args.includes("--help")) {
     console.log(`
   splice-images — inject images into an existing HTML slideshow with varied placement
 
   Usage:
-    node splice-images.js <slides.html> <images-dir> [options]
+    node splice-images.js <slides.html> [images-dir] [options]
+
+  If images-dir is omitted, auto-discovers from standard locations:
+    decks/<deckname>-images/          (preferred)
+    decks/<base>-images/              (e.g. week-2-images for week-2-v7)
+    decks/<base>.composed-images/     (legacy)
+    content/week-N/week-N-images/     (from imagine step)
 
   Claude analyzes each slide's content and picks the best placement:
     right/left    — image sidebar panel
@@ -408,7 +418,46 @@ if (require.main === module) {
   }
 
   const htmlPath = args[0];
-  const imagesDir = args[1];
+  let imagesDir = args.find(a => !a.startsWith("--") && a !== htmlPath);
+
+  // Auto-discover images directory if not specified
+  if (!imagesDir) {
+    const deckName = path.basename(htmlPath, path.extname(htmlPath))
+      .replace(/\.spliced$/, "").replace(/\.merged$/, "");
+    // Search standard locations in priority order:
+    // 1. decks/<deckname>-images/     (e.g. decks/week-2-v7-images/)
+    // 2. decks/<base>-images/         (e.g. decks/week-2-images/ for week-2-v7)
+    // 3. decks/<base>.composed-images/ (e.g. decks/week-2.composed-images/)
+    // 4. content/week-N/week-N-images/
+    const base = deckName.replace(/-v\d+$/, "").replace(/-\w+$/, "");
+    const candidates = [
+      path.join("decks", `${deckName}-images`),
+      path.join("decks", `${base}-images`),
+      path.join("decks", `${base}.composed-images`),
+    ];
+    // Also check content/week-N/ directories
+    const weekMatch = base.match(/week-(\d+)/);
+    if (weekMatch) {
+      candidates.push(path.join("content", `week-${weekMatch[1]}`, `week-${weekMatch[1]}-images`));
+      candidates.push(path.join("content", `week-${weekMatch[1]}`, "images"));
+    }
+    for (const dir of candidates) {
+      if (fs.existsSync(dir)) {
+        const pngs = fs.readdirSync(dir).filter(f => f.match(/^slide-\d+\.png$/));
+        if (pngs.length > 0) {
+          imagesDir = dir;
+          process.stderr.write(`  ${dim("Auto-discovered:")} ${teal(dir)} (${pngs.length} images)\n`);
+          break;
+        }
+      }
+    }
+    if (!imagesDir) {
+      console.error("Error: no images directory found. Searched:");
+      candidates.forEach(c => console.error("  " + c));
+      console.error("\nSpecify explicitly: node splice-images.js <deck.html> <images-dir>");
+      process.exit(1);
+    }
+  }
 
   function getFlag(flag) {
     const idx = args.indexOf(flag);

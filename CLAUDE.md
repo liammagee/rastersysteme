@@ -26,6 +26,11 @@ content/week-N/*.md    → source markdown (one file per week)
 *.composed.md          → markdown with design directives injected
   ↓ raster.js          → renders to HTML + PPTX
 decks/*.html           → final slide decks
+  ↓ splice-images.js   → merges generated images
+decks/*.spliced.html   → image-merged decks (evaluate these)
+
+Generated images: decks/<source>.composed-images/slide-NN.png
+  (auto-discovered by splice-images.js from deck name)
 ```
 
 ## Key Files

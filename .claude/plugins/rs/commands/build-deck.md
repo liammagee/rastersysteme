@@ -46,13 +46,17 @@ EOF
 node /tmp/render-deck.js
 ```
 
-**Always splice images before evaluating** if an image set exists for the source content:
+**Always splice images before evaluating** if an image set exists. Check these locations in order:
+
+1. `decks/<source>.composed-images/` — generated slide images from `/rs:imagine` (preferred, contains `slide-NN.png`)
+2. `content/week-N/week-N-images/` — legacy generated images
+3. `content/week-N/images/` — source content images (these are already in markdown, don't splice these)
 
 ```bash
-# Check for images
-ls content/week-N/images/ content/week-N/week-N-images/ 2>/dev/null
+# Check for composed images first (slide-NN.png format)
+ls decks/<source>.composed-images/slide-*.png 2>/dev/null
 # If found, splice them in
-node splice-images.js decks/<name>.html <images-dir>
+node splice-images.js decks/<name>.html decks/<source>.composed-images/
 # Evaluate the spliced version
 ```
 
