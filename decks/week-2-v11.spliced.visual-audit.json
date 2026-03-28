@@ -2,7 +2,7 @@
   "slideCount": 36,
   "counts": {
     "critical": 0,
-    "warning": 75,
+    "warning": 1,
     "info": 14
   },
   "issues": [
@@ -23,65 +23,6 @@
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
           "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 6,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Fundamental Processes of AI...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1Compare:...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—AI as the output of individual genius (...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Or instead a process of accumulating la...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Material / Mathematical foundations (ca...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Development of statistics: again, 17th ...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Colonization: how to control people at ...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Rise of industralialization, modernizat...\" over slide-06.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Early informatics: the printing press, ...\" over slide-06.png",
-          "severity": "warning"
         }
       ]
     },
@@ -108,17 +49,6 @@
           "type": "clipped-overflow",
           "detail": "zone-image: 321px clipped overflow",
           "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 10,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"‘If AI systems are seen as more reliable...\" over slide-10.png",
-          "severity": "warning"
         }
       ]
     },
@@ -153,154 +83,12 @@
       ]
     },
     {
-      "slide": 16,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"People likely know the famous first exam...\" over slide-16.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"But what of their other use? Ballistics,...\" over slide-16.png",
-          "severity": "warning"
-        }
-      ]
-    },
-    {
       "slide": 19,
       "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Thought experiment: Throwing a Stone...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"So let's throw a stone; we have essentia...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Can be done by hand, but each angle + ve...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"New problems: mass, shape of stone (etc....\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1angle of release...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2velocity (metres/yards per second)...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3gravity (wants to pull the stone back t...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"4drag (air resistance; varies with veloc...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"5So we now need fancy (17th century and ...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Euler's method (following Newton / Leib...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Step 1: x, y, velocity x, velocity y...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Step 2: new x, new y -> then new veloci...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—etc......\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"6Euler: 1760s...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"7Runge–Kutta Corrections: 1890s/1900s...\" over slide-19.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"8Initial computation: Euler method (1940...\" over slide-19.png",
-          "severity": "warning"
-        },
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
           "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 21,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"For those mathematically / philosophical...\" over slide-21.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1Much of AI-related - and general - comp...\" over slide-21.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2Note analog (non digital) calculators c...\" over slide-21.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3Continuous > discrete is always \"lossy\"...\" over slide-21.png",
-          "severity": "warning"
         }
       ]
     },
@@ -315,100 +103,12 @@
       ]
     },
     {
-      "slide": 25,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"AI in 2026: An Opinionated Take on the P...\" over slide-25.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"What's going on in the world of AI today...\" over slide-25.png",
-          "severity": "warning"
-        }
-      ]
-    },
-    {
       "slide": 26,
       "issues": [
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
           "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 27,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Rise of open source models...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1Mostly developed in China...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Xiaomi...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Alibaba Qwen...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Kimi...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Minimax...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—DeepSeek...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2Mistral (France)...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3Nemotron (Nvidia)...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"4Estimated 3-9 months beyond commercial ...\" over slide-27.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"5Issues around \"benchmaxxing\"; IP theft(...\" over slide-27.png",
-          "severity": "warning"
         }
       ]
     },
@@ -423,94 +123,12 @@
       ]
     },
     {
-      "slide": 29,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"...but also:...\" over slide-29.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"In Workshop 4 we'll be examining critici...\" over slide-29.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1More efficient GPUs (see Nvidia)...\" over slide-29.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2Better algorithms (especially from Chin...\" over slide-29.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3Better hardware (Apple): Open source mo...\" over slide-29.png",
-          "severity": "warning"
-        }
-      ]
-    },
-    {
       "slide": 30,
       "issues": [
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
           "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 31,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Education Issues: Cons...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1Plagiarism & Cognitive Offloading...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2Biased Results & Unequal Access...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3Potential Obsolescence of Teachers?...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"4Perverse Effects: Automated Assignments...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Bernard Stiegler's The Automatic Societ...\" over slide-31.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"5Subtle Changes: transfer of expertise f...\" over slide-31.png",
-          "severity": "warning"
         }
       ]
     },
@@ -525,120 +143,8 @@
       ]
     },
     {
-      "slide": 33,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"However: \"Bigger Picture\" Issues...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1. Predicted Erasure of White-Collar (Co...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2. What happens When AI works properly? ...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3. Concentration of Power: Owners of AI;...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Programming...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Design...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Games...\" over slide-33.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"—Entry-level professions...\" over slide-33.png",
-          "severity": "warning"
-        }
-      ]
-    },
-    {
-      "slide": 35,
-      "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Crisis in Higher Ed...\" over slide-35.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"1Spiralling costs...\" over slide-35.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"2Increased distrust in \"traditional\" kno...\" over slide-35.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"3Lack of effective pathways to professio...\" over slide-35.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"4Not yet, but anticipated...\" over slide-35.png",
-          "severity": "warning"
-        }
-      ]
-    },
-    {
       "slide": 36,
       "issues": [
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Next Week: The Technological Lens...\" over slide-36.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Unpacking the Black Box?...\" over slide-36.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Don't panic if next week's materials loo...\" over slide-36.png",
-          "severity": "warning"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"cgscholar.com →...\" over slide-36.png",
-          "severity": "warning"
-        },
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
