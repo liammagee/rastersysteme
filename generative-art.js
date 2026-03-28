@@ -35,14 +35,14 @@ const PALETTES = {
   kandinsky: {
     name: "Kandinsky Composition",
     bg: "#FAF6EE",
-    colors: ["#B7311A", "#0A1628", "#1B5E80", "#D4A843", "#2B7038", "#8B4513"],
-    accent: "#B7311A",
+    colors: ["#C62828", "#1565C0", "#F9A825", "#0A1628", "#2E7D32", "#6A1B9A"],
+    accent: "#C62828",
   },
   bauhaus: {
     name: "Bauhaus Primary",
     bg: "#F5F0E4",
-    colors: ["#CC0000", "#0044AA", "#FFCC00", "#000000", "#2B7038"],
-    accent: "#CC0000",
+    colors: ["#D50000", "#0043CE", "#FFD600", "#1A1A1A", "#00695C"],
+    accent: "#D50000",
   },
   navy: {
     name: "Midnight Navy",
@@ -93,10 +93,10 @@ function concentricCircles(cx, cy, maxR, rings, rand, colors) {
   for (let i = rings; i > 0; i--) {
     const r = (maxR * i) / rings;
     const color = colors[i % colors.length];
-    const opacity = 0.15 + rand() * 0.35;
-    const strokeWidth = 1 + rand() * 3;
-    const fill = rand() > 0.6 ? "none" : color;
-    const fillOpacity = fill === "none" ? 0 : 0.05 + rand() * 0.1;
+    const opacity = 0.4 + rand() * 0.4;
+    const strokeWidth = 2 + rand() * 5;
+    const fill = rand() > 0.5 ? "none" : color;
+    const fillOpacity = fill === "none" ? 0 : 0.1 + rand() * 0.2;
     svg += `  <circle cx="${cx}" cy="${cy}" r="${r.toFixed(1)}" fill="${fill}" fill-opacity="${fillOpacity.toFixed(2)}" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" opacity="${opacity.toFixed(2)}" />\n`;
   }
   return svg;
@@ -113,8 +113,8 @@ function intersectingArcs(cx, cy, r, count, rand, colors) {
     const x2 = cx + arcR * Math.cos(startAngle + sweep);
     const y2 = cy + arcR * Math.sin(startAngle + sweep);
     const color = colors[Math.floor(rand() * colors.length)];
-    const opacity = 0.2 + rand() * 0.4;
-    const strokeWidth = 1 + rand() * 4;
+    const opacity = 0.4 + rand() * 0.45;
+    const strokeWidth = 2 + rand() * 6;
     const largeArc = sweep > Math.PI ? 1 : 0;
     svg += `  <path d="M ${x1.toFixed(1)} ${y1.toFixed(1)} A ${arcR.toFixed(1)} ${arcR.toFixed(1)} 0 ${largeArc} 1 ${x2.toFixed(1)} ${y2.toFixed(1)}" fill="none" stroke="${color}" stroke-width="${strokeWidth.toFixed(1)}" opacity="${opacity.toFixed(2)}" stroke-linecap="round" />\n`;
   }
@@ -124,10 +124,10 @@ function intersectingArcs(cx, cy, r, count, rand, colors) {
 function gridLines(x, y, w, h, divisions, rand, colors) {
   let svg = "";
   for (let i = 0; i <= divisions; i++) {
-    const offset = rand() * 8 - 4; // stochastic jitter
+    const offset = rand() * 12 - 6; // stochastic jitter
     const color = colors[Math.floor(rand() * colors.length)];
-    const opacity = 0.08 + rand() * 0.15;
-    const strokeWidth = 0.5 + rand() * 2;
+    const opacity = 0.2 + rand() * 0.35;
+    const strokeWidth = 1 + rand() * 3;
     // Horizontal
     if (rand() > 0.3) {
       const ly = y + (h * i) / divisions + offset;
@@ -146,7 +146,7 @@ function fractalTriangles(cx, cy, size, depth, rand, colors) {
   if (depth <= 0 || size < 5) return "";
   let svg = "";
   const color = colors[Math.floor(rand() * colors.length)];
-  const opacity = 0.1 + rand() * 0.2;
+  const opacity = 0.3 + rand() * 0.4;
   const rotation = rand() * 360;
 
   // Triangle points
@@ -179,9 +179,9 @@ function floatingDots(w, h, count, rand, colors) {
   for (let i = 0; i < count; i++) {
     const x = rand() * w;
     const y = rand() * h;
-    const r = 2 + rand() * 12;
+    const r = 4 + rand() * 20;
     const color = colors[Math.floor(rand() * colors.length)];
-    const opacity = 0.1 + rand() * 0.3;
+    const opacity = 0.25 + rand() * 0.45;
     svg += `  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />\n`;
   }
   return svg;
@@ -198,8 +198,8 @@ function spiralPath(cx, cy, maxR, turns, rand, color) {
     const jitter = rand() * 3 - 1.5;
     points.push(`${(cx + (r + jitter) * Math.cos(angle)).toFixed(1)},${(cy + (r + jitter) * Math.sin(angle)).toFixed(1)}`);
   }
-  const opacity = 0.15 + rand() * 0.25;
-  svg += `  <polyline points="${points.join(" ")}" fill="none" stroke="${color}" stroke-width="1.5" opacity="${opacity.toFixed(2)}" />\n`;
+  const opacity = 0.35 + rand() * 0.35;
+  svg += `  <polyline points="${points.join(" ")}" fill="none" stroke="${color}" stroke-width="2.5" opacity="${opacity.toFixed(2)}" />\n`;
   return svg;
 }
 
@@ -253,16 +253,16 @@ const STRATEGIES = {
     let svg = "";
     const divisions = density === "sparse" ? 6 : density === "dense" ? 16 : 10;
     svg += gridLines(w * 0.05, h * 0.05, w * 0.9, h * 0.9, divisions, rand, colors);
-    // Add geometric accents at intersections
+    // Add geometric accents at intersections — be generous
     const step = Math.min(w, h) / divisions;
     for (let i = 0; i < divisions; i++) {
       for (let j = 0; j < divisions; j++) {
-        if (rand() > 0.85) {
+        if (rand() > 0.55) {
           const x = w * 0.05 + (w * 0.9 * i) / divisions;
           const y = h * 0.05 + (h * 0.9 * j) / divisions;
           const color = colors[Math.floor(rand() * colors.length)];
-          const size = 3 + rand() * 15;
-          const opacity = 0.15 + rand() * 0.3;
+          const size = 6 + rand() * 25;
+          const opacity = 0.3 + rand() * 0.4;
           if (rand() > 0.5) {
             svg += `  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />\n`;
           } else {
@@ -695,7 +695,7 @@ function convertAndSplice(outputDir, htmlPath) {
     try {
       const spliceResult = execSync(
         `node splice-images.js "${htmlPath}" "${outputDir}" --image-scale visible`,
-        { stdio: "pipe", cwd: path.dirname(path.resolve(htmlPath)) || "." }
+        { stdio: "pipe", cwd: __dirname }
       ).toString();
       const splicedPath = htmlPath.replace(/\.html$/, ".spliced.html");
       console.error(chalk.dim(`  Spliced → ${path.basename(splicedPath)}`));
