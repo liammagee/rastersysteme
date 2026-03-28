@@ -70,8 +70,8 @@
 
 v10-v13 all converge to the same aesthetic: warm cream, serif, brown accents, conservative layouts. The inner loop optimizes to "safe." The system needs to explore.
 
-- [ ] **Brief generator** — `generate-brief.js` that produces genuinely varied design briefs: random palette from color theory (complementary, split-complementary, triadic, analogous), unexpected font pairings, experimental accent systems, varied mood/tone. Each compose should feel like a different designer.
-- [ ] **Compose brief injection** — compose.js should call the brief generator when no `--brief` is specified. Default should be WILD, not safe. The user constrains; the system explores.
+- [x] **Brief generator** — `generate-brief.js` built: color theory palettes, 10 font pairings, 12 moods, 7 accent systems. Each run genuinely different.
+- [x] **Compose brief injection** — compose.js calls `generate-brief.js` when no `--brief`. Default is WILD. v15 proved it works (indigo/acid-yellow/Futura).
 - [ ] **Palette diversity in corpus** — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
 - [ ] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
 - [ ] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
@@ -114,6 +114,14 @@ The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weinga
 - [ ] **Communicability** — does the layout encode meaning? (split = comparison, stagger = sequence, overlap = layering). Requires understanding content semantics + layout choice. RUBRIC.md dimension 2, currently null.
 - [ ] **Taste / design-historical awareness** — does the deck show Swiss modernist discipline, Bauhaus geometry, or intentional rule-breaking? Requires vision + art-historical knowledge. RUBRIC.md dimension 3, currently null.
 - [ ] **Perceived balance** — does the slide "feel right"? Arnheim's visual weight can approximate this but calibration requires human feedback. RUBRIC.md dimension 6, currently null.
+
+**Missing from TODOs (identified during review):**
+- [ ] **Post-compose fixup integration test** — run fixup on a fresh compose and verify it catches S7/S21/S24 patterns automatically
+- [ ] **Cross-version palette comparison** — a tool that compares v10-v15 bg palettes side-by-side to detect convergence. Could integrate into `/rs:audit`
+- [ ] **Complete outer loop cycle** — still haven't done one: UAT checklist reviewed by user → feedback into rubric-blind-spot → rubric change → re-evaluate. The tools exist but the cycle hasn't run
+- [ ] **Deck-type parameter** — paper deck and lecture deck have different expectations. rubric should calibrate for type (lecture=dense, paper=editorial, workshop=code-heavy)
+- [ ] **Source markdown cleanup** — S7 garbled bold formatting (`****8****th`) persists in the source. Every compose inherits it. Fix the source once.
+- [ ] **Deprecate run-rubric-eval.js** — all skills should use evaluate.js. The old command gives inflated scores without visual-audit merge.
 
 **Compose.js improvements (teach, not measure):**
 - [ ] **Explicit Gestalt prompting** — add to DESIGN_BRIEF: "Related content must be visually proximate. Use zone proximity to encode information relationships."
