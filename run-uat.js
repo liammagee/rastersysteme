@@ -35,26 +35,35 @@ const composedPath = composedFlag >= 0 ? args[composedFlag + 1] : deckPath.repla
 const outputFlag = args.indexOf("--output");
 const outputPath = outputFlag >= 0 ? args[outputFlag + 1] : deckPath.replace(/\.html$/, ".uat.html");
 
-const screenshotDir = "/tmp/uat-screenshots";
 const projectRoot = path.resolve(__dirname);
+// Put screenshots next to the UAT HTML so they're served by the same web server
+const deckBase = path.basename(deckPath, ".html").replace(/\.spliced$/, "");
+const screenshotDir = path.join(path.dirname(outputPath), `${deckBase}-uat-screenshots`);
 
 console.log(chalk.cyan("\n  ■ UAT Runner"));
 console.log(chalk.dim(`  Deck: ${deckPath}`));
 console.log(chalk.dim(`  Composed: ${composedPath}`));
 
-// Step 1: Screenshots
+// Step 1: Screenshots — take to /tmp first, then copy to deck-relative dir
 console.log(chalk.yellow("\n  Step 1: Screenshotting every slide..."));
+const tmpScreenshots = "/tmp/rubric-screenshots";
 try {
   execSync(`node run-rubric-eval.js "${deckPath}" --screenshots-all`, {
     cwd: projectRoot,
     stdio: "pipe",
-    env: { ...process.env, RUBRIC_SCREENSHOT_DIR: screenshotDir }
   });
 } catch (e) {
   // run-rubric-eval exits with the rubric exit code; screenshots are still saved
 }
-// Screenshots land in /tmp/rubric-screenshots/ by default
-const actualScreenshotDir = "/tmp/rubric-screenshots";
+
+// Copy screenshots to deck-relative directory for web serving
+fs.mkdirSync(screenshotDir, { recursive: true });
+if (fs.existsSync(tmpScreenshots)) {
+  fs.readdirSync(tmpScreenshots).filter(f => f.endsWith(".png")).forEach(f => {
+    fs.copyFileSync(path.join(tmpScreenshots, f), path.join(screenshotDir, f));
+  });
+}
+const actualScreenshotDir = screenshotDir;
 const screenshots = fs.existsSync(actualScreenshotDir)
   ? fs.readdirSync(actualScreenshotDir).filter(f => f.endsWith(".png")).sort()
   : [];
@@ -139,7 +148,7 @@ for (let i = 0; i < slideCount; i++) {
       </div>
       <div class="comparison">
         <div class="screenshot">
-          ${ssPath ? `<img src="file://${path.resolve(ssPath)}" alt="Slide ${slideNum} screenshot">` : '<div class="no-screenshot">No screenshot</div>'}
+          ${ssPath ? `<img src="${path.relative(path.dirname(outputPath), ssPath)}" alt="Slide ${slideNum} screenshot">` : '<div class="no-screenshot">No screenshot</div>'}
         </div>
         <div class="wireframe-col">
           ${wfHTML}
