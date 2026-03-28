@@ -66,6 +66,18 @@
 - [x] **Metric collection audit** — METRIC-AUDIT.md: 32 metrics assessed. Puppeteer authoritative for 14, jsdom for 1, equal for 17.
 - [x] **User feedback → rubric automation** — rubric-blind-spot.js built. Not yet validated by real use.
 
+### Creative Dynamism (anti-template convergence)
+
+v10-v13 all converge to the same aesthetic: warm cream, serif, brown accents, conservative layouts. The inner loop optimizes to "safe." The system needs to explore.
+
+- [ ] **Brief generator** — `generate-brief.js` that produces genuinely varied design briefs: random palette from color theory (complementary, split-complementary, triadic, analogous), unexpected font pairings, experimental accent systems, varied mood/tone. Each compose should feel like a different designer.
+- [ ] **Compose brief injection** — compose.js should call the brief generator when no `--brief` is specified. Default should be WILD, not safe. The user constrains; the system explores.
+- [ ] **Palette diversity in corpus** — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
+- [ ] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
+- [ ] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
+- [ ] **Rubric anti-template audit** — review every metric for template bias. Does staying within a narrow "safe" band score higher? If so, the rubric is rewarding conformity.
+- [ ] **Generative typography** — support Google Fonts / system fonts beyond the 5 current options. Constraint is readability, not familiarity.
+
 ## Critical Gaps (honest assessment, 2026-03-28)
 
 ### The outer loop has never actually looped
