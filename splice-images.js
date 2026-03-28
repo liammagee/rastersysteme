@@ -78,7 +78,7 @@ function placementCSS(mode, imgPath, opts = {}) {
     case "background":
       return {
         wrapper: ``,
-        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${opts.bgOpacity || scale.bg};overflow:hidden"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        before: `<div style="position:absolute;inset:0;z-index:0;opacity:${opts.bgOpacity || scale.bg};mix-blend-mode:luminosity;overflow:hidden"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
         after: ``,
       };
     case "overlay":

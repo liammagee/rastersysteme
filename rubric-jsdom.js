@@ -243,11 +243,24 @@ function evaluate(htmlPath) {
       }
     });
 
+    let lowOpacitySplice = 0;
     slide.querySelectorAll('img').forEach(img => {
       const src = img.getAttribute('src');
       if (!src) return;
 
       totalImgs++;
+
+      // Check splice image visibility: walk up to find container opacity
+      if (img.classList.contains('splice-img')) {
+        let el = img.parentElement;
+        let opacity = 1;
+        while (el && el !== slide) {
+          const s = parseInlineStyle(el);
+          if (s['opacity']) opacity *= parseFloat(s['opacity']);
+          el = el.parentElement;
+        }
+        if (opacity < 0.25) lowOpacitySplice++;
+      }
 
       // Parse image position from inline style or nearest positioned parent
       const inlineStyle = parseInlineStyle(img);

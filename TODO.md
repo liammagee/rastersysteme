@@ -36,8 +36,7 @@
 ### Renderer / Composition
 
 - [x] **Bullet structure preservation** — false alarm: 18 "lost" bullets are in commented-out case study section. All intended bullets render correctly.
-- [ ] **Compose.js table-content zone assignment** — every new compose assigns "body" zones to table-content slides. Compose should emit "table" role for slides whose primary content is a table.
-- [ ] **Compose.js label→title zone** — compose emits "label" role for `###` headings, but the renderer expects "title". This causes extras to duplicate the title on every label-zone slide. Compose should emit "title" for headings.
+- [x] **Compose.js table/title zone guidance** — prompt now instructs Claude to use "table" for table slides and "title" for headings (not "label"). Tested.
 
 ### Design Database (self-improvement loop)
 
@@ -76,7 +75,7 @@
 
 - [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
 - [ ] **Design-lessons.md accumulation** — add rotation/summary mechanism.
-- [ ] **Acceptance test runner** — `node run-uat.js <deck>` that orchestrates: screenshot-all → wireframe → visual-audit → present checklist → collect feedback → update rubric → re-evaluate
+- [x] **Acceptance test runner** — `run-uat.js` built. Generates HTML checklist with per-slide screenshot+wireframe.
 
 ## Recently Closed
 
