@@ -72,7 +72,7 @@ v10-v13 all converge to the same aesthetic: warm cream, serif, brown accents, co
 
 - [x] **Brief generator** — `generate-brief.js` built: color theory palettes, 10 font pairings, 12 moods, 7 accent systems. Each run genuinely different.
 - [x] **Compose brief injection** — compose.js calls `generate-brief.js` when no `--brief`. Default is WILD. v15 proved it works (indigo/acid-yellow/Futura).
-- [ ] **Palette diversity in corpus** — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
+- [x] **Palette diversity in corpus** — palette-compare.js detects convergence. v10-v16 confirmed diverse. — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
 - [x] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
 - [x] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
 - [x] **Rubric anti-template audit** — review every metric for template bias. Does staying within a narrow "safe" band score higher? If so, the rubric is rewarding conformity.
@@ -117,7 +117,7 @@ The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weinga
 
 **Missing from TODOs (identified during review):**
 - [x] **Post-compose fixup integration test** — v16 verified: fixup auto-caught S24, source fix eliminated S7 garbled formatting permanently. — run fixup on a fresh compose and verify it catches S7/S21/S24 patterns automatically
-- [ ] **Cross-version palette comparison** — a tool that compares v10-v15 bg palettes side-by-side to detect convergence. Could integrate into `/rs:audit`
+- [x] **Cross-version palette comparison** — palette-compare.js built. v10-v16: 0% overlap between consecutive versions, zero colors in 3+ decks. — a tool that compares v10-v15 bg palettes side-by-side to detect convergence. Could integrate into `/rs:audit`
 - [ ] **Complete outer loop cycle** — still haven't done one: UAT checklist reviewed by user → feedback into rubric-blind-spot → rubric change → re-evaluate. The tools exist but the cycle hasn't run
 - [ ] **Deck-type parameter** — paper deck and lecture deck have different expectations. rubric should calibrate for type (lecture=dense, paper=editorial, workshop=code-heavy)
 - [x] **Source markdown cleanup** — S7 garbled bold formatting (`****8****th`) persists in the source. Every compose inherits it. Fix the source once.
