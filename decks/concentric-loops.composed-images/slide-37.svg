@@ -1,32 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <rect width="1920" height="1080" fill="#FAF6EE" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="389.9" fill="#1565C0" fill-opacity="0.11" stroke="#1565C0" stroke-width="7.0" opacity="0.44" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="334.2" fill="#C62828" fill-opacity="0.27" stroke="#C62828" stroke-width="6.3" opacity="0.53" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="278.5" fill="none" fill-opacity="0.00" stroke="#6A1B9A" stroke-width="4.1" opacity="0.46" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="222.8" fill="#2E7D32" fill-opacity="0.29" stroke="#2E7D32" stroke-width="4.6" opacity="0.78" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="167.1" fill="#0A1628" fill-opacity="0.26" stroke="#0A1628" stroke-width="3.7" opacity="0.67" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="111.4" fill="none" fill-opacity="0.00" stroke="#F9A825" stroke-width="4.2" opacity="0.47" />
-  <circle cx="1303.7416133786883" cy="415.14037088936664" r="55.7" fill="none" fill-opacity="0.00" stroke="#1565C0" stroke-width="4.4" opacity="0.48" />
-  <path d="M 1091.4 225.5 A 284.7 284.7 0 0 1 1546.4 266.2" fill="none" stroke="#2E7D32" stroke-width="6.3" opacity="0.55" stroke-linecap="round" />
-  <path d="M 1097.8 283.6 A 244.4 244.4 0 0 1 1525.5 517.8" fill="none" stroke="#6A1B9A" stroke-width="6.8" opacity="0.47" stroke-linecap="round" />
-  <path d="M 1431.3 539.8 A 178.4 178.4 0 0 1 1300.9 593.5" fill="none" stroke="#2E7D32" stroke-width="7.3" opacity="0.57" stroke-linecap="round" />
-  <path d="M 1452.5 590.0 A 229.6 229.6 0 0 1 1144.3 250.0" fill="none" stroke="#6A1B9A" stroke-width="5.5" opacity="0.81" stroke-linecap="round" />
-  <path d="M 1456.8 479.8 A 166.2 166.2 0 0 1 1288.9 580.6" fill="none" stroke="#1565C0" stroke-width="5.1" opacity="0.46" stroke-linecap="round" />
-  <path d="M 1633.5 286.6 A 353.9 353.9 0 0 1 1109.6 711.1" fill="none" stroke="#6A1B9A" stroke-width="5.7" opacity="0.60" stroke-linecap="round" />
-  <circle cx="1150.7" cy="310.5" r="6.2" fill="#C62828" opacity="0.28" />
-  <circle cx="71.5" cy="737.0" r="13.1" fill="#0A1628" opacity="0.56" />
-  <circle cx="319.0" cy="808.3" r="10.2" fill="#C62828" opacity="0.56" />
-  <circle cx="161.9" cy="398.5" r="17.1" fill="#0A1628" opacity="0.37" />
-  <circle cx="837.4" cy="698.3" r="18.5" fill="#6A1B9A" opacity="0.43" />
-  <circle cx="272.0" cy="571.6" r="11.4" fill="#1565C0" opacity="0.41" />
-  <circle cx="725.9" cy="179.7" r="4.5" fill="#2E7D32" opacity="0.41" />
-  <circle cx="1705.1" cy="333.6" r="16.6" fill="#2E7D32" opacity="0.57" />
-  <circle cx="837.6" cy="753.6" r="7.3" fill="#2E7D32" opacity="0.30" />
-  <circle cx="550.8" cy="609.7" r="22.0" fill="#6A1B9A" opacity="0.63" />
-  <circle cx="1811.4" cy="844.7" r="18.5" fill="#F9A825" opacity="0.31" />
-  <circle cx="760.2" cy="69.2" r="22.7" fill="#F9A825" opacity="0.44" />
-  <circle cx="196.8" cy="681.8" r="22.9" fill="#C62828" opacity="0.29" />
-  <circle cx="1841.6" cy="608.6" r="10.3" fill="#0A1628" opacity="0.47" />
-  <circle cx="1894.3" cy="0.7" r="23.8" fill="#1565C0" opacity="0.66" />
+  <g transform="rotate(15 960 540)">
+  <polygon points="466.0,170.2 706.6,586.8 225.5,586.8" fill="none" stroke="#F9A825" stroke-width="1" opacity="0.58" transform="rotate(181 466.04168385687325 447.92778534161107)" />
+  <polygon points="421.4,327.1 507.5,476.3 335.2,476.3" fill="none" stroke="#1565C0" stroke-width="1" opacity="0.50" transform="rotate(159 421.3528838867716 426.54762335018415)" />
+  <polygon points="391.7,353.5 434.5,427.7 348.8,427.7" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.54" transform="rotate(301 391.6613243754887 402.9583097092928)" />
+  </g>
+  <circle cx="962.2" cy="258.8" r="9.2" fill="#6A1B9A" opacity="0.41" />
+  <circle cx="457.3" cy="926.6" r="8.7" fill="#F9A825" opacity="0.61" />
+  <circle cx="302.0" cy="870.3" r="9.3" fill="#6A1B9A" opacity="0.41" />
 
 </svg>

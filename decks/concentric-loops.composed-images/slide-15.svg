@@ -1,73 +1,38 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <rect width="1920" height="1080" fill="#FAF6EE" />
-  <line x1="96" y1="59.7" x2="1824" y2="58.6" stroke="#C62828" stroke-width="3.1" opacity="0.31" />
-  <line x1="101.7" y1="54" x2="101.0" y2="1026" stroke="#C62828" stroke-width="3.1" opacity="0.31" />
-  <line x1="96" y1="156.2" x2="1824" y2="158.2" stroke="#C62828" stroke-width="2.5" opacity="0.40" />
-  <line x1="96" y1="250.2" x2="1824" y2="248.8" stroke="#C62828" stroke-width="3.8" opacity="0.34" />
-  <line x1="443.4" y1="54" x2="444.6" y2="1026" stroke="#C62828" stroke-width="3.8" opacity="0.34" />
-  <line x1="96" y1="346.4" x2="1824" y2="345.0" stroke="#1565C0" stroke-width="1.6" opacity="0.54" />
-  <line x1="789.9" y1="54" x2="791.1" y2="1026" stroke="#0A1628" stroke-width="1.7" opacity="0.44" />
-  <line x1="954.2" y1="54" x2="954.1" y2="1026" stroke="#2E7D32" stroke-width="3.1" opacity="0.21" />
-  <line x1="96" y1="643.0" x2="1824" y2="643.4" stroke="#1565C0" stroke-width="3.6" opacity="0.23" />
-  <line x1="1138.6" y1="54" x2="1137.7" y2="1026" stroke="#1565C0" stroke-width="3.6" opacity="0.23" />
-  <line x1="96" y1="832.4" x2="1824" y2="831.1" stroke="#F9A825" stroke-width="2.0" opacity="0.53" />
-  <line x1="1479.2" y1="54" x2="1481.1" y2="1026" stroke="#F9A825" stroke-width="2.0" opacity="0.53" />
-  <line x1="96" y1="932.0" x2="1824" y2="933.4" stroke="#6A1B9A" stroke-width="2.2" opacity="0.34" />
-  <line x1="1654.4" y1="54" x2="1655.6" y2="1026" stroke="#6A1B9A" stroke-width="2.2" opacity="0.34" />
-  <line x1="96" y1="1031.9" x2="1824" y2="1030.0" stroke="#C62828" stroke-width="1.2" opacity="0.31" />
-  <circle cx="96.0" cy="734.4" r="23.8" fill="#C62828" opacity="0.61" />
-  <rect x="89.4" y="825.0" width="13.2" height="13.2" fill="#2E7D32" opacity="0.43" transform="rotate(15 96.0 831.6)" />
-  <circle cx="268.8" cy="248.4" r="28.4" fill="#0A1628" opacity="0.55" />
-  <rect x="263.2" y="437.2" width="11.1" height="11.1" fill="#C62828" opacity="0.61" transform="rotate(21 268.8 442.8)" />
-  <circle cx="268.8" cy="637.2" r="7.2" fill="#C62828" opacity="0.35" />
-  <circle cx="268.8" cy="734.4" r="6.7" fill="#2E7D32" opacity="0.69" />
-  <circle cx="441.6" cy="54.0" r="13.1" fill="#C62828" opacity="0.66" />
-  <rect x="434.5" y="144.1" width="14.2" height="14.2" fill="#0A1628" opacity="0.33" transform="rotate(30 441.6 151.2)" />
-  <rect x="427.1" y="233.9" width="28.9" height="28.9" fill="#1565C0" opacity="0.34" transform="rotate(19 441.6 248.4)" />
-  <rect x="428.3" y="429.5" width="26.5" height="26.5" fill="#1565C0" opacity="0.42" transform="rotate(21 441.6 442.8)" />
-  <circle cx="441.6" cy="540.0" r="7.0" fill="#C62828" opacity="0.64" />
-  <rect x="428.5" y="721.3" width="26.2" height="26.2" fill="#1565C0" opacity="0.64" transform="rotate(38 441.6 734.4)" />
-  <circle cx="441.6" cy="831.6" r="7.4" fill="#F9A825" opacity="0.59" />
-  <rect x="437.1" y="924.3" width="8.9" height="8.9" fill="#6A1B9A" opacity="0.31" transform="rotate(39 441.6 928.8)" />
-  <rect x="603.5" y="43.1" width="21.8" height="21.8" fill="#6A1B9A" opacity="0.38" transform="rotate(24 614.4 54.0)" />
-  <rect x="599.4" y="233.4" width="30.0" height="30.0" fill="#1565C0" opacity="0.40" transform="rotate(23 614.4 248.4)" />
-  <circle cx="614.4" cy="345.6" r="24.6" fill="#F9A825" opacity="0.63" />
-  <rect x="606.3" y="726.3" width="16.2" height="16.2" fill="#F9A825" opacity="0.68" transform="rotate(41 614.4 734.4)" />
-  <rect x="608.8" y="826.0" width="11.2" height="11.2" fill="#2E7D32" opacity="0.38" transform="rotate(13 614.4 831.6)" />
-  <rect x="605.4" y="919.8" width="18.1" height="18.1" fill="#6A1B9A" opacity="0.42" transform="rotate(43 614.4 928.8)" />
-  <circle cx="787.2" cy="248.4" r="15.9" fill="#F9A825" opacity="0.39" />
-  <rect x="779.4" y="337.8" width="15.6" height="15.6" fill="#F9A825" opacity="0.56" transform="rotate(28 787.2 345.6)" />
-  <circle cx="787.2" cy="442.8" r="15.6" fill="#2E7D32" opacity="0.60" />
-  <circle cx="787.2" cy="637.2" r="23.3" fill="#C62828" opacity="0.67" />
-  <rect x="779.6" y="726.8" width="15.3" height="15.3" fill="#1565C0" opacity="0.65" transform="rotate(25 787.2 734.4)" />
-  <circle cx="787.2" cy="928.8" r="17.0" fill="#2E7D32" opacity="0.66" />
-  <rect x="950.5" y="44.5" width="18.9" height="18.9" fill="#1565C0" opacity="0.45" transform="rotate(19 960.0 54.0)" />
-  <rect x="953.7" y="436.5" width="12.6" height="12.6" fill="#C62828" opacity="0.59" transform="rotate(24 960.0 442.8)" />
-  <rect x="946.2" y="526.2" width="27.6" height="27.6" fill="#6A1B9A" opacity="0.59" transform="rotate(38 960.0 540.0)" />
-  <rect x="1117.7" y="38.9" width="30.2" height="30.2" fill="#0A1628" opacity="0.64" transform="rotate(1 1132.8 54.0)" />
-  <rect x="1122.0" y="140.4" width="21.7" height="21.7" fill="#0A1628" opacity="0.55" transform="rotate(43 1132.8 151.2)" />
-  <rect x="1124.3" y="239.9" width="17.0" height="17.0" fill="#0A1628" opacity="0.49" transform="rotate(39 1132.8 248.4)" />
-  <rect x="1117.7" y="330.5" width="30.1" height="30.1" fill="#F9A825" opacity="0.48" transform="rotate(6 1132.8 345.6)" />
-  <rect x="1120.1" y="527.3" width="25.4" height="25.4" fill="#C62828" opacity="0.40" transform="rotate(20 1132.8 540.0)" />
-  <rect x="1291.8" y="40.2" width="27.5" height="27.5" fill="#2E7D32" opacity="0.46" transform="rotate(26 1305.6 54.0)" />
-  <circle cx="1305.6" cy="151.2" r="28.6" fill="#2E7D32" opacity="0.32" />
-  <circle cx="1305.6" cy="248.4" r="8.5" fill="#2E7D32" opacity="0.40" />
-  <circle cx="1305.6" cy="345.6" r="26.9" fill="#F9A825" opacity="0.50" />
-  <circle cx="1305.6" cy="540.0" r="20.9" fill="#0A1628" opacity="0.62" />
-  <rect x="1298.2" y="629.8" width="14.7" height="14.7" fill="#C62828" opacity="0.64" transform="rotate(43 1305.6 637.2)" />
-  <rect x="1291.4" y="720.2" width="28.3" height="28.3" fill="#C62828" opacity="0.53" transform="rotate(38 1305.6 734.4)" />
-  <rect x="1293.9" y="819.9" width="23.4" height="23.4" fill="#2E7D32" opacity="0.50" transform="rotate(24 1305.6 831.6)" />
-  <circle cx="1478.4" cy="151.2" r="8.7" fill="#F9A825" opacity="0.56" />
-  <rect x="1463.4" y="233.4" width="30.0" height="30.0" fill="#F9A825" opacity="0.39" transform="rotate(11 1478.4 248.4)" />
-  <rect x="1463.0" y="330.2" width="30.9" height="30.9" fill="#C62828" opacity="0.47" transform="rotate(34 1478.4 345.6)" />
-  <rect x="1472.7" y="437.1" width="11.4" height="11.4" fill="#0A1628" opacity="0.53" transform="rotate(15 1478.4 442.8)" />
-  <rect x="1472.4" y="534.0" width="12.0" height="12.0" fill="#C62828" opacity="0.68" transform="rotate(36 1478.4 540.0)" />
-  <rect x="1471.8" y="727.8" width="13.3" height="13.3" fill="#1565C0" opacity="0.51" transform="rotate(43 1478.4 734.4)" />
-  <circle cx="1478.4" cy="831.6" r="27.3" fill="#2E7D32" opacity="0.44" />
-  <rect x="1647.4" y="341.8" width="7.7" height="7.7" fill="#6A1B9A" opacity="0.52" transform="rotate(28 1651.2 345.6)" />
-  <circle cx="1651.2" cy="540.0" r="8.9" fill="#1565C0" opacity="0.39" />
-  <circle cx="1651.2" cy="637.2" r="25.1" fill="#F9A825" opacity="0.61" />
-  <circle cx="1651.2" cy="734.4" r="26.2" fill="#F9A825" opacity="0.35" />
-  <rect x="1636.8" y="817.2" width="28.7" height="28.7" fill="#2E7D32" opacity="0.50" transform="rotate(28 1651.2 831.6)" />
+  <g transform="translate(150 65) rotate(-2 960 540) scale(0.89)">
+  <line x1="192" y1="112.6" x2="1728" y2="110.6" stroke="#1565C0" stroke-width="2.7" opacity="0.37" />
+  <line x1="360.0" y1="108" x2="360.1" y2="972" stroke="#0A1628" stroke-width="2.0" opacity="0.31" />
+  <line x1="192" y1="294.5" x2="1728" y2="294.5" stroke="#1565C0" stroke-width="3.2" opacity="0.20" />
+  <line x1="527.8" y1="108" x2="528.9" y2="972" stroke="#1565C0" stroke-width="3.2" opacity="0.20" />
+  <line x1="706.5" y1="108" x2="707.1" y2="972" stroke="#C62828" stroke-width="3.3" opacity="0.39" />
+  <line x1="192" y1="496.9" x2="1728" y2="498.7" stroke="#1565C0" stroke-width="1.3" opacity="0.28" />
+  <line x1="879.5" y1="108" x2="878.4" y2="972" stroke="#1565C0" stroke-width="1.3" opacity="0.28" />
+  <line x1="192" y1="591.9" x2="1728" y2="590.0" stroke="#F9A825" stroke-width="1.5" opacity="0.35" />
+  <line x1="1049.3" y1="108" x2="1050.1" y2="972" stroke="#F9A825" stroke-width="1.5" opacity="0.35" />
+  <line x1="192" y1="688.0" x2="1728" y2="686.4" stroke="#0A1628" stroke-width="3.1" opacity="0.51" />
+  <line x1="1220.0" y1="108" x2="1220.8" y2="972" stroke="#0A1628" stroke-width="3.1" opacity="0.51" />
+  <line x1="192" y1="880.8" x2="1728" y2="880.2" stroke="#1565C0" stroke-width="1.7" opacity="0.21" />
+  <line x1="1562.1" y1="108" x2="1561.7" y2="972" stroke="#1565C0" stroke-width="1.7" opacity="0.21" />
+  </g>
+  <g transform="translate(-72 -21) rotate(-14 960 540) scale(1.11)">
+  <polygon points="621.9,55.1 769.8,311.2 474.0,311.2" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.31" transform="rotate(333 621.8633385854455 225.85334562180876)" />
+  <polygon points="664.0,161.4 743.3,298.9 584.6,298.9" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.39" transform="rotate(259 663.9625297441561 253.05197189644096)" />
+  <polygon points="683.4,191.8 729.6,271.7 637.3,271.7" fill="none" stroke="#1565C0" stroke-width="1" opacity="0.45" transform="rotate(62 683.4427586251762 245.0805343982281)" />
+  <polygon points="685.9,217.1 708.2,255.7 663.7,255.7" fill="none" stroke="#C62828" stroke-width="1" opacity="0.33" transform="rotate(209 685.9266364739061 242.84687274446804)" />
+  <polygon points="681.9,224.5 693.8,245.2 670.0,245.2" fill="none" stroke="#6A1B9A" stroke-width="1" opacity="0.64" transform="rotate(66 681.9068328429693 238.28654212173694)" />
+  <polygon points="679.2,231.9 686.1,243.9 672.2,243.9" fill="none" stroke="#6A1B9A" stroke-width="1" opacity="0.68" transform="rotate(112 679.189725677046 239.88539674209332)" />
+  <polygon points="578.8,169.9 648.5,290.6 509.2,290.6" fill="none" stroke="#6A1B9A" stroke-width="1" opacity="0.41" transform="rotate(225 578.8495568467927 250.33386695703547)" />
+  <polygon points="565.3,178.9 597.9,235.4 532.7,235.4" fill="none" stroke="#F9A825" stroke-width="1" opacity="0.56" transform="rotate(21 565.3330439309896 216.53082841444274)" />
+  <polygon points="564.5,212.4 580.8,240.6 548.2,240.6" fill="none" stroke="#6A1B9A" stroke-width="1" opacity="0.37" transform="rotate(156 564.4817156426614 231.18240360330012)" />
+  <polygon points="566.1,229.1 573.2,241.4 559.0,241.4" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.65" transform="rotate(54 566.1310406239528 237.2972084371005)" />
+  <polygon points="574.1,193.8 586.2,214.8 562.0,214.8" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.33" transform="rotate(281 574.0927840750317 207.82208535476136)" />
+  </g>
+  <g transform="translate(233 15) rotate(-6 960 540) scale(1.09)">
+  <circle cx="786.125497881818" cy="499.58785867215784" r="361.7" fill="#2E7D32" fill-opacity="0.17" stroke="#2E7D32" stroke-width="3.8" opacity="0.74" />
+  <circle cx="786.125497881818" cy="499.58785867215784" r="271.3" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="3.4" opacity="0.57" />
+  <circle cx="786.125497881818" cy="499.58785867215784" r="180.9" fill="none" fill-opacity="0.00" stroke="#F9A825" stroke-width="6.2" opacity="0.42" />
+  <circle cx="786.125497881818" cy="499.58785867215784" r="90.4" fill="#1565C0" fill-opacity="0.24" stroke="#1565C0" stroke-width="5.3" opacity="0.71" />
+  </g>
 
 </svg>

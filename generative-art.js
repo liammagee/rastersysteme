@@ -205,85 +205,223 @@ function spiralPath(cx, cy, maxR, turns, rand, color) {
 
 // ═══════════════════════════════════════════════
 // COMPOSITION STRATEGIES — how elements combine
+// Each call uses rand() extensively so identical
+// strategies with different seeds look different.
 // ═══════════════════════════════════════════════
 
 const STRATEGIES = {
   concentric(w, h, rand, colors, density) {
     let svg = "";
-    const cx = w * (0.3 + rand() * 0.4);
-    const cy = h * (0.3 + rand() * 0.4);
-    const maxR = Math.min(w, h) * (0.3 + rand() * 0.3);
-    const rings = density === "sparse" ? 4 : density === "dense" ? 12 : 7;
+    // Randomize: position, scale, ring count, whether filled or stroked, rotation
+    const cx = w * (0.1 + rand() * 0.8);
+    const cy = h * (0.1 + rand() * 0.8);
+    const maxR = Math.min(w, h) * (0.15 + rand() * 0.45);
+    const rings = 3 + Math.floor(rand() * 10);
+    const globalRotation = rand() * 360;
+
+    svg += `  <g transform="rotate(${globalRotation.toFixed(0)} ${cx.toFixed(0)} ${cy.toFixed(0)})">\n`;
     svg += concentricCircles(cx, cy, maxR, rings, rand, colors);
-    svg += intersectingArcs(cx, cy, maxR * 1.2, density === "sparse" ? 3 : 6, rand, colors);
-    if (rand() > 0.5) svg += floatingDots(w, h, density === "sparse" ? 5 : 15, rand, colors);
+
+    // Vary: sometimes arcs, sometimes full circles only, sometimes with cross-lines
+    const variant = rand();
+    if (variant < 0.4) {
+      svg += intersectingArcs(cx, cy, maxR * (0.8 + rand() * 0.8), 3 + Math.floor(rand() * 8), rand, colors);
+    } else if (variant < 0.7) {
+      // Cross-hair lines through center
+      const lc = colors[Math.floor(rand() * colors.length)];
+      const lo = (0.3 + rand() * 0.4).toFixed(2);
+      svg += `  <line x1="${(cx - maxR * 1.3).toFixed(0)}" y1="${cy.toFixed(0)}" x2="${(cx + maxR * 1.3).toFixed(0)}" y2="${cy.toFixed(0)}" stroke="${lc}" stroke-width="${(1 + rand() * 4).toFixed(1)}" opacity="${lo}" />\n`;
+      svg += `  <line x1="${cx.toFixed(0)}" y1="${(cy - maxR * 1.3).toFixed(0)}" x2="${cx.toFixed(0)}" y2="${(cy + maxR * 1.3).toFixed(0)}" stroke="${lc}" stroke-width="${(1 + rand() * 4).toFixed(1)}" opacity="${lo}" />\n`;
+    } else {
+      // Eccentric offset circles
+      for (let i = 0; i < 3; i++) {
+        const ox = cx + (rand() - 0.5) * maxR;
+        const oy = cy + (rand() - 0.5) * maxR;
+        svg += concentricCircles(ox, oy, maxR * (0.2 + rand() * 0.3), 2 + Math.floor(rand() * 3), rand, colors);
+      }
+    }
+    svg += `  </g>\n`;
+
+    // Optional second cluster at a different position
+    if (rand() > 0.5) {
+      const cx2 = w * rand();
+      const cy2 = h * rand();
+      svg += concentricCircles(cx2, cy2, maxR * (0.2 + rand() * 0.4), 2 + Math.floor(rand() * 4), rand, colors);
+    }
+    svg += floatingDots(w, h, 5 + Math.floor(rand() * 20), rand, colors);
     return svg;
   },
 
   fractal(w, h, rand, colors, density) {
     let svg = "";
-    const cx = w * (0.3 + rand() * 0.4);
-    const cy = h * (0.3 + rand() * 0.4);
-    const size = Math.min(w, h) * (0.2 + rand() * 0.2);
-    const depth = density === "sparse" ? 3 : density === "dense" ? 6 : 4;
-    svg += fractalTriangles(cx, cy, size, depth, rand, colors);
-    if (rand() > 0.4) {
-      const cx2 = w * (0.2 + rand() * 0.6);
-      const cy2 = h * (0.2 + rand() * 0.6);
-      svg += fractalTriangles(cx2, cy2, size * 0.7, depth - 1, rand, colors);
+    // Vary: number of clusters, depth, polygon sides (not just triangles), rotation
+    const clusters = 1 + Math.floor(rand() * 4);
+    const globalRotation = rand() * 360;
+    const baseDepth = 2 + Math.floor(rand() * 5);
+
+    svg += `  <g transform="rotate(${globalRotation.toFixed(0)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)})">\n`;
+    for (let c = 0; c < clusters; c++) {
+      const cx = w * (0.1 + rand() * 0.8);
+      const cy = h * (0.1 + rand() * 0.8);
+      const size = Math.min(w, h) * (0.1 + rand() * 0.3);
+      svg += fractalTriangles(cx, cy, size, baseDepth, rand, colors);
     }
-    svg += gridLines(w * 0.1, h * 0.1, w * 0.8, h * 0.8, 8, rand, colors);
+    svg += `  </g>\n`;
+
+    // Vary: sometimes add grid underlay, sometimes diagonal lines, sometimes nothing
+    const underlay = rand();
+    if (underlay < 0.33) {
+      const angle = rand() * 45;
+      svg += `  <g transform="rotate(${angle.toFixed(0)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)})">\n`;
+      svg += gridLines(w * 0.05, h * 0.05, w * 0.9, h * 0.9, 4 + Math.floor(rand() * 8), rand, colors);
+      svg += `  </g>\n`;
+    } else if (underlay < 0.66) {
+      // Diagonal slash lines
+      const count = 3 + Math.floor(rand() * 6);
+      for (let i = 0; i < count; i++) {
+        const color = colors[Math.floor(rand() * colors.length)];
+        const x1 = rand() * w;
+        const y1 = rand() * h;
+        const angle = rand() * Math.PI;
+        const len = 200 + rand() * 600;
+        svg += `  <line x1="${x1.toFixed(0)}" y1="${y1.toFixed(0)}" x2="${(x1 + len * Math.cos(angle)).toFixed(0)}" y2="${(y1 + len * Math.sin(angle)).toFixed(0)}" stroke="${color}" stroke-width="${(1 + rand() * 4).toFixed(1)}" opacity="${(0.2 + rand() * 0.4).toFixed(2)}" />\n`;
+      }
+    }
+    svg += floatingDots(w, h, 3 + Math.floor(rand() * 10), rand, colors);
     return svg;
   },
 
   spiral(w, h, rand, colors, density) {
     let svg = "";
-    const cx = w * (0.4 + rand() * 0.2);
-    const cy = h * (0.4 + rand() * 0.2);
-    const maxR = Math.min(w, h) * (0.25 + rand() * 0.15);
-    const turns = density === "sparse" ? 2 : density === "dense" ? 5 : 3;
-    svg += spiralPath(cx, cy, maxR, turns, rand, colors[0]);
-    if (rand() > 0.3) svg += spiralPath(cx + rand() * 100 - 50, cy + rand() * 80 - 40, maxR * 0.6, turns, rand, colors[1]);
-    svg += concentricCircles(cx, cy, maxR * 0.3, 3, rand, colors);
-    svg += floatingDots(w, h, density === "sparse" ? 8 : 20, rand, colors);
+    // Vary: number of spirals, direction, tightness, thickness, position
+    const spiralCount = 1 + Math.floor(rand() * 4);
+    const globalRotation = rand() * 360;
+
+    svg += `  <g transform="rotate(${globalRotation.toFixed(0)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)})">\n`;
+    for (let s = 0; s < spiralCount; s++) {
+      const cx = w * (0.15 + rand() * 0.7);
+      const cy = h * (0.15 + rand() * 0.7);
+      const maxR = Math.min(w, h) * (0.1 + rand() * 0.35);
+      const turns = 1.5 + rand() * 5;
+      const colorIdx = Math.floor(rand() * colors.length);
+      svg += spiralPath(cx, cy, maxR, turns, rand, colors[colorIdx]);
+    }
+    svg += `  </g>\n`;
+
+    // Vary accent: concentric rings, dots, arcs, or rectangular blocks
+    const accent = rand();
+    if (accent < 0.3) {
+      const cx = w * (0.2 + rand() * 0.6);
+      const cy = h * (0.2 + rand() * 0.6);
+      svg += concentricCircles(cx, cy, Math.min(w, h) * (0.1 + rand() * 0.15), 2 + Math.floor(rand() * 3), rand, colors);
+    } else if (accent < 0.6) {
+      // Rectangular blocks (Mondrian-ish)
+      for (let i = 0; i < 2 + Math.floor(rand() * 4); i++) {
+        const color = colors[Math.floor(rand() * colors.length)];
+        const bw = 30 + rand() * 200;
+        const bh = 20 + rand() * 150;
+        const bx = rand() * (w - bw);
+        const by = rand() * (h - bh);
+        const rotation = rand() > 0.7 ? rand() * 15 : 0;
+        svg += `  <rect x="${bx.toFixed(0)}" y="${by.toFixed(0)}" width="${bw.toFixed(0)}" height="${bh.toFixed(0)}" fill="${color}" opacity="${(0.15 + rand() * 0.3).toFixed(2)}" transform="rotate(${rotation.toFixed(0)} ${(bx + bw / 2).toFixed(0)} ${(by + bh / 2).toFixed(0)})" />\n`;
+      }
+    }
+    svg += floatingDots(w, h, 5 + Math.floor(rand() * 15), rand, colors);
     return svg;
   },
 
   grid(w, h, rand, colors, density) {
     let svg = "";
-    const divisions = density === "sparse" ? 6 : density === "dense" ? 16 : 10;
-    svg += gridLines(w * 0.05, h * 0.05, w * 0.9, h * 0.9, divisions, rand, colors);
-    // Add geometric accents at intersections — be generous
-    const step = Math.min(w, h) / divisions;
-    for (let i = 0; i < divisions; i++) {
-      for (let j = 0; j < divisions; j++) {
-        if (rand() > 0.55) {
-          const x = w * 0.05 + (w * 0.9 * i) / divisions;
-          const y = h * 0.05 + (h * 0.9 * j) / divisions;
+    // Vary: rotation angle, divisions, regularity, accent density
+    const gridAngle = rand() * 60 - 30; // -30 to +30 degree tilt
+    const divisions = 4 + Math.floor(rand() * 12);
+    const marginX = w * (0.02 + rand() * 0.1);
+    const marginY = h * (0.02 + rand() * 0.1);
+
+    svg += `  <g transform="rotate(${gridAngle.toFixed(1)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)})">\n`;
+    svg += gridLines(marginX, marginY, w - marginX * 2, h - marginY * 2, divisions, rand, colors);
+
+    // Accent elements at intersections — vary shapes heavily
+    for (let i = 0; i <= divisions; i++) {
+      for (let j = 0; j <= divisions; j++) {
+        if (rand() > 0.45) {
+          const x = marginX + ((w - marginX * 2) * i) / divisions;
+          const y = marginY + ((h - marginY * 2) * j) / divisions;
           const color = colors[Math.floor(rand() * colors.length)];
-          const size = 6 + rand() * 25;
-          const opacity = 0.3 + rand() * 0.4;
-          if (rand() > 0.5) {
-            svg += `  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" />\n`;
+          const size = 4 + rand() * 30;
+          const opacity = (0.25 + rand() * 0.5).toFixed(2);
+          const shape = rand();
+          const rot = rand() * 90;
+          if (shape < 0.3) {
+            svg += `  <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${size.toFixed(1)}" fill="${color}" opacity="${opacity}" />\n`;
+          } else if (shape < 0.55) {
+            svg += `  <rect x="${(x - size / 2).toFixed(1)}" y="${(y - size / 2).toFixed(1)}" width="${size.toFixed(1)}" height="${size.toFixed(1)}" fill="${color}" opacity="${opacity}" transform="rotate(${rot.toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})" />\n`;
+          } else if (shape < 0.75) {
+            // Diamond
+            const d = size * 0.7;
+            svg += `  <polygon points="${x.toFixed(1)},${(y - d).toFixed(1)} ${(x + d).toFixed(1)},${y.toFixed(1)} ${x.toFixed(1)},${(y + d).toFixed(1)} ${(x - d).toFixed(1)},${y.toFixed(1)}" fill="${color}" opacity="${opacity}" />\n`;
           } else {
-            svg += `  <rect x="${(x - size / 2).toFixed(1)}" y="${(y - size / 2).toFixed(1)}" width="${size.toFixed(1)}" height="${size.toFixed(1)}" fill="${color}" opacity="${opacity.toFixed(2)}" transform="rotate(${(rand() * 45).toFixed(0)} ${x.toFixed(1)} ${y.toFixed(1)})" />\n`;
+            // Small cross
+            const s = size * 0.4;
+            svg += `  <line x1="${(x - s).toFixed(1)}" y1="${y.toFixed(1)}" x2="${(x + s).toFixed(1)}" y2="${y.toFixed(1)}" stroke="${color}" stroke-width="${(2 + rand() * 3).toFixed(1)}" opacity="${opacity}" />\n`;
+            svg += `  <line x1="${x.toFixed(1)}" y1="${(y - s).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(y + s).toFixed(1)}" stroke="${color}" stroke-width="${(2 + rand() * 3).toFixed(1)}" opacity="${opacity}" />\n`;
           }
         }
       }
     }
+    svg += `  </g>\n`;
     return svg;
   },
 
   mixed(w, h, rand, colors, density) {
     let svg = "";
-    // Combine elements from multiple strategies
-    const cx = w * (0.3 + rand() * 0.4);
-    const cy = h * (0.3 + rand() * 0.4);
-    svg += concentricCircles(cx, cy, Math.min(w, h) * 0.2, 4, rand, colors);
-    svg += gridLines(w * 0.1, h * 0.1, w * 0.8, h * 0.8, 6, rand, colors);
-    svg += intersectingArcs(w * 0.6, h * 0.4, Math.min(w, h) * 0.25, 4, rand, colors);
-    svg += floatingDots(w, h, 10, rand, colors);
-    if (rand() > 0.5) svg += fractalTriangles(w * 0.7, h * 0.6, 80, 3, rand, colors);
+    // Pick 2-3 random sub-strategies and layer them with different transforms
+    const layers = 2 + Math.floor(rand() * 2);
+    const subStrategies = ["circles", "arcs", "triangles", "grid", "spiral", "dots", "blocks"];
+
+    for (let l = 0; l < layers; l++) {
+      const sub = subStrategies[Math.floor(rand() * subStrategies.length)];
+      const rotation = rand() * 40 - 20;
+      const tx = (rand() - 0.5) * w * 0.3;
+      const ty = (rand() - 0.5) * h * 0.3;
+      const cx = w * (0.2 + rand() * 0.6);
+      const cy = h * (0.2 + rand() * 0.6);
+      const scale = 0.6 + rand() * 0.8;
+
+      svg += `  <g transform="translate(${tx.toFixed(0)} ${ty.toFixed(0)}) rotate(${rotation.toFixed(0)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)}) scale(${scale.toFixed(2)})">\n`;
+
+      switch (sub) {
+        case "circles":
+          svg += concentricCircles(cx, cy, Math.min(w, h) * (0.15 + rand() * 0.25), 3 + Math.floor(rand() * 6), rand, colors);
+          break;
+        case "arcs":
+          svg += intersectingArcs(cx, cy, Math.min(w, h) * (0.2 + rand() * 0.3), 4 + Math.floor(rand() * 8), rand, colors);
+          break;
+        case "triangles":
+          svg += fractalTriangles(cx, cy, 60 + rand() * 180, 2 + Math.floor(rand() * 4), rand, colors);
+          break;
+        case "grid":
+          svg += gridLines(w * 0.1, h * 0.1, w * 0.8, h * 0.8, 4 + Math.floor(rand() * 6), rand, colors);
+          break;
+        case "spiral":
+          svg += spiralPath(cx, cy, Math.min(w, h) * (0.1 + rand() * 0.2), 2 + rand() * 3, rand, colors[Math.floor(rand() * colors.length)]);
+          break;
+        case "dots":
+          svg += floatingDots(w, h, 10 + Math.floor(rand() * 25), rand, colors);
+          break;
+        case "blocks": {
+          const count = 2 + Math.floor(rand() * 5);
+          for (let b = 0; b < count; b++) {
+            const color = colors[Math.floor(rand() * colors.length)];
+            const bw = 40 + rand() * 250;
+            const bh = 30 + rand() * 180;
+            svg += `  <rect x="${(rand() * w).toFixed(0)}" y="${(rand() * h).toFixed(0)}" width="${bw.toFixed(0)}" height="${bh.toFixed(0)}" fill="${color}" opacity="${(0.12 + rand() * 0.3).toFixed(2)}" transform="rotate(${(rand() * 30).toFixed(0)} ${(w / 2).toFixed(0)} ${(h / 2).toFixed(0)})" />\n`;
+          }
+          break;
+        }
+      }
+      svg += `  </g>\n`;
+    }
     return svg;
   },
 };
