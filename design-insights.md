@@ -1,7 +1,7 @@
 # Design Insights
 
 Data-driven composition guidance derived from the design corpus.
-Generated: 2026-03-27 from 7 scored decks.
+Generated: 2026-03-28 from 7 scored decks.
 
 These rules are injected into Claude composition prompts alongside design-lessons.md.
 Each rule is backed by corpus evidence (deck count, score correlation).

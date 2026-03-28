@@ -68,7 +68,7 @@ function enforceContrast(fgHex, bgHex, minRatio = 4.5) {
   // Determine direction: darken on light bg, lighten on dark bg
   const bgDark = isDarkColor(bgHex);
   let r = parseInt(fgHex.slice(0,2),16), g = parseInt(fgHex.slice(2,4),16), b = parseInt(fgHex.slice(4,6),16);
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 20; i++) {
     if (bgDark) {
       // Lighten: move towards white
       r = Math.min(255, Math.round(r + (255 - r) * 0.2));
@@ -83,7 +83,8 @@ function enforceContrast(fgHex, bgHex, minRatio = 4.5) {
     const hex = [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
     if (contrastRatio(hex, bgHex) >= minRatio) return hex;
   }
-  return [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("");
+  // Safety: if still not meeting ratio, use white on dark or black on light
+  return bgDark ? "FFFFFF" : "000000";
 }
 
 function adaptThemeForBg(theme, bgHex) {

@@ -206,6 +206,31 @@ function contentAwarePlan(html) {
       return { slide: idx + 1, mode, size: 30 };
     }
 
+    // Pre-check: if slide already has <img> tags, skip (already has content images)
+    if (/<img\s/.test(slideHtml)) {
+      return { slide: idx + 1, mode: "none" };
+    }
+
+    // Pre-check: if slide has body/bullets/quote text zones, only inset or skip.
+    // Side panels (left/right) and strips (top/bottom) overlap text on designed slides.
+    const hasTextContent = slideHtml.includes('zone-body') || slideHtml.includes('zone-bullets') ||
+      slideHtml.includes('zone-quote') || slideHtml.includes('zone-table') ||
+      slideHtml.includes('zone-extras');
+    if (hasTextContent) {
+      // Only allow small corner insets on text-heavy slides
+      const trFree = !zones.some(z => z.right > 85 && z.top < 15);
+      const blFree = !zones.some(z => z.left < 15 && z.bottom > 85);
+      if (trFree && lastMode !== "inset-tr") {
+        lastMode = "inset-tr";
+        return { slide: idx + 1, mode: "inset-tr", size: 15 };
+      }
+      if (blFree && lastMode !== "inset-bl") {
+        lastMode = "inset-bl";
+        return { slide: idx + 1, mode: "inset-bl", size: 15 };
+      }
+      return { slide: idx + 1, mode: "none" };
+    }
+
     // Grid analysis: divide slide into 6 columns × 4 rows, mark cells with text
     const COLS = 6, ROWS = 4;
     const cellW = 100 / COLS, cellH = 100 / ROWS;
