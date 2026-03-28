@@ -44,6 +44,17 @@
 - [ ] **Corpus scores use inflated headless rubric** — deck-audit.js should use the unified rubric-scores.js.
 - [ ] **Run corpus-synthesize.js to extract patterns** — cross-deck analysis to feed into future compose briefs.
 
+### Paper / Workshop
+
+- [ ] **Design paper: Concentric Loops in AI-Mediated Design** — see PAPER-SPEC.md for full spec. Render as rastersysteme HTML deck. ~40 slides, academic tone.
+- [ ] **Week 4 workshop: Concentric Loops** — content/week-4/week-4-workshop.md drafted. Needs compose → render → evaluate cycle.
+
+### Changelogs (concentric loop tracking)
+
+- [ ] **Inner loop changelog** — per-deck iteration log. Each deck gets a `logs/<deck>-iterations.md` that records: iteration N, dimensions targeted, changes made, score before/after. Fed by /refine-step.
+- [ ] **Outer loop changelog** — rubric evolution log. RUBRIC-CHANGELOG.md exists but needs structured format: user feedback → rubric change → score impact. One entry per outer loop iteration, committed separately.
+- [ ] **Outer-outer loop changelog** — methodology evolution. Track changes to METHODOLOGY.md itself, changes to the changelog format, changes to the evaluation pipeline. The meta-log.
+
 ### Infrastructure
 
 - [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
