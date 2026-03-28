@@ -59,7 +59,7 @@
 
 - [x] **UAT protocol skill** — `/rs:uat` skill created + `run-uat.js` runner. Generates HTML checklist with screenshot+wireframe comparison per slide. that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
 - [ ] **Per-slide acceptance checklist** — each slide gets a pass/fail on: content visible, no overlaps, images show, layout matches intent, whitespace acceptable, text readable. Generate a checklist HTML page with thumbnails + checkboxes
-- [ ] **Acceptance threshold** — define what "evaluates perfectly" means: all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
+- [x] **Acceptance threshold** — defined in METHODOLOGY.md: 7 criteria including automated >= 9/10, zero criticals, zero user failures, 3x stability. all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
 - [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
 - [ ] **Regression testing** — after fixing a user-flagged issue, screenshot the fixed slide and verify the fix didn't break adjacent slides. Store acceptance baselines for comparison
 - [ ] **UAT history** — log each UAT session: date, deck version, slides reviewed, pass/fail counts, issues found, rubric gaps identified. Track acceptance rate over iterations
@@ -67,7 +67,7 @@
 
 ### Automated-to-Human Handoff
 
-- [ ] **Visual diff between iterations** — when refine-step makes changes, generate a side-by-side diff of affected slides (before/after screenshots). Helps user spot regressions without reviewing every slide
+- [x] **Visual diff between iterations** — `visual-diff.js` generates HTML side-by-side comparison of changed slides. Uses file size heuristic for quick change detection.
 - [ ] **Issue-to-fix traceability** — when the inner loop fixes a rubric issue, link it to the original user feedback that created the rubric check. Closes the loop: user comment → rubric check → design fix → verification
 - [ ] **Design intent verification** — after each compose, compare the design plan text against the actual zone layout. Flag slides where the design plan says "sidebar left" but the zones are actually centered
 

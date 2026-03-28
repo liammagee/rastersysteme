@@ -80,6 +80,34 @@ The wireframe shows what the design *intended*. The screenshot shows what *actua
 
 Every outer loop review should compare wireframes against screenshots for problem slides.
 
+## Acceptance Threshold
+
+A deck is "accepted" when ALL of the following are true:
+
+1. **Automated**: All computed rubric dimensions >= 9/10
+2. **Visual audit**: Zero critical issues, zero warnings
+3. **Zone integrity**: Zero zone collisions (CSS rect intersection)
+4. **Wireframe match**: Every slide's wireframe matches its screenshot (no content routing mismatches)
+5. **User acceptance**: Zero user-flagged failures in UAT checklist
+6. **Stability**: 3 consecutive UAT sessions with zero new issues
+7. **Score stability**: Automated score stable within 1 point across 3 evaluations
+
+### Visual Diff Protocol
+
+After each refine-step, generate a visual diff:
+
+```bash
+# Save before screenshots
+cp -r /tmp/rubric-screenshots /tmp/before-screenshots
+# Run refinement...
+# Screenshot after
+node run-rubric-eval.js <deck> --screenshots-all
+# Generate diff
+node visual-diff.js /tmp/before-screenshots /tmp/rubric-screenshots
+```
+
+Review the diff to verify fixes didn't cause regressions.
+
 ## Feedback Protocol
 
 When presenting a deck to the user, always:
