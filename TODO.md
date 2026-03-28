@@ -64,7 +64,25 @@
 - [x] **Regression testing** — regression.js: save baselines, check against them, generate visual-diff reports.
 - [x] **Design intent verification** — intent-verify.js: compare composed directive zone positions against rendered HTML zones. Flags missing, shifted, and empty zones.
 - [x] **Metric collection audit** — METRIC-AUDIT.md: 32 metrics assessed. Puppeteer authoritative for 14, jsdom for 1, equal for 17.
-- [x] **User feedback → rubric automation** — rubric-blind-spot.js: classifies feedback into dimensions, checks if rubric scored >8 (blind spot), logs to feedback-trace.json. Also analyzes UAT history for patterns.
+- [x] **User feedback → rubric automation** — rubric-blind-spot.js built. Not yet validated by real use.
+
+## Critical Gaps (honest assessment, 2026-03-28)
+
+### The outer loop has never actually looped
+We built 7 tools for human-in-the-loop review but never completed one cycle.
+**Next**: Open the UAT checklist in Chrome, have the user mark pass/fail, feed results into rubric-blind-spot.js, fix what comes out, re-evaluate.
+
+### Spliced images are net negative on 12/36 slides
+Background placement behind dense text hurts readability. The splicer's fallback to background mode on high-overlap slides is the root cause. **Another agent is working on this.**
+
+### evaluate.js should be the only evaluation command
+run-rubric-eval.js gives inflated scores (no visual-audit merge). Skills, refine-step, and build-deck still reference the old command. **Next**: update all skills to use `node evaluate.js` instead of `node run-rubric-eval.js`.
+
+### The rubric measures absence-of-bad, not presence-of-good
+A minimalist slide with title + 3 bullets scores 10/10 on everything. There's no metric for: visual impact, information density appropriateness, narrative flow, or whether the slide would hold an audience's attention. **This may be a fundamental limitation of automated evaluation** — the outer loop (human judgment) is where "good" gets assessed.
+
+### TODO completion rate is overstated
+59/60 "closed" includes many "tool built but not validated" items. **Honest count**: ~40 genuinely validated, ~19 tools-exist-but-unproven, 1 other agent.
 - [x] **Regression testing** — regression.js built: save/check baselines, generate visual-diff on regressions.
 - [x] **UAT history** — run-uat.js logs to logs/uat-history.json with full session data.
 - [x] **Convergence criteria** — defined in METHODOLOGY.md: 7 formal criteria for acceptance.
