@@ -60,6 +60,41 @@ The inner loop makes scores go up. The outer loop makes the scores honest. The o
 
 ---
 
+### The Three Loops
+
+```
+ OUTER-OUTER LOOP                                    cadence: days/weeks
+ ┌─────────────────────────────────────────────────────────────────────┐
+ │  "Is our process of evaluating design itself improving?"           │
+ │                                                                     │
+ │   OUTER LOOP                                      cadence: hours    │
+ │   ┌───────────────────────────────────────────────────────────┐     │
+ │   │  "Does the rubric match what the human sees?"             │     │
+ │   │                                                           │     │
+ │   │   INNER LOOP                              cadence: mins   │     │
+ │   │   ┌─────────────────────────────────────────────────┐     │     │
+ │   │   │  "Is this deck better than the last iteration?" │     │     │
+ │   │   │                                                 │     │     │
+ │   │   │  evaluate ──► fix ──► render ──► re-evaluate    │     │     │
+ │   │   │       ▲                              │          │     │     │
+ │   │   │       └──────── converge? ◄──────────┘          │     │     │
+ │   │   └─────────────────────────────────────────────────┘     │     │
+ │   │        ▲                                                  │     │
+ │   │        │  score-perception gap detected                   │     │
+ │   │        ▼                                                  │     │
+ │   │   human observes ──► rubric updated ──► re-evaluate       │     │
+ │   └───────────────────────────────────────────────────────────┘     │
+ │        ▲                                                            │
+ │        │  methodology gap detected                                  │
+ │        ▼                                                            │
+ │   sampling changed, new instruments built, feedback protocol revised│
+ └─────────────────────────────────────────────────────────────────────┘
+```
+
+<!-- notes: This is the core diagram. ASCII is deliberate — it matches the wireframe tool's visual language. The nesting shows containment: the inner loop runs inside the outer loop's context, and the outer loop runs inside the outer-outer loop's methodology. The arrows show what triggers each loop: convergence triggers the inner loop exit, a score-perception gap triggers the outer loop, and a methodology gap triggers the outer-outer loop. Each trigger is a different kind of observation: computational (convergence), perceptual (gap between score and visual reality), and epistemological (gap in the observation process itself). -->
+
+---
+
 ### Intellectual Debts
 
 This is not a new idea. It has appeared in different vocabularies:
@@ -70,10 +105,12 @@ This is not a new idea. It has appeared in different vocabularies:
 | **Organizational learning** (Argyris, 1977) | Single-loop: correct actions | Double-loop: question governing variables | Deutero-learning: learn how to learn |
 | **Reflective practice** (Schon, 1983) | Technical rationality: apply rules | Reflection-in-action: surprise and puzzlement | Reflection on reflection-in-action |
 | **RLHF** (Christiano et al., 2017) | RL optimization against reward model | Human feedback recalibrates reward model | Reward model architecture evolves |
+| **Generative systems** (Chomsky; Lindenmayer) | Generate artifacts from rules | Generate rules from observation | Generate the rule-generation process |
+| **Man-computer symbiosis** (Licklider, 1960) | Machine: routinizable optimization | Human: goals, hypotheses, criteria | Both: evolving the collaboration itself |
 
-What is new is the empirical account. We ran these loops on a real design system over 8 iterations and recorded what happened.
+What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened.
 
-<!-- notes: Name the debts up front. This table does double duty: it establishes intellectual credibility and it previews the paper's analytical vocabulary. Each framework will reappear at the moment in the narrative where it's most illuminating — Goodhart in the introduction, Schon when we discuss the outer loop, Argyris when the methodology itself changes, cybernetics when we notice the recursion with the week-2 content. The RLHF row matters because it's the framework the audience is most likely to know, and our approach extends it: we use diagnostic feedback ("this overlaps") rather than preference feedback ("A > B"), which is richer information per interaction. -->
+<!-- notes: The table now includes the generative and symbiotic traditions alongside the cybernetic and learning theory traditions. This previews the "fractal design" concept that appears fully in Section 7. The generative row connects to Chomsky's generative grammars and Lindenmayer's L-systems — the idea that complex structure emerges from simple recursive rules. The Licklider row connects to the oldest articulation of human-machine symbiosis. Both are older than "generative AI" and provide deeper roots for the paper's argument. The term "fractal design" is introduced here in passing and developed later — the reader should notice it, not yet understand it fully. -->
 
 ---
 
@@ -123,17 +160,41 @@ This cycle runs every 2 minutes via `/loop`. It is idempotent — the same input
 
 ### Convergence Behavior
 
-The inner loop exhibits predictable convergence:
+Three refine-loop runs on the same deck show a consistent pattern:
 
-- **Early iterations** (1-3): large score gains. Obvious issues (missing zones, wrong font sizes, clipped content) are fixed.
-- **Middle iterations** (4-6): diminishing returns. Layout variety and color harmony improve incrementally.
-- **Late iterations** (7+): plateau. The deck scores within 1-2 points of maximum on every dimension the rubric measures.
+| Run | Start | Iter 1 | Iter 2 | Iter 3 | Shape |
+|-----|-------|--------|--------|--------|-------|
+| A | 38/60 | 42 (+4) | 45 (+3) | 47.3 (+2.3) | Converged |
+| B | 43.5/50 | 44.8 (+1.3) | 45.5 (+0.7) | — | Converged |
+| C | 69/100 | 78 (+9) | 83 (+5) | — | Converged |
 
-At convergence, the system declares success. The scores are high. The deck is "good."
+The shape is always the same — steep initial gain, rapid diminishing returns:
+
+```
+Score   Run A (38 → 47.3/60)
+  48  │                          ●─── converged (delta < 0.5)
+      │                     ·····
+  45  │               ●····
+      │          ····
+  42  │     ●····
+      │  ···
+  38  │●
+      └──────┬──────┬──────┬─────
+         iter 0   iter 1  iter 2  iter 3
+
+       ◄── structural ──►◄─ cosmetic ─►
+          (layout, color)   (text, accents)
+```
+
+- **Iteration 1**: largest gain. Fixes obvious structural issues — missing dark slides for chromatic arc, clipped content from undersized zones, contrast errors.
+- **Iteration 2**: moderate gain. Fixes secondary issues — layout variety, zone sizing, accent adjustments.
+- **Iteration 3+**: diminishing returns. System detects delta < 0.5 and stops.
+
+The inner loop reliably fixes 60-80% of its addressable issues in 2-3 iterations. At convergence, the system declares success. The scores are high. The deck is "good."
 
 The question the inner loop cannot answer: **good according to whom?**
 
-<!-- notes: This is the pivot. The inner loop is working exactly as designed — it converges on the rubric's definition of quality. But the rubric's definition of quality was written by the same system. There is no external ground truth. The system is grading its own homework. In first-order cybernetics terms, the thermostat is working — the temperature matches the setpoint. But who set the setpoint? In RLHF terms, the policy is converging on the reward model. But is the reward model aligned with human preferences? These are not questions the inner loop can ask. They require a different kind of loop. -->
+<!-- notes: This is the pivot. "Addressable issues" is the operative phrase — the inner loop never discovers issues outside the rubric's vocabulary. Run A went from 38 to 47.3 — a 24% improvement — but the highest dimension it improved was Color (5.3→8, by injecting dark divider slides). It never noticed invented labels, invisible spliced images, or zone collisions, because the rubric at that point didn't measure them. The system is grading its own homework. In first-order cybernetics terms, the thermostat is working — the temperature matches the setpoint. But who set the setpoint? -->
 
 ---
 
@@ -238,31 +299,53 @@ This is the absence-of-bad vs presence-of-good distinction in miniature. The rub
 
 ### The Wireframe as Intent Artifact
 
-To bridge the gap between intent and reality, we built a wireframe tool that renders the *design directive* — the plan for each slide — as an ASCII diagram:
+To bridge the gap between intent and reality, we built a wireframe tool that renders the *design directive* — the plan for each slide — as an ASCII diagram. Compare three slides from the same deck:
 
 ```
-S7: Sidebar-L (col:4 span:26 | col:34 span:22)
-+---------------------------------------------+
-|                                             |
-|  [title ██████████████]   [image ████████]  |
-|                                             |
-|  [body ████████████████]  [image ████████]  |
-|  [body ████████████████]                    |
-|  [body ████████████████]                    |
-|                                             |
-+---------------------------------------------+
+S05 │ bg:#F7F5F0 │ Georgia          S07 │ bg:#F0ECE2 │ Futura
+┌──────────────────────────────┐    ┌──────────────────────────────┐
+│                          ║   │    │                              │
+│                          ║   │    │  ┌ IMAGE ──────┐ ┌ IMAGE ─┐ │
+│                   ║ TITLE    │    │  │[image]       │ │[image] │ │
+│                   ║          │    │  │              │ │        │ │
+│                   ║          │    │  │              │ │        │ │
+│                   ║ BODY     │    │  ┌ BODY ────────────────────┐ │
+│                   ║  - ..    │    │  │![Al-Khwarizmi manuscr.. │ │
+│                   ║  - ..    │    │  ═══════════════════════════│ │
+│                          ║   │    │  │|col|col|col|             │ │
+│                              │    │  │TABLE                    │ │
+└──────────────────────────────┘    └──────────────────────────────┘
+Right-offset sidebar                Split image + table
+```
+
+```
+S11 │ bg:#EEF0F5 │ Futura
+┌──────────────────────────────────────────────────────────────┐
+│                                                              │
+│  ┌ IMAGE ──────────────┐   ┌ IMAGE ──────────────┐          │
+│  │[image]              │   │[image]              │          │
+│  │                     │   │                     │          │
+│  │                     │   │                     │          │
+│  └─────────────────────┘   └─────────────────────┘          │
+│  ══════════════════════════════════════════════════          │
+│  │TABLE: |col|col|col|                            │          │
+│  │                                                │          │
+│  │                                                │          │
+│  └────────────────────────────────────────────────┘          │
+└──────────────────────────────────────────────────────────────┘
+Dual image + divider + table
 ```
 
 The wireframe shows what the design *intended*. The screenshot shows what *actually rendered*. Comparing them reveals:
 
-- **Zone misplacement**: content rendered in the wrong area
-- **Content routing failures**: body text routed to "extras" instead of its zone
-- **Collision sources**: zones that overlap in reality but not in the plan
-- **Whitespace gaps**: the plan fills the slide but the render doesn't
+- **Zone overlap**: S7's body zone starts before the image zones end (row collision)
+- **Gap arithmetic**: S11's two image zones (span:24 + span:24) leave a 4-column gap between them
+- **Content routing**: body text routed to "extras" instead of its zone
+- **Whitespace**: the plan fills the slide but the render doesn't
 
 Every outer loop review compares wireframes to screenshots for problem slides. The wireframe is the bridge between the rubric (which measures the output) and the design intent (which motivates the output).
 
-<!-- notes: The wireframe tool emerged from the outer loop — it was built because the user kept saying "that's not what I intended." Without a legible representation of intent, the conversation is "the deck looks wrong" / "wrong how?" With the wireframe, the conversation becomes "the wireframe shows a sidebar-left layout but the screenshot shows everything centered — the content routing failed." This is an example of the outer-outer loop at work: the methodology itself evolved to include a new instrument (wireframes) that makes the outer loop more precise. -->
+<!-- notes: The wireframes are real output from wireframe.js on the current deck (week-2-v11). The three slides show different layout archetypes: right-offset sidebar (S5), split image+table (S7), and dual image comparison (S11). Placing them side by side demonstrates both the variety the grid system enables and the specific failure modes it creates. S7 is the most interesting case: the body zone and image zones share rows 9-10, creating a collision in the wireframe that may or may not manifest in the rendered output depending on content height. The wireframe makes this visible; the screenshot confirms or denies it. The wireframe tool emerged from the outer-outer loop — the methodology needed a new instrument to make the outer loop more precise. -->
 
 ---
 
@@ -281,6 +364,54 @@ The critical transition is always the same: **when does the system stop trusting
 In our system, this transition is triggered by the score-perception gap — the moment when the number and the experience diverge. The gap is not a bug. It is the signal that drives the outer loop.
 
 <!-- notes: Argyris's framework is more precise than Schon's for describing what happens at the rubric level. Schon describes the phenomenology — the surprise, the reflection, the adjustment. Argyris describes the structural change — the governing variables (rubric formulas) are questioned and revised. Both are needed: you need Schon to explain why the human notices the problem (perceptual surprise), and Argyris to explain what happens next (structural revision of the evaluation instrument). The distinction also maps to the RLHF analogy: single-loop = policy optimization against fixed reward model; double-loop = reward model update based on human feedback. -->
+
+---
+
+### The Feedback Protocol
+
+Each outer loop iteration follows a traceable path from perception to code:
+
+```
+  USER PERCEPTION                    RUBRIC STATE
+  ──────────────                     ────────────
+  "I see overlapping text"           Grid: 10/10
+         │                                │
+         ▼                                ▼
+  ┌─────────────────┐            ┌──────────────────┐
+  │ Score-perception │            │ Rubric has no     │
+  │ gap detected     │◄──────────│ collision metric   │
+  └────────┬────────┘            └──────────────────┘
+           │
+           ▼
+  ┌─────────────────┐
+  │ Diagnose: why    │
+  │ did rubric miss? │──────────► Zone overlap not
+  └────────┬────────┘            measured (jsdom sees
+           │                     DOM, not layout)
+           ▼
+  ┌─────────────────┐            ┌──────────────────┐
+  │ Fix rubric:      │            │ Add CSS rect       │
+  │ add collision    │───────────►│ intersection check │
+  │ detection        │            └──────────────────┘
+  └────────┬────────┘
+           │
+           ▼
+  ┌─────────────────┐            ┌──────────────────┐
+  │ Re-evaluate      │            │ Grid: 10 ──► 4    │
+  │                  │───────────►│ 4 collision slides │
+  └────────┬────────┘            │ now visible        │
+           │                     └──────────────────┘
+           ▼
+  ┌─────────────────┐
+  │ Commit with      │───────────► rubric: v6 — zone
+  │ design rationale │             collision detection
+  └─────────────────┘              Before: 88%
+                                   After: 88% (new data)
+```
+
+The commit is the artifact. Each one records: what the user saw, what the rubric missed, what changed, and the score impact. The git log becomes a design methodology journal.
+
+<!-- notes: This diagram traces a single outer loop iteration end-to-end. The key structural feature is the score-perception gap at the top — the trigger for everything that follows. Notice that the re-evaluation shows the same total score (88%) but radically different per-dimension data (Grid crashed from 10 to 4). This is why per-dimension scoring matters: the total masks the drama. The commit protocol captures the full narrative in machine-readable form. Over 8 iterations, the git log tells the story of the rubric learning to see. -->
 
 ---
 
@@ -522,6 +653,37 @@ The story is not "scores went up." The story is that three things improved in pa
 
 ---
 
+### Three Meanings of 10/10
+
+Grid Utilization scored 10/10 three times. Each time it meant something different.
+
+```
+Grid
+Score
+  10 │ ●                                     ●      ← EARNED
+     │  \                                   /         (collisions fixed,
+   8 │   \                                 /           layouts genuinely
+     │    \                               /            varied)
+   6 │     \                             /
+     │      \                           /
+   4 │       \_________________________●             ← HONEST
+     │         (no collision detector)   (4 collision   (collisions
+   2 │                                   slides found)  detected)
+     │
+  10 │ ●·····●·····●                                 ← IGNORANT
+     │  (rubric blind to collisions)                   (no metric
+     │                                                  existed)
+     └──────┬──────┬──────┬──────┬──────┬──────
+          early    v8     v9    v10    v11
+          (v2)    (v2)   (v4)  (v5/6)  (v7)
+```
+
+The top line is the real score. The bottom line is what the score *would have been* if collision detection existed from the start. The gap between them is the rubric's blind spot — invisible until the outer loop added the metric at v5/v6.
+
+<!-- notes: This diagram is the single most important visual in the paper. It shows that a score is not a fixed quantity — it is relative to the instrument that produces it. "10/10" at v2 and "10/10" at v7 are not the same claim. The first means "I see no problems" (which says more about the rubric than the deck). The second means "I see no problems AND I have been trained to see zone collisions, layout runs, whitespace utilization, and default-zone detection." The instrument's vocabulary determines the score's meaning. This is Goodhart made visible across time. -->
+
+---
+
 ### What Improved, and Who Improved It
 
 | Improvement | Loop | Agent | Timescale |
@@ -559,9 +721,9 @@ The recursion is not a coincidence. It is the design system demonstrating what t
 
 ## 7. Discussion
 
-### Circles Within Circles
+### Fractal Design
 
-<!-- notes: Section divider. Act II begins. We pivot from the specific (week-2, rastersysteme) to the general (any AI-mediated creative work). The question is: does the concentric loops pattern transfer? -->
+<!-- notes: Section divider. Act II begins. "Fractal design" reframes the concentric loops as a three-part concept: recursive (self-similar loops at different scales), symbiotic (human and machine intelligence at different positions in the structure), and generative (the system produces increasingly complex quality through iteration of simple rules). This framing connects the paper's specific findings to broader traditions in design thinking, computation, and AI collaboration. -->
 
 ---
 
@@ -582,6 +744,20 @@ The pattern:
 The loops are defined by their relationship to the quality model: the inner loop trusts it, the outer loop questions it, the outer-outer loop questions how it's questioned.
 
 <!-- notes: The generalization needs to be careful — not every AI system needs three concentric loops. The claim is specific: when quality is partially formalizable (meaning metrics help but don't capture everything), the concentric loops pattern outperforms either pure automation (inner loop only) or pure human review (no inner loop). The key condition is "partially but not fully formalizable" — if quality is fully formalizable, the inner loop is sufficient; if quality is fully ineffable, metrics aren't worth building. The interesting case is the middle, where metrics are useful guides but unreliable judges. -->
+
+---
+
+### Recursive, Symbiotic, Generative
+
+The concentric loops pattern exhibits three properties that, taken together, constitute what we call **fractal design**:
+
+**Recursive**: the loops are self-similar at different scales. Each loop follows the same structure — observe, evaluate, adjust — but operates on a different object. The inner loop adjusts the design. The outer loop adjusts the rubric. The outer-outer loop adjusts the methodology. The pattern recurses: each level applies the same logic to the output of the level below. Like a fractal, the shape of the whole is repeated in the shape of the parts.
+
+**Symbiotic**: human and machine intelligence occupy different positions in the structure, and the system works only because both are present. The machine is fast, tireless, and literal — it optimizes against whatever metric it is given. The human is slow, selective, and perceptual — they see what the metric misses. This is not a division of labor but a symbiosis: the machine's speed makes the human's perception actionable (you cannot manually review 36 slides after every 2-minute iteration), and the human's perception makes the machine's speed meaningful (fast optimization against a broken metric produces polished mediocrity). J.C.R. Licklider's "Man-Computer Symbiosis" (1960) described exactly this interdependence: "Men will set the goals, formulate the hypotheses, determine the criteria... Computers will do the routinizable work."
+
+**Generative**: the system produces complex quality through iteration of simple rules, in the older algorithmic sense of "generative." A generative grammar (Chomsky) produces infinite sentences from finite rules. An L-system (Lindenmayer) produces complex branching structures from a single axiom and a few rewrite rules. The concentric loops are generative in the same sense: the rule is simple — "evaluate, find the gap, fix it" — but applied recursively across scales, it generates an increasingly sophisticated understanding of quality that no single iteration could produce. The "generative AI" that powers the inner loop is generative in the newer, narrower sense: it generates artifacts. The concentric loops are generative in the deeper sense: they generate the criteria by which those artifacts are judged.
+
+<!-- notes: "Fractal design" is the paper's conceptual contribution. The three properties are individually well-known: recursion is structural, symbiosis is relational, and generativity is procedural. The claim is that the concentric loops pattern exhibits all three simultaneously, and that this combination is what makes it effective. Remove any one and the system degrades: without recursion, the loops don't nest and the methodology can't improve itself. Without symbiosis, the system either optimizes blindly (machine only) or reviews exhaustingly (human only). Without generativity, the system doesn't accumulate — each iteration starts from scratch rather than building on what the previous iteration learned. The Licklider reference is deliberate: his 1960 paper anticipated exactly the kind of human-machine collaboration that the concentric loops implement, fifty years before "generative AI" existed. The generative grammar and L-system references connect to the computational tradition that predates neural networks — the idea that complex structure emerges from simple recursive rules, not from large models. -->
 
 ---
 
@@ -634,7 +810,9 @@ The concentric loops framework suggests a different pedagogy:
 
 Students as outer-loop calibrators, not inner-loop consumers. The educational value is in the gap between the score and their perception — that gap is where design judgment lives.
 
-<!-- notes: The education implications follow from the cybernetics/AI divide in the week-2 content. McCarthy's AI vision — autonomous, self-improving machines — maps to the inner loop alone. Wiener's cybernetics vision — human-machine cooperation, feedback, governance — maps to the full concentric loops. Teaching only the inner loop produces students who trust AI output. Teaching all three loops produces students who can evaluate, calibrate, and improve AI output. The gap between the score and perception is not a problem to be solved — it is the site of learning. -->
+In the fractal design framing: students need to understand all three properties. The **recursive** property teaches them to think at multiple scales — not just "is this slide good?" but "is my way of judging slides good?" The **symbiotic** property teaches them where human and machine intelligence differ — what the machine can do faster and what the human can see better. The **generative** property teaches them that quality is not a fixed target but an emergent outcome of iterative refinement — "generative AI" generates artifacts, but generative *design* generates the criteria.
+
+<!-- notes: The education implications follow from the cybernetics/AI divide in the week-2 content. McCarthy's AI vision — autonomous, self-improving machines — maps to the inner loop alone. Wiener's cybernetics vision — human-machine cooperation, feedback, governance — maps to the full concentric loops. Teaching only the inner loop produces students who trust AI output. Teaching all three loops produces students who can evaluate, calibrate, and improve AI output. The fractal design framing gives students a vocabulary for what they're learning: recursion (meta-cognition), symbiosis (collaboration), generativity (emergence). These are transferable concepts that apply far beyond slide design. -->
 
 ---
 
@@ -666,9 +844,9 @@ It has not learned to measure presence-of-good: taste, balance, communicability,
 
 Presence-of-good may require a different kind of instrument — vision models, perceptual similarity metrics, aesthetic classifiers. Or it may require accepting that some qualities are irreducibly human, accessible only through the outer loop, never fully capturable in code.
 
-The concentric loops framework does not resolve this question. It provides a structure for living with it: use the inner loop for what can be measured, the outer loop for what can be perceived, and the outer-outer loop for the ongoing conversation about the boundary between them.
+Fractal design does not resolve this question. It provides a structure for living with it: recursive loops that keep asking "is our definition of quality honest?", symbiotic collaboration that places human perception where metrics fail, and a generative process that produces not just better designs but better ways of judging designs. The frontier is always receding — and the system is designed to follow it.
 
-<!-- notes: End on an open question, not a triumph. The paper is honest about what remains unsolved. The "remaining frontier" framing positions presence-of-good as the next research direction without claiming we know how to get there. The final sentence — "the boundary between them" — acknowledges that the division between measurable and perceptual is itself not fixed. It's another thing the outer-outer loop might shift. -->
+<!-- notes: End on an open question, not a triumph. The fractal design framing reappears here not as a triumphant conclusion but as a way of naming the paper's core contribution: a design methodology that is recursive (self-improving at every level), symbiotic (dependent on human-machine interdependence), and generative (producing emergent quality, not just optimized artifacts). The final sentence — "the system is designed to follow it" — positions fractal design as a process, not a destination. The frontier of quality will always exceed what metrics can capture. The contribution is the structure for chasing it. -->
 
 ---
 
@@ -678,16 +856,18 @@ This paper was composed, rendered, and evaluated using the system it describes.
 
 Its rubric scorecard:
 
-| Dimension | Score |
-|-----------|-------|
-| Grid Utilization | _/10 |
-| Color Harmonics | _/10 |
-| Coherence & Variance | _/10 |
-| Content Fidelity | _/10 |
-| Image Integration | _/10 |
-| Accessibility | _/10 |
-| **Total** | **_/60** |
+| Dimension | Score | Note |
+|-----------|-------|------|
+| Grid Utilization | 10/10 | 0 collisions (was 28 at baseline) |
+| Color Harmonics | 8.5/10 | Chromatic arc across 47 slides |
+| Coherence & Variance | 9/10 | Accent ratio calibrated to 0.66 |
+| Content Fidelity | 2.3/10 | 9 low-density dividers penalized |
+| Image Integration | 5/10 | No source images in this deck |
+| Accessibility | 8/10 | jsdom cap (honest about limitations) |
+| **Total** | **42.8/60** | |
 
-If this score is 100%, be suspicious.
+If this score were 100%, we would be suspicious. It is not. The rubric penalizes this deck for having no images and for having intentionally minimal section dividers — penalties calibrated for image-heavy lecture decks, not text-heavy academic papers. These are rubric blind spots: the outer loop has identified them, and the next rubric version should address them.
+
+The paper scored 42.8/60 on its own rubric. It started at 31/60 and converged in 6 iterations. The inner loop fixed zone collisions (Grid: 4 to 10), built a chromatic arc (Color: 5 to 8.5), and balanced accent density (Coherence: 8 to 9). It could not fix Content or Images because those penalties reflect structural properties of the deck, not design errors. That distinction — between what the inner loop can fix and what requires the outer loop to recalibrate — is the thesis of this paper.
 
 <!-- notes: The postscript is the meta-moment. Leave the scores blank until Phase 5 — they will be filled in with the actual evaluation results. The final line is the paper's thesis in miniature: a perfect score is not evidence of quality, it is evidence that the evaluation may be insufficient. If the paper's own rubric scores it perfectly, the rubric has learned nothing from evaluating it. The best outcome is a high but imperfect score, with the imperfections pointing to rubric dimensions that need further development. The paper practices what it preaches. -->

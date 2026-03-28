@@ -76,7 +76,8 @@ Collect the real data and artifacts referenced in the paper.
 - [x] Collect invented labels data — 29/36 in early run, 7 in scorecard, 0 by v9
 - [x] Document splice image invisibility — opacity 0.55, bumped to 0.70 (commit eafb167)
 - [x] Document v10->v11 score increase — +14.5 points, all artifact/renderer fixes, zero rubric changes
-- [ ] Gather convergence curves from refine-loop runs (iterations to plateau)
+- [x] Gather convergence curves — 3 historical runs (69→83, 43.5→45.5, 38→47.3), plus engine divergence (58.5 vs 49.8)
+- [ ] Paper's own convergence data (Phase 5 — inner loop on concentric-loops.html)
 - [x] Collect git log for rubric commits — 17 key commits, March 26-28
 - [x] Updated paper source (Section 6) with real per-dimension scorecard data
 - [x] Created EVIDENCE.md with all compiled reference data
@@ -85,42 +86,54 @@ Collect the real data and artifacts referenced in the paper.
 
 Design the key visual artifacts. These become slide content.
 
-- [ ] Concentric loops diagram — ASCII art (on-brand with wireframe tool)
-- [ ] Score progression chart (rubric version x-axis, score y-axis, with rubric-strictness overlay)
-- [ ] Wireframe vs screenshot side-by-side (2-3 case study slides)
-- [ ] Rubric dimension radar chart (before/after calibration)
-- [ ] Feedback protocol flow (user comment -> rubric change -> score impact -> design fix)
-- [ ] Rubric evolution timeline (v1 rubber stamp -> v7 demanding critic, with triggers)
+- [x] Concentric loops diagram — 3-level nested ASCII with arrows and triggers (Section 1)
+- [x] Convergence curve — ASCII chart of Run A (38→47.3) with structural/cosmetic annotation (Section 2)
+- [x] Wireframe comparisons — real wireframe.js output for S5, S7, S11 showing layout archetypes (Section 3)
+- [x] Feedback protocol flow — full trace from user perception to commit artifact (Section 3)
+- [x] "Three meanings of 10/10" — Grid score over time with ignorant/honest/earned annotation (Section 6)
+- [ ] Rubric dimension radar chart (before/after calibration) — defer to Phase 5 with real paper scores
+- [x] Rubric evolution timeline — covered by absence-of-bad table (Section 3) + outer loop log table (Section 1)
 
 ## Phase 4: Composition & Rendering
 
 Run the paper through the rastersysteme pipeline.
 
-- [ ] Compose with opus: academic editorial brief (dark navy titles, warm cream body, Palatino/Futura)
-- [ ] Review composed markdown — verify design directives match editorial intent
-- [ ] Render to HTML
-- [ ] Generate wireframes for self-comparison (the paper's own intent-vs-reality check)
+- [x] Compose with opus: academic editorial brief (dark navy titles, warm cream body, Palatino/Futura)
+  - Attempt 1: timed out (600s, single API call too large for 47 slides)
+  - Attempt 2: path collision (work dir = output filename), 8 batch failures
+  - Attempt 3: cached from attempt 2, no improvement
+  - **Attempt 4 (current)**: clean slate, --incremental --batch-size 5, 0 failures
+  - Baseline score: **31/60** (28 collisions, 9 sparse, Content 1/10)
+  - Note: uses pre-fractal-design source; re-compose needed after refine
+- [x] Review composed markdown — verified, fixed zone issues
+- [x] Render to HTML
+- [x] Generate wireframes for self-comparison (120 lines, decks/concentric-loops.wireframes.txt)
 - [ ] Splice images if generated
 - [ ] Also render long-form scroll version as alternate output
+- [ ] Re-compose with fractal design content (current compose is pre-fractal source)
 
 ## Phase 5: Evaluation & Refinement
 
 The paper evaluates itself with the rubric it describes.
 
-- [ ] Run rubric evaluation — target >55/60
-- [ ] Run /refine-loop if below target
-- [ ] Visual QA in Chrome
-- [ ] Fix accessibility or collision issues
+- [x] Run rubric evaluation — baseline 31/60
+- [x] Run refine loop — 6 iterations, 31→42.8/60
+  - Iter 1-3: zone collisions fixed (Grid 4→10, 28→0 collisions)
+  - Iter 4-5: chromatic arc + dark dividers (Color 5→8.5)
+  - Iter 6: accent ratio reduced (Coherence 8→9)
+  - Structural limits: Content 2.3 (divider penalty), Images 5 (no images)
+- [x] Visual QA in Chrome — collisions resolved, title slide on navy, clean body slides
+- [x] Capture scorecard for postscript — 42.8/60 with per-dimension notes
 - [ ] Final human review (outer loop on the paper itself)
-- [ ] Capture the paper's own scorecard for the postscript slide
+- [x] Identify rubric blind spots — deck-type bias (Content penalizes dividers, Images penalizes text-only decks). Recorded as outer loop iteration 9 in RUBRIC-CHANGELOG.md
 
 ## Phase 6: Meta-Documentation
 
 The paper is itself a data point in the concentric loop.
 
 - [ ] Add paper deck to corpus via deck-audit.js
-- [ ] Record the paper's own journey in RUBRIC-CHANGELOG.md (if rubric insights emerge)
-- [ ] Note whether writing the paper constituted an outer-outer loop iteration
+- [x] Record rubric blind spots in RUBRIC-CHANGELOG.md (see below)
+- [x] Note: writing the paper constituted an outer-outer loop iteration (deck-type bias discovered)
 - [ ] Update TODO.md (project-level) to mark paper item complete
 
 ---

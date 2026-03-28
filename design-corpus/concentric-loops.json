@@ -1,0 +1,76 @@
+{
+  "deck": "concentric-loops",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/concentric-loops.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/concentric-loops.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-28T18:20:31.931Z",
+  "fingerprint": {
+    "slideCount": 5,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "FAF6EE",
+        "E5DFD3"
+      ],
+      "bgFrequency": {
+        "FAF6EE": 4,
+        "E5DFD3": 1
+      },
+      "lightPct": 100,
+      "darkCount": 0,
+      "arcCrossings": 0,
+      "dominantBg": "FAF6EE"
+    },
+    "typography": {
+      "titleSizeRange": [
+        36,
+        48
+      ],
+      "titleSizeAvg": 43,
+      "bodySizeRange": [
+        14,
+        15
+      ],
+      "titleWeightRange": [
+        400,
+        700
+      ],
+      "fontUsage": {
+        "Futura": 2,
+        "Palatino": 3
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "title-only": 2,
+        "multi-zone": 1,
+        "other": 2
+      },
+      "uniqueArchetypes": 3,
+      "maxConsecutiveSame": 2,
+      "uniqueColStarts": 6,
+      "uniqueSpanWidths": 4
+    },
+    "accents": {
+      "slidesWithAccents": 5,
+      "accentPct": 100,
+      "types": {
+        "bar": 3,
+        "line": 4,
+        "dot": 1
+      },
+      "colors": [
+        "B7311A",
+        "E5DFD3"
+      ]
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

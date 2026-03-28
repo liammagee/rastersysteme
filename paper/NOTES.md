@@ -138,6 +138,21 @@ This is the deepest observation in the project. The rubric evolution traces a cl
 
 The paper should frame this as a general principle for AI evaluation: metrics that penalize errors are easy to build but create a quality ceiling. Metrics that reward quality are hard to build but raise the ceiling. The outer loop exists to push the rubric from the first category toward the second.
 
+## Fractal Design (added during Phase 4)
+
+The paper's conceptual contribution, introduced in the intellectual debts table (Section 1) and developed in Section 7. Three properties:
+
+**Recursive**: self-similar loops at different scales. Each loop follows the same observe→evaluate→adjust pattern but operates on a different object (design, rubric, methodology). Like a fractal, the shape of the whole is repeated in the parts. This connects to the cybernetics tradition (first/second-order) and Argyris (single/double/deutero-learning).
+
+**Symbiotic**: human and machine intelligence at different positions. The machine is fast and literal (inner loop), the human is slow and perceptual (outer loop). Neither is sufficient alone. This connects to Licklider's "Man-Computer Symbiosis" (1960) and the Wiener/McCarthy divide in the week-2 content. The concentric loops are the cybernetic (Wiener) alternative to the autonomous (McCarthy) model.
+
+**Generative**: the system produces complex quality through iteration of simple rules. "Generative" in the older algorithmic sense (Chomsky's grammars, Lindenmayer's L-systems, Alexander's generative sequences) — not just the narrow sense of "generative AI." The inner loop generates artifacts. The outer loops generate the criteria by which artifacts are judged. The distinction matters: "generative AI" is the inner loop; "fractal design" is the full stack.
+
+The term "fractal design" does triple duty:
+1. It names the pattern (recursive + symbiotic + generative)
+2. It connects to the computational tradition that predates neural networks
+3. It reframes "generative AI" as one layer of a deeper generative process
+
 ## Open Questions
 
 - **Live demo**: Should the paper include a section where the audience could theoretically run /refine-step during the presentation? This would be dramatic but risky. Maybe frame it as "the inner loop runs in 2-minute cycles; in the time it takes to present these 3 slides, the deck has already been re-evaluated." Time-awareness, not live execution.

@@ -1,0 +1,8 @@
+# Slide 34: Score Progression
+
+Four columns of stacked rectangular blocks on constructivist black ground, each column a different phase. Column heights vary non-monotonically — first rises, second rises, third drops sharply, fourth rises highest. Colors shift: column 1 cadmium yellow, column 2 cadmium yellow with vermillion red intrusion, column 3 mostly vermillion red (the honest reckoning), column 4 ultramarine blue (resolved). Thin white horizontal reference lines. Bauhaus hard-edge geometric abstraction, flat progression narrative, 16:9.
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, numbers, line charts, recognizable objects, shadows, 3D, data visualization labels
+
+Aspect: 16:9
+Style: Bauhaus constructivist geometric abstraction

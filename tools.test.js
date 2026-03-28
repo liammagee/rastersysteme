@@ -1426,12 +1426,11 @@ describe("splice-images.js", () => {
     assert.equal(plan[0].mode, "none");
   });
 
-  it("contentAwarePlan allows placement on slides with existing content images", () => {
+  it("contentAwarePlan skips slides with existing content images", () => {
     const html = '<section class="slide designed"><div class="zone zone-title" style="left:5%;width:50%;top:5%;height:20%">Title</div><img src="photo.png"></section>';
     const plan = contentAwarePlan(html);
-    // Spliced images can be added alongside content images (changed behavior)
-    // Only splice-img class should trigger skip
-    assert.notEqual(plan[0].mode, undefined);
+    // Slides with content images are skipped — they already have visuals
+    assert.equal(plan[0].mode, "none");
   });
 
   it("contentAwarePlan returns mode:none for slides already spliced", () => {
@@ -1446,12 +1445,12 @@ describe("splice-images.js", () => {
     assert.notEqual(plan[0].mode, "none");
   });
 
-  it("contentAwarePlan uses inset/none for text-heavy designed slides", () => {
+  it("contentAwarePlan uses inset/background/none for text-heavy designed slides", () => {
     const html = '<section class="slide designed">'
       + '<div class="zone zone-body" style="left:0%;width:90%;top:0%;height:90%">Dense</div>'
       + '</section>';
     const plan = contentAwarePlan(html);
-    assert.ok(["inset-tr", "inset-bl", "none"].includes(plan[0].mode),
+    assert.ok(["inset-tr", "inset-bl", "background", "none"].includes(plan[0].mode),
       `text-heavy slide got ${plan[0].mode}`);
   });
 });

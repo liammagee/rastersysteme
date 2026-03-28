@@ -1,0 +1,8 @@
+# Slide 18: The Wireframe as Intent Artifact
+
+A precise grid of thin black lines on warm parchment white ground, forming a 6x4 matrix of rectangles. Some cells are filled with flat vermillion red, others with ultramarine blue, others with cadmium yellow — a compositional plan made visible. One cell's fill extends beyond its grid boundary, overlapping the adjacent cell. Diagonal black lines cross the overflowing zone. Bauhaus constructivist flat hard-edge, Mondrian-adjacent grid composition, structural intent made geometric, 16:9.
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, wireframe UI, recognizable objects, shadows, 3D, curved lines
+
+Aspect: 16:9
+Style: Bauhaus constructivist geometric abstraction

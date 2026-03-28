@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <line x1="94.2" y1="54" x2="93.3" y2="1026" stroke="#8B4513" stroke-width="2.4" opacity="0.14" />
+  <line x1="96" y1="148.7" x2="1824" y2="147.1" stroke="#D4A843" stroke-width="2.3" opacity="0.18" />
+  <line x1="266.3" y1="54" x2="266.8" y2="1026" stroke="#D4A843" stroke-width="2.3" opacity="0.18" />
+  <line x1="96" y1="251.4" x2="1824" y2="250.0" stroke="#8B4513" stroke-width="2.0" opacity="0.09" />
+  <line x1="96" y1="342.3" x2="1824" y2="342.8" stroke="#B7311A" stroke-width="1.9" opacity="0.12" />
+  <line x1="611.1" y1="54" x2="609.7" y2="1026" stroke="#B7311A" stroke-width="1.9" opacity="0.12" />
+  <line x1="96" y1="440.8" x2="1824" y2="440.8" stroke="#2B7038" stroke-width="0.6" opacity="0.09" />
+  <line x1="785.2" y1="54" x2="785.6" y2="1026" stroke="#2B7038" stroke-width="0.6" opacity="0.09" />
+  <line x1="962.7" y1="54" x2="962.7" y2="1026" stroke="#B7311A" stroke-width="1.5" opacity="0.17" />
+  <line x1="96" y1="634.8" x2="1824" y2="636.2" stroke="#D4A843" stroke-width="1.9" opacity="0.13" />
+  <line x1="1308.6" y1="54" x2="1309.5" y2="1026" stroke="#1B5E80" stroke-width="0.6" opacity="0.22" />
+  <line x1="1475.8" y1="54" x2="1477.8" y2="1026" stroke="#8B4513" stroke-width="1.0" opacity="0.18" />
+  <line x1="96" y1="929.4" x2="1824" y2="931.0" stroke="#2B7038" stroke-width="0.8" opacity="0.13" />
+  <line x1="96" y1="1026.9" x2="1824" y2="1028.6" stroke="#1B5E80" stroke-width="0.6" opacity="0.18" />
+  <line x1="1824.9" y1="54" x2="1823.2" y2="1026" stroke="#1B5E80" stroke-width="0.6" opacity="0.18" />
+  <rect x="91.7" y="924.5" width="8.6" height="8.6" fill="#D4A843" opacity="0.16" transform="rotate(33 96.0 928.8)" />
+  <rect x="261.4" y="46.6" width="14.7" height="14.7" fill="#8B4513" opacity="0.40" transform="rotate(22 268.8 54.0)" />
+  <rect x="262.1" y="533.3" width="13.4" height="13.4" fill="#D4A843" opacity="0.42" transform="rotate(37 268.8 540.0)" />
+  <circle cx="441.6" cy="151.2" r="3.8" fill="#1B5E80" opacity="0.31" />
+  <rect x="439.5" y="926.7" width="4.2" height="4.2" fill="#8B4513" opacity="0.18" transform="rotate(4 441.6 928.8)" />
+  <circle cx="614.4" cy="54.0" r="8.7" fill="#2B7038" opacity="0.23" />
+  <rect x="605.8" y="628.6" width="17.1" height="17.1" fill="#B7311A" opacity="0.17" transform="rotate(28 614.4 637.2)" />
+  <rect x="778.2" y="45.0" width="17.9" height="17.9" fill="#D4A843" opacity="0.16" transform="rotate(1 787.2 54.0)" />
+  <rect x="779.1" y="629.1" width="16.1" height="16.1" fill="#8B4513" opacity="0.20" transform="rotate(34 787.2 637.2)" />
+  <rect x="955.1" y="146.3" width="9.8" height="9.8" fill="#0A1628" opacity="0.27" transform="rotate(9 960.0 151.2)" />
+  <circle cx="960.0" cy="248.4" r="3.7" fill="#D4A843" opacity="0.19" />
+  <circle cx="960.0" cy="928.8" r="10.6" fill="#1B5E80" opacity="0.31" />
+  <rect x="1296.8" y="725.6" width="17.5" height="17.5" fill="#1B5E80" opacity="0.17" transform="rotate(6 1305.6 734.4)" />
+  <circle cx="1305.6" cy="928.8" r="4.7" fill="#8B4513" opacity="0.38" />
+  <rect x="1471.6" y="338.8" width="13.7" height="13.7" fill="#B7311A" opacity="0.34" transform="rotate(24 1478.4 345.6)" />
+  <rect x="1643.4" y="143.4" width="15.6" height="15.6" fill="#B7311A" opacity="0.38" transform="rotate(36 1651.2 151.2)" />
+  <rect x="1647.7" y="536.5" width="7.0" height="7.0" fill="#1B5E80" opacity="0.38" transform="rotate(10 1651.2 540.0)" />
+  <circle cx="1651.2" cy="831.6" r="3.8" fill="#8B4513" opacity="0.34" />
+
+</svg>

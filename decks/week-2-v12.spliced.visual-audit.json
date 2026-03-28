@@ -1,0 +1,152 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 2,
+    "info": 14
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 93px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 4,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 487px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Fourth Figure. Ars brevis XVIII Century....\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Al-Khwarizmi - Esposito, John L., ed. (1...\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 371px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 612px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 15,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 20,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 26,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 30,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 32,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

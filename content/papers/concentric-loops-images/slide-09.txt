@@ -1,0 +1,8 @@
+# Slide 9: How the Rubric Works
+
+Six ultramarine blue rectangles of varying heights arranged in a row like an abstract bar chart, standing on a thin black horizontal baseline. Each rectangle has a cadmium yellow horizontal stripe at a different height within it, marking a threshold. Thin vermillion red vertical lines connect the yellow stripes across all six bars. Warm parchment white ground. Bauhaus constructivist hard-edge abstraction, flat depthless color, systematic visual rhythm, 16:9.
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, numbers, letters, recognizable objects, shadows, 3D, curves
+
+Aspect: 16:9
+Style: Bauhaus constructivist geometric abstraction

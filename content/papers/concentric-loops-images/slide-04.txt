@@ -1,0 +1,8 @@
+# Slide 4: The Rubric-as-Judge Pattern
+
+Two geometric forms face each other across a vertical black dividing line. Left side: a cluster of overlapping rectangles in cadmium yellow and warm white, arranged loosely — generation. Right side: a rigid ultramarine blue circle with thin concentric rings inside it, precise and mechanical — evaluation. A single vermillion red arrow-like triangle points from right to left along the bottom edge. Bauhaus constructivist flat composition, hard edges, primary colors on black ground, 16:9.
+
+Negative: organic forms, photorealism, gradients, decoration, text, recognizable objects, shadows, atmospheric effects, soft edges
+
+Aspect: 16:9
+Style: Bauhaus constructivist geometric abstraction

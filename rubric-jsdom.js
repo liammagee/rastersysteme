@@ -110,7 +110,7 @@ function evaluate(htmlPath) {
   let emptyBodyZones = 0, contentlessSlides = 0;
   let tinyTextCount = 0, tableTruncations = 0, clippedContentSlides = 0;
   let textOnImageCount = 0, imgOverlaps = 0;
-  let spliceCount = 0, spliceVisibleCount = 0, lowOpacitySpliceTotal = 0;
+  let spliceCount = 0, spliceVisibleCount = 0, spliceAtmosphericCount = 0, lowOpacitySpliceTotal = 0;
   const bgs = [], titleSizes = new Set(), zoneStarts = new Set(), zoneWidths = new Set();
   const fonts = new Set(), imgPlacements = new Set();
   let slidesWithAccents = 0;
@@ -260,8 +260,9 @@ function evaluate(htmlPath) {
           if (s['opacity']) opacity *= parseFloat(s['opacity']);
           el = el.parentElement;
         }
-        // Visible = opacity >= 0.4 (below this, images are imperceptible at projection distance)
+        // Three tiers: visible (>=0.4), atmospheric (0.15-0.4), invisible (<0.15)
         if (opacity >= 0.4) spliceVisibleCount++;
+        else if (opacity >= 0.15) spliceAtmosphericCount++;
         else lowOpacitySpliceTotal++;
       }
 
@@ -591,7 +592,7 @@ function evaluate(htmlPath) {
     lowDensitySlides, linkOnlySlides, duplicateTextSlides, sparseSlides, genericAltTotal,
     zoneCollisionSlides, lowUtilizationSlides,
     // v4 splice metrics
-    spliceCount, spliceVisibleCount, lowOpacitySpliceTotal
+    spliceCount, spliceVisibleCount, spliceAtmosphericCount, lowOpacitySpliceTotal
   };
 }
 

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <polygon points="922.9,110.2 1291.1,748.0 554.7,748.0" fill="none" stroke="#1B5E80" stroke-width="1" opacity="0.14" transform="rotate(354 922.8863649579897 535.3860737577514)" />
+  <polygon points="915.6,340.1 1063.4,596.1 767.8,596.1" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.16" transform="rotate(329 915.6120154504687 510.80146359197914)" />
+  <polygon points="979.4,487.5 1162.5,804.7 796.2,804.7" fill="none" stroke="#D4A843" stroke-width="1" opacity="0.21" transform="rotate(261 979.3625565785736 698.9422844692219)" />
+  <polygon points="927.1,631.0 989.1,738.5 865.1,738.5" fill="none" stroke="#B7311A" stroke-width="1" opacity="0.12" transform="rotate(75 927.0976197602149 702.668893006346)" />
+  <polygon points="921.1,681.1 954.8,739.4 887.4,739.4" fill="none" stroke="#B7311A" stroke-width="1" opacity="0.20" transform="rotate(167 921.0797274912959 719.9978677340057)" />
+  <polygon points="935.7,640.6 960.0,682.8 911.3,682.8" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.11" transform="rotate(208 935.6796065279483 668.7609194999668)" />
+  <polygon points="501.9,477.5 759.6,923.9 244.1,923.9" fill="none" stroke="#1B5E80" stroke-width="1" opacity="0.21" transform="rotate(347 501.8826259649085 775.0624829845183)" />
+  <polygon points="420.4,719.9 516.8,886.9 323.9,886.9" fill="none" stroke="#8B4513" stroke-width="1" opacity="0.23" transform="rotate(75 420.3514621900741 831.2328999458415)" />
+  <polygon points="448.2,793.5 500.5,884.3 395.8,884.3" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.13" transform="rotate(191 448.15334042175965 854.0097683367462)" />
+  <polygon points="383.7,768.1 414.7,821.6 352.8,821.6" fill="none" stroke="#B7311A" stroke-width="1" opacity="0.11" transform="rotate(281 383.7278526621817 803.7874509047659)" />
+  <line x1="192" y1="110.0" x2="1728" y2="110.7" stroke="#2B7038" stroke-width="0.7" opacity="0.22" />
+  <line x1="192" y1="218.7" x2="1728" y2="219.3" stroke="#0A1628" stroke-width="2.5" opacity="0.10" />
+  <line x1="386.7" y1="108" x2="386.8" y2="972" stroke="#0A1628" stroke-width="2.5" opacity="0.10" />
+  <line x1="962.4" y1="108" x2="964.2" y2="972" stroke="#0A1628" stroke-width="1.6" opacity="0.14" />
+  <line x1="192" y1="650.3" x2="1728" y2="650.7" stroke="#D4A843" stroke-width="1.2" opacity="0.13" />
+  <line x1="1154.3" y1="108" x2="1154.0" y2="972" stroke="#D4A843" stroke-width="1.2" opacity="0.13" />
+  <line x1="192" y1="755.4" x2="1728" y2="755.2" stroke="#1B5E80" stroke-width="0.6" opacity="0.20" />
+  <line x1="1343.4" y1="108" x2="1343.1" y2="972" stroke="#1B5E80" stroke-width="0.6" opacity="0.20" />
+  <line x1="192" y1="865.4" x2="1728" y2="866.8" stroke="#8B4513" stroke-width="1.3" opacity="0.09" />
+  <line x1="1537.4" y1="108" x2="1535.9" y2="972" stroke="#8B4513" stroke-width="1.3" opacity="0.09" />
+
+</svg>

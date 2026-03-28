@@ -14,6 +14,7 @@ Each entry: user feedback → rubric change → score impact.
 | 6 | "Can we do better with pure HTML/CSS analysis?" | v7: CSS rect collision, visual utilization, overlap fix | 88% → 98% (collisions fixed) |
 | 7 | "Capture intended design as ASCII wireframe" | wireframe.js for intent-vs-reality comparison | (diagnostic, not scored) |
 | 8 | "Maintain changelogs for inner/outer loops" | Structured changelog format, inner loop iteration logs | (process improvement) |
+| 9 | "Paper deck scores 42.8/60 — Content 2.3 and Images 5 are deck-type bias, not design errors" | Pending: add deck-type parameter (lecture/paper/workshop) to calibrate expectations. lowDensitySlides should exempt dark dividers. Images dimension should be optional for text-only decks. | 42.8/60 → TBD (rubric change needed) |
 
 ## Outer-Outer Loop Observations
 
@@ -28,6 +29,8 @@ Patterns observed across the outer loop iterations:
 4. **Renderer bugs masquerade as design problems.** Zone collisions scored as "bad grid design" when the actual cause was the extras fallback duplicating content. Fixing the renderer had more impact than any rubric change.
 
 5. **The user sees what metrics can't measure.** Splice image visibility, visual utilization, layout monotony — these required human observation to identify and multiple iterations to capture in code.
+
+6. **The rubric assumes a deck type.** Evaluating the design paper (a text-heavy academic deck with no images and 10 intentional section dividers) revealed that Content Fidelity and Image Integration are calibrated for lecture decks. A paper-style deck with minimal dividers and no images is penalized for being what it is, not for being poorly designed. The rubric needs a deck-type parameter — or at minimum, the lowDensitySlides metric should exempt dark-background dividers the way sparseSlides already does.
 
 ---
 

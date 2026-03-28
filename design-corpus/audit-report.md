@@ -1,24 +1,24 @@
 # Deck Audit Report
 
 Generated: 2026-03-28
-Decks scanned: 71
-Decks with scores: 20
+Decks scanned: 75
+Decks with scores: 21
 Decks with fingerprints + scores: 9
 
 ## Tier Distribution
 
-- **Exhibition**: 11
+- **Exhibition**: 12
 - **Professional**: 5
 - **Competent**: 2
 - **Broken**: 2
 
 ## Average Scores by Dimension
 
-| color                  |  9.8 | + |
 | grid                   |  9.7 | + |
+| color                  |  9.7 | + |
 | images                 |  8.8 | + |
-| coherence              |  8.5 | + |
-| accessibility          |  7.3 | ~ |
+| coherence              |  8.6 | + |
+| accessibility          |  7.4 | ~ |
 | contentCompleteness    |  7.2 | ~ |
 | taste                  |    7 | ~ |
 | communicability        |  6.5 | ~ |
@@ -26,11 +26,11 @@ Decks with fingerprints + scores: 9
 
 ## Most Common Weaknesses
 
-- **accessibility**: weak in 5/20 decks
-- **contentCompleteness**: weak in 4/20 decks
-- **images**: weak in 2/20 decks
-- **grid**: weak in 1/20 decks
-- **balance**: weak in 1/20 decks
+- **accessibility**: weak in 5/21 decks
+- **contentCompleteness**: weak in 4/21 decks
+- **images**: weak in 2/21 decks
+- **grid**: weak in 1/21 decks
+- **balance**: weak in 1/21 decks
 
 ## Parameter-Score Correlations
 
@@ -74,6 +74,7 @@ _Based on 9 decks with both fingerprints and scores._
 | week-1.maximal-light | — | — | maximal | — | — |
 | week-1.minimal-light | — | — | minimal | — | — |
 | week-1.moderate-light | — | — | moderate | — | — |
+| concentric-loops | — | — | maximal | — | — |
 | diff-fresh-vs-radical | — | — | — | — | — |
 | explorer | — | — | — | — | — |
 | showcase-review | — | — | — | — | — |
@@ -124,8 +125,11 @@ _Based on 9 decks with both fingerprints and scores._
 | week-2-v10 | — | — | — | — | — |
 | week-2-v10.spliced | Professional | 73% | — | color, coherence, images | grid (4) |
 | week-2-v11 | — | — | maximal | — | — |
-| week-2-v11.spliced | Exhibition | 98% | — | accessibility, grid, color | — |
+| week-2-v11.spliced | Exhibition | 95% | — | accessibility, grid, color | — |
 | week-2-v11.spliced.uat | — | — | — | — | — |
+| week-2-v12 | — | — | maximal | — | — |
+| week-2-v12.spliced | Exhibition | 94% | — | accessibility, coherence, images | — |
+| week-2-v12.spliced.uat | — | — | — | — | — |
 | week-2-v2 | Exhibition | 88% | maximal | grid, color, images | — |
 | week-2-v2.spliced | Professional | 80% | — | grid, color, images | contentCompleteness (1) |
 | week-2-v3 | Exhibition | 95% | maximal | grid, color, coherence | — |

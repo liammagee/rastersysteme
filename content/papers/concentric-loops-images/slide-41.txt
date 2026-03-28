@@ -1,0 +1,8 @@
+# Slide 41: How This Differs from RLHF
+
+Two compositions side by side on constructivist black ground, separated by a thin white vertical line. Left: two concentric rings (vermillion inner, ultramarine outer) — simple, paired, the RLHF structure. Right: three concentric rings (vermillion, ultramarine, cadmium yellow) with connecting geometric bridges between each ring — more complex, more interconnected. The right system is richer, more structured. Bauhaus hard-edge geometric abstraction, flat comparison composition, 16:9.
+
+Negative: organic forms, photorealism, soft gradients, decoration, text, labels, recognizable objects, shadows, 3D, neural networks, brain imagery
+
+Aspect: 16:9
+Style: Bauhaus constructivist geometric abstraction

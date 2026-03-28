@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="383.9" fill="#0A1628" fill-opacity="0.14" stroke="#0A1628" stroke-width="3.3" opacity="0.27" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="329.0" fill="#B7311A" fill-opacity="0.11" stroke="#B7311A" stroke-width="3.0" opacity="0.39" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="274.2" fill="#8B4513" fill-opacity="0.10" stroke="#8B4513" stroke-width="1.9" opacity="0.34" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="219.3" fill="#2B7038" fill-opacity="0.14" stroke="#2B7038" stroke-width="1.8" opacity="0.20" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="164.5" fill="#D4A843" fill-opacity="0.15" stroke="#D4A843" stroke-width="3.5" opacity="0.26" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="109.7" fill="none" fill-opacity="0.00" stroke="#1B5E80" stroke-width="2.4" opacity="0.38" />
+  <circle cx="1004.4826549097156" cy="423.16747772394854" r="54.8" fill="#0A1628" fill-opacity="0.10" stroke="#0A1628" stroke-width="1.2" opacity="0.39" />
+  <path d="M 1329.9 373.3 A 329.2 329.2 0 0 1 976.1 751.2" fill="none" stroke="#2B7038" stroke-width="3.9" opacity="0.28" stroke-linecap="round" />
+  <path d="M 1170.4 284.4 A 216.3 216.3 0 1 1 833.3 555.4" fill="none" stroke="#B7311A" stroke-width="2.5" opacity="0.21" stroke-linecap="round" />
+  <path d="M 916.0 225.2 A 216.8 216.8 0 0 1 1213.3 365.0" fill="none" stroke="#0A1628" stroke-width="1.5" opacity="0.45" stroke-linecap="round" />
+  <path d="M 976.2 665.0 A 243.5 243.5 0 0 1 791.8 541.6" fill="none" stroke="#8B4513" stroke-width="2.5" opacity="0.23" stroke-linecap="round" />
+  <path d="M 1276.5 306.1 A 296.2 296.2 0 0 1 935.8 711.3" fill="none" stroke="#0A1628" stroke-width="3.0" opacity="0.56" stroke-linecap="round" />
+  <path d="M 908.1 30.4 A 404.4 404.4 0 0 1 1365.9 604.6" fill="none" stroke="#B7311A" stroke-width="1.1" opacity="0.28" stroke-linecap="round" />
+
+</svg>
