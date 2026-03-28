@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UAT: week-2-v11.spliced.html</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #333; padding: 2rem; }
+  h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .meta { color: #888; font-size: 0.85rem; margin-bottom: 2rem; }
+  .scores-summary { background: white; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .scores-summary table { width: 100%; border-collapse: collapse; }
+  .scores-summary th, .scores-summary td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #eee; }
+  .scores-summary .good { color: #2d7d46; font-weight: 600; }
+  .scores-summary .ok { color: #b8860b; }
+  .scores-summary .bad { color: #c0392b; font-weight: 600; }
+  .scores-summary .total { font-weight: 700; border-top: 2px solid #333; }
+  .slide-card { background: white; border-radius: 8px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+  .slide-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; }
+  .slide-header h3 { font-size: 1.1rem; }
+  .text-len { color: #888; font-size: 0.8rem; }
+  .verdict { margin-left: auto; font-weight: 600; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .screenshot img { width: 100%; border: 1px solid #ddd; border-radius: 4px; }
+  .wireframe { font-size: 0.55rem; line-height: 1.15; background: #1a1a2e; color: #a8e6cf; padding: 0.75rem; border-radius: 4px; overflow-x: auto; white-space: pre; }
+  .wireframe-missing { background: #f0f0f0; padding: 2rem; text-align: center; color: #999; border-radius: 4px; }
+  .no-screenshot { background: #f0f0f0; padding: 4rem 2rem; text-align: center; color: #999; border-radius: 4px; }
+  .issues { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .issue { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 3px; }
+  .issue.critical { background: #fde2e2; color: #c0392b; }
+  .issue.warning { background: #fff3cd; color: #856404; }
+  .clean { color: #2d7d46; font-size: 0.85rem; }
+  .rubric-issues { font-size: 0.75rem; color: #888; margin-bottom: 0.5rem; }
+  textarea.notes { width: 100%; height: 3rem; border: 1px solid #ddd; border-radius: 4px; padding: 0.5rem; font-size: 0.85rem; resize: vertical; }
+  .summary-bar { position: sticky; top: 0; background: white; padding: 1rem 1.5rem; border-bottom: 2px solid #333; z-index: 10; display: flex; gap: 2rem; align-items: center; margin: -2rem -2rem 2rem -2rem; }
+  .summary-bar .count { font-weight: 700; }
+  .summary-bar .critical-count { color: #c0392b; }
+</style>
+</head>
+<body>
+  <div class="summary-bar">
+    <h1>UAT: week-2-v11.spliced.html</h1>
+    <span class="count">38 slides</span>
+    <span class="count critical-count">1 critical</span>
+    <span class="count">2 warning</span>
+    <span class="count">58.5/60 (98%)</span>
+  </div>
+  <div class="meta">Generated 2026-03-28 | Composed: week-2-v11.composed.md</div>
+  
+  <div class="scores-summary">
+    <h2>Rubric Scores</h2>
+    <table>
+      <tr><th>Dimension</th><th>Score</th></tr>
+      <tr><td>accessibility</td><td class="good">10/10</td></tr><tr><td>grid</td><td class="good">10/10</td></tr><tr><td>color</td><td class="good">10/10</td></tr><tr><td>coherence</td><td class="good">10/10</td></tr><tr><td>images</td><td class="good">10/10</td></tr><tr><td>contentCompleteness</td><td class="ok">8.5/10</td></tr>
+      <tr class="total"><td>Total</td><td>58.5/60 (98%)</td></tr>
+    </table>
+  </div>
+  
+    <div class="slide-card" id="slide-1">
+      <div class="slide-header">
+        <h3>Slide 1</h3>
+        <span class="text-len">32 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-1" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-01.png" alt="Slide 1 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S01 │ bg:#1A1A2E │ Futura
+┌────────────────────────────────────────────────────────────┐
+│════════════════════════════════════════════════════════════│
+│                                                            │
+│                                                            │
+│    ┌ TITLE ────────────────────────────────────────────┐   │
+│    │Gen AI - Week 2 - Pathways to AI                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+│          ┌ IMAGE ────────────────────────────────┐         │
+│          │[image]                                │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          └───────────────────────────────────────┘         │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-2">
+      <div class="slide-header">
+        <h3>Slide 2</h3>
+        <span class="text-len">219 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-2" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-02.png" alt="Slide 2 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S02 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│      ┌ TITLE ────────────────────────────────────────┐     │
+│      │Initial Definition: Artificial Intelligence .. │     │
+│      │                                               │     │
+│      │                                               │     │
+│      ════════════════════════════════════════════════┘     │
+│      ┌ BODY ─────────────────────────────────────────┐     │
+│      │| | |                                          │     │
+│      │|---|---|                                      │     │
+│      │| ![McCarthy et al. 1955 Dartmouth proposal].. │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      └───────────────────────────────────────────────┘     │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-3">
+      <div class="slide-header">
+        <h3>Slide 3</h3>
+        <span class="text-len">499 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-3" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-03.png" alt="Slide 3 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S03 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│║                                                           │
+│║   ┌ TITLE ────────────────────────────────────────────┐   │
+│║   │Themes: Cybernetics vs Artificial Intelligence?    │   │
+│║   │                                                   │   │
+│║ ┌ BODY ─────────────────────────────────────────────────┐ │
+│║ │| Cybernetics | AI |                                   │ │
+│║ │|---|---|                                              │ │
+│║ │| ![Portrait of Norbert Wiener, founder of cyberneti.. │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ │                                                       │ │
+│║ └───────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-4">
+      <div class="slide-header">
+        <h3>Slide 4</h3>
+        <span class="text-len">412 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-4" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-04.png" alt="Slide 4 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S04 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ TITLE ────────────────┐ ║                             │
+│    │Melancholic Echoes o.. │ ║                             │
+│    │                       │ ║                             │
+│    └───────────────────────┘                               │
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │ - Attempts to reclaim the more "human" form       │   │
+│    │ - An Era of Symbiotic (or Sympoetic / Co-intell.. │   │
+│    │| | | |                                            │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues"><span class="issue critical">broken-image: pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png</span></div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-5">
+      <div class="slide-header">
+        <h3>Slide 5</h3>
+        <span class="text-len">378 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-5" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-05.png" alt="Slide 5 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S05 │ bg:#F7F5F0 │ Georgia
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                          ║ ┌ TITLE ────────────────────┐   │
+│                          ║ │“La Longue Duree” (Annal.. │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ └───────────────────────────┘   │
+│                          ║ ┌ BODY ─────────────────────┐   │
+│                          ║ │ - "Total History"         │   │
+│                          ║ │ - Why it matters          │   │
+│                          ║ │   - Should we treat his.. │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                            └───────────────────────────┘   │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-6">
+      <div class="slide-header">
+        <h3>Slide 6</h3>
+        <span class="text-len">1971 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-6" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-06.png" alt="Slide 6 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S06 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ TITLE ────────────────────────────────────────────┐   │
+│    │Fundamental Processes of AI                        │   │
+│    │                                                   │   │
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │ - Compare:                                        │   │
+│    │   - AI as the output of individual genius (Schm.. │   │
+│    │   - Or instead a process of accumulating layers:  │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-7">
+      <div class="slide-header">
+        <h3>Slide 7</h3>
+        <span class="text-len">358 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-7" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-07.png" alt="Slide 7 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S07 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ IMAGE ────────────────┐     ┌ IMAGE ──────────────┐   │
+│    │[image]                │     │[image]              │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│    │                       │     │                     │   │
+│════════════════════════════════════════════════════════════│
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │![Al-Khwarizmi manuscript page, foundational tex.. │   │
+│    │| | |                                              │   │
+│    │|---|---|                                          │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues"><span class="issue warning">text-image-collision: "Fourth Figure. Ars brevis XVIII Century...." over gen_ai___</span></div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-8">
+      <div class="slide-header">
+        <h3>Slide 8</h3>
+        <span class="text-len">147 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-8" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-08.png" alt="Slide 8 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S08 │ bg:#F7F5F0 │ Georgia
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│      ┌ IMAGE ────────────┐                                 │
+│      │[image]            │                                 │
+│      │                   │   ┌ BODY ─────────────────┐     │
+│      │                   │ ◉ │![Cover of Medieval .. │     │
+│      │                   │   │Design: Book cover l.. │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      │                   │   │                       │     │
+│      └───────────────────┘   │                       │     │
+│                              │                       │     │
+│                              └───────────────────────┘     │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-9">
+      <div class="slide-header">
+        <h3>Slide 9</h3>
+        <span class="text-len">0 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-9" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-09.png" alt="Slide 9 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S09 │ bg:#1A1A2E │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                              ║                             │
+│                              ║                             │
+│  ┌ IMAGE ──────────────────┐ ║ ┌ IMAGE ──────────────────┐ │
+│  │[image]                  │ ║ │[image]                  │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  │                         │ ║ │                         │ │
+│  └─────────────────────────┘ ║ └─────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-10">
+      <div class="slide-header">
+        <h3>Slide 10</h3>
+        <span class="text-len">1526 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-10" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-10.png" alt="Slide 10 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S10 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ BODY ─────────────────────────────┐                   │
+│    │‘If AI systems are seen as more .. │                   │
+│    │Design: Long Crawford quote fill.. │                   │
+│    │                                   │   ┌ IMAGE ──────┐ │
+│    │                                   │   │[image]      │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   │             │ │
+│    │                                   │   └─────────────┘ │
+│    │                                   │                   │
+│    │                                   │                   │
+│    │                                   │                   │
+│    │                                   │                   │
+│    │                                   │                   │
+│    └───────────────────────────────────┘                   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-11">
+      <div class="slide-header">
+        <h3>Slide 11</h3>
+        <span class="text-len">170 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-11" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-11.png" alt="Slide 11 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S11 │ bg:#EEF0F5 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ IMAGE ────────────────┐   ┌ IMAGE ────────────────┐   │
+│    │[image]                │   │[image]                │   │
+│    │                       │   │                       │   │
+│    │                       │   │                       │   │
+│    │                       │   │                       │   │
+│    │                       │   │                       │   │
+│    │                       │   │                       │   │
+│    │                       │   │                       │   │
+│    └───────────────────────┘   └───────────────────────┘   │
+│    ════════════════════════════════════════════════════┐   │
+│    │![Descartes rationalist philosophy, computation .. │   │
+│    │| | |                                              │   │
+│    │|---|---|                                          │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-12">
+      <div class="slide-header">
+        <h3>Slide 12</h3>
+        <span class="text-len">144 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-12" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-12.png" alt="Slide 12 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S12 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│════════════════════════════════════════════════════════════│
+│  ┌ BODY ─────────────────────────────────────────────────┐ │
+│  │| Feudalism | Capitalism |                             │ │
+│  │|---|---|                                              │ │
+│  │| ![Medieval hand-mill representing feudal society](.. │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  │                                                       │ │
+│  └───────────────────────────────────────────────────────┘ │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-13">
+      <div class="slide-header">
+        <h3>Slide 13</h3>
+        <span class="text-len">44 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-13" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-13.png" alt="Slide 13 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S13 │ bg:#1A1A2E │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│          ┌ BODY ─────────────────────────────────┐         │
+│          │[The Archaeology of Artificial Intel.. │         │
+│          │Design: Minimal link as dark interlu.. │         │
+│          │                                       │         │
+│          │                                       │         │
+│          └───────────────────────────────────────┘         │
+│                      ════════════════                      │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-14">
+      <div class="slide-header">
+        <h3>Slide 14</h3>
+        <span class="text-len">1920 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-14" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-14.png" alt="Slide 14 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S14 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│┌ TABLE ───────────────────────────────────────────────────┐│
+││|col|col|col|                                             ││
+││|---|---|---|                                             ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+││                                                          ││
+│└──────────────────────────────────────────────────────────┘│
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-15">
+      <div class="slide-header">
+        <h3>Slide 15</h3>
+        <span class="text-len">1323 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-15" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-15.png" alt="Slide 15 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S15 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                            ║                               │
+│                            ║                               │
+│    ┌ TITLE ──────────────┐ ║ ┌ BODY ───────────────────┐   │
+│    │"Drawing a Long Bo.. │ ║ │   - The problem of cu.. │   │
+│    │                     │ ║ │   - Problems of astro.. │   │
+│    │                     │ ║ │   - Ballistics - forc.. │   │
+│    │                     │ ║ │                         │   │
+│    └─────────────────────┘ ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ └─────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-16">
+      <div class="slide-header">
+        <h3>Slide 16</h3>
+        <span class="text-len">302 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-16" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-16.png" alt="Slide 16 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S16 │ bg:#F7F5F0 │ Georgia
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│        ║ ┌ BODY ─────────────────────────────────┐         │
+│        ║ │People likely know the famous first .. │         │
+│        ║ │But what of their other use? Ballist.. │         │
+│        ║ │Design: No heading — narrative body .. │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│        ║ │                                       │         │
+│          └───────────────────────────────────────┘         │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-17">
+      <div class="slide-header">
+        <h3>Slide 17</h3>
+        <span class="text-len">701 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-17" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-17.png" alt="Slide 17 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S17 │ bg:#EEF0F5 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                              ║                             │
+│                              ║ ┌ TITLE ────────────────┐   │
+│                              ║ │Galileo (pre-Calculu.. │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ └───────────────────────┘   │
+│                              ║ ┌ BODY ─────────────────┐   │
+│                              ║ │ - Parabola - models.. │   │
+│                              ║ │ - Can handle *gravi.. │   │
+│                              ║ │ - But what really h.. │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ │                       │   │
+│                              ║ └───────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-18">
+      <div class="slide-header">
+        <h3>Slide 18</h3>
+        <span class="text-len">46 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-18" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-18.png" alt="Slide 18 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S18 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│      ┌ TITLE ────────────────────────────────────────┐     │
+│      │Practice                                       │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      └───────────────────────────────────────────────┘     │
+│      ┌ BODY ─────────────────────────────────────────┐     │
+│      │[Early Ballistic Computer Simulation](https:.. │     │
+│      │Design: Practice callout as monument. Scale .. │     │
+│      │                                               │     │
+│      └───────────────────────────────────────────────┘     │
+│      ════════════════════════════════════════════════      │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-19">
+      <div class="slide-header">
+        <h3>Slide 19</h3>
+        <span class="text-len">1452 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-19" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-19.png" alt="Slide 19 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S19 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│║                                                           │
+│║   ┌ TITLE ────────────────────────────────┐               │
+│║   │Thought experiment: Throwing a Stone   │               │
+│║   │                                       │               │
+│║   │                                       │               │
+│║   ┌ BODY ─────────────────────────────────────────────┐   │
+│║   │So let's throw a stone; we have essentially (sim.. │   │
+│║   │ - angle of release                                │   │
+│║   │ - velocity (metres/yards per second)              │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-20">
+      <div class="slide-header">
+        <h3>Slide 20</h3>
+        <span class="text-len">463 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-20" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-20.png" alt="Slide 20 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S20 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│    ┌ TITLE ──────────────────────┐                         │
+│    │Relevance to Education       │                         │
+│    │                             │                         │
+│    │                             │                         │
+│    └─────────────────────────────┘                         │
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │Now think about education as a parallael histori.. │   │
+│    │For military purposes, we need trigonometry, cal.. │   │
+│    │The "computer" pre-1940s: a person (typically wo.. │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-21">
+      <div class="slide-header">
+        <h3>Slide 21</h3>
+        <span class="text-len">1423 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-21" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-21.png" alt="Slide 21 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S21 │ bg:#FFFFFF │ Georgia
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│        ┌ TITLE ────────────────────────────────────┐       │
+│        │For those mathematically / philosophical.. │       │
+│        ┌ BODY ─────────────────────────────────────┐       │
+│        │ - Much of AI-related - and general - co.. │       │
+│        │ - Note *analog* (non digital) calculato.. │       │
+│        │ - Continuous > discrete is always "loss.. │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        └───────────────────────────────────────────┘       │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-22">
+      <div class="slide-header">
+        <h3>Slide 22</h3>
+        <span class="text-len">347 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-22" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-22.png" alt="Slide 22 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S22 │ bg:#EEF0F5 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                          ║                                 │
+│                          ║                                 │
+│    ┌ TITLE ────────────┐ ║ ┌ BODY ─────────────────────┐   │
+│    │Looking ahead…     │ ║ │What **fundamentals** ma.. │   │
+│    │                   │ ║ │Probability [think “stoc.. │   │
+│    │                   │ ║ │Linear algebra (19th cen.. │   │
+│    │                   │ ║ │                           │   │
+│    └───────────────────┘ ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ └───────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-23">
+      <div class="slide-header">
+        <h3>Slide 23</h3>
+        <span class="text-len">356 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-23" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-23.png" alt="Slide 23 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S23 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                            ║ ┌ TITLE ──────────────────┐   │
+│                            ║ │And a bold proposition…  │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ └─────────────────────────┘   │
+│                            ║ ┌ BODY ───────────────────┐   │
+│                            ║ │All the **mathematics*.. │   │
+│                            ║ │Are the last 125 years.. │   │
+│                            ║ │Is our sense of **mode.. │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                              └─────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-24">
+      <div class="slide-header">
+        <h3>Slide 24</h3>
+        <span class="text-len">18 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-24" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-24.png" alt="Slide 24 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S24 │ bg:#0D0D0D │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│════════════════════════════════════════════════════════════│
+│        ┌ TITLE ────────────────────────────────────┐       │
+│        │Discussion / Break                         │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        └───────────────────────────────────────────┘       │
+│════════════════════════════════════════════════════════════│
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-25">
+      <div class="slide-header">
+        <h3>Slide 25</h3>
+        <span class="text-len">88 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-25" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-25.png" alt="Slide 25 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S25 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│════════════════════════════════════════════════════════════│
+│    ┌ TITLE ────────────────────────────────────────────┐   │
+│    │AI in 2026: An Opinionated Take on the Present     │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+│                                                            │
+│            ┌ BODY ─────────────────────────────┐           │
+│            │What's going on in the world of .. │           │
+│            │Design: Section opener for prese.. │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            └───────────────────────────────────┘           │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues"><span class="issue warning">text-image-collision: "AI in 2026: An Opinionated Take on the P..." over slide-25.</span></div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-26">
+      <div class="slide-header">
+        <h3>Slide 26</h3>
+        <span class="text-len">641 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-26" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-26.png" alt="Slide 26 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S26 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│║                                                           │
+│║                                                           │
+│║   ┌ TITLE ────────────────┐                               │
+│║   │AI Consolidation       │                               │
+│║   │                       │                               │
+│║   │                       │                               │
+│║   └───────────────────────┘                               │
+│║   ┌ BODY ─────────────────────────────────────────────┐   │
+│║   │ - "Big Three": OpenAI's ChatGPT, Anthropic's Cl.. │   │
+│║   │   - Other big names have slowed down: Xai, Meta.. │   │
+│║   │   - Apple: using Google Gemini                    │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   │                                                   │   │
+│║   └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-27">
+      <div class="slide-header">
+        <h3>Slide 27</h3>
+        <span class="text-len">502 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-27" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-27.png" alt="Slide 27 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S27 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│          ┌ TITLE ────────────────────────────────┐         │
+│          │Rise of open source models             │         │
+│          │                                       │         │
+│          │                                       │         │
+│          └───────────────────────────────────────┘         │
+│          ════════════════════════════════════════┐         │
+│          │ - Mostly developed in China           │         │
+│          │   - Xiaomi                            │         │
+│          │   - Alibaba Qwen                      │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          │                                       │         │
+│          └───────────────────────────────────────┘         │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-28">
+      <div class="slide-header">
+        <h3>Slide 28</h3>
+        <span class="text-len">282 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-28" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-28.png" alt="Slide 28 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S28 │ bg:#EEF0F5 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                      ║                                     │
+│                      ║                                     │
+│                      ║ ┌ TITLE ────────────────────────┐   │
+│                      ║ │Contradictory tendencies: In.. │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ └───────────────────────────────┘   │
+│                      ║ ┌ BODY ─────────────────────────┐   │
+│                      ║ │ - Scaling laws (Week 3)       │   │
+│                      ║ │ - Bigger models               │   │
+│                      ║ │ - More "thinking" (inferenc.. │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ │                               │   │
+│                      ║ └───────────────────────────────┘   │
+│                      ║                                     │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-29">
+      <div class="slide-header">
+        <h3>Slide 29</h3>
+        <span class="text-len">471 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-29" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-29.png" alt="Slide 29 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S29 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ TITLE ────────────────────────────────────────────┐   │
+│    │...but also:                                       │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │ - More efficient GPUs (see Nvidia)                │   │
+│    │ - Better algorithms (especially from Chinese la.. │   │
+│    │ - Better hardware (Apple): Open source models r.. │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-30">
+      <div class="slide-header">
+        <h3>Slide 30</h3>
+        <span class="text-len">473 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-30" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-30.png" alt="Slide 30 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S30 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                            ║                               │
+│                            ║                               │
+│    ┌ TITLE ──────────────┐ ║ ┌ BODY ───────────────────┐   │
+│    │Agentive AI          │ ║ │ - Code automation       │   │
+│    │                     │ ║ │   - OpenAI Codex        │   │
+│    │                     │ ║ │   - Claude Code         │   │
+│    │                     │ ║ │                         │   │
+│    └─────────────────────┘ ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ │                         │   │
+│                            ║ └─────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-31">
+      <div class="slide-header">
+        <h3>Slide 31</h3>
+        <span class="text-len">570 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-31" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-31.png" alt="Slide 31 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S31 │ bg:#F0ECE2 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│        ┌ TITLE ────────────────────────────────────┐       │
+│        │Education Issues: Cons                     │       │
+│        │                                           │       │
+│        │                                           │       │
+│        └───────────────────────────────────────────┘       │
+│        ════════════════════════════════════════════┐       │
+│        │ - Plagiarism & Cognitive Offloading       │       │
+│        │ - Biased Results & Unequal Access         │       │
+│        │ - Potential Obsolescence of Teachers?     │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        │                                           │       │
+│        └───────────────────────────────────────────┘       │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-32">
+      <div class="slide-header">
+        <h3>Slide 32</h3>
+        <span class="text-len">512 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-32" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-32.png" alt="Slide 32 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S32 │ bg:#EEF0F5 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                          ║                                 │
+│                          ║                                 │
+│                          ║ ┌ TITLE ────────────────────┐   │
+│                          ║ │Education Issues: Pros     │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ └───────────────────────────┘   │
+│                          ║ ┌ BODY ─────────────────────┐   │
+│                          ║ │ - Personalized, adaptiv.. │   │
+│                          ║ │ - Accessibility           │   │
+│                          ║ │ - Can support Universal.. │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ │                           │   │
+│                          ║ └───────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-33">
+      <div class="slide-header">
+        <h3>Slide 33</h3>
+        <span class="text-len">381 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-33" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-33.png" alt="Slide 33 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S33 │ bg:#F7F5F0 │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ TITLE ────────────────────────────────────────────┐   │
+│    │However: "Bigger Picture" Issues                   │   │
+│    │                                                   │   │
+│════════════════════════════════════════════════════════════│
+│    ┌ BODY ─────────────────────────────────────────────┐   │
+│    │1. Predicted Erasure of White-Collar (Cognitive).. │   │
+│    │   - Programming                                   │   │
+│    │   - Design                                        │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    │                                                   │   │
+│    └───────────────────────────────────────────────────┘   │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-34">
+      <div class="slide-header">
+        <h3>Slide 34</h3>
+        <span class="text-len">785 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-34" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-34.png" alt="Slide 34 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S34 │ bg:#FFFFFF │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│    ┌ TITLE ──────────────────────┐ ║                       │
+│    │What do we need to learn n.. │ ║                       │
+│    │                             │ ║                       │
+│    │                             │ ║ ┌ IMAGE ──────────┐   │
+│    └─────────────────────────────┘ ║ │[image]          │   │
+│    ┌ BODY ───────────────────────┐ ║ │                 │   │
+│    │No easy answers:             │ ║ │                 │   │
+│    │ - "Core" Machine Learning.. │ ║ │                 │   │
+│    │ - "Prompt engineering"? B.. │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ │                 │   │
+│    │                             │ ║ └─────────────────┘   │
+│    │                             │ ║                       │
+│    │                             │ ║                       │
+│    └─────────────────────────────┘                         │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-35">
+      <div class="slide-header">
+        <h3>Slide 35</h3>
+        <span class="text-len">433 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-35" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-35.png" alt="Slide 35 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S35 │ bg:#F0ECE2 │ Georgia
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│            ┌ TITLE ────────────────────────────┐           │
+│        ◉   │Crisis in Higher Ed                │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            └───────────────────────────────────┘           │
+│            ┌ BODY ─────────────────────────────┐           │
+│            │ - Spiralling costs                │           │
+│            │ - Increased distrust in "tradit.. │           │
+│            │ - Lack of effective pathways to.. │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            │                                   │           │
+│            └───────────────────────────────────┘           │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-36">
+      <div class="slide-header">
+        <h3>Slide 36</h3>
+        <span class="text-len">127 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-36" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-36.png" alt="Slide 36 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S36 │ bg:#1A1A2E │ Futura
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│                                                            │
+│                                                            │
+│      ┌ TITLE ────────────────────────────────────────┐     │
+│      │Next Week: The Technological Lens              │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      └───────────────────────────────────────────────┘     │
+│      ┌ BODY ─────────────────────────────────────────┐     │
+│      │Unpacking the Black Box?                       │     │
+│      │Don't panic if next week's materials look co.. │     │
+│      │[cgscholar.com](https://cgscholar.com/posts/.. │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      │                                               │     │
+│      └───────────────────────────────────────────────┘     │
+│════════════════════════════════════════════════════════════│
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-37">
+      <div class="slide-header">
+        <h3>Slide 37</h3>
+        <span class="text-len">0 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-37" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <div class="no-screenshot">No screenshot</div>
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S37 │ bg:#------ │ default
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│  S37: No design directive                                  │
+│                                                            │
+│  Case Study: *Geist* in the Machine (Magee 2026)           │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+    <div class="slide-card" id="slide-38">
+      <div class="slide-header">
+        <h3>Slide 38</h3>
+        <span class="text-len">0 chars</span>
+        <label class="verdict">
+          <input type="checkbox" name="pass-38" checked> Pass
+        </label>
+      </div>
+      <div class="comparison">
+        <div class="screenshot">
+          <img src="file:///tmp/rubric-screenshots/slide-38.png" alt="Slide 38 screenshot">
+        </div>
+        <div class="wireframe-col">
+          <pre class="wireframe">S38 │ bg:#------ │ default
+┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│  S38: No design directive                                  │
+│                                                            │
+│  Case Study: Key Concepts                                  │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</pre>
+        </div>
+      </div>
+      <div class="issues clean">No issues detected</div>
+      <div class="rubric-issues"></div>
+      <textarea class="notes" placeholder="Notes on this slide..."></textarea>
+    </div>
+  <script>
+    // Auto-uncheck slides with critical issues
+    document.querySelectorAll('.slide-card').forEach(card => {
+      const hasCritical = card.querySelector('.issue.critical');
+      if (hasCritical) {
+        const cb = card.querySelector('input[type=checkbox]');
+        if (cb) cb.checked = false;
+      }
+    });
+  </script>
+</body>
+</html>

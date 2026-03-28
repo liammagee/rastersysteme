@@ -1,9 +1,9 @@
 {
   "slideCount": 36,
   "counts": {
-    "critical": 9,
-    "warning": 2,
-    "info": 34
+    "critical": 0,
+    "warning": 3,
+    "info": 14
   },
   "issues": [
     {
@@ -17,86 +17,11 @@
       ]
     },
     {
-      "slide": 2,
-      "issues": [
-        {
-          "type": "zone-collision",
-          "detail": "zone-title overlaps zone-extras by 1536x216px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x729px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x676px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x676px",
-          "severity": "info"
-        }
-      ]
-    },
-    {
       "slide": 3,
       "issues": [
         {
-          "type": "zone-collision",
-          "detail": "zone-title overlaps zone-extras by 1536x108px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x837px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x773px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x773px",
-          "severity": "info"
-        },
-        {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 4,
-      "issues": [
-        {
-          "type": "broken-image",
-          "detail": "pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-title overlaps zone-extras by 704x162px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x783px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x724px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x724px",
           "severity": "info"
         }
       ]
@@ -106,32 +31,7 @@
       "issues": [
         {
           "type": "clipped-overflow",
-          "detail": "zone-image: 447px clipped overflow",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-extras by 704x486px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-table by 658x340px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x432px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x403px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x797px",
+          "detail": "zone-image: 489px clipped overflow",
           "severity": "info"
         },
         {
@@ -159,52 +59,12 @@
           "type": "clipped-overflow",
           "detail": "zone-image: 614px clipped overflow",
           "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-extras by 704x432px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-table by 658x286px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x486px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x457px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x797px",
-          "severity": "info"
         }
       ]
     },
     {
       "slide": 12,
       "issues": [
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1536x972px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-table by 1444x797px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-table by 1444x797px",
-          "severity": "info"
-        },
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
@@ -228,26 +88,6 @@
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 21,
-      "issues": [
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 1408x864px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-title by 1382x121px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-title by 1382x146px",
           "severity": "info"
         }
       ]
@@ -316,6 +156,12 @@
     {
       "slide": 36,
       "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Next Week: The Technological Lens...\" over slide-36.png",
+          "severity": "warning"
+        },
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",

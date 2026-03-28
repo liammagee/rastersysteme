@@ -46,7 +46,7 @@
 
 ### Paper / Workshop
 
-- [ ] **Design paper: Concentric Loops in AI-Mediated Design** — tracked in [paper/TODO.md](paper/TODO.md), spec in [paper/SPEC.md](paper/SPEC.md).
+- [ ] **Design paper: Concentric Loops in AI-Mediated Design** — **OWNED BY ANOTHER AGENT. DO NOT MODIFY.** Tracked in paper/TODO.md, spec in PAPER-SPEC.md.
 - [x] **Week 4 workshop** — composed, rendered, refined to 48.7/60 (81%). Zone collisions and empty zones fixed.
 
 ### Changelogs (concentric loop tracking)

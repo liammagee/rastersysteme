@@ -12,19 +12,19 @@
 Write the source markdown. No composition or rendering yet — just the intellectual content.
 Structure: Act I (critique, sections 1-6) then Act II (generalization, section 7).
 
-- [ ] Create `content/papers/concentric-loops.md`
-- [ ] **S1 — Introduction: Goodhart's Law in Design Automation**
+- [x] Create `content/papers/concentric-loops.md`
+- [x] **S1 — Introduction: Goodhart's Law in Design Automation**
   - The problem: AI systems that grade themselves converge on measurability, not quality
   - Hook: "The rubric that scored 100% was the most dangerous"
   - Thesis: human-in-the-loop at the methodological level, not just the design level
   - Frame via Goodhart's Law: when the rubric became a target, it ceased to be a good measure
-- [ ] **S2 — The Inner Loop: Evaluate-Fix-Render**
+- [x] **S2 — The Inner Loop: Evaluate-Fix-Render**
   - How the rubric works: 11 metrics across 6 computed dimensions
   - The refine-step pattern: idempotent, scoreboard-driven, /loop-compatible
   - Convergence behavior: diminishing returns detection
   - Connection: first-order cybernetics (Wiener) — a goal-seeking system with sensor, comparator, effector
   - Limitation: single-loop learning (Argyris) — corrects actions but never questions the goal
-- [ ] **S3 — The Outer Loop: When the Rubric Lies**
+- [x] **S3 — The Outer Loop: When the Rubric Lies**
   - Case study: v1 scores 100% while user sees overlapping text and missing images
   - The score-perception gap: absence-of-bad vs presence-of-good
   - Connection: Schon's reflective practitioner — "conversation with the situation"
@@ -32,27 +32,27 @@ Structure: Act I (critique, sections 1-6) then Act II (generalization, section 7
   - The wireframe as intent artifact: ASCII plan vs rendered reality
   - Rubric evolution: v1 (rubber stamp) -> v7 (demanding critic) through 8 iterations
   - Connection: double-loop learning (Argyris) — questioning the governing variables
-- [ ] **S4 — The Outer-Outer Loop: Evolving the Methodology**
+- [x] **S4 — The Outer-Outer Loop: Evolving the Methodology**
   - How the evaluation criteria themselves evolve
   - From sampling (5 slides) to exhaustive (36 slides)
   - From aggregate scores to per-slide wireframe comparison
   - The design database as institutional memory
   - Connection: deutero-learning (Argyris) — learning about the learning process
   - Meta-question: when does the process stop improving?
-- [ ] **S5 — Tools and Infrastructure**
+- [x] **S5 — Tools and Infrastructure**
   - rastersysteme: 60-column grid, markdown -> HTML/PPTX
   - The pipeline: compose -> render -> evaluate -> refine
   - Key instruments: wireframe.js (intent), rubric-jsdom.js (measurement), visual-audit.js (perception)
   - The commit protocol as design rationale capture (MacLean et al.)
   - Architectural diagram + table (can compress later if too dry)
-- [ ] **S6 — Results: week-2 Through the Loops**
+- [x] **S6 — Results: week-2 Through the Loops**
   - Score progression table: v1 (100%) -> v7 (57/60) with per-dimension breakdown
   - Case study: invented labels (29/36 slides — Goodhart in action)
   - Case study: splice image invisibility (presence vs visibility)
   - Case study: the score that went up (v5->v6, renderer fix, not rubric softening)
   - Wireframe vs screenshot comparisons: 2-3 slides showing intent-vs-reality divergence
   - What improved in the deck vs what improved in the rubric — be precise
-- [ ] **S7 — Discussion: Circles Within Circles**
+- [x] **S7 — Discussion: Circles Within Circles**
   - The concentric loops as general AI collaboration framework
   - Inner = fast automated optimization (minutes) — RL against reward model
   - Outer = human calibration of what "good" means (hours) — RLHF
@@ -60,8 +60,8 @@ Structure: Act I (critique, sections 1-6) then Act II (generalization, section 7
   - How our approach differs from RLHF: diagnostic feedback vs preference pairs
   - Connection to education: students as outer-loop calibrators, not inner-loop consumers
   - Connection to cybernetics: the week-2 content is about feedback loops; the slides about feedback loops were designed through feedback loops
-  - Viable System Model (Beer): inner=System 1, outer=System 3, outer-outer=System 4
-- [ ] **S8 — Conclusion + Postscript**
+  - Beer's VSM folded into cybernetics slide as brief reference
+- [x] **S8 — Conclusion + Postscript**
   - Killer line: "The rubric that scored 100% was the most dangerous — it was confident and wrong"
   - The remaining frontier: presence-of-good metrics (taste, balance, communicability)
   - **Postscript slide**: this paper's own rubric scorecard — closing the loop
@@ -70,14 +70,16 @@ Structure: Act I (critique, sections 1-6) then Act II (generalization, section 7
 
 Collect the real data and artifacts referenced in the paper.
 
-- [ ] Extract score progression table: v1 (100%) through v7 (57/60) with per-dimension breakdown
-- [ ] Capture wireframe vs screenshot comparisons — identify 2-3 slides with most dramatic intent-vs-reality gaps
-- [ ] Document rubric evolution timeline from RUBRIC-CHANGELOG.md
-- [ ] Collect the invented labels data (29/36 slides with fabricated ### headings)
-- [ ] Document the splice image invisibility incident (present but not visible)
-- [ ] Document the v5->v6 score increase (renderer fix, not rubric softening)
+- [x] Extract score progression table — 5 deck versions with per-dimension breakdown (see EVIDENCE.md)
+- [x] Identify wireframe vs screenshot case studies — slides 3, 7, 11 from week-2-v11
+- [x] Document rubric evolution timeline — 8 outer loop iterations with git hashes
+- [x] Collect invented labels data — 29/36 in early run, 7 in scorecard, 0 by v9
+- [x] Document splice image invisibility — opacity 0.55, bumped to 0.70 (commit eafb167)
+- [x] Document v10->v11 score increase — +14.5 points, all artifact/renderer fixes, zero rubric changes
 - [ ] Gather convergence curves from refine-loop runs (iterations to plateau)
-- [ ] Collect git log for rubric commits (the design rationale trail)
+- [x] Collect git log for rubric commits — 17 key commits, March 26-28
+- [x] Updated paper source (Section 6) with real per-dimension scorecard data
+- [x] Created EVIDENCE.md with all compiled reference data
 
 ## Phase 3: Diagrams
 

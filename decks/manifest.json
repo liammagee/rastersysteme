@@ -1,16 +1,5 @@
 [
   {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/week-4-workshop.html",
-    "name": "week-4-workshop",
-    "slides": 17,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 4 - Concentric Loops: Iterating with AI",
-    "size": "59K",
-    "modified": "2026-03-28T16:41:40.014Z"
-  },
-  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-v11.spliced.html",
@@ -18,19 +7,8 @@
     "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "93K",
-    "modified": "2026-03-28T16:33:53.931Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/week-2-v11.html",
-    "name": "week-2-v11",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "89K",
-    "modified": "2026-03-28T16:33:53.875Z"
+    "size": "95K",
+    "modified": "2026-03-28T17:03:02.195Z"
   },
   {
     "type": "spliced",
@@ -40,8 +18,8 @@
     "slides": 36,
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "100K",
-    "modified": "2026-03-28T16:29:41.812Z"
+    "size": "101K",
+    "modified": "2026-03-28T16:59:32.194Z"
   },
   {
     "type": "deck",
@@ -52,7 +30,29 @@
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "95K",
-    "modified": "2026-03-28T16:29:41.755Z"
+    "modified": "2026-03-28T16:59:27.640Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v11.html",
+    "name": "week-2-v11",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "90K",
+    "modified": "2026-03-28T16:55:12.555Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-4-workshop.html",
+    "name": "week-4-workshop",
+    "slides": 17,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 4 - Concentric Loops: Iterating with AI",
+    "size": "58K",
+    "modified": "2026-03-28T16:53:24.588Z"
   },
   {
     "type": "spliced",
