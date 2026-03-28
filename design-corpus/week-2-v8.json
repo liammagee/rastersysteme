@@ -1,0 +1,91 @@
+{
+  "deck": "week-2-v8",
+  "htmlPath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v8.html",
+  "sourcePath": "/Users/lmagee/Dev/machinespirits/machinespirits-design/decks/week-2-v8.composed.md",
+  "sourceType": "file",
+  "timestamp": "2026-03-28T16:04:33.468Z",
+  "fingerprint": {
+    "slideCount": 35,
+    "directiveFormat": "json",
+    "inferredIntensity": "maximal",
+    "palette": {
+      "backgrounds": [
+        "0A0A0A",
+        "FFFFFF",
+        "F8F5F0",
+        "F0F2F6",
+        "F5F0E4",
+        "141E32"
+      ],
+      "bgFrequency": {
+        "0A0A0A": 3,
+        "FFFFFF": 14,
+        "F8F5F0": 6,
+        "F0F2F6": 6,
+        "F5F0E4": 5,
+        "141E32": 1
+      },
+      "lightPct": 89,
+      "darkCount": 4,
+      "arcCrossings": 4,
+      "dominantBg": "FFFFFF"
+    },
+    "typography": {
+      "titleSizeRange": [
+        24,
+        44
+      ],
+      "titleSizeAvg": 34,
+      "bodySizeRange": [
+        12,
+        16
+      ],
+      "titleWeightRange": [
+        700,
+        900
+      ],
+      "fontUsage": {
+        "Futura": 30,
+        "Georgia": 5
+      }
+    },
+    "zones": {
+      "archetypes": {
+        "monument": 10,
+        "title-only": 3,
+        "sidebar-left": 5,
+        "image-only": 2,
+        "other": 6,
+        "minimal": 2,
+        "narrow-column": 3,
+        "editorial": 1,
+        "right-anchored": 3
+      },
+      "uniqueArchetypes": 9,
+      "maxConsecutiveSame": 3,
+      "uniqueColStarts": 12,
+      "uniqueSpanWidths": 14
+    },
+    "accents": {
+      "slidesWithAccents": 33,
+      "accentPct": 94,
+      "types": {
+        "bar": 27,
+        "line": 9
+      },
+      "colors": [
+        "D40000",
+        "0A0A0A",
+        "0047AB",
+        "FCBF00"
+      ]
+    }
+  },
+  "scores": null,
+  "analysis": {
+    "strengths": [],
+    "weaknesses": [],
+    "missing": []
+  },
+  "lessons": []
+}

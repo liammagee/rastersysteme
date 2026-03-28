@@ -1,0 +1,459 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 1,
+    "warning": 9,
+    "info": 54
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 42px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 2,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 1536x216px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 1382x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-table overlaps zone-extras by 1536x594px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 3,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 1536x81px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 1382x52px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-table overlaps zone-extras by 1536x864px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-table overlaps zone-title by 1382x67px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 4,
+      "issues": [
+        {
+          "type": "broken-image",
+          "detail": "pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png",
+          "severity": "critical"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 832x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 755x79px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 1536x216px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-title by 1382x40px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-table overlaps zone-extras by 1536x594px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 5,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 443px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 242px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 10,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 612px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 13,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1408x216px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 15,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 17,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 640x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 563x79px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1536x810px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 1382x13px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 18,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-title overlaps zone-extras by 1408x270px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1408x216px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 20,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 22,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 576x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 499x106px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 576x756px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Looking ahead…...\" over slide-22.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 23,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 640x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 563x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 832x702px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"And a bold proposition…...\" over slide-23.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 24,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 26,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 27,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 29,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 31,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Education Issues: Cons...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 33,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"However: \"Bigger Picture\" Issues...\" over slide-33.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 34,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-title overlaps zone-extras by 1536x378px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1216x378px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Next Week: The Technological Lens...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Unpacking the Black Box?...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Don't panic if next week's materials loo...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"cgscholar.com →...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"cgscholar.com →...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

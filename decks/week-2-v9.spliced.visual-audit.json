@@ -1,0 +1,173 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 3,
+    "info": 18
+  },
+  "issues": [
+    {
+      "slide": 4,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-extras by 704x108px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-label overlaps zone-title by 627x79px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 1536x216px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-title by 1382x40px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-table overlaps zone-extras by 1536x594px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Compare:...\" over slide-06.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 441px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 263px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 611px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 13,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1088x216px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 16,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"People likely know the famous first exam...\" over slide-16.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"But what of their other use? Ballistics,...\" over slide-16.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 18,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-title overlaps zone-extras by 1152x270px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1152x216px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 19,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 21,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1344x864px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 1331x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-title overlaps zone-extras by 1024x270px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1024x432px",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

@@ -1,55 +1,55 @@
 # Deck Audit Report
 
-Generated: 2026-03-27
-Decks scanned: 59
-Decks with scores: 13
-Decks with fingerprints + scores: 7
+Generated: 2026-03-28
+Decks scanned: 69
+Decks with scores: 19
+Decks with fingerprints + scores: 8
 
 ## Tier Distribution
 
-- **Exhibition**: 6
-- **Professional**: 3
+- **Exhibition**: 11
+- **Professional**: 4
 - **Competent**: 2
 - **Broken**: 2
 
 ## Average Scores by Dimension
 
 | grid                   |   10 | + |
-| color                  |  9.8 | + |
-| images                 |  8.8 | + |
-| coherence              |  7.9 | ~ |
+| color                  |  9.7 | + |
+| images                 |    9 | + |
+| coherence              |  8.4 | + |
+| accessibility          |  7.5 | ~ |
 | taste                  |    7 | ~ |
+| contentCompleteness    |  6.7 | ~ |
 | communicability        |  6.5 | ~ |
-| accessibility          |  6.4 | ~ |
-| contentCompleteness    |  6.1 | ~ |
 | balance                |  5.5 | - |
 
 ## Most Common Weaknesses
 
-- **accessibility**: weak in 4/13 decks
-- **contentCompleteness**: weak in 4/13 decks
-- **images**: weak in 1/13 decks
-- **balance**: weak in 1/13 decks
+- **contentCompleteness**: weak in 5/19 decks
+- **accessibility**: weak in 4/19 decks
+- **images**: weak in 1/19 decks
+- **balance**: weak in 1/19 decks
 
 ## Parameter-Score Correlations
 
-_Based on 7 decks with both fingerprints and scores._
+_Based on 8 decks with both fingerprints and scores._
 
 ### Intensity Profile vs Score
-- **maximal**: avg 76% (n=7)
+- **maximal**: avg 79% (n=8)
 
 ### Light Orientation vs Accessibility
-- **>=80% light backgrounds**: avg accessibility 7.3 (n=5)
+- **>=80% light backgrounds**: avg accessibility 7.8 (n=6)
 - **<60% light backgrounds**: avg accessibility 2.4 (n=2)
 
 ### Archetype Diversity vs Grid Score
-- **>=5 archetypes**: avg grid 10 (n=6)
+- **>=5 archetypes**: avg grid 10 (n=7)
 
 ## Derived Lessons
 
-+ **grid** (6x): High archetype diversity produces strong grid scores
++ **grid** (7x): High archetype diversity produces strong grid scores
   _Maintain this level of zone variety in future compositions_
-+ **color** (5x): Strong chromatic arc produces excellent color scores
++ **color** (6x): Strong chromatic arc produces excellent color scores
   _Maintain >=3 arc crossings per deck_
 - **accessibility** (2x): Heavy dark palette correlated with low accessibility
   _Reduce dark backgrounds to <20% of slides; use >7:1 contrast text on dark_
@@ -118,6 +118,10 @@ _Based on 7 decks with both fingerprints and scores._
 | week-2-opus | Exhibition | 87% | maximal | grid, color, images | — |
 | week-2-opus.spliced | Competent | 62% | — | grid, color, coherence | accessibility (1), images (4) |
 | week-2-strata | Professional | 78% | maximal | grid, images, contentCompleteness | accessibility (3.4) |
+| week-2-v10 | — | — | maximal | — | — |
+| week-2-v10.spliced | Professional | 75% | — | grid, color, coherence | contentCompleteness (1) |
+| week-2-v11 | — | — | maximal | — | — |
+| week-2-v11.spliced | Exhibition | 98% | — | accessibility, grid, color | — |
 | week-2-v2 | Exhibition | 88% | maximal | grid, color, images | — |
 | week-2-v2.spliced | Professional | 80% | — | grid, color, images | contentCompleteness (1) |
 | week-2-v3 | Exhibition | 95% | maximal | grid, color, coherence | — |
@@ -126,4 +130,10 @@ _Based on 7 decks with both fingerprints and scores._
 | week-2-v5 | — | — | maximal | — | — |
 | week-2-v5.spliced | Exhibition | 91% | — | grid, color, contentCompleteness | — |
 | week-2-v6 | Exhibition | 91% | — | grid, color, contentCompleteness | — |
+| week-2-v7 | Exhibition | 100% | maximal | accessibility, grid, color | — |
+| week-2-v7.spliced | Exhibition | 100% | — | accessibility, grid, color | — |
+| week-2-v8 | — | — | maximal | — | — |
+| week-2-v8.spliced | Exhibition | 95% | — | accessibility, images, grid | — |
+| week-2-v9 | — | — | maximal | — | — |
+| week-2-v9.spliced | Exhibition | 91% | — | accessibility, grid, coherence | — |
 | week-2 | Competent | 67% | maximal | grid, color, images | accessibility (1), contentCompleteness (1.4) |
