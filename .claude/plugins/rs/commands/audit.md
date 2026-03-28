@@ -1,12 +1,15 @@
 ---
 name: audit
-description: Scan existing decks, extract design fingerprints, evaluate, and synthesize corpus insights to improve future compositions.
+description: "Outer-outer loop: Review all deck progress, verify skills/rubric/eval have learned from the corpus. Closes the self-improvement loop."
 user_invocable: true
+effort: high
 ---
 
-# Audit
+# Audit (Outer-Outer Loop)
 
-Scan the `decks/` folder, extract design briefs/parameters from composed sources, pair with rubric scores, and synthesize data-driven insights that feed back into future composition.
+Full corpus review: scan decks, synthesize insights, and **verify the system has learned**.
+
+This is the outer-outer loop — it checks not just the decks, but whether the rubric, skills, and composition pipeline have incorporated lessons from previous iterations.
 
 ## Arguments
 
@@ -66,7 +69,32 @@ Read the generated files and present findings to the user:
    - **Exemplar decks** — best and worst, with specific parameter differences
    - **New rules** — any MUST/SHOULD rules that weren't in design-lessons.md before
 
-### 4. Optional: targeted improvements
+### 4. Learning verification (outer-outer loop)
+
+Check that the system has actually learned from the corpus:
+
+**a) Rubric evolution check:**
+- Read RUBRIC-CHANGELOG.md — does the rubric address the weak dimensions found in step 3?
+- Are there corpus patterns (e.g., "table slides always score low on content") that the rubric doesn't yet catch?
+- Flag rubric blind spots: dimensions that are consistently low across decks but not improving
+
+**b) Composition learning check:**
+- Read design-insights.md — do the MUST/SHOULD rules match what the corpus data shows?
+- Run a test: compose a simple slide set and check if the design directive follows the corpus rules
+- Flag stale rules: insights that no longer match the latest corpus data
+
+**c) Skill alignment check:**
+- Read compose.md, evaluate.md, refine-step.md — do the skill instructions reflect current rubric?
+- Are new rubric dimensions (zone collisions, visual utilization, typography hierarchy) mentioned in the relevant skills?
+- Flag skill drift: skills referencing old rubric formulas or missing new checks
+
+**d) Report learning gaps:**
+For each gap found, create a tracking item:
+- "Rubric doesn't penalize X, but corpus shows X correlates with low scores"
+- "Compose skill doesn't mention Y, but rubric checks for Y"
+- "Design-insights.md says Z, but latest corpus data contradicts Z"
+
+### 5. Optional: targeted improvements
 
 If the user wants to improve specific decks based on audit findings:
 - Suggest running `/design <deck.composed.md>` on low-scoring decks
