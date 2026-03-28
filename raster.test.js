@@ -1639,9 +1639,9 @@ describe("Theme enforcement in compose pipeline", () => {
       "should demote dark ground/dominant colours in light theme palette");
   });
 
-  it("palette validation injects Warm White if no light ground exists", () => {
-    assert.ok(src.includes("Warm White") && src.includes("F8F5F0"),
-      "should inject Warm White ground if palette has none");
+  it("palette validation injects neutral light ground if no light ground exists", () => {
+    assert.ok(src.includes("Neutral Light") && src.includes("F5F5F5"),
+      "should inject neutral light ground if palette has none (not warm cream)");
   });
 
   it("design prompt asks for consistent grid templates, not unique per slide", () => {

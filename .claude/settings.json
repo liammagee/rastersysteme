@@ -30,8 +30,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '(.tool_input.file_path // .tool_response.filePath // .tool_input.command // \"\")' | { read -r f; echo \"$f\" | grep -q 'decks/.*\\.html' && node build-manifest.js || true; }",
-            "timeout": 10,
+            "command": "jq -r '(.tool_input.file_path // .tool_response.filePath // .tool_input.command // \"\")' | { read -r f; echo \"$f\" | grep -q 'decks/.*\\.html' && node build-manifest.js 2>/dev/null || true; }",
+            "timeout": 15,
             "statusMessage": "Updating gallery manifest..."
           }
         ]
