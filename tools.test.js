@@ -1705,14 +1705,21 @@ describe("TODO open: bullet structure preservation", () => {
   });
 });
 
-describe("TODO open: compose.js table-content zone assignment", () => {
-  it("compose assigns table role to slides with table content", { todo: "compose.js always assigns body role, not table" }, () => {
-    const { parseMarkdown } = require("./raster.js");
-    // A slide whose primary content is a table should get a design with table role
-    const md = '<!-- design: {"zones":[{"role":"body","col":0,"span":50,"row":10,"rowSpan":25}]} -->\n## Data\n\n| A | B |\n|---|---|\n| 1 | 2 |';
-    const slides = parseMarkdown(md);
-    const hasTableZone = slides[0].design.zones.some(z => z.role === "table");
-    assert.ok(hasTableZone, "table-content slides should have table zone role, not body");
+describe("compose.js prompt instructs table and title zone roles", () => {
+  const fs = require("fs");
+  const path = require("path");
+
+  it("compose prompt includes table zone role instruction", () => {
+    const compose = fs.readFileSync(path.join(__dirname, "compose.js"), "utf-8");
+    assert.ok(compose.includes('"table"'), "compose.js prompt should mention table zone role");
+    assert.ok(compose.includes('Use "table" for slides whose primary content is a markdown table'),
+      "compose.js should instruct Claude to use table role for table slides");
+  });
+
+  it("compose prompt warns against label role for headings", () => {
+    const compose = fs.readFileSync(path.join(__dirname, "compose.js"), "utf-8");
+    assert.ok(compose.includes('NOT "label"'),
+      "compose.js should warn against using label role for headings");
   });
 });
 

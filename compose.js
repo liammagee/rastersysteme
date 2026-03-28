@@ -57,7 +57,10 @@ FORMAT — every slide gets a design directive as its FIRST line:
   "font": "Georgia"
 } -->
 
-ZONE ROLES: title, body, bullets, label, quote
+ZONE ROLES: title, body, bullets, table, image, quote, code, links
+  - Use "title" for ### headings (NOT "label" — "label" causes rendering duplication)
+  - Use "table" for slides whose primary content is a markdown table (NOT "body")
+  - Use "body" for paragraph text and mixed content
 ACCENT TYPES: bar (solid rectangle), line (thin), dot (circle), block (translucent)
 TYPOGRAPHY: size (9-96px), weight (100-900), transform, tracking, leading, align, color
 FONTS: Helvetica Neue (default), Georgia (serif), Palatino (classical), Courier New (mono), Futura (geometric)

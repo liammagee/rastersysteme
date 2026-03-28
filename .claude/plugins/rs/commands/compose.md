@@ -26,6 +26,13 @@ Read the source markdown. Count slides (separated by `---`). Identify:
 - What content types are present (titles, bullets, body, quotes, tables, code)
 - Whether this is a fresh composition or a recompose of specific slides
 
+### Zone role guidelines (critical for renderer compatibility)
+
+- Use `"title"` for `###` headings — **never** `"label"` (label causes renderer duplication)
+- Use `"table"` for slides whose primary content is a markdown table — **never** `"body"` (body zones don't render table elements)
+- Use `"body"` for paragraph text and mixed content
+- The renderer routes content by zone role: wrong role = content in wrong place or duplicated
+
 ### 2. Check for design systems
 
 List available saved design systems:

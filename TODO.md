@@ -31,33 +31,34 @@
 - [ ] **Splice image visibility testing** — spliced images are invisible on dark backgrounds and barely visible on light ones. The rubric counts their presence but not their visual effectiveness. Need: (a) bump opacity further or use different blend mode, (b) add a rubric check for splice-image visibility (contrast against background).
 - [x] **jsdom image overlap false positives** — replaced approximation with CSS rect intersection. 4→0 false positives.
 - [x] **Visual utilization metric** — slides below 25% zone coverage penalized. lowUtilizationSlides in rubric-scores.js.
-- [ ] **Remaining 1 zone collision** — identify which slide still has a collision after the renderer fix and address it.
+- [x] **Remaining zone collisions** — fixed in week-2-v11 (0 collisions) and week-4 (label→title zone role fix)
 
 ### Renderer / Composition
 
-- [ ] **Bullet structure preservation** — 115 source bullets → 101 rendered (88% survival). 14 bullets lost during composition. Investigate and fix.
+- [x] **Bullet structure preservation** — false alarm: 18 "lost" bullets are in commented-out case study section. All intended bullets render correctly.
 - [ ] **Compose.js table-content zone assignment** — every new compose assigns "body" zones to table-content slides. Compose should emit "table" role for slides whose primary content is a table.
+- [ ] **Compose.js label→title zone** — compose emits "label" role for `###` headings, but the renderer expects "title". This causes extras to duplicate the title on every label-zone slide. Compose should emit "title" for headings.
 
 ### Design Database (self-improvement loop)
 
-- [ ] **Wire deck-audit into outer loop** — run `node deck-audit.js` after each major evaluation to update corpus.
+- [x] **Wire deck-audit into outer loop** — deck-audit.js scans 69 decks, 9 scored. Runs after evaluation.
+- [x] **Run corpus-synthesize.js** — extracted data-driven rules into design-insights.md from 9 scored decks.
 - [ ] **Corpus scores use inflated headless rubric** — deck-audit.js should use the unified rubric-scores.js.
-- [ ] **Run corpus-synthesize.js to extract patterns** — cross-deck analysis to feed into future compose briefs.
 
 ### Paper / Workshop
 
 - [ ] **Design paper: Concentric Loops in AI-Mediated Design** — tracked in [paper/TODO.md](paper/TODO.md), spec in [paper/SPEC.md](paper/SPEC.md).
-- [ ] **Week 4 workshop: Concentric Loops** — content/week-4/week-4-workshop.md drafted. Needs compose → render → evaluate cycle.
+- [x] **Week 4 workshop** — composed, rendered, refined to 48.7/60 (81%). Zone collisions and empty zones fixed.
 
 ### Changelogs (concentric loop tracking)
 
-- [ ] **Inner loop changelog** — per-deck iteration log. Each deck gets a `logs/<deck>-iterations.md` that records: iteration N, dimensions targeted, changes made, score before/after. Fed by /refine-step.
-- [ ] **Outer loop changelog** — rubric evolution log. RUBRIC-CHANGELOG.md exists but needs structured format: user feedback → rubric change → score impact. One entry per outer loop iteration, committed separately.
+- [x] **Inner loop changelog** — logs/iterations/week-2-v11.md created. Per-deck iteration tracking. Each deck gets a `logs/<deck>-iterations.md` that records: iteration N, dimensions targeted, changes made, score before/after. Fed by /refine-step.
+- [x] **Outer loop changelog** — RUBRIC-CHANGELOG.md structured with 8 entries + outer-outer observations. user feedback → rubric change → score impact. One entry per outer loop iteration, committed separately.
 - [ ] **Outer-outer loop changelog** — methodology evolution. Track changes to METHODOLOGY.md itself, changes to the changelog format, changes to the evaluation pipeline. The meta-log.
 
 ### User Acceptance Testing (outer loop automation)
 
-- [ ] **UAT protocol skill** — new `/rs:uat` skill that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
+- [x] **UAT protocol skill** — `/rs:uat` skill created + `run-uat.js` runner. Generates HTML checklist with screenshot+wireframe comparison per slide. that runs the outer loop programmatically: (1) screenshot all slides, (2) generate wireframes, (3) present comparison to user, (4) collect structured feedback (per-slide yes/no + comments), (5) auto-create rubric issues from "no" responses
 - [ ] **Per-slide acceptance checklist** — each slide gets a pass/fail on: content visible, no overlaps, images show, layout matches intent, whitespace acceptable, text readable. Generate a checklist HTML page with thumbnails + checkboxes
 - [ ] **Acceptance threshold** — define what "evaluates perfectly" means: all automated dimensions >= 9/10 AND zero user-flagged issues AND zero visual-audit criticals AND wireframe matches screenshot for every slide
 - [ ] **User feedback → rubric automation** — when user marks a slide as "fail", auto-detect which rubric dimension should catch it. If the rubric scored it >8, flag as rubric blind spot and create a tracking issue
