@@ -71,6 +71,13 @@
 - [ ] **Issue-to-fix traceability** — when the inner loop fixes a rubric issue, link it to the original user feedback that created the rubric check. Closes the loop: user comment → rubric check → design fix → verification
 - [ ] **Design intent verification** — after each compose, compare the design plan text against the actual zone layout. Flag slides where the design plan says "sidebar left" but the zones are actually centered
 
+### Evaluation Redundancy
+
+- [ ] **Eliminate headless/jsdom scoring divergence** — both engines now use rubric-scores.js for scoring, but metric COLLECTION still differs (jsdom CSS parsing vs Puppeteer bounding boxes). Audit each metric: which are better in jsdom? Which need Puppeteer? Can we run BOTH collectors and take the more reliable value per metric? Goal: one evaluation that combines the best of both engines, not two evaluations that disagree.
+- [ ] **visual-audit.js vs rubric-headless.js redundancy** — both run Puppeteer, both check zones and images, but they report different things. visual-audit finds 9 criticals that rubric-headless misses. Merge visual-audit checks INTO rubric-headless so one Puppeteer session catches everything. Eliminate the need to run two separate tools.
+- [ ] **jsdom as fast pre-check, Puppeteer as authoritative** — define the role split. jsdom runs in <1s (good for inner loop rapid iteration). Puppeteer takes 30-60s (good for outer loop full evaluation). The inner loop should use jsdom; the outer loop should use Puppeteer. Currently both run independently with no coordination.
+- [ ] **Single evaluation command** — `node evaluate.js <deck>` should run jsdom fast-check first, then Puppeteer full-check, merge results into one scorecard. Currently requires running run-rubric-eval.js AND rubric-jsdom.js AND visual-audit.js separately.
+
 ### Infrastructure
 
 - [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
