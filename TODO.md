@@ -29,8 +29,8 @@
 ### Rubric / Evaluation (outer loop)
 
 - [ ] **Splice image visibility testing** — spliced images are invisible on dark backgrounds and barely visible on light ones. The rubric counts their presence but not their visual effectiveness. Need: (a) bump opacity further or use different blend mode, (b) add a rubric check for splice-image visibility (contrast against background).
-- [ ] **jsdom image overlap false positives** — jsdom approximation flags 3 text-on-image overlaps that Puppeteer's bounding boxes don't confirm. Replace with CSS rect intersection (same approach as zone collision detection).
-- [ ] **Visual utilization metric** — many slides are 80%+ whitespace. Add a metric: ratio of zone-covered area to total slide area. Slides below 30% utilization should be penalized.
+- [x] **jsdom image overlap false positives** — replaced approximation with CSS rect intersection. 4→0 false positives.
+- [x] **Visual utilization metric** — slides below 25% zone coverage penalized. lowUtilizationSlides in rubric-scores.js.
 - [ ] **Remaining 1 zone collision** — identify which slide still has a collision after the renderer fix and address it.
 
 ### Renderer / Composition

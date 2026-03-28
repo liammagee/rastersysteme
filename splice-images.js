@@ -27,10 +27,12 @@ const amber = chalk.yellow;
 
 // Image presence levels: subtle (watermark), visible (clear but not dominant), bold (prominent)
 const IMAGE_SCALES = {
-  subtle:  { panel: 0.13, strip: 0.10, inset: 0.20, bg: 0.08, overlay: 0.15, insetCap: 18 },
-  visible: { panel: 0.35, strip: 0.25, inset: 0.55, bg: 0.18, overlay: 0.35, insetCap: 22 },
-  bold:    { panel: 0.70, strip: 0.50, inset: 0.85, bg: 0.35, overlay: 0.60, insetCap: 28 },
+  subtle:  { panel: 0.18, strip: 0.12, inset: 0.30, bg: 0.10, overlay: 0.20, insetCap: 20 },
+  visible: { panel: 0.45, strip: 0.30, inset: 0.70, bg: 0.22, overlay: 0.40, insetCap: 25 },
+  bold:    { panel: 0.75, strip: 0.55, inset: 0.90, bg: 0.40, overlay: 0.65, insetCap: 30 },
 };
+// Frame style for inset images — makes them visible regardless of background
+const INSET_FRAME = "box-shadow:0 2px 12px rgba(0,0,0,0.15);border:1px solid rgba(128,128,128,0.2)";
 
 function placementCSS(mode, imgPath, opts = {}) {
   const size = opts.size || 40;
@@ -65,13 +67,13 @@ function placementCSS(mode, imgPath, opts = {}) {
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;top:3vmin;right:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;z-index:0;opacity:${scale.inset};${INSET_FRAME}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "inset-bl":
       return {
         wrapper: ``,
         before: ``,
-        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:3px;z-index:0;opacity:${scale.inset}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
+        after: `<div style="position:absolute;bottom:3vmin;left:3vmin;width:${Math.min(size, scale.insetCap)}%;aspect-ratio:4/3;overflow:hidden;border-radius:4px;z-index:0;opacity:${scale.inset};${INSET_FRAME}"><img class="splice-img" src="${imgPath}" style="width:100%;height:100%;object-fit:cover"></div>`,
       };
     case "background":
       return {
