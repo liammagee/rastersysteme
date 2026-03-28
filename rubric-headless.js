@@ -181,17 +181,24 @@ async function evaluate(htmlPath, options = {}) {
         }
         const cx=ir.left+ir.width/2, cy=ir.top+ir.height/2;
         imgPlacements.add(cx>window.innerWidth*0.65?"right":cx<window.innerWidth*0.35?"left":cy<window.innerHeight*0.35?"top":cy>window.innerHeight*0.65?"bottom":"centre");
-        imgInfos.push({ rect: ir, opacity: effectiveOpacity });
+        imgInfos.push({ rect: ir, opacity: effectiveOpacity, isSplice: img.classList.contains("splice-img") });
       });
 
-      // Text-on-image overlap (bounding box intersection, opacity-aware)
+      // Text-on-image overlap (bounding box intersection, design-theory-aware)
+      // See DESIGN-THEORY.md: atmospheric splices at low opacity are decorative, not collisions.
+      // Only flag: (a) content images overlapping text, (b) high-opacity splice over dense text.
       slide.querySelectorAll("h1,h2,h3,p,.bullet,blockquote,.label,td,th,a,code").forEach(el => {
         const st = getComputedStyle(el);
         if (st.display==="none"||st.visibility==="hidden"||!el.textContent.trim()) return;
         const tr = el.getBoundingClientRect();
         if (tr.width===0||tr.height===0) return;
+        const textLen = el.textContent.trim().length;
         for (const imgInfo of imgInfos) {
           if (imgInfo.opacity <= 0.2) continue;
+          // Atmospheric splice exemption: splice-img at opacity < 0.4 is decorative
+          if (imgInfo.isSplice && imgInfo.opacity < 0.4) continue;
+          // Low-opacity splice over short text (< 100 chars) is acceptable inset/caption
+          if (imgInfo.isSplice && imgInfo.opacity < 0.6 && textLen < 100) continue;
           const overlap = overlapArea(tr, imgInfo.rect);
           const textArea = tr.width * tr.height;
           if (textArea===0) continue;

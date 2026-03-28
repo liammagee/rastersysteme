@@ -132,10 +132,16 @@ if (require.main === module) (async () => {
         for (const img of imgEls) {
           const ir = img.getBoundingClientRect();
           if (ir.width === 0 || ir.height === 0) continue;
+          // Design theory: atmospheric splices at low opacity are decorative, not collisions
+          const isSplice = img.classList.contains('splice-img');
+          let effectiveOpacity = 1;
+          let opEl = img;
+          while (opEl && opEl !== slide) { effectiveOpacity *= parseFloat(getComputedStyle(opEl).opacity || '1'); opEl = opEl.parentElement; }
+          if (isSplice && effectiveOpacity < 0.4) continue; // atmospheric — skip
+          if (isSplice && effectiveOpacity < 0.6 && txt.textContent.trim().length < 100) continue; // low-opacity over short text — acceptable
           const overlapX = Math.max(0, Math.min(tr.right, ir.right) - Math.max(tr.left, ir.left));
           const overlapY = Math.max(0, Math.min(tr.bottom, ir.bottom) - Math.max(tr.top, ir.top));
           if (overlapX > 10 && overlapY > 10) {
-            // Check if text and image share a common table cell (<td>)
             const txtCell = txt.closest('td');
             const imgCell = img.closest('td');
             const sameCell = (txtCell && imgCell && txtCell === imgCell) ||
