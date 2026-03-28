@@ -538,7 +538,14 @@ function evaluate(htmlPath) {
   };
 }
 
+// Use shared scoring module — single source of truth for all dimension formulas
+const { computeScores: _sharedScores } = require('./rubric-scores.js');
 function computeScores(metrics) {
+  return _sharedScores(metrics, { accessibilityCap: 8 }); // jsdom cap: can't check CSS-class contrast
+}
+
+function _computeScores_UNUSED(metrics) {
+  // DEPRECATED: kept as reference. The live scoring is in rubric-scores.js
   const scores = {};
   const m = metrics;
 

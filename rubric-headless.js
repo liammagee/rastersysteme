@@ -212,6 +212,31 @@ async function evaluate(htmlPath, options = {}) {
           if (!slideHasTable && !slideHasImg) emptyBodyZones++;
         }
       });
+      // ── Zone collision detection (real bounding boxes) ──
+      const contentZones = [];
+      slide.querySelectorAll("[class*='zone-']").forEach(z => {
+        if (z.classList.contains("zone-extras")) return;
+        if (z.className.includes("accent")) return;
+        const r = z.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0 && z.textContent.trim().length > 0) {
+          contentZones.push({ cls: z.className, left: r.left, top: r.top, right: r.right, bottom: r.bottom, w: r.width, h: r.height });
+        }
+      });
+      let hasZoneCollision = false;
+      for (let a = 0; a < contentZones.length && !hasZoneCollision; a++) {
+        for (let b = a + 1; b < contentZones.length && !hasZoneCollision; b++) {
+          const ra = contentZones[a], rb = contentZones[b];
+          const ox = Math.max(0, Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left));
+          const oy = Math.max(0, Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top));
+          const area = ox * oy;
+          const minArea = Math.min(ra.w * ra.h, rb.w * rb.h);
+          if (area > minArea * 0.15 && area > 500) { // 500px^2 min to avoid micro overlaps
+            hasZoneCollision = true;
+            slideIssues.push("zone-collision");
+          }
+        }
+      }
+
       const hasSubstantiveText = slide.querySelector("h1,h2,h3,p,.bullet,.label,blockquote,td");
       const hasLinks = slide.querySelectorAll("a").length > 0;
       const hasImage = slide.querySelector("img");
@@ -260,11 +285,12 @@ async function evaluate(htmlPath, options = {}) {
       const hasImg = slide && slide.querySelector("img");
       if (len < lowThreshold && !hasImg) lowDensitySlides++;
     });
-    let linkOnlySlides = 0, duplicateTextSlides = 0, genericAltTotal = 0;
+    let linkOnlySlides = 0, duplicateTextSlides = 0, genericAltTotal = 0, zoneCollisionSlides = 0;
     let sparseSlides = 0;
     perSlideIssues.forEach(issues => {
       if (issues.includes("link-only")) linkOnlySlides++;
       if (issues.includes("duplicate-text")) duplicateTextSlides++;
+      if (issues.includes("zone-collision")) zoneCollisionSlides++;
       genericAltTotal += issues.filter(i => i === "generic-alt").length;
     });
     perSlideTextLen.forEach((len, i) => {
@@ -348,7 +374,7 @@ async function evaluate(htmlPath, options = {}) {
       densityCV, accentRatio, avgTransition, transitionVariance,
       inventedLabels: 0,
       lowDensitySlides, linkOnlySlides, duplicateTextSlides,
-      sparseSlides, genericAltTotal };
+      sparseSlides, genericAltTotal, zoneCollisionSlides };
   });
 
   if (options.screenshots) {
@@ -364,7 +390,14 @@ async function evaluate(htmlPath, options = {}) {
 
   await browser.close();
 
-  // ── Score (9 dimensions, each /10, total /90) ──
+  // ── Score: use shared rubric-scores.js module ──
+  const { computeScores } = require('./rubric-scores.js');
+  const { scores, computedTotal, maxComputed } = computeScores(metrics, { accessibilityCap: 10 });
+  return { metrics, scores, computedTotal, maxComputed };
+}
+
+function _computeScores_HEADLESS_UNUSED(metrics) {
+  // DEPRECATED: scoring now in rubric-scores.js. Kept as reference.
   const scores = {};
   const m = metrics;
 
