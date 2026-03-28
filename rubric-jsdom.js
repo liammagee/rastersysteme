@@ -737,6 +737,18 @@ function evaluate(htmlPath) {
     })
     .filter(h => h >= 0);
   const uniqueHues = [...new Set(bgHues.map(h => Math.round(h / 30) * 30))]; // quantize to 30-degree bins
+  // Content density appropriateness
+  let densityMismatches = 0;
+  perSlideTextLen.forEach((len, i) => {
+    const slide = slides[i];
+    const hasH1 = slide && slide.querySelector('h1,h2');
+    const hasTable = slide && slide.querySelector('table');
+    const isTitle = i === 0;
+    const isDivider = len < 50 && hasH1 && !hasTable;
+    if (isDivider && len > 300) densityMismatches++;
+    if (isTitle && len > 200) densityMismatches++;
+  });
+
   let colorHarmonyType = "none";
   if (uniqueHues.length >= 2) {
     const hueGaps = [];
@@ -780,29 +792,12 @@ function evaluate(htmlPath) {
     splicePlacementTypes: splicePlacements.size,
     // v9 diversity metrics
     bgHueRange,
-    // Content density appropriateness: classify each slide type and check if density matches
-    let densityMismatches = 0;
-    perSlideTextLen.forEach((len, i) => {
-      const issues = perSlideIssues[i] || [];
-      const slide = slides[i];
-      const hasH1 = slide && slide.querySelector('h1,h2');
-      const hasTable = slide && slide.querySelector('table');
-      const hasImg = slide && slide.querySelector('img:not(.splice-img)');
-      const isTitle = i === 0;
-      const isDivider = len < 50 && hasH1 && !hasTable;
-      const isDataSlide = hasTable;
-
-      // Section dividers should be sparse (< 200 chars)
-      if (isDivider && len > 300) densityMismatches++;
-      // Data slides should be dense (> 200 chars or has table)
-      // Title slide should be sparse
-      if (isTitle && len > 200) densityMismatches++;
-    });
-
     // v10 design theory metrics
     avgWhitespace, modularScaleScore, colorHarmonyType, hasNamedHarmony,
     // v10b: Gestalt, Arnheim, reading path
-    gestaltViolations: perSlideIssues.flat ? perSlideIssues.reduce((n, iss) => n + (iss.includes('gestalt-proximity-violation') ? 1 : 0), 0) : 0,
+    gestaltViolations: perSlideIssues.reduce((n, iss) => n + (Array.isArray(iss) && iss.includes('gestalt-proximity-violation') ? 1 : 0), 0),
+    focalPointViolations: perSlideIssues.reduce((n, iss) => n + (Array.isArray(iss) && iss.includes('focal-point-not-text') ? 1 : 0), 0),
+    densityMismatches,
     avgBalance: perSlideBalance.length > 0 ? perSlideBalance.reduce((s, v) => s + v, 0) / perSlideBalance.length : 0.5,
     avgFlowScore: perSlideFlowScore.length > 0 ? perSlideFlowScore.reduce((s, v) => s + v, 0) / perSlideFlowScore.length : 1
   };
