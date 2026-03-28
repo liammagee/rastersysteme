@@ -34,7 +34,7 @@ const IMAGE_SCALES = {
 
 function placementCSS(mode, imgPath, opts = {}) {
   const size = opts.size || 40;
-  const scale = IMAGE_SCALES[opts.imageScale] || IMAGE_SCALES.subtle;
+  const scale = IMAGE_SCALES[opts.imageScale] || IMAGE_SCALES.visible;
 
   switch (mode) {
     case "right":
@@ -374,7 +374,7 @@ function spliceImages(htmlPath, imagesDir, options = {}) {
 
       const css = placementCSS(placement.mode, imgPath, {
         size: placement.size || 40,
-        imageScale: options.imageScale || "subtle",
+        imageScale: options.imageScale || "visible",
         bgOpacity: placement.bgOpacity,
       });
 
@@ -430,7 +430,7 @@ if (require.main === module) {
     --varied           Use Claude to vary placement per slide (default: algorithmic)
     --model <model>    Claude model for varied placement (default: sonnet)
     --size <pct>       Image panel width percentage (default: 33)
-    --image-scale <s>  Image presence: subtle, visible, bold (default: subtle)
+    --image-scale <s>  Image presence: subtle, visible, bold (default: visible)
     --help             Show this help
 
   Examples:
@@ -493,7 +493,7 @@ if (require.main === module) {
     model: getFlag("--model") || "sonnet",
     smart: args.includes("--varied"),
     defaultSize: parseInt(getFlag("--size") || "33"),
-    imageScale: getFlag("--image-scale") || "subtle",
+    imageScale: getFlag("--image-scale") || "visible",
   };
 
   const outputPath = getFlag("--output") || htmlPath.replace(/\.html$/, ".spliced.html");

@@ -2,6 +2,9 @@
 name: compose
 description: Run Claude-directed composition on source markdown — assigns design directives (grid zones, typography, colors, accents) to each slide.
 user_invocable: true
+model: opus
+effort: high
+context: fork
 ---
 
 # Compose

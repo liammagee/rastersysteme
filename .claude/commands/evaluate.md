@@ -1,11 +1,14 @@
 ---
 name: evaluate
-description: Score a rendered slide deck against the 10-dimension design rubric using the multiway evaluation harness. Combines headless, vision, and textual evaluators.
+description: "Inner loop: Score a rendered slide deck against the design rubric. Runs headless + jsdom evaluators on every slide. Part of the automated refine cycle."
+effort: medium
 ---
 
-# Evaluate
+# Evaluate (Inner Loop)
 
-Score a rendered HTML deck against the design rubric (see RUBRIC.md) using all available evaluators.
+Score a rendered HTML deck against the design rubric. This is the **inner loop** evaluator — automated, quantitative, runs on every slide.
+
+For **outer loop** evaluation (rubric calibration + human review), see METHODOLOGY.md.
 
 ## Arguments
 

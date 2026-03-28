@@ -156,6 +156,13 @@ async function evaluate(htmlPath, options = {}) {
 
       // ── Image analysis with bounding-box overlap ──
       if (idx === 0) slide.querySelectorAll("img").forEach(img => { if (!img.complete||img.naturalWidth===0) brokenImgs++; });
+      // Generic alt text detection — images with meaningless alt text
+      slide.querySelectorAll("img").forEach(img => {
+        const alt = (img.getAttribute("alt") || "").trim();
+        if ((alt === "Image" || alt === "image" || alt === "") && !img.classList.contains("splice-img")) {
+          slideIssues.push("generic-alt");
+        }
+      });
       const imgInfos = [];
       slide.querySelectorAll("img").forEach(img => {
         const ir = img.getBoundingClientRect();
@@ -197,10 +204,33 @@ async function evaluate(htmlPath, options = {}) {
       if (slide.querySelectorAll(".accent-el,[class*=accent]").length) slidesWithAccents++;
 
       // ── Content preservation ──
-      slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => { if (!z.textContent.trim()) emptyBodyZones++; });
-      const hasAnyText = slide.querySelector("h1,h2,h3,p,.bullet,.label,blockquote,td,a");
+      slide.querySelectorAll(".zone-body,.zone-bullets,.zone-quote").forEach(z => {
+        if (!z.textContent.trim()) {
+          // Don't count as empty if the slide has a table or image — content is present, just in a different element
+          const slideHasTable = slide.querySelector("table");
+          const slideHasImg = slide.querySelector("img:not(.splice-img)");
+          if (!slideHasTable && !slideHasImg) emptyBodyZones++;
+        }
+      });
+      const hasSubstantiveText = slide.querySelector("h1,h2,h3,p,.bullet,.label,blockquote,td");
+      const hasLinks = slide.querySelectorAll("a").length > 0;
       const hasImage = slide.querySelector("img");
-      if (!hasAnyText && !hasImage) contentlessSlides++;
+      if (!hasSubstantiveText && !hasImage) contentlessSlides++;
+      if (hasLinks && !hasSubstantiveText && !hasImage) slideIssues.push("link-only");
+      // Duplicate text across non-nested sibling zones
+      const topZones = [];
+      slide.querySelectorAll("[class*='zone-']").forEach(z => {
+        if (z.parentElement && z.parentElement.className && z.parentElement.className.includes("zone-")) return;
+        const t = z.textContent.trim();
+        if (t.length > 20) topZones.push(t);
+      });
+      for (let a = 0; a < topZones.length; a++) {
+        for (let b = a + 1; b < topZones.length; b++) {
+          const shorter = topZones[a].length < topZones[b].length ? topZones[a] : topZones[b];
+          const longer = topZones[a].length < topZones[b].length ? topZones[b] : topZones[a];
+          if (longer.includes(shorter) && shorter.length > 20) slideIssues.push("duplicate-text");
+        }
+      }
 
       perSlideIssues.push(slideIssues);
       if (idx>0) slide.style.display="none";
@@ -221,13 +251,104 @@ async function evaluate(htmlPath, options = {}) {
       }
     });
 
+    // ── Banality metrics ──
+    let lowDensitySlides = 0;
+    const deckMeanText = perSlideTextLen.length > 0 ? perSlideTextLen.reduce((s,v)=>s+v,0)/perSlideTextLen.length : 0;
+    const lowThreshold = Math.max(deckMeanText * 0.15, 30);
+    perSlideTextLen.forEach((len, i) => {
+      const slide = slides[i];
+      const hasImg = slide && slide.querySelector("img");
+      if (len < lowThreshold && !hasImg) lowDensitySlides++;
+    });
+    let linkOnlySlides = 0, duplicateTextSlides = 0, genericAltTotal = 0;
+    let sparseSlides = 0;
+    perSlideIssues.forEach(issues => {
+      if (issues.includes("link-only")) linkOnlySlides++;
+      if (issues.includes("duplicate-text")) duplicateTextSlides++;
+      genericAltTotal += issues.filter(i => i === "generic-alt").length;
+    });
+    perSlideTextLen.forEach((len, i) => {
+      if (i === 0) return; // Exempt title slide — intentionally sparse
+      const slide = slides[i];
+      const hasImg = slide && slide.querySelector("img:not(.splice-img)");
+      // Exempt section divider/break slides (dark bg with minimal text is intentional)
+      const bgStr = bgs[i] ? hexRGB(bgs[i]) : "";
+      const isDarkDivider = lum(bgs[i] || {r:250,g:246,b:238}) < 0.15 && len < 50;
+      if (len < 150 && !hasImg && !isDarkDivider) sparseSlides++;
+    });
+
+    // ── NEW: Layout archetype signatures ──
+    const layoutSignatures = [];
+    slides.forEach(slide => {
+      const zones = slide.querySelectorAll(".zone");
+      const sig = [];
+      zones.forEach(z => {
+        const l = Math.round(parseFloat(z.style.left) || 0);
+        const w = Math.round(parseFloat(z.style.width) || 0);
+        sig.push(l + "-" + w);
+      });
+      layoutSignatures.push(sig.sort().join("|"));
+    });
+    let maxArchetypeRun = 1, archRun = 1;
+    for (let i = 1; i < layoutSignatures.length; i++) {
+      if (layoutSignatures[i] === layoutSignatures[i - 1] && layoutSignatures[i] !== "") {
+        archRun++;
+        maxArchetypeRun = Math.max(maxArchetypeRun, archRun);
+      } else archRun = 1;
+    }
+    const uniqueArchetypes = new Set(layoutSignatures.filter(s => s !== ""));
+    let nonDefaultZones = 0, totalZonesCount = 0;
+    slides.forEach(slide => {
+      slide.querySelectorAll(".zone").forEach(z => {
+        totalZonesCount++;
+        const l = Math.round(parseFloat(z.style.left) || 0);
+        const w = Math.round(parseFloat(z.style.width) || 0);
+        if (l > 2 && w < 95) nonDefaultZones++;
+      });
+    });
+
+    // ── NEW: Typography ratio ──
+    const bodySizes = new Set();
+    slides.forEach(slide => {
+      slide.querySelectorAll("p,.bullet,li,td,.body").forEach(el => {
+        if (getComputedStyle(el).display === "none") return;
+        const fs = parseFloat(getComputedStyle(el).fontSize);
+        if (!isNaN(fs) && fs > 0) bodySizes.add(Math.round(fs));
+      });
+    });
+    const avgTitleSize = titleSizes.size > 0 ? [...titleSizes].reduce((s,v) => s+v, 0) / titleSizes.size : 0;
+    const avgBodySize = bodySizes.size > 0 ? [...bodySizes].reduce((s,v) => s+v, 0) / bodySizes.size : 0;
+    const typographyRatio = avgBodySize > 0 ? avgTitleSize / avgBodySize : 0;
+
+    // ── NEW: Content density variance ──
+    const densityMean = perSlideTextLen.length > 0 ? perSlideTextLen.reduce((s,v) => s+v, 0) / perSlideTextLen.length : 0;
+    const densityVariance = perSlideTextLen.length > 1 ? perSlideTextLen.reduce((s,v) => s+(v-densityMean)**2, 0) / perSlideTextLen.length : 0;
+    const densityCV = densityMean > 0 ? Math.sqrt(densityVariance) / densityMean : 0;
+
+    // ── NEW: Accent saturation & chromatic transitions ──
+    const accentRatio = total > 0 ? slidesWithAccents / total : 0;
+    const bgTransitions = [];
+    for (let i = 1; i < bgs.length; i++) {
+      const a = bgs[i-1], b = bgs[i];
+      bgTransitions.push(Math.sqrt((a.r-b.r)**2 + (a.g-b.g)**2 + (a.b-b.b)**2));
+    }
+    const avgTransition = bgTransitions.length > 0 ? bgTransitions.reduce((s,v)=>s+v,0)/bgTransitions.length : 0;
+    const transitionVariance = bgTransitions.length > 1 ? bgTransitions.reduce((s,v)=>s+(v-avgTransition)**2,0)/bgTransitions.length : 0;
+
     return { total, titles, designed, contrastErrors, contrastWarnings, overflows, brokenImgs,
       uniqueBgs:uniqueBgs.size, bgPalette:[...uniqueBgs], maxConsecBg:maxConsec, hasArc,
       zoneStarts:zoneStarts.size, zoneWidths:zoneWidths.size, titleSizes:[...titleSizes], fontSets:fonts.size,
       slidesWithAccents, totalImgs, imgOverlaps, imgPlacements:[...imgPlacements],
       tinyTextCount, tableTruncations, clippedContentSlides, textOnImageCount,
       emptyBodyZones, contentlessSlides, slidesWithNoVisibleText,
-      perSlideTextLen, perSlideIssues };
+      perSlideTextLen, perSlideIssues,
+      maxArchetypeRun, uniqueArchetypes: uniqueArchetypes.size,
+      nonDefaultZones, totalZones: totalZonesCount,
+      typographyRatio, avgTitleSize, avgBodySize,
+      densityCV, accentRatio, avgTransition, transitionVariance,
+      inventedLabels: 0,
+      lowDensitySlides, linkOnlySlides, duplicateTextSlides,
+      sparseSlides, genericAltTotal };
   });
 
   if (options.screenshots) {
@@ -251,63 +372,88 @@ async function evaluate(htmlPath, options = {}) {
   scores.accessibility = Math.max(1, Math.min(10,
     10
     - m.contrastErrors * 2
-    - m.contrastWarnings * 0.3
+    - m.contrastWarnings * 0.5
     - m.brokenImgs * 2
-    - m.tinyTextCount * 0.3
-    - Math.min(m.overflows * 0.2, 2)
+    - m.tinyTextCount * 0.5
+    - Math.min(m.overflows * 0.5, 3)
   ));
 
   // 2. Communicability — visual only (stub: requires Claude vision assessment)
-  scores.communicability = null; // visual-only dimension
+  scores.communicability = null;
 
   // 3. Taste — visual only (stub: requires Claude vision assessment)
-  scores.taste = null; // visual-only dimension
+  scores.taste = null;
 
-  // 4. Grid Utilization — design directives, zone variety
+  // 4. Grid Utilization — layout quality, not just variety count
+  const designedRatio = m.total > 0 ? m.designed / m.total : 0;
+  const nonDefaultRatio = m.totalZones > 0 ? m.nonDefaultZones / m.totalZones : 0;
+  const archetypeRepeatPenalty = m.maxArchetypeRun >= 4 ? 2 : m.maxArchetypeRun >= 3 ? 1 : 0;
+  const archetypeVariety = m.total > 0 ? Math.min(m.uniqueArchetypes / (m.total * 0.4), 1) : 0;
   scores.grid = Math.max(1, Math.min(10,
-    (m.designed / m.total) * 4
-    + Math.min(m.zoneStarts / 4, 1.5) * 2
-    + Math.min(m.zoneWidths / 3, 1.5) * 2
-    + (m.designed > 0 ? 2 : 0)
+    designedRatio * 3
+    + nonDefaultRatio * 3
+    + archetypeVariety * 2
+    - archetypeRepeatPenalty
+    + Math.min(m.zoneStarts / 6, 1) * 2
   ));
 
-  // 5. Color Harmonics — palette variety, chromatic arc, contrast
+  // 5. Color Harmonics — transition quality, not just binary arc
+  const arcScore = m.hasArc
+    ? (m.avgTransition > 40 && m.avgTransition < 280 ? 2.5 : 1.5)
+    : 0.5;
+  const transitionSmoothnessBonus = m.transitionVariance > 0
+    ? (Math.sqrt(m.transitionVariance) / (m.avgTransition || 1) < 1.5 ? 1 : 0)
+    : 0;
   scores.color = Math.max(1, Math.min(10,
-    Math.min(m.uniqueBgs / 3, 2) * 2
-    + (m.hasArc ? 3 : 1)
-    + (m.maxConsecBg <= 3 ? 3 : m.maxConsecBg <= 5 ? 2 : 1)
-    + (m.contrastErrors === 0 ? 2 : 0)
+    Math.min(m.uniqueBgs / 4, 1.5) * 2
+    + arcScore
+    + transitionSmoothnessBonus
+    + (m.maxConsecBg <= 2 ? 2.5 : m.maxConsecBg <= 3 ? 1.5 : 0.5)
+    + (m.contrastErrors === 0 ? 1 : 0)
   ));
 
-  // 6. Layout Balance — visual only (stub: requires Claude vision assessment)
-  scores.balance = null; // visual-only dimension
+  // 6. Layout Balance — visual only (stub)
+  scores.balance = null;
 
-  // 7. Coherence & Variance — title variety, font sets, bg variety
+  // 7. Coherence & Variance — typography hierarchy, layout variety, visual rhythm
+  const titleSizeCount = m.titleSizes.length;
+  const titleSizeScore = titleSizeCount >= 2 && titleSizeCount <= 5 ? 2
+    : titleSizeCount === 1 ? 1
+    : titleSizeCount <= 7 ? 1.5 : 0.5;
+  const fontScore = m.fontSets >= 2 && m.fontSets <= 4 ? 1.5 : 0.5;
+  const layoutVarietyScore = m.uniqueArchetypes >= 5 ? 1.5 : m.uniqueArchetypes >= 3 ? 1 : 0.5;
+  const densityRhythm = m.densityCV > 0.4 && m.densityCV < 2.0 ? 1.5 : 0.5;
+  const accentBalance = m.accentRatio > 0.3 && m.accentRatio < 0.85 ? 1.5 : 0.5;
+  const typoHierarchy = m.typographyRatio >= 1.8 && m.typographyRatio <= 3.0 ? 2
+    : m.typographyRatio > 1.3 ? 1 : 0;
   scores.coherence = Math.max(1, Math.min(10,
-    (m.titleSizes.length >= 2 && m.titleSizes.length <= 6 ? 3 : 1)
-    + (m.fontSets >= 2 ? 2 : 1)
-    + (m.uniqueBgs >= 3 ? 2 : 1)
-    + (m.maxConsecBg <= 3 ? 2 : 0)
-    + (m.designed > m.total * 0.5 ? 1 : 0)
+    titleSizeScore + fontScore + layoutVarietyScore + densityRhythm + accentBalance + typoHierarchy
   ));
 
-  // 8. Image Integration — overlaps, placement variety, text-on-image
-  const imgPenalty = Math.min(m.textOnImageCount * 0.5, 6); // text-on-image is the big one
+  // 8. Image Integration — overlap + generic alt + placement
+  const overlapPenalty = Math.min(Math.max(m.textOnImageCount, m.imgOverlaps) * 1, 4);
+  const genericAltPenalty = Math.min((m.genericAltTotal || 0) * 0.15, 2);
   scores.images = m.totalImgs === 0 ? 5 : Math.max(1, Math.min(10,
     10
-    - imgPenalty
-    - (m.imgPlacements.length < 3 ? 2 : 0)
-    - (m.totalImgs < m.total * 0.2 ? 1 : 0)
+    - overlapPenalty
+    - genericAltPenalty
+    - (m.imgPlacements.length < 3 ? 2 : m.imgPlacements.length < 4 ? 1 : 0)
+    - (m.totalImgs < m.total * 0.15 ? 1 : 0)
   ));
 
-  // 9. Content Completeness — empty zones, table truncation, clipped content, contentless slides
+  // 9. Content Completeness — penalizes absence AND banality
   scores.contentCompleteness = Math.max(1, Math.min(10,
     10
-    - m.emptyBodyZones * 0.5
-    - m.contentlessSlides * 2
-    - m.tableTruncations * 1
-    - m.clippedContentSlides * 1.5
+    - m.emptyBodyZones * 1.5
+    - m.contentlessSlides * 2.5
+    - m.tableTruncations * 1.5
+    - m.clippedContentSlides * 2
     - m.slidesWithNoVisibleText * 2
+    - (m.inventedLabels || 0) * 0.3
+    - (m.lowDensitySlides || 0) * 0.8
+    - (m.sparseSlides || 0) * 0.5
+    - (m.linkOnlySlides || 0) * 1.5
+    - (m.duplicateTextSlides || 0) * 1.5
   ));
 
   // Round all computed scores

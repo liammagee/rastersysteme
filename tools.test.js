@@ -280,7 +280,7 @@ describe("splice-images.js", () => {
     fs.rmSync(tmp, { recursive: true });
   });
 
-  it("spliceImages skips slides that already contain an image", () => {
+  it("spliceImages adds images to all slides including those with existing content images", () => {
     const fs = require("fs");
     const path = require("path");
     const os = require("os");
@@ -291,7 +291,7 @@ describe("splice-images.js", () => {
     fs.mkdirSync(imgDir);
     fs.writeFileSync(path.join(imgDir, "slide-1.png"), "fake");
     fs.writeFileSync(path.join(imgDir, "slide-2.png"), "fake");
-    // Slide 1 already has an <img> tag; slide 2 does not
+    // Slide 1 has a content image; slide 2 does not — both should get spliced images
     const html = '<section class="slide"><img src="existing.png" alt="photo">Caption</section>\n<section class="slide">Text only</section>';
     const htmlPath = path.join(tmp, "test.html");
     fs.writeFileSync(htmlPath, html);
@@ -303,8 +303,69 @@ describe("splice-images.js", () => {
       ],
     });
 
-    assert.ok(!result.includes("slide-1.png"), "Slide 1 already has an image — should be skipped");
-    assert.ok(result.includes("slide-2.png"), "Slide 2 has no image — should get one spliced in");
+    assert.ok(result.includes("slide-1.png"), "Slide 1 should get a spliced image alongside its content image");
+    assert.ok(result.includes("slide-2.png"), "Slide 2 should get a spliced image");
+    // But skip slides that already have a SPLICED image (prevents double-splicing)
+    assert.ok(result.includes("splice-img"), "Spliced images should have the splice-img class marker");
+
+    fs.rmSync(tmp, { recursive: true });
+  });
+
+  it("spliced images have visible opacity (not nearly invisible)", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const os = require("os");
+    const { spliceImages } = require("./splice-images.js");
+
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "splice-opacity-"));
+    const imgDir = path.join(tmp, "images");
+    fs.mkdirSync(imgDir);
+    fs.writeFileSync(path.join(imgDir, "slide-1.png"), "fake");
+    const html = '<section class="slide">Text content</section>';
+    const htmlPath = path.join(tmp, "test.html");
+    fs.writeFileSync(htmlPath, html);
+
+    const result = spliceImages(htmlPath, imgDir, {
+      plan: [{ slide: 1, mode: "right", size: 30 }],
+    });
+
+    // Extract opacity from the spliced image's container
+    const opacityMatch = result.match(/opacity:([\d.]+).*?splice-img/);
+    assert.ok(opacityMatch, "Spliced image should have an explicit opacity");
+    const opacity = parseFloat(opacityMatch[1]);
+    assert.ok(opacity >= 0.2, `Splice opacity ${opacity} should be >= 0.2 (visible, not watermark)`);
+
+    fs.rmSync(tmp, { recursive: true });
+  });
+
+  it("spliced images are not re-spliced on second pass", () => {
+    const fs = require("fs");
+    const path = require("path");
+    const os = require("os");
+    const { spliceImages } = require("./splice-images.js");
+
+    const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "splice-double-"));
+    const imgDir = path.join(tmp, "images");
+    fs.mkdirSync(imgDir);
+    fs.writeFileSync(path.join(imgDir, "slide-1.png"), "fake");
+    const html = '<section class="slide">Text content</section>';
+    const htmlPath = path.join(tmp, "test.html");
+    fs.writeFileSync(htmlPath, html);
+
+    // First splice
+    const result1 = spliceImages(htmlPath, imgDir, {
+      plan: [{ slide: 1, mode: "right", size: 30 }],
+    });
+    const count1 = (result1.match(/splice-img/g) || []).length;
+
+    // Write result and splice again
+    fs.writeFileSync(htmlPath, result1);
+    const result2 = spliceImages(htmlPath, imgDir, {
+      plan: [{ slide: 1, mode: "right", size: 30 }],
+    });
+    const count2 = (result2.match(/splice-img/g) || []).length;
+
+    assert.strictEqual(count1, count2, "Second splice should not add more images (splice-img guard)");
 
     fs.rmSync(tmp, { recursive: true });
   });

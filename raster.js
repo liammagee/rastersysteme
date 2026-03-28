@@ -1943,6 +1943,7 @@ function renderDesigned(slide) {
   }
 
   const zonedRoles = new Set(deduped.map(z => z.role));
+  const renderedContent = new Set(); // Track what content was actually rendered (not just what zones exist)
 
   const zonesHTML = deduped.map(zone => {
     const pos = zonePositionCSS(zone);
@@ -1960,15 +1961,22 @@ function renderDesigned(slide) {
         // Gather all body-like content: paragraphs, bullets, blockquotes, links
         const parts = [];
         const bodyText = slide.body.filter(l => l.trim() !== "---").map(l => `<p style="${typoStyle}">${esc(l)}</p>`).join("\n");
-        if (bodyText) parts.push(bodyText);
+        if (bodyText) {
+          parts.push(bodyText);
+          // If the title text appears in the body, mark it as rendered to prevent extras duplication
+          if (slide.title && slide.body.some(l => l.includes(slide.title))) renderedContent.add("title");
+        }
         if (slide.bullets.length && !zonedRoles.has("bullets")) {
           parts.push(bulletsToHTML(slide.bullets));
+          renderedContent.add("bullets");
         }
         if (slide.blockquote && !zonedRoles.has("quote")) {
           parts.push(`<blockquote style="${typoStyle}">${esc(slide.blockquote)}</blockquote>`);
+          renderedContent.add("quote");
         }
         if (slide.links.length && !zonedRoles.has("links")) {
           parts.push(linksHTML(slide.links));
+          renderedContent.add("links");
         }
         content = parts.join("\n");
         break;
@@ -2031,7 +2039,7 @@ function renderDesigned(slide) {
   // Append unzoned content that has no matching zone in the design
   let extras = "";
   // Unzoned title — slide has a heading but no title zone
-  if (!zonedRoles.has("title") && (slide.title || slide.subtitle)) {
+  if (!zonedRoles.has("title") && !renderedContent.has("title") && (slide.title || slide.subtitle)) {
     const titleText = slide.title || slide.subtitle;
     const titleStyle = typographyToCSS(typography.title || {}, "title", slideBg);
     extras += `<div class="zone zone-title" style="position:absolute;left:5%;right:5%;top:3%;height:15%;z-index:3;padding:${gapVal}"><h1 style="${titleStyle}">${esc(titleText)}</h1></div>`;
@@ -2204,7 +2212,7 @@ function renderDesigned(slide) {
     ).join("");
     extras += `<div style="${imgStyle}">${imgHTML}</div>`;
   }
-  if (slide.links.length && !zonedRoles.has("links")) {
+  if (slide.links.length && !zonedRoles.has("links") && !renderedContent.has("links")) {
     extras += linksHTML(slide.links);
   }
   const extrasHTML = extras

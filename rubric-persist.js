@@ -103,8 +103,8 @@ function updateLatest(scorecard) {
 
   const total = computedTotal + visualTotal + textualTotal;
   const max = computedMax + visualMax + textualMax;
-  // Normalize against full 100-point scale (10 dims x 10 pts)
-  const normalized = max > 0 ? Math.round((total / 100) * 100) : 0;
+  // Normalize against assessed dimensions (not hardcoded 100)
+  const normalized = max > 0 ? Math.round((total / max) * 100) : 0;
 
   const computed = {};
   if (bestComputed) {

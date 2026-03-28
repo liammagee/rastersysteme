@@ -224,32 +224,24 @@ function evaluate(htmlPath) {
     });
 
     // ── Clipped content detection ──
-    let hasClipped = false;
-    slide.querySelectorAll('.zone,.zone-body,.zone-bullets,.zone-quote,.zone-table').forEach(zone => {
-      const zoneStyle = parseInlineStyle(zone);
-      const overflow = zoneStyle['overflow'];
-      if (overflow === 'hidden' || overflow === 'auto') {
-        // Zone has overflow:hidden; check if it contains large text blocks
-        const textEls = zone.querySelectorAll('h1,h2,h3,p,.bullet,li,td,blockquote');
-        if (textEls.length > 0 && zone.textContent.length > 100) {
-          hasClipped = true;
-        }
-      }
-    });
-    if (hasClipped) {
-      clippedContentSlides++;
-      slideIssues.push('content-clipped');
-    }
+    // DISABLED in jsdom: overflow:hidden is standard on all zones, and jsdom cannot
+    // measure actual content overflow (no real layout engine). This produces false
+    // positives on ~80% of slides. The Puppeteer path (rubric-headless.js) uses real
+    // bounding boxes and correctly detects actual content clipping.
+    // clippedContentSlides is left at 0 for jsdom evaluations.
 
     // ── Image analysis ──
-    if (idx === 0) {
-      slide.querySelectorAll('img').forEach(img => {
-        // In jsdom, naturalWidth is always 0 for images not loaded
-        // We count by presence of src attribute
-        const src = img.getAttribute('src');
-        if (!src) brokenImgs++;
-      });
-    }
+    let genericAltImgs = 0;
+    slide.querySelectorAll('img').forEach(img => {
+      const src = img.getAttribute('src');
+      if (!src) brokenImgs++;
+      // Check for generic/placeholder alt text — indicates unresolved content image
+      const alt = (img.getAttribute('alt') || '').trim();
+      if ((alt === 'Image' || alt === 'image' || alt === '') && !img.classList.contains('splice-img')) {
+        genericAltImgs++;
+        slideIssues.push('generic-alt');
+      }
+    });
 
     slide.querySelectorAll('img').forEach(img => {
       const src = img.getAttribute('src');
@@ -323,14 +315,80 @@ function evaluate(htmlPath) {
       slidesWithAccents++;
     }
 
+    // ── Per-slide zone collision detection (pure CSS rect intersection) ──
+    // Collect ALL content zones with explicit dimensions (skip accents, skip empty extras wrapper)
+    const zoneRects = [];
+    slide.querySelectorAll('[class*="zone-"]').forEach(z => {
+      if (z.classList.contains('zone-extras')) return;
+      if (z.className.includes('accent')) return;
+      const s = parseInlineStyle(z);
+      const left = parseFloat(s['left']) || 0;
+      const top = parseFloat(s['top']) || 0;
+      let width = parseFloat(s['width']) || 0;
+      let height = parseFloat(s['height']) || 0;
+      // Handle right/bottom style instead of width/height
+      if (!width && s['right']) width = 100 - left - (parseFloat(s['right']) || 0);
+      if (!height && s['bottom']) height = 100 - top - (parseFloat(s['bottom']) || 0);
+      if (width > 0 && height > 0 && z.textContent.trim().length > 0) {
+        zoneRects.push({ cls: z.className.replace(/\s+/g, ' ').trim(), left, top, right: left + width, bottom: top + height });
+      }
+    });
+    // Check all pairs for overlap (deduplicate: only count one collision per slide)
+    let hasCollision = false;
+    for (let a = 0; a < zoneRects.length && !hasCollision; a++) {
+      for (let b = a + 1; b < zoneRects.length && !hasCollision; b++) {
+        const ra = zoneRects[a], rb = zoneRects[b];
+        const overlapX = Math.max(0, Math.min(ra.right, rb.right) - Math.max(ra.left, rb.left));
+        const overlapY = Math.max(0, Math.min(ra.bottom, rb.bottom) - Math.max(ra.top, rb.top));
+        const overlapArea = overlapX * overlapY;
+        const minArea = Math.min(
+          (ra.right - ra.left) * (ra.bottom - ra.top),
+          (rb.right - rb.left) * (rb.bottom - rb.top)
+        );
+        // Flag if overlap > 15% of smaller zone
+        if (overlapArea > minArea * 0.15 && overlapArea > 20) {
+          hasCollision = true;
+          slideIssues.push('zone-collision');
+        }
+      }
+    }
+
     // ── Content preservation ──
     slide.querySelectorAll('.zone-body,.zone-bullets,.zone-quote').forEach(z => {
-      if (!z.textContent.trim()) emptyBodyZones++;
+      if (!z.textContent.trim()) {
+        // Don't count as empty if the slide has a table or content image
+        const slideHasTable = slide.querySelector('table');
+        const slideHasImg = slide.querySelector('img:not(.splice-img)');
+        if (!slideHasTable && !slideHasImg) emptyBodyZones++;
+      }
     });
 
-    const hasAnyText = slide.querySelector('h1,h2,h3,p,.bullet,.label,blockquote,td,a');
+    // Link-only slide detection: has links but no real text content
+    const hasSubstantiveText = slide.querySelector('h1,h2,h3,p,.bullet,.label,blockquote,td');
+    const hasLinks = slide.querySelectorAll('a').length > 0;
     const hasImage = slide.querySelector('img');
-    if (!hasAnyText && !hasImage) contentlessSlides++;
+    if (!hasSubstantiveText && !hasImage) contentlessSlides++;
+    if (hasLinks && !hasSubstantiveText && !hasImage) {
+      slideIssues.push('link-only');
+    }
+
+    // Duplicate text detection: check if same text appears in non-nested sibling zones
+    const topZones = [];
+    slide.querySelectorAll('[class*="zone-"]').forEach(z => {
+      // Skip zones nested inside another zone (parent-child is not duplication)
+      if (z.parentElement && z.parentElement.className && z.parentElement.className.includes('zone-')) return;
+      const t = z.textContent.trim();
+      if (t.length > 20) topZones.push(t);
+    });
+    for (let a = 0; a < topZones.length; a++) {
+      for (let b = a + 1; b < topZones.length; b++) {
+        const shorter = topZones[a].length < topZones[b].length ? topZones[a] : topZones[b];
+        const longer = topZones[a].length < topZones[b].length ? topZones[b] : topZones[a];
+        if (longer.includes(shorter) && shorter.length > 20) {
+          slideIssues.push('duplicate-text');
+        }
+      }
+    }
 
     perSlideIssues.push(slideIssues);
   });
@@ -349,6 +407,79 @@ function evaluate(htmlPath) {
   const uniqueBgs = new Set(bgs.map(hexRGB));
   const hasArc = bgs.length > 1 && [...new Set(bgs.map(b => lum(b) > 0.5 ? 'L' : 'D'))].length > 1;
 
+  // ── NEW: Chromatic transition smoothness ──
+  const bgTransitions = [];
+  for (let i = 1; i < bgs.length; i++) {
+    const a = bgs[i - 1], b = bgs[i];
+    const dist = Math.sqrt((a.r - b.r) ** 2 + (a.g - b.g) ** 2 + (a.b - b.b) ** 2);
+    bgTransitions.push(dist);
+  }
+  const avgTransition = bgTransitions.length > 0
+    ? bgTransitions.reduce((s, v) => s + v, 0) / bgTransitions.length : 0;
+  const transitionVariance = bgTransitions.length > 1
+    ? bgTransitions.reduce((s, v) => s + (v - avgTransition) ** 2, 0) / bgTransitions.length : 0;
+
+  // ── NEW: Layout archetype signatures ──
+  const layoutSignatures = [];
+  slides.forEach(slide => {
+    const zones = slide.querySelectorAll('.zone');
+    const sig = [];
+    zones.forEach(z => {
+      const s = parseInlineStyle(z);
+      const l = Math.round(parseFloat(s['left']) || 0);
+      const w = Math.round(parseFloat(s['width']) || 0);
+      sig.push(`${l}-${w}`);
+    });
+    layoutSignatures.push(sig.sort().join('|'));
+  });
+  // Count consecutive identical layouts
+  let maxArchetypeRun = 1, archRun = 1;
+  for (let i = 1; i < layoutSignatures.length; i++) {
+    if (layoutSignatures[i] === layoutSignatures[i - 1] && layoutSignatures[i] !== '') {
+      archRun++;
+      maxArchetypeRun = Math.max(maxArchetypeRun, archRun);
+    } else {
+      archRun = 1;
+    }
+  }
+  const uniqueArchetypes = new Set(layoutSignatures.filter(s => s !== ''));
+  // Non-default positions: zones NOT starting at 0% or spanning 100%
+  let nonDefaultZones = 0, totalZones = 0;
+  slides.forEach(slide => {
+    slide.querySelectorAll('.zone').forEach(z => {
+      totalZones++;
+      const s = parseInlineStyle(z);
+      const l = Math.round(parseFloat(s['left']) || 0);
+      const w = Math.round(parseFloat(s['width']) || 0);
+      if (l > 2 && w < 95) nonDefaultZones++;
+    });
+  });
+
+  // ── NEW: Typography ratio (title vs body size) ──
+  const bodySizes = new Set();
+  slides.forEach(slide => {
+    slide.querySelectorAll('p,.bullet,li,td,.body').forEach(el => {
+      const s = parseInlineStyle(el);
+      const fs = parseFloat(s['font-size']);
+      if (!isNaN(fs) && fs > 0) bodySizes.add(Math.round(fs));
+    });
+  });
+  const avgTitleSize = titleSizes.size > 0
+    ? [...titleSizes].reduce((s, v) => s + v, 0) / titleSizes.size : 0;
+  const avgBodySize = bodySizes.size > 0
+    ? [...bodySizes].reduce((s, v) => s + v, 0) / bodySizes.size : 0;
+  const typographyRatio = avgBodySize > 0 ? avgTitleSize / avgBodySize : 0;
+
+  // ── NEW: Content density variance (visual rhythm) ──
+  const densityMean = perSlideTextLen.length > 0
+    ? perSlideTextLen.reduce((s, v) => s + v, 0) / perSlideTextLen.length : 0;
+  const densityVariance = perSlideTextLen.length > 1
+    ? perSlideTextLen.reduce((s, v) => s + (v - densityMean) ** 2, 0) / perSlideTextLen.length : 0;
+  const densityCV = densityMean > 0 ? Math.sqrt(densityVariance) / densityMean : 0;
+
+  // ── NEW: Accent saturation ──
+  const accentRatio = total > 0 ? slidesWithAccents / total : 0;
+
   let slidesWithNoVisibleText = 0;
   perSlideTextLen.forEach((len, i) => {
     if (len < 5) {
@@ -358,6 +489,34 @@ function evaluate(htmlPath) {
     }
   });
 
+  // ── Banality metrics ──
+  // Low-density slides: below 15% of deck mean with no images
+  let lowDensitySlides = 0;
+  let sparseSlides = 0;
+  const densityThreshold = densityMean * 0.15;
+  perSlideTextLen.forEach((len, i) => {
+    if (i === 0) return; // Exempt title slide
+    const slide = slides[i];
+    const hasImg = slide && slide.querySelector('img:not(.splice-img)');
+    if (len < Math.max(densityThreshold, 30) && !hasImg) lowDensitySlides++;
+    // Exempt dark divider/section-break slides from sparse penalty
+    const bg = bgs[i] || { r: 250, g: 246, b: 238 };
+    const isDarkDivider = lum(bg) < 0.15 && len < 50;
+    if (len < 150 && !hasImg && !isDarkDivider) sparseSlides++;
+  });
+
+  // Per-slide issue counts
+  let linkOnlySlides = 0;
+  let duplicateTextSlides = 0;
+  let genericAltTotal = 0;
+  let zoneCollisionSlides = 0;
+  perSlideIssues.forEach(issues => {
+    if (issues.includes('link-only')) linkOnlySlides++;
+    if (issues.includes('duplicate-text')) duplicateTextSlides++;
+    if (issues.includes('zone-collision')) zoneCollisionSlides++;
+    genericAltTotal += issues.filter(i => i === 'generic-alt').length;
+  });
+
   return {
     total, titles, designed, contrastErrors, contrastWarnings, overflows, brokenImgs,
     uniqueBgs: uniqueBgs.size, bgPalette: [...uniqueBgs], maxConsecBg: maxConsec, hasArc,
@@ -365,7 +524,17 @@ function evaluate(htmlPath) {
     slidesWithAccents, totalImgs, imgOverlaps, imgPlacements: [...imgPlacements],
     tinyTextCount, tableTruncations, clippedContentSlides, textOnImageCount,
     emptyBodyZones, contentlessSlides, slidesWithNoVisibleText,
-    perSlideTextLen, perSlideIssues
+    perSlideTextLen, perSlideIssues,
+    // v2 metrics
+    maxArchetypeRun, uniqueArchetypes: uniqueArchetypes.size,
+    nonDefaultZones, totalZones,
+    typographyRatio, avgTitleSize, avgBodySize,
+    densityCV, accentRatio,
+    avgTransition, transitionVariance,
+    inventedLabels: 0, // populated by content fidelity check
+    // v3 banality metrics
+    lowDensitySlides, linkOnlySlides, duplicateTextSlides, sparseSlides, genericAltTotal,
+    zoneCollisionSlides
   };
 }
 
@@ -373,14 +542,14 @@ function computeScores(metrics) {
   const scores = {};
   const m = metrics;
 
-  // 1. Accessibility
-  scores.accessibility = Math.max(1, Math.min(10,
-    10
+  // 1. Accessibility — capped at 8 in jsdom mode (can't reliably check CSS-class contrast)
+  scores.accessibility = Math.max(1, Math.min(8,
+    8
     - m.contrastErrors * 2
-    - m.contrastWarnings * 0.3
+    - m.contrastWarnings * 0.5
     - m.brokenImgs * 2
-    - m.tinyTextCount * 0.3
-    - Math.min(m.overflows * 0.2, 2)
+    - m.tinyTextCount * 0.5
+    - Math.min(m.overflows * 0.5, 3)
   ));
 
   // 2. Communicability (visual-only)
@@ -389,51 +558,84 @@ function computeScores(metrics) {
   // 3. Taste (visual-only)
   scores.taste = null;
 
-  // 4. Grid Utilization
+  // 4. Grid Utilization — now measures layout quality, not just variety count
+  const designedRatio = m.total > 0 ? m.designed / m.total : 0;
+  const nonDefaultRatio = m.totalZones > 0 ? m.nonDefaultZones / m.totalZones : 0;
+  const archetypeRepeatPenalty = m.maxArchetypeRun >= 4 ? 2 : m.maxArchetypeRun >= 3 ? 1 : 0;
+  const archetypeVariety = m.total > 0 ? Math.min(m.uniqueArchetypes / (m.total * 0.4), 1) : 0;
+  const collisionPenalty = Math.min((m.zoneCollisionSlides || 0) * 1.5, 6);  // -1.5 per slide with collisions, max -6
   scores.grid = Math.max(1, Math.min(10,
-    (m.designed / m.total) * 4
-    + Math.min(m.zoneStarts / 4, 1.5) * 2
-    + Math.min(m.zoneWidths / 3, 1.5) * 2
-    + (m.designed > 0 ? 2 : 0)
+    designedRatio * 3                            // 3pts: all slides designed
+    + nonDefaultRatio * 3                         // 3pts: zones use non-trivial positions
+    + archetypeVariety * 2                        // 2pts: variety of layout archetypes
+    - archetypeRepeatPenalty                      // -1 or -2: monotonous consecutive layouts
+    + Math.min(m.zoneStarts / 6, 1) * 2           // 2pts: diverse column starts (need 6+)
+    - collisionPenalty                             // -1.5 per slide with zone collisions
   ));
 
-  // 5. Color Harmonics
+  // 5. Color Harmonics — now measures transition quality, not just binary arc
+  const arcScore = m.hasArc
+    ? (m.avgTransition > 40 && m.avgTransition < 280 ? 2.5 : 1.5)  // smooth arc vs erratic
+    : 0.5;
+  const transitionSmoothnessBonus = m.transitionVariance > 0
+    ? (Math.sqrt(m.transitionVariance) / (m.avgTransition || 1) < 1.5 ? 1 : 0)  // low CV = consistent transitions
+    : 0;
   scores.color = Math.max(1, Math.min(10,
-    Math.min(m.uniqueBgs / 3, 2) * 2
-    + (m.hasArc ? 3 : 1)
-    + (m.maxConsecBg <= 3 ? 3 : m.maxConsecBg <= 5 ? 2 : 1)
-    + (m.contrastErrors === 0 ? 2 : 0)
+    Math.min(m.uniqueBgs / 4, 1.5) * 2           // 3pts: need 4+ backgrounds to max (was 3)
+    + arcScore                                     // 2.5pts: smooth arc (was binary 3/1)
+    + transitionSmoothnessBonus                    // 1pt: consistent transition distances
+    + (m.maxConsecBg <= 2 ? 2.5 : m.maxConsecBg <= 3 ? 1.5 : 0.5)  // 2.5pts: stricter run limit
+    + (m.contrastErrors === 0 ? 1 : 0)             // 1pt: clean contrast
   ));
 
   // 6. Balance (visual-only)
   scores.balance = null;
 
-  // 7. Coherence & Variance
+  // 7. Coherence & Variance — typography hierarchy, layout variety, visual rhythm
+  const titleSizeCount = m.titleSizes.length;
+  const titleSizeScore = titleSizeCount >= 2 && titleSizeCount <= 5 ? 2
+    : titleSizeCount === 1 ? 1
+    : titleSizeCount <= 7 ? 1.5 : 0.5;            // penalize chaos (7+) AND monotony (1)
+  const fontScore = m.fontSets >= 2 && m.fontSets <= 4 ? 1.5 : 0.5;  // 2-4 fonts good; 5+ bad
+  const layoutVarietyScore = m.uniqueArchetypes >= 5 ? 1.5 : m.uniqueArchetypes >= 3 ? 1 : 0.5;
+  const densityRhythm = m.densityCV > 0.4 && m.densityCV < 2.0 ? 1.5 : 0.5;  // text density varies but not wildly
+  const accentBalance = m.accentRatio > 0.3 && m.accentRatio < 0.85 ? 1.5 : 0.5;  // not too sparse, not saturated
+  // NEW: Typography hierarchy — title should be 1.8-3.0x body size
+  const typoHierarchy = m.typographyRatio >= 1.8 && m.typographyRatio <= 3.0 ? 2
+    : m.typographyRatio > 1.3 ? 1 : 0;            // flat hierarchy = no visual distinction
   scores.coherence = Math.max(1, Math.min(10,
-    (m.titleSizes.length >= 2 && m.titleSizes.length <= 6 ? 3 : 1)
-    + (m.fontSets >= 2 ? 2 : 1)
-    + (m.uniqueBgs >= 3 ? 2 : 1)
-    + (m.maxConsecBg <= 3 ? 2 : 0)
-    + (m.designed > m.total * 0.5 ? 1 : 0)
+    titleSizeScore
+    + fontScore
+    + layoutVarietyScore
+    + densityRhythm
+    + accentBalance
+    + typoHierarchy
   ));
 
-  // 8. Image Integration
-  const imgPenalty = Math.min(m.textOnImageCount * 0.5, 6);
+  // 8. Image Integration — combined overlap penalty (don't double-count textOnImage + imgOverlaps)
+  const overlapPenalty = Math.min(Math.max(m.textOnImageCount, m.imgOverlaps) * 1, 4);
+  const genericAltPenalty = Math.min((m.genericAltTotal || 0) * 0.15, 2);
   scores.images = m.totalImgs === 0 ? 5 : Math.max(1, Math.min(10,
     10
-    - imgPenalty
-    - (m.imgPlacements.length < 3 ? 2 : 0)
-    - (m.totalImgs < m.total * 0.2 ? 1 : 0)
+    - overlapPenalty
+    - genericAltPenalty
+    - (m.imgPlacements.length < 3 ? 2 : m.imgPlacements.length < 4 ? 1 : 0)
+    - (m.totalImgs < m.total * 0.15 ? 1 : 0)
   ));
 
-  // 9. Content Completeness
+  // 9. Content Completeness — penalizes absence AND banality
   scores.contentCompleteness = Math.max(1, Math.min(10,
     10
-    - m.emptyBodyZones * 0.5
-    - m.contentlessSlides * 2
-    - m.tableTruncations * 1
-    - m.clippedContentSlides * 1.5
+    - m.emptyBodyZones * 1.5                       // empty body zones are serious
+    - m.contentlessSlides * 2.5                     // slides with nothing
+    - m.tableTruncations * 1.5                      // clipped tables
+    - m.clippedContentSlides * 2                    // overflow hidden
     - m.slidesWithNoVisibleText * 2
+    - (m.inventedLabels || 0) * 0.3                 // hallucinated headings
+    - (m.lowDensitySlides || 0) * 0.8               // near-empty slides (banality)
+    - (m.sparseSlides || 0) * 0.5                   // under-150-chars slides with no images
+    - (m.linkOnlySlides || 0) * 1.5                 // slides with only a link
+    - (m.duplicateTextSlides || 0) * 1.5            // duplicate content across zones
   ));
 
   // Round all scores

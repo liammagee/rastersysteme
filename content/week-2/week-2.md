@@ -1,15 +1,15 @@
 # Gen AI - Week 2 - Pathways to AI
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_1.png)
+![Pathways to AI — historical network of ideas leading to artificial intelligence](images/gen_ai___week_1___pathways_to_ai_img_1.png)
 
 
 ---
 
-### Initial Definition: Artificial Intelligence involves….  
+### Initial Definition: Artificial Intelligence involves….
 
 | | |
 |---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_4.png)“*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955) |  |
+| ![McCarthy et al. 1955 Dartmouth proposal](images/gen_ai___week_1___pathways_to_ai_img_4.png)”*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955) |  |
 
 ---
 
@@ -17,7 +17,7 @@
 
 | Cybernetics | AI |
 |---|---|
-| ![Image](images/pasted-image-2026-03-26T20-29-19-509Z-8579ae13.png) | ![Image](images/pasted-image-2026-03-26T20-48-24-695Z-584cb2c6.png) |
+| ![Portrait of Norbert Wiener, founder of cybernetics](images/pasted-image-2026-03-26T20-29-19-509Z-8579ae13.png) | ![Portrait of John McCarthy, coined the term Artificial Intelligence](images/pasted-image-2026-03-26T20-48-24-695Z-584cb2c6.png) |
 | Norbert Weiner | John McCarthy |
 | Cybernetics | Artificial Intelligence |
 | Vision: Humans teaming with Machines (Cyborg) | Vision: A Machine Reproducing Human Intelligence |
@@ -39,7 +39,7 @@
 | | | |
 |---|---|---|
 | Andrew Pickering (2010) *The Cybernetic Brain* | Donna Haraway (2016) *Staying with the Trouble* | Ethan Mollick (2024) *Co-intelligence* | 
-| ![Image](images/pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png) | 
+| ![Cover of The Cybernetic Brain by Andrew Pickering](images/pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png) | ![Cover of Staying with the Trouble by Donna Haraway](images/gen_ai___week_1___pathways_to_ai_img_5.png) | ![Cover of Co-intelligence by Ethan Mollick](images/gen_ai___week_1___pathways_to_ai_img_6.png) | 
 
 
 ---
@@ -77,7 +77,7 @@
 
 
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)  
+![Al-Khwarizmi manuscript page, foundational text for algorithm](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Quarta Figura from Ars Brevis by Ramon Llull, proto-computational diagram](images/gen_ai___week_1___pathways_to_ai_img_13.png)  
 
 | | |
 |---|---|
@@ -92,7 +92,7 @@
 
 
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.  
+![Cover of Medieval Robots by E.R. Truitt](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.  
 
 
 
@@ -103,7 +103,7 @@
 
 
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)  
+![Leibniz stepped reckoner mechanical calculator](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Babbage Difference Engine, early mechanical computer](images/gen_ai___week_1___pathways_to_ai_img_16.png)  
 
 
 
@@ -114,14 +114,14 @@
 
 
 
-‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)  
+‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Cover of Atlas of AI by Kate Crawford](images/gen_ai___week_1___pathways_to_ai_img_17.png)  
 
 
 
 
 ---
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
+![Descartes rationalist philosophy, computation as rational human thought](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Industrial revolution machinery, computation as mechanical process](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
 
 | | |
 |---|---|
@@ -131,7 +131,7 @@
 
 | Feudalism | Capitalism |
 |---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png) |
+| ![Medieval hand-mill representing feudal society](images/gen_ai___week_1___pathways_to_ai_img_20.png) | ![Industrial steam-mill representing capitalist society](images/gen_ai___week_1___pathways_to_ai_img_21.png) |
 | **“The hand-mill gives you society with the feudal lord;** | **the steam-mill society with the industrial capitalist.” (Marx, 1847)** |
 
 
@@ -399,7 +399,7 @@ No easy answers:
    - Care industries? (hospitals, childcare, counselling)
  - Humanities? Peter Thiel...
 
-![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
+![Jensen Huang quote about learning plumbing instead of coding](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
 
 
 ---

@@ -6,7 +6,8 @@
       "Bash(node *)",
       "Bash(git *)",
       "Bash(find *)",
-      "Bash(grep *)"
+      "Bash(grep *)",
+      "Bash(bash *)"
     ]
   },
   "hooks": {

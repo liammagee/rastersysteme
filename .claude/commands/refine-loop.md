@@ -1,15 +1,18 @@
 ---
 name: refine-loop
-description: Recursive design/evaluation cycle — evaluate, improve, re-render, re-evaluate until rubric scores plateau or exceed threshold. Runs entirely headless — no Chrome dependency in the inner loop.
+description: "Inner loop: Recursive design/evaluation cycle — evaluate, improve, re-render, re-evaluate until rubric scores plateau. Automated. For rubric calibration, use the outer loop (METHODOLOGY.md)."
+effort: high
 ---
 
-# Refine Loop
+# Refine Loop (Inner Loop)
 
 Autonomous cycle: **evaluate → design → re-render → re-evaluate → repeat**.
 
 Continues until scores plateau (diminishing returns) or all dimensions exceed threshold.
 
-The inner loop runs entirely on headless evaluation (Puppeteer). Chrome is not required. Optional Chrome visual verification is available as a final step.
+**This is the inner loop** — it trusts the rubric and optimizes against it. The rubric itself must be validated by the **outer loop** (human review, see METHODOLOGY.md) before the inner loop produces meaningful results. Running the inner loop against an uncalibrated rubric produces polished mediocrity.
+
+The inner loop runs entirely on headless evaluation (Puppeteer + jsdom). Chrome is not required. Optional Chrome visual verification is available as a final step.
 
 ## Arguments
 
@@ -33,12 +36,26 @@ node run-rubric-eval.js <deck.html> --json
 
 Record baseline in the persistent scorecard (`logs/qa/<deckname>-scorecard.json`).
 
-Also run markdown QA for supplementary data:
-```bash
-node qa.js <deck.composed.md> --format json
+### 1b. Autonomous mode via /loop (recommended)
+
+After establishing the baseline, delegate iteration to `/loop`:
+
+```
+/loop 2m /refine-step <deck.html> --target <T> --max <N>
 ```
 
-### 2. Design improvement cycle (headless-only)
+This runs `/refine-step` every 2 minutes. Each step:
+1. Reads the scorecard to check stopping conditions
+2. If not converged: identifies weak dims, fixes, re-renders, re-evaluates
+3. If converged: prints "CONVERGED" and exits (no-op)
+
+The loop auto-converges in 3-5 iterations (6-10 minutes typically).
+
+To monitor progress: `cat logs/qa/<deckname>-scorecard.json | jq '.[-1].computedTotal'`
+
+If you prefer manual iteration, proceed to Step 2 below.
+
+### 2. Manual design improvement cycle (headless-only)
 
 For each iteration:
 

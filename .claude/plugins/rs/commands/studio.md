@@ -2,6 +2,8 @@
 name: studio
 description: Open the studio viewer — a precision presentation tool with grid view, QA panel, and speaker notes.
 user_invocable: true
+allowed-tools:
+  - mcp__claude-in-chrome__*
 ---
 
 # Studio

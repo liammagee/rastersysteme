@@ -2,6 +2,9 @@
 name: imagine
 description: Generate consistent image prompts for each slide in a deck, with a visual thread that connects the entire series. Optionally generate images.
 user_invocable: true
+model: opus
+effort: high
+context: fork
 ---
 
 # Imagine

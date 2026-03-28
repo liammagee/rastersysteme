@@ -2,6 +2,8 @@
 name: qa-visual
 description: Accessibility and design consistency audit on an HTML slideshow. Headless-first — full audit always available without Chrome. Chrome used only for screenshots of problem slides.
 user_invocable: true
+allowed-tools:
+  - mcp__claude-in-chrome__*
 ---
 
 # Visual QA Audit

@@ -1,14 +1,21 @@
 ---
 name: build-deck
-description: End-to-end deck builder — compose with opus, render, then loop evaluate/design/re-render until rubric scores converge. One command to go from source markdown to polished deck.
+description: "Full pipeline: compose → render → inner loop (automated refinement) → outer loop checkpoint (user review). Feeds design database."
 user_invocable: true
+model: opus
+effort: high
 ---
 
 # Build Deck
 
-Full pipeline: **compose (opus) → render → evaluate → design-fix → re-render → re-evaluate → repeat**.
+Two-loop pipeline (see METHODOLOGY.md):
 
-Converges when all rubric dimensions hit target or scores plateau.
+**Inner loop** (automated): compose → render → splice → evaluate → fix → re-render → converge
+**Outer loop** (human): present to user → collect feedback → calibrate rubric → re-run inner loop
+
+Every build cycle feeds the design database via `deck-audit.js` and `corpus-synthesize.js`. Each rubric revision is committed separately for traceability.
+
+Converges when: (1) inner loop scores plateau AND (2) outer loop user is satisfied.
 
 ## Arguments
 
@@ -80,6 +87,16 @@ Record baseline scores. Print a summary table:
 ```
 
 ### Phase 3: Refine loop
+
+**Option A: Autonomous (recommended)**
+
+```
+/loop 2m /refine-step decks/<name>.spliced.html --target <T> --max <N>
+```
+
+This runs `/refine-step` every 2 minutes until convergence. Each step reads the scorecard, identifies weak dimensions, applies 3-5 fixes, re-renders, re-evaluates. Stops automatically when all dimensions hit target or scores plateau.
+
+**Option B: Manual iteration**
 
 For each iteration (up to `--max`, default 4):
 

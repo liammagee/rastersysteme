@@ -2,6 +2,8 @@
 name: preview
 description: Open a slide deck in Chrome and navigate to a specific slide for visual inspection. Supports interactive browsing.
 user_invocable: true
+allowed-tools:
+  - mcp__claude-in-chrome__*
 ---
 
 # Preview

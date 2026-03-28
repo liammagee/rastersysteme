@@ -2,6 +2,7 @@
 name: splice-images
 description: Merge generated images into an HTML slide deck with intelligent, collision-aware placement.
 user_invocable: true
+model: opus
 ---
 
 # Splice Images

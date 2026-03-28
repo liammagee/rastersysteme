@@ -1,11 +1,13 @@
 ---
 name: design
-description: Apply the design rubric to improve a composed deck — edit design directives to raise the lowest-scoring dimensions while honoring the design plan.
+description: "Inner loop: Apply rubric-targeted improvements to composed deck design directives. Requires outer-loop-validated rubric."
 ---
 
-# Design
+# Design (Inner Loop)
 
 Read a rubric scorecard (from `/evaluate`) and apply targeted improvements to the composed markdown's design directives.
+
+**Important**: This skill optimizes against the rubric. If the rubric has blind spots (outer loop hasn't validated it), the improvements may be cosmetic rather than real. Always run an outer loop checkpoint after major design changes.
 
 ## Arguments
 

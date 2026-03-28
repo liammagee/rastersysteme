@@ -79,6 +79,16 @@ module.exports = {
         }
       }
 
+      // Also map contentCompleteness to contentFidelity for eval-harness compatibility
+      if (scores.contentCompleteness !== null && scores.contentCompleteness !== undefined) {
+        dims["contentFidelity"] = {
+          score: scores.contentCompleteness,
+          confidence: 0.7,  // lower confidence as proxy for true fidelity
+          source: "jsdom-rubric",
+          details: { jsdomDimension: "contentCompleteness", proxy: true },
+        };
+      }
+
       return { dimensions: dims };
     } catch (err) {
       throw new Error(`jsdom-rubric evaluation failed: ${err.message}`);
