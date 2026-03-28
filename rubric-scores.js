@@ -69,8 +69,11 @@ function computeScores(metrics, opts = {}) {
     : 0;
   // Palette monotony: penalize when all light bgs are within a narrow warm-beige band
   const paletteMonotony = (m.bgHueRange || 999) < 30 && (m.uniqueBgs || 0) > 2 ? -1.5 : 0;
-  // Color harmony bonus: named harmony system (complementary, analogous, triadic) = +1
-  const harmonyBonus = m.hasNamedHarmony ? 1 : 0;
+  // Color harmony bonus: bold harmonies (complementary, triadic) score higher than safe (monochromatic)
+  const harmonyType = m.colorHarmonyType || "none";
+  const harmonyBonus = ["complementary", "triadic"].includes(harmonyType) ? 1.5
+    : ["analogous", "analogous-wide", "split-complementary"].includes(harmonyType) ? 1
+    : harmonyType === "monochromatic" ? 0.5 : 0;
 
   scores.color = Math.max(1, Math.min(10,
     Math.min((m.uniqueBgs || 0) / 4, 1.5) * 2
@@ -94,9 +97,10 @@ function computeScores(metrics, opts = {}) {
     : titleSizeCount === 1 ? 1
     : titleSizeCount <= 7 ? 1 : 0.5;
 
-  // Font consistency: 1-2 fonts is disciplined, 3 is acceptable, 4+ is chaotic mixing
+  // Font consistency: 1-3 fonts with clear roles is good. 4+ is chaotic.
+  // Don't penalize 3 fonts — that's heading/body/code, a valid system.
   const fontSets = m.fontSets || 0;
-  const fontConsistency = fontSets <= 2 ? 2 : fontSets === 3 ? 1.5 : fontSets === 4 ? 1 : 0;
+  const fontConsistency = fontSets <= 3 ? 1.5 : fontSets === 4 ? 0.5 : 0;
 
   const layoutVarietyScore = (m.uniqueArchetypes || 0) >= 5 ? 1.5 : (m.uniqueArchetypes || 0) >= 3 ? 1 : 0.5;
   const densityRhythm = m.densityCV > 0.4 && m.densityCV < 2.0 ? 1 : 0.5;

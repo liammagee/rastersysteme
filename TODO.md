@@ -75,7 +75,7 @@ v10-v13 all converge to the same aesthetic: warm cream, serif, brown accents, co
 - [ ] **Palette diversity in corpus** — `/rs:audit` should flag when >50% of scored decks share the same dominant hue family.
 - [x] **Layout archetype expansion** — beyond sidebar-left/editorial/monument. Add: overlap-composition, bleed-image, typographic-poster, data-wall, filmstrip, stagger-cascade, pull-quote-dominant, diagram-first.
 - [x] **Anti-repetition** — before composing, scan last 3 decks in corpus. Tell Claude: "DO NOT use these colors/fonts/patterns."
-- [ ] **Rubric anti-template audit** — review every metric for template bias. Does staying within a narrow "safe" band score higher? If so, the rubric is rewarding conformity.
+- [x] **Rubric anti-template audit** — review every metric for template bias. Does staying within a narrow "safe" band score higher? If so, the rubric is rewarding conformity.
 - [ ] **Generative typography** — support Google Fonts / system fonts beyond the 5 current options. Constraint is readability, not familiarity.
 
 ## Critical Gaps (honest assessment, 2026-03-28)
