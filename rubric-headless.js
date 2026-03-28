@@ -377,15 +377,21 @@ async function evaluate(htmlPath, options = {}) {
       sparseSlides, genericAltTotal, zoneCollisionSlides };
   });
 
-  if (options.screenshots) {
+  if (options.screenshots || options.screenshotsAll) {
     const dir = options.screenshotDir || "/tmp/rubric-screenshots";
     fs.mkdirSync(dir, { recursive: true });
     const total = metrics.total;
-    for (const idx of [0, Math.floor(total/4), Math.floor(total/2), Math.floor(3*total/4), total-1]) {
+    // --screenshots-all: capture every slide (outer loop requirement)
+    // --screenshots: capture 5 samples
+    const indices = options.screenshotsAll
+      ? Array.from({ length: total }, (_, i) => i)
+      : [0, Math.floor(total/4), Math.floor(total/2), Math.floor(3*total/4), total-1];
+    for (const idx of indices) {
       await page.evaluate(n => { document.querySelectorAll(".slide,.grid-slide").forEach((s,i) => { s.classList.toggle("active",i===n); s.style.display=i===n?"flex":"none"; }); }, idx);
-      await new Promise(r => setTimeout(r, 300));
-      await page.screenshot({ path: path.join(dir, `slide-${idx+1}.png`) });
+      await new Promise(r => setTimeout(r, 200));
+      await page.screenshot({ path: path.join(dir, `slide-${String(idx+1).padStart(2, '0')}.png`) });
     }
+    if (options.screenshotsAll) process.stderr.write(`  ${chalk.dim("Screenshots:")} ${total} slides → ${dir}/\n`);
   }
 
   await browser.close();
@@ -857,6 +863,7 @@ async function main() {
   const maxIter = args.includes("--max") ? parseInt(args[args.indexOf("--max")+1]) : 5;
   const target = args.includes("--target") ? parseInt(args[args.indexOf("--target")+1]) : 7;
   const doScreenshots = args.includes("--screenshots");
+  const doScreenshotsAll = args.includes("--screenshots-all");
   const jsonOutput = args.includes("--json");
 
   // Strip .spliced or .merged suffixes to find the composed markdown
@@ -880,7 +887,7 @@ async function main() {
   }
 
   const scoreHistory = [];
-  const result = await evaluate(htmlPath, { screenshots: doScreenshots });
+  const result = await evaluate(htmlPath, { screenshots: doScreenshots, screenshotsAll: doScreenshotsAll });
   // Inject fidelity data into metrics
   if (fidelity) {
     result.metrics.inventedLabels = fidelity.inventedLabels;
