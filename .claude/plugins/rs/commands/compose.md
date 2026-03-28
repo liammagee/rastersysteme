@@ -33,6 +33,12 @@ Read the source markdown. Count slides (separated by `---`). Identify:
 - Use `"body"` for paragraph text and mixed content
 - The renderer routes content by zone role: wrong role = content in wrong place or duplicated
 
+### Creative brief (anti-template)
+
+When no `--brief` is specified, `compose.js` calls `generate-brief.js` to produce a genuinely varied design direction: random color-theory palette, font pairing, mood, and accent system. **Each compose without a brief will look different.** This is intentional — the 60-column grid is the constraint, everything else is exploration.
+
+To reproduce a specific aesthetic, pass `--brief "..."`. To let the system explore, omit it.
+
 ### Font discipline (user outer-loop feedback)
 
 - Pick **1-2 fonts maximum**. 1 font is disciplined. 2 fonts with clear roles (headings/body) is professional. 3+ fonts is chaotic mixing.

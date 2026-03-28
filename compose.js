@@ -129,9 +129,21 @@ const DESIGN_MOODS = [
 ];
 
 function getDefaultBrief() {
-  const mood = DESIGN_MOODS[Math.floor(Math.random() * DESIGN_MOODS.length)];
-  process.stderr.write(`  ${dim("Mood:")} ${chalk.italic(mood.name)}\n`);
-  return mood.seed;
+  // Use generate-brief.js for full creative variation — palette, fonts, mood, accents
+  try {
+    const { execSync } = require("child_process");
+    const briefJSON = execSync("node generate-brief.js --json", { encoding: "utf-8", cwd: __dirname });
+    const brief = JSON.parse(briefJSON);
+    process.stderr.write(`  ${dim("Mood:")} ${chalk.italic(brief.mood)}\n`);
+    process.stderr.write(`  ${dim("Palette:")} ${brief.palette.scheme} from hue ${brief.palette.baseHue}\n`);
+    process.stderr.write(`  ${dim("Font:")} ${brief.fonts.heading}${brief.fonts.heading !== brief.fonts.body ? " + " + brief.fonts.body : ""}\n`);
+    return brief.brief;
+  } catch (e) {
+    // Fallback to the old mood system if generate-brief.js fails
+    const mood = DESIGN_MOODS[Math.floor(Math.random() * DESIGN_MOODS.length)];
+    process.stderr.write(`  ${dim("Mood:")} ${chalk.italic(mood.name)}\n`);
+    return mood.seed;
+  }
 }
 
 const DEFAULT_BRIEF = "";
