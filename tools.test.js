@@ -1741,17 +1741,18 @@ describe("TODO open: deck-audit.js uses unified rubric-scores.js", () => {
   });
 });
 
-describe("TODO open: splice-images zone-collision detection", () => {
-  it("contentAwarePlan rejects placement that collides with content zones", { todo: "splice-images has no collision detection" }, () => {
+describe("splice-images zone-collision avoidance", () => {
+  it("contentAwarePlan avoids placing image where it collides with content zones", () => {
     const { contentAwarePlan } = require("./splice-images.js");
-    // Slide with a body zone at right:60-100% — placing an image at right should be rejected
+    // Slide with a body zone at right:55-98% — placing an image at right should be avoided
     const html = '<section class="slide designed">'
       + '<div class="zone zone-title" style="left:5%;width:40%;top:5%;height:15%">Title</div>'
-      + '<div class="zone zone-body" style="left:55%;width:43%;top:5%;height:90%">Long body text here that fills the right side</div>'
+      + '<div class="zone zone-body" style="left:55%;width:43%;top:5%;height:90%">Long body text here that fills the right side of the slide completely</div>'
       + '</section>';
     const plan = contentAwarePlan(html);
-    // Should NOT pick "right" because it would collide with body zone at right side
+    // The grid analysis should detect the right side is occupied and prefer left/inset/bottom
     assert.notEqual(plan[0].mode, "right",
       "should not place image where it collides with content zone");
+    assert.ok(plan[0].mode !== "none", "should find an alternative placement");
   });
 });

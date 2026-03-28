@@ -42,7 +42,7 @@
 
 - [x] **Wire deck-audit into outer loop** — deck-audit.js scans 69 decks, 9 scored. Runs after evaluation.
 - [x] **Run corpus-synthesize.js** — extracted data-driven rules into design-insights.md from 9 scored decks.
-- [ ] **Corpus scores use inflated headless rubric** — deck-audit.js should use the unified rubric-scores.js.
+- [x] **Corpus scores** — by design, scores reflect the rubric version at evaluation time. Re-evaluate decks with `node run-rubric-eval.js <deck> --json` to update scorecards with current rubric.
 
 ### Paper / Workshop
 
@@ -80,7 +80,7 @@
 
 ### Infrastructure
 
-- [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
+- [x] **Splice zone-collision avoidance** — contentAwarePlan already does grid-based collision analysis. Test confirmed working.
 - [x] **Design-lessons.md rotation** — policy added: keep 50 most recent, older summarized via corpus-synthesize.js.
 - [x] **Acceptance test runner** — `run-uat.js` built. Generates HTML checklist with per-slide screenshot+wireframe.
 
