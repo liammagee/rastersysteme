@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <g transform="rotate(162 960 540)">
+  <polygon points="1580.8,-113.3 1909.7,456.4 1251.9,456.4" fill="none" stroke="#C62828" stroke-width="1" opacity="0.68" transform="rotate(219 1580.781476821001 266.4943073239397)" />
+  <polygon points="1441.2,18.1 1575.0,249.8 1307.4,249.8" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.51" transform="rotate(147 1441.2202853811345 172.57003431176037)" />
+  <polygon points="1466.8,65.8 1541.3,194.9 1392.3,194.9" fill="none" stroke="#C62828" stroke-width="1" opacity="0.33" transform="rotate(287 1466.8429988697003 151.88247007012012)" />
+  <polygon points="1580.6,219.0 1706.7,437.4 1454.6,437.4" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.37" transform="rotate(130 1580.6356792906179 364.56951461258086)" />
+  <polygon points="1601.0,251.4 1659.8,353.4 1542.1,353.4" fill="none" stroke="#6A1B9A" stroke-width="1" opacity="0.61" transform="rotate(82 1600.9776007748458 319.38519982282145)" />
+  <polygon points="1634.6,279.2 1697.1,387.4 1572.1,387.4" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.61" transform="rotate(307 1634.5990682097536 351.3020925590449)" />
+  <polygon points="726.9,672.6 828.6,848.8 625.2,848.8" fill="none" stroke="#1565C0" stroke-width="1" opacity="0.51" transform="rotate(126 726.8905196243178 790.0710613825523)" />
+  <polygon points="761.3,737.2 804.7,812.4 718.0,812.4" fill="none" stroke="#F9A825" stroke-width="1" opacity="0.38" transform="rotate(204 761.3399805631818 787.3202701451188)" />
+  <polygon points="775.2,750.2 798.5,790.6 751.8,790.6" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.38" transform="rotate(332 775.1542402299484 777.1306367903892)" />
+  <polygon points="769.0,761.5 782.8,785.4 755.2,785.4" fill="none" stroke="#1565C0" stroke-width="1" opacity="0.55" transform="rotate(211 769.0070752735523 777.4343531785527)" />
+  <polygon points="972.2,483.0 1162.8,813.0 781.6,813.0" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.66" transform="rotate(9 972.1973388819483 703.0127892538469)" />
+  <polygon points="1004.9,659.4 1097.8,820.2 912.1,820.2" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.33" transform="rotate(105 1004.9402447928126 766.6024063798282)" />
+  <polygon points="895.3,542.0 967.7,667.5 822.8,667.5" fill="none" stroke="#C62828" stroke-width="1" opacity="0.50" transform="rotate(129 895.2898256376928 625.714102716564)" />
+  <polygon points="908.0,564.1 950.3,637.4 865.7,637.4" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.47" transform="rotate(112 907.9802730520379 612.9375850981)" />
+  <polygon points="879.1,583.5 910.7,638.1 847.6,638.1" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.37" transform="rotate(264 879.1472561600134 619.8732032831736)" />
+  </g>
+  <circle cx="811.4" cy="516.3" r="5.7" fill="#0A1628" opacity="0.36" />
+  <circle cx="1053.9" cy="285.4" r="6.6" fill="#2E7D32" opacity="0.45" />
+  <circle cx="1376.0" cy="315.0" r="15.4" fill="#C62828" opacity="0.39" />
+  <circle cx="1614.4" cy="642.7" r="16.1" fill="#1565C0" opacity="0.53" />
+  <circle cx="601.1" cy="253.5" r="11.2" fill="#F9A825" opacity="0.49" />
+  <circle cx="417.2" cy="858.9" r="4.7" fill="#1565C0" opacity="0.36" />
+  <circle cx="1075.5" cy="186.5" r="23.8" fill="#1565C0" opacity="0.47" />
+  <circle cx="994.0" cy="340.7" r="9.7" fill="#F9A825" opacity="0.26" />
+  <circle cx="690.2" cy="319.2" r="19.3" fill="#6A1B9A" opacity="0.60" />
+  <circle cx="1672.2" cy="498.8" r="5.9" fill="#F9A825" opacity="0.50" />
+  <circle cx="991.1" cy="732.8" r="16.4" fill="#1565C0" opacity="0.38" />
+
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <g transform="translate(-248 161) rotate(-7 960 540) scale(1.25)">
+  <path d="M 1039.5 419.6 A 144.3 144.3 0 0 1 1227.0 630.5" fill="none" stroke="#F9A825" stroke-width="4.7" opacity="0.72" stroke-linecap="round" />
+  <path d="M 1228.2 588.9 A 125.3 125.3 0 0 1 1156.5 661.8" fill="none" stroke="#6A1B9A" stroke-width="3.5" opacity="0.43" stroke-linecap="round" />
+  <path d="M 1101.3 449.9 A 95.6 95.6 0 0 1 1145.6 634.1" fill="none" stroke="#0A1628" stroke-width="2.8" opacity="0.43" stroke-linecap="round" />
+  <path d="M 874.2 561.8 A 237.1 237.1 0 0 1 1139.8 309.8" fill="none" stroke="#F9A825" stroke-width="3.6" opacity="0.52" stroke-linecap="round" />
+  <path d="M 1206.6 499.4 A 106.3 106.3 0 0 1 1176.9 628.2" fill="none" stroke="#2E7D32" stroke-width="6.3" opacity="0.80" stroke-linecap="round" />
+  <path d="M 1262.2 741.1 A 247.8 247.8 0 1 1 1008.1 319.6" fill="none" stroke="#1565C0" stroke-width="5.8" opacity="0.78" stroke-linecap="round" />
+  <path d="M 994.7 595.7 A 126.5 126.5 0 0 1 1014.3 463.1" fill="none" stroke="#6A1B9A" stroke-width="5.3" opacity="0.72" stroke-linecap="round" />
+  <path d="M 1218.8 577.4 A 112.8 112.8 0 0 1 1001.4 572.7" fill="none" stroke="#C62828" stroke-width="7.6" opacity="0.66" stroke-linecap="round" />
+  <path d="M 1085.5 299.9 A 246.5 246.5 0 0 1 1353.1 500.2" fill="none" stroke="#C62828" stroke-width="4.4" opacity="0.55" stroke-linecap="round" />
+  <path d="M 1274.6 502.1 A 169.4 169.4 0 0 1 1021.3 689.0" fill="none" stroke="#0A1628" stroke-width="5.0" opacity="0.75" stroke-linecap="round" />
+  <path d="M 1014.8 377.0 A 193.6 193.6 0 0 1 1289.3 470.4" fill="none" stroke="#2E7D32" stroke-width="6.1" opacity="0.84" stroke-linecap="round" />
+  </g>
+  <g transform="translate(257 6) rotate(16 960 540) scale(1.05)">
+  <rect x="1592" y="1038" width="174" height="175" fill="#1565C0" opacity="0.39" transform="rotate(17 960 540)" />
+  <rect x="981" y="59" width="237" height="65" fill="#F9A825" opacity="0.25" transform="rotate(14 960 540)" />
+  <rect x="209" y="613" width="70" height="109" fill="#6A1B9A" opacity="0.34" transform="rotate(13 960 540)" />
+  <rect x="1311" y="870" width="102" height="113" fill="#2E7D32" opacity="0.15" transform="rotate(12 960 540)" />
+  </g>
+
+</svg>

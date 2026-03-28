@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <g transform="translate(104 -56) rotate(-6 960 540) scale(0.88)">
+  <circle cx="571.8661361476095" cy="247.58358548571906" r="179.6" fill="#2E7D32" fill-opacity="0.28" stroke="#2E7D32" stroke-width="5.5" opacity="0.74" />
+  <circle cx="571.8661361476095" cy="247.58358548571906" r="134.7" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="5.1" opacity="0.59" />
+  <circle cx="571.8661361476095" cy="247.58358548571906" r="89.8" fill="#F9A825" fill-opacity="0.26" stroke="#F9A825" stroke-width="6.0" opacity="0.55" />
+  <circle cx="571.8661361476095" cy="247.58358548571906" r="44.9" fill="#1565C0" fill-opacity="0.11" stroke="#1565C0" stroke-width="5.6" opacity="0.43" />
+  </g>
+  <g transform="translate(-89 42) rotate(-19 960 540) scale(0.76)">
+  <line x1="192" y1="103.6" x2="1728" y2="104.7" stroke="#F9A825" stroke-width="1.9" opacity="0.51" />
+  <line x1="187.6" y1="108" x2="186.2" y2="972" stroke="#F9A825" stroke-width="1.9" opacity="0.51" />
+  <line x1="192" y1="229.1" x2="1728" y2="227.5" stroke="#6A1B9A" stroke-width="2.8" opacity="0.21" />
+  <line x1="409.1" y1="108" x2="410.2" y2="972" stroke="#6A1B9A" stroke-width="2.8" opacity="0.21" />
+  <line x1="192" y1="353.4" x2="1728" y2="352.9" stroke="#2E7D32" stroke-width="2.4" opacity="0.42" />
+  <line x1="629.4" y1="108" x2="631.0" y2="972" stroke="#2E7D32" stroke-width="2.4" opacity="0.42" />
+  <line x1="852.6" y1="108" x2="853.1" y2="972" stroke="#1565C0" stroke-width="1.2" opacity="0.26" />
+  <line x1="192" y1="606.7" x2="1728" y2="607.9" stroke="#C62828" stroke-width="2.9" opacity="0.30" />
+  <line x1="1074.7" y1="108" x2="1074.5" y2="972" stroke="#C62828" stroke-width="2.9" opacity="0.30" />
+  <line x1="192" y1="727.3" x2="1728" y2="727.4" stroke="#C62828" stroke-width="2.7" opacity="0.22" />
+  <line x1="1291.3" y1="108" x2="1291.8" y2="972" stroke="#C62828" stroke-width="2.7" opacity="0.22" />
+  <line x1="192" y1="851.7" x2="1728" y2="853.3" stroke="#6A1B9A" stroke-width="1.1" opacity="0.30" />
+  <line x1="192" y1="968.4" x2="1728" y2="968.7" stroke="#0A1628" stroke-width="1.6" opacity="0.33" />
+  <line x1="1724.4" y1="108" x2="1724.8" y2="972" stroke="#0A1628" stroke-width="1.6" opacity="0.33" />
+  </g>
+  <g transform="translate(-170 58) rotate(-17 960 540) scale(0.83)">
+  <rect x="1304" y="350" width="271" height="72" fill="#6A1B9A" opacity="0.12" transform="rotate(13 960 540)" />
+  <rect x="708" y="104" width="152" height="122" fill="#C62828" opacity="0.30" transform="rotate(24 960 540)" />
+  </g>
+
+</svg>

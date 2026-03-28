@@ -1,5 +1,16 @@
 [
   {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/fractal-reference.html",
+    "name": "fractal-reference",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "82K",
+    "modified": "2026-03-28T22:15:58.520Z"
+  },
+  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-v14.spliced.html",

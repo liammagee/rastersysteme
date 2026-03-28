@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <g transform="translate(224 56) rotate(12 960 540) scale(0.62)">
+  <path d="M 1005.8 608.4 A 320.2 320.2 0 0 1 675.9 648.5" fill="none" stroke="#1565C0" stroke-width="6.3" opacity="0.65" stroke-linecap="round" />
+  <path d="M 992.1 359.8 A 184.2 184.2 0 0 1 623.7 360.4" fill="none" stroke="#1565C0" stroke-width="4.2" opacity="0.52" stroke-linecap="round" />
+  <path d="M 784.0 633.4 A 277.7 277.7 0 1 1 942.8 113.9" fill="none" stroke="#1565C0" stroke-width="7.0" opacity="0.48" stroke-linecap="round" />
+  <path d="M 909.0 410.7 A 114.6 114.6 0 1 1 731.4 271.2" fill="none" stroke="#F9A825" stroke-width="7.9" opacity="0.78" stroke-linecap="round" />
+  <path d="M 849.3 452.3 A 104.2 104.2 0 0 1 720.2 413.1" fill="none" stroke="#0A1628" stroke-width="7.0" opacity="0.74" stroke-linecap="round" />
+  <path d="M 830.8 237.9 A 121.0 121.0 0 0 1 928.5 347.5" fill="none" stroke="#6A1B9A" stroke-width="3.3" opacity="0.83" stroke-linecap="round" />
+  <path d="M 620.0 615.4 A 319.8 319.8 0 1 1 1036.0 132.7" fill="none" stroke="#1565C0" stroke-width="4.2" opacity="0.59" stroke-linecap="round" />
+  <path d="M 1023.1 557.6 A 294.5 294.5 0 1 1 610.0 138.6" fill="none" stroke="#F9A825" stroke-width="2.5" opacity="0.40" stroke-linecap="round" />
+  <path d="M 751.6 190.3 A 175.7 175.7 0 1 1 844.4 528.5" fill="none" stroke="#C62828" stroke-width="4.4" opacity="0.65" stroke-linecap="round" />
+  <path d="M 791.6 542.1 A 186.1 186.1 0 1 1 934.3 220.2" fill="none" stroke="#F9A825" stroke-width="4.6" opacity="0.55" stroke-linecap="round" />
+  </g>
+  <g transform="translate(-69 -4) rotate(14 960 540) scale(0.65)">
+  <rect x="1878" y="89" width="94" height="198" fill="#2E7D32" opacity="0.33" transform="rotate(4 960 540)" />
+  <rect x="236" y="393" width="238" height="180" fill="#C62828" opacity="0.35" transform="rotate(20 960 540)" />
+  <rect x="330" y="550" width="222" height="133" fill="#1565C0" opacity="0.41" transform="rotate(24 960 540)" />
+  <rect x="1810" y="280" width="211" height="93" fill="#1565C0" opacity="0.37" transform="rotate(3 960 540)" />
+  </g>
+  <g transform="translate(-220 -138) rotate(-16 960 540) scale(1.34)">
+  <path d="M 875.9 291.7 A 301.2 301.2 0 0 1 1086.6 193.8" fill="none" stroke="#F9A825" stroke-width="5.5" opacity="0.58" stroke-linecap="round" />
+  <path d="M 1091.2 758.7 A 264.0 264.0 0 0 1 837.9 538.1" fill="none" stroke="#F9A825" stroke-width="3.0" opacity="0.63" stroke-linecap="round" />
+  <path d="M 1013.4 287.9 A 223.6 223.6 0 0 1 1266.0 642.7" fill="none" stroke="#6A1B9A" stroke-width="7.6" opacity="0.58" stroke-linecap="round" />
+  <path d="M 948.5 426.6 A 164.6 164.6 0 1 1 1230.5 592.8" fill="none" stroke="#6A1B9A" stroke-width="4.2" opacity="0.60" stroke-linecap="round" />
+  <path d="M 1208.9 729.3 A 259.3 259.3 0 0 1 872.9 622.9" fill="none" stroke="#0A1628" stroke-width="4.9" opacity="0.62" stroke-linecap="round" />
+  <path d="M 975.3 372.8 A 173.3 173.3 0 0 1 1216.6 368.2" fill="none" stroke="#1565C0" stroke-width="5.4" opacity="0.58" stroke-linecap="round" />
+  <path d="M 1058.8 378.8 A 122.6 122.6 0 1 1 1100.5 617.3" fill="none" stroke="#F9A825" stroke-width="7.9" opacity="0.46" stroke-linecap="round" />
+  <path d="M 897.1 626.3 A 240.4 240.4 0 0 1 958.0 299.6" fill="none" stroke="#C62828" stroke-width="4.7" opacity="0.69" stroke-linecap="round" />
+  </g>
+
+</svg>

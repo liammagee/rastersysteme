@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <rect width="1920" height="1080" fill="#FAF6EE" />
+  <g transform="rotate(262 960 540)">
+  <polygon points="1489.7,-187.5 1851.2,438.7 1128.2,438.7" fill="none" stroke="#F9A825" stroke-width="1" opacity="0.38" transform="rotate(202 1489.7338560264868 229.94997445353076)" />
+  <polygon points="1411.9,-46.5 1590.8,263.4 1233.0,263.4" fill="none" stroke="#0A1628" stroke-width="1" opacity="0.56" transform="rotate(238 1411.9075002537388 160.13418580352595)" />
+  <polygon points="1390.9,105.3 1483.9,266.4 1297.9,266.4" fill="none" stroke="#2E7D32" stroke-width="1" opacity="0.40" transform="rotate(240 1390.8631279830079 212.67627456633716)" />
+  </g>
+  <line x1="337" y1="148" x2="1118" y2="159" stroke="#2E7D32" stroke-width="2.5" opacity="0.35" />
+  <line x1="787" y1="283" x2="923" y2="496" stroke="#2E7D32" stroke-width="2.9" opacity="0.27" />
+  <line x1="1868" y1="573" x2="1795" y2="1064" stroke="#C62828" stroke-width="1.8" opacity="0.50" />
+  <line x1="1500" y1="96" x2="2241" y2="121" stroke="#2E7D32" stroke-width="2.7" opacity="0.33" />
+  <circle cx="541.4" cy="558.5" r="13.7" fill="#F9A825" opacity="0.36" />
+  <circle cx="198.7" cy="910.9" r="11.9" fill="#2E7D32" opacity="0.50" />
+  <circle cx="314.4" cy="854.4" r="5.0" fill="#1565C0" opacity="0.41" />
+  <circle cx="1488.6" cy="723.6" r="11.6" fill="#0A1628" opacity="0.67" />
+  <circle cx="1720.1" cy="564.3" r="4.2" fill="#6A1B9A" opacity="0.47" />
+  <circle cx="332.7" cy="116.3" r="19.8" fill="#C62828" opacity="0.26" />
+  <circle cx="1025.1" cy="219.2" r="8.9" fill="#C62828" opacity="0.66" />
+  <circle cx="785.7" cy="456.5" r="21.7" fill="#2E7D32" opacity="0.44" />
+  <circle cx="1621.4" cy="330.5" r="15.7" fill="#6A1B9A" opacity="0.61" />
+  <circle cx="422.7" cy="489.0" r="12.2" fill="#0A1628" opacity="0.31" />
+
+</svg>
