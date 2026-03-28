@@ -153,6 +153,24 @@ The term "fractal design" does triple duty:
 2. It connects to the computational tradition that predates neural networks
 3. It reframes "generative AI" as one layer of a deeper generative process
 
+## Design Theory Integration (added during Phase 4)
+
+The paper now includes two slides in Section 5 mapping classic design theories to the rubric:
+
+**"What the Rubric Sees and What It Doesn't"** — table mapping each rubric dimension to the design theory it embodies and the theory it misses. Key insight: the measured dimensions correspond to theories that *can* be formalized (grids, color math, type ratios). The unmeasured dimensions correspond to theories that *resist* formalization (Gestalt, balance, taste).
+
+**"Design Theory as Rubric Frontier"** — reads the history of design theory (Muller-Brockmann → Itten → Tschichold → Gestalt → Arnheim → Tufte) as a progressive formalization of intuition. Each theorist made something measurable that was previously intuitive. The rubric's evolution follows the same trajectory. The remaining frontier (communicability, taste, balance) may require vision models — or may require accepting that some qualities are irreducibly perceptual.
+
+Key theorists referenced:
+- **Muller-Brockmann** (1961) — grid systems as formalized layout → Grid Utilization dimension
+- **Itten** (1961) — 7 color contrasts, color harmony → Color Harmonics dimension
+- **Tschichold** (1928) — typographic hierarchy → Coherence dimension (typography ratio)
+- **Gestalt** (Wertheimer, Koffka, 1920s) — proximity, closure, figure-ground → not yet measured
+- **Arnheim** (1954) — visual balance as weight distribution → not yet measured (formalizable)
+- **Tufte** (1983) — data-ink ratio → Content Fidelity dimension
+- **Bringhurst** (1992) — modular typographic scale → not yet measured (formalizable)
+- **Albers** (1963) — interaction of color → partially in transition metrics
+
 ## Open Questions
 
 - **Live demo**: Should the paper include a section where the audience could theoretically run /refine-step during the presentation? This would be dramatic but risky. Maybe frame it as "the inner loop runs in 2-minute cycles; in the time it takes to present these 3 slides, the deck has already been re-evaluated." Time-awareness, not live execution.

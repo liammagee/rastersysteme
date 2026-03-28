@@ -93,6 +93,33 @@ run-rubric-eval.js gives inflated scores (no visual-audit merge). Skills, refine
 ### The rubric measures absence-of-bad, not presence-of-good
 A minimalist slide with title + 3 bullets scores 10/10 on everything. There's no metric for: visual impact, information density appropriateness, narrative flow, or whether the slide would hold an audience's attention. **This may be a fundamental limitation of automated evaluation** — the outer loop (human judgment) is where "good" gets assessed.
 
+### Design theory gaps in rubric (from paper research)
+
+The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weingart (typography) but doesn't measure several formalizable design principles. Ordered by implementation feasibility:
+
+**High priority (formalizable now):**
+- [ ] **Whitespace-to-content ratio** — `whitespaceRatio = empty grid cells / total cells`. Reward 25-45% range. Measures Beatrice Warde's "crystal goblet" principle: negative space as active design element. Currently whitespace is invisible to the rubric.
+- [ ] **Gestalt proximity scoring** — measure distances between zone centers. Penalize unrelated zones that are closer than related zones. E.g. a label and its body zone should be closer than two unrelated body zones.
+- [ ] **Typographic modular scale** — check if title/body/label sizes follow a mathematical scale (perfect fourth 1.333x, major third 1.25x, golden ratio 1.618x). Currently checks ratio range (1.8-3.0x) but not scale consistency.
+- [ ] **Visual weight distribution** — approximate Arnheim's balance: `weight = luminance_inverse × area × distance_from_center`. Score for balanced distribution (not necessarily symmetric). Requires per-zone bounding box data.
+- [ ] **Color harmony classification** — detect whether palette follows a named harmony system (complementary, analogous, triadic, split-complementary). Currently measures variety and transitions but not harmonic relationships.
+
+**Medium priority (partially formalizable):**
+- [ ] **Reading path / visual flow** — analyze zone sequence (title row → label → body → image). Penalize layouts where the eye must jump backwards. Could use simple top-to-bottom, left-to-right heuristic.
+- [ ] **Focal point hierarchy** — measure which zone has the highest visual weight (largest area × highest contrast). Should be the title zone on most slides. Currently not distinguished from accent elements.
+- [ ] **Content density appropriateness** — different slide types need different densities. A section divider should be sparse (title only). A data slide should be dense (table + annotation). The rubric penalizes both equally via `lowDensitySlides`.
+- [ ] **Golden ratio detection** — check if key zone proportions approximate 1:1.618 (zone width / zone height, or body width / margin width). Aspirational but mathematically tractable.
+
+**Low priority (requires vision model):**
+- [ ] **Communicability** — does the layout encode meaning? (split = comparison, stagger = sequence, overlap = layering). Requires understanding content semantics + layout choice. RUBRIC.md dimension 2, currently null.
+- [ ] **Taste / design-historical awareness** — does the deck show Swiss modernist discipline, Bauhaus geometry, or intentional rule-breaking? Requires vision + art-historical knowledge. RUBRIC.md dimension 3, currently null.
+- [ ] **Perceived balance** — does the slide "feel right"? Arnheim's visual weight can approximate this but calibration requires human feedback. RUBRIC.md dimension 6, currently null.
+
+**Compose.js improvements (teach, not measure):**
+- [ ] **Explicit Gestalt prompting** — add to DESIGN_BRIEF: "Related content must be visually proximate. Use zone proximity to encode information relationships."
+- [ ] **Modular scale enforcement** — add to DESIGN_BRIEF: "Use a consistent typographic scale. If title is 44px and ratio is major third, body should be 44/1.25^2 ≈ 28px, label ≈ 22px."
+- [ ] **Arnheim balance teaching** — add to DESIGN_BRIEF: "Visual weight = size × darkness × distance from center. Balance the slide: a large light zone can be balanced by a small dark accent."
+
 ### TODO completion rate is overstated
 59/60 "closed" includes many "tool built but not validated" items. **Honest count**: ~40 genuinely validated, ~19 tools-exist-but-unproven, 1 other agent.
 - [x] **Regression testing** — regression.js built: save/check baselines, generate visual-diff on regressions.
