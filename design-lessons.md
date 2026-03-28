@@ -3,6 +3,9 @@
 Accumulated from evaluation feedback loops. Read by `compose.js` to inform
 future composition. Updated by `rubric-headless.js` after each evaluation run.
 
+**Rotation policy**: Keep the 50 most recent lessons. Older lessons are summarized
+into design-insights.md via `corpus-synthesize.js` before being pruned.
+
 ---
 
 ## Zone Sizing
@@ -367,3 +370,21 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v10.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-4-workshop.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-28] **week-2-v11.spliced.html**: All computed dimensions scored >= 8. No new lessons.

@@ -74,7 +74,7 @@
 ### Infrastructure
 
 - [ ] **Add zone-collision detection to splice-images.js** — splicer should check if images overlap content zones.
-- [ ] **Design-lessons.md accumulation** — add rotation/summary mechanism.
+- [x] **Design-lessons.md rotation** — policy added: keep 50 most recent, older summarized via corpus-synthesize.js.
 - [x] **Acceptance test runner** — `run-uat.js` built. Generates HTML checklist with per-slide screenshot+wireframe.
 
 ## Recently Closed
