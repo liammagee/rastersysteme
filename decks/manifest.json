@@ -1,5 +1,38 @@
 [
   {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v14.spliced.html",
+    "name": "week-2-v14.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "98K",
+    "modified": "2026-03-28T18:48:16.159Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v14.html",
+    "name": "week-2-v14",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "91K",
+    "modified": "2026-03-28T18:48:16.106Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v13.spliced.html",
+    "name": "week-2-v13.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "104K",
+    "modified": "2026-03-28T18:41:52.643Z"
+  },
+  {
     "type": "deck",
     "category": "decks",
     "path": "decks/week-2-v13.html",
@@ -8,7 +41,7 @@
     "theme": "light",
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "97K",
-    "modified": "2026-03-28T18:38:10.677Z"
+    "modified": "2026-03-28T18:41:48.464Z"
   },
   {
     "type": "spliced",
@@ -20,17 +53,6 @@
     "firstTitle": "Concentric Loops in AI-Mediated Design",
     "size": "143K",
     "modified": "2026-03-28T18:37:44.848Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/week-2-v13.spliced.html",
-    "name": "week-2-v13.spliced",
-    "slides": 36,
-    "theme": "light",
-    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
-    "size": "98K",
-    "modified": "2026-03-28T18:25:53.075Z"
   },
   {
     "type": "deck",
