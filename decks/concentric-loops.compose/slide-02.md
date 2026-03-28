@@ -1,5 +1,4 @@
-<!-- design: {"zones":[{"role":"label","col":48,"span":10,"row":2,"rowSpan":2},{"role":"body","col":3,"span":42,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":47,"span":1,"row":2,"rowSpan":36,"color":"E5DFD3"},{"type":"line","col":3,"span":42,"row":1,"rowSpan":1,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":"1.55","align":"left"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### EVIDENCE
+<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":32,"span":1,"row":2,"rowSpan":20,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Three Loops
 
 ```
@@ -35,8 +34,7 @@
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":4,"rowSpan":2},{"role":"body","col":4,"span":38,"row":6,"rowSpan":28}],"accents":[{"type":"line","col":46,"span":12,"row":7,"rowSpan":1,"color":"B7311A"},{"type":"block","col":44,"span":14,"row":2,"rowSpan":36,"color":"E5DFD3"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### SYNTHESIS
+<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":4,"rowSpan":32}],"accents":[{"type":"bar","col":57,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Intellectual Debts
 
 This is not a new idea. It has appeared in different vocabularies:
@@ -49,6 +47,7 @@ This is not a new idea. It has appeared in different vocabularies:
 | **RLHF** (Christiano et al., 2017) | RL optimization against reward model | Human feedback recalibrates reward model | Reward model architecture evolves |
 | **Generative systems** (Chomsky; Lindenmayer) | Generate artifacts from rules | Generate rules from observation | Generate the rule-generation process |
 | **Man-computer symbiosis** (Licklider, 1960) | Machine: routinizable optimization | Human: goals, hypotheses, criteria | Both: evolving the collaboration itself |
+| **Design formalization** (Muller-Brockmann; Itten; Arnheim) | Apply formalized rules (grids, color math, type ratios) | Perceive what rules can't capture (balance, taste, communicability) | Formalize previously-intuitive qualities |
 
 What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened.
 
@@ -56,8 +55,8 @@ What is new is the empirical account — and the synthesis. We call the pattern 
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":13,"rowSpan":14}],"accents":[{"type":"bar","col":2,"span":3,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":8,"span":44,"row":28,"rowSpan":1,"color":"FAF6EE"}],"typography":{"title":{"size":44,"weight":400,"tracking":"0.08em","transform":"uppercase","align":"left","color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
-### SECTION
+<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":26,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+### SECTION TWO
 ## 2. The Inner Loop
 
 ### Evaluate — Fix — Render
@@ -66,8 +65,7 @@ What is new is the empirical account — and the synthesis. We call the pattern 
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":16,"span":40,"row":4,"rowSpan":32}],"accents":[{"type":"line","col":16,"span":40,"row":3,"rowSpan":1,"color":"B7311A"},{"type":"dot","col":6,"span":4,"row":8,"rowSpan":4,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### MECHANISM
+<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":3,"rowSpan":34}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### How the Rubric Works
 
 The automated evaluator scores each deck across **6 computed dimensions**, using 11 metrics:
@@ -87,8 +85,7 @@ Each dimension scores 0-10. Total: 60 points.
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":3,"rowSpan":2},{"role":"body","col":6,"span":36,"row":5,"rowSpan":30}],"accents":[{"type":"bar","col":4,"span":1,"row":5,"rowSpan":30,"color":"B7311A"},{"type":"line","col":6,"span":36,"row":4,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":14,"leading":"1.65","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"E5DFD3","font":"Palatino"} -->
-### PRACTICE
+<!-- design: {"zones":[{"role":"body","col":12,"span":36,"row":4,"rowSpan":30}],"accents":[],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Refine-Step Pattern
 
 Each iteration follows a fixed protocol:

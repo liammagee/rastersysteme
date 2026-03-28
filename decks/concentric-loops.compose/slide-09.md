@@ -1,5 +1,40 @@
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":16,"span":40,"row":4,"rowSpan":16},{"role":"bullets","col":16,"span":40,"row":22,"rowSpan":14}],"accents":[{"type":"bar","col":14,"span":1,"row":4,"rowSpan":32,"color":"B7311A"},{"type":"line","col":16,"span":40,"row":21,"rowSpan":1,"color":"E5DFD3"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### IMPLICATIONS
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":30,"row":2,"rowSpan":14},{"role":"body","col":4,"span":38,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
+### A General Framework
+
+The concentric loops pattern applies wherever:
+
+1. An AI system produces creative artifacts
+2. Quality is partially but not fully formalizable
+3. Automated evaluation is necessary (too many artifacts for human review) but insufficient (metrics miss things that matter)
+
+The pattern:
+
+- **Inner loop**: optimize against a formal quality model. Fast, automated, narrow.
+- **Outer loop**: calibrate the quality model against human perception. Slower, human-in-the-loop, broadening.
+- **Outer-outer loop**: evolve the calibration process itself. Slowest, reflective, structural.
+
+The loops are defined by their relationship to the quality model: the inner loop trusts it, the outer loop questions it, the outer-outer loop questions how it's questioned.
+
+<!-- notes: The generalization needs to be careful — not every AI system needs three concentric loops. The claim is specific: when quality is partially formalizable (meaning metrics help but don't capture everything), the concentric loops pattern outperforms either pure automation (inner loop only) or pure human review (no inner loop). The key condition is "partially but not fully formalizable" — if quality is fully formalizable, the inner loop is sufficient; if quality is fully ineffable, metrics aren't worth building. The interesting case is the middle, where metrics are useful guides but unreliable judges. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":14,"span":34,"row":8,"rowSpan":22}],"accents":[{"type":"bar","col":10,"span":1,"row":6,"rowSpan":26,"color":"B7311A"}],"typography":{"body":{"size":16,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
+### Recursive, Symbiotic, Generative
+
+The concentric loops pattern exhibits three properties that, taken together, constitute what we call **fractal design**:
+
+**Recursive**: the loops are self-similar at different scales. Each loop follows the same structure — observe, evaluate, adjust — but operates on a different object. The inner loop adjusts the design. The outer loop adjusts the rubric. The outer-outer loop adjusts the methodology. The pattern recurses: each level applies the same logic to the output of the level below. Like a fractal, the shape of the whole is repeated in the shape of the parts.
+
+**Symbiotic**: human and machine intelligence occupy different positions in the structure, and the system works only because both are present. The machine is fast, tireless, and literal — it optimizes against whatever metric it is given. The human is slow, selective, and perceptual — they see what the metric misses. This is not a division of labor but a symbiosis: the machine's speed makes the human's perception actionable (you cannot manually review 36 slides after every 2-minute iteration), and the human's perception makes the machine's speed meaningful (fast optimization against a broken metric produces polished mediocrity). J.C.R. Licklider's "Man-Computer Symbiosis" (1960) described exactly this interdependence: "Men will set the goals, formulate the hypotheses, determine the criteria... Computers will do the routinizable work."
+
+**Generative**: the system produces complex quality through iteration of simple rules, in the older algorithmic sense of "generative." A generative grammar (Chomsky) produces infinite sentences from finite rules. An L-system (Lindenmayer) produces complex branching structures from a single axiom and a few rewrite rules. The concentric loops are generative in the same sense: the rule is simple — "evaluate, find the gap, fix it" — but applied recursively across scales, it generates an increasingly sophisticated understanding of quality that no single iteration could produce. The "generative AI" that powers the inner loop is generative in the newer, narrower sense: it generates artifacts. The concentric loops are generative in the deeper sense: they generate the criteria by which those artifacts are judged.
+
+<!-- notes: "Fractal design" is the paper's conceptual contribution. The three properties are individually well-known: recursion is structural, symbiosis is relational, and generativity is procedural. The claim is that the concentric loops pattern exhibits all three simultaneously, and that this combination is what makes it effective. Remove any one and the system degrades: without recursion, the loops don't nest and the methodology can't improve itself. Without symbiosis, the system either optimizes blindly (machine only) or reviews exhaustingly (human only). Without generativity, the system doesn't accumulate — each iteration starts from scratch rather than building on what the previous iteration learned. The Licklider reference is deliberate: his 1960 paper anticipated exactly the kind of human-machine collaboration that the concentric loops implement, fifty years before "generative AI" existed. The generative grammar and L-system references connect to the computational tradition that predates neural networks — the idea that complex structure emerges from simple recursive rules, not from large models. -->
+
+---
+
+<!-- design: {"zones":[{"role":"bullets","col":22,"span":34,"row":2,"rowSpan":12},{"role":"body","col":22,"span":34,"row":16,"rowSpan":20}],"accents":[{"type":"bar","col":18,"span":1,"row":4,"rowSpan":28,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### How This Differs from RLHF
 
 Reinforcement Learning from Human Feedback shares the two-loop structure:
@@ -18,8 +53,7 @@ But the concentric loops framework differs in three ways:
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":2,"rowSpan":2},{"role":"body","col":4,"span":38,"row":4,"rowSpan":14},{"role":"bullets","col":4,"span":38,"row":20,"rowSpan":18}],"accents":[{"type":"line","col":4,"span":38,"row":19,"rowSpan":1,"color":"B7311A"},{"type":"dot","col":50,"span":4,"row":8,"rowSpan":4,"color":"E5DFD3"}],"typography":{"body":{"size":14,"leading":"1.6","align":"left"},"bullets":{"size":14,"leading":"1.55"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"0A1628"}},"bg":"E5DFD3","font":"Palatino"} -->
-### LIMITS
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":26,"row":2,"rowSpan":16},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}],"accents":[{"type":"bar","col":56,"span":2,"row":2,"rowSpan":20,"color":"B7311A"}],"typography":{"bullets":{"size":14,"weight":600},"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Second-Order Cybernetics
 
 Heinz von Foerster's second-order cybernetics insists that the observer cannot be separated from the observed system. The act of measuring changes what is measured.
@@ -39,8 +73,7 @@ Stafford Beer's Viable System Model (VSM) offers a complementary lens: our inner
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":2,"span":30,"row":6,"rowSpan":12},{"role":"bullets","col":2,"span":30,"row":20,"rowSpan":16}],"accents":[{"type":"line","col":2,"span":30,"row":19,"rowSpan":1,"color":"0A1628"},{"type":"block","col":36,"span":22,"row":0,"rowSpan":40,"color":"FAF6EE"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"E5DFD3","font":"Palatino"} -->
-### FUTURE
+<!-- design: {"zones":[{"role":"bullets","col":6,"span":32,"row":2,"rowSpan":14},{"role":"body","col":4,"span":40,"row":18,"rowSpan":18}],"accents":[],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Implications for Education
 
 If students are trained only on the inner loop — "use this AI tool, iterate until the score is high" — they learn to be operators of an optimization machine. They are inside the loop, not above it.
@@ -56,27 +89,3 @@ Students as outer-loop calibrators, not inner-loop consumers. The educational va
 In the fractal design framing: students need to understand all three properties. The **recursive** property teaches them to think at multiple scales — not just "is this slide good?" but "is my way of judging slides good?" The **symbiotic** property teaches them where human and machine intelligence differ — what the machine can do faster and what the human can see better. The **generative** property teaches them that quality is not a fixed target but an emergent outcome of iterative refinement — "generative AI" generates artifacts, but generative *design* generates the criteria.
 
 <!-- notes: The education implications follow from the cybernetics/AI divide in the week-2 content. McCarthy's AI vision — autonomous, self-improving machines — maps to the inner loop alone. Wiener's cybernetics vision — human-machine cooperation, feedback, governance — maps to the full concentric loops. Teaching only the inner loop produces students who trust AI output. Teaching all three loops produces students who can evaluate, calibrate, and improve AI output. The fractal design framing gives students a vocabulary for what they're learning: recursion (meta-cognition), symbiosis (collaboration), generativity (emergence). These are transferable concepts that apply far beyond slide design. -->
-
----
-
-<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":12,"rowSpan":16}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"bar","col":58,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"tracking":"0.02em","align":"center","color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
-### SECTION
-## 8. Conclusion
-
-<!-- notes: Section divider. Keep it short. The argument has been made. The conclusion lands the killer line and points forward. -->
-
----
-
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":4,"rowSpan":2},{"role":"body","col":8,"span":36,"row":10,"rowSpan":18}],"accents":[{"type":"line","col":8,"span":36,"row":9,"rowSpan":1,"color":"B7311A"},{"type":"bar","col":6,"span":1,"row":10,"rowSpan":18,"color":"E5DFD3"}],"typography":{"body":{"size":17,"leading":"1.8","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### CODA
-### What We Found
-
-Three findings, from the specific to the general:
-
-**1. A single feedback loop is dangerous.** The rubric that scored 100% was the most dangerous artifact in the system — it was confident, precise, and wrong. The inner loop alone converges on rubric-satisfying behavior, not quality.
-
-**2. The outer loop is where quality happens.** Every improvement in the rubric was triggered by a human noticing something the metrics missed. No automated analysis discovered a rubric blind spot. The score-perception gap is not a bug — it is the signal that drives genuine improvement.
-
-**3. The methodology must evolve.** Exhaustive evaluation, wireframe comparison, structured feedback protocols, unified scoring engines — each of these was a methodological decision prompted by the outer loop's own failures. The system that evaluates the evaluator must itself be evaluated.
-
-<!-- notes: Three findings at three levels: inner (dangerous alone), outer (necessary for quality), outer-outer (necessary for the outer loop). The structure mirrors the concentric loops themselves. -->

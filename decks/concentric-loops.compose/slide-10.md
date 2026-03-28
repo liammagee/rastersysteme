@@ -1,5 +1,27 @@
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":16,"span":38,"row":10,"rowSpan":18}],"accents":[{"type":"line","col":16,"span":38,"row":9,"rowSpan":1,"color":"B7311A"},{"type":"dot","col":6,"span":5,"row":12,"rowSpan":5,"color":"B7311A"}],"typography":{"body":{"size":17,"leading":"1.8","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"E5DFD3","font":"Palatino"} -->
-### SYNTHESIS
+<!-- design: {"zones":[{"role":"title","col":4,"span":28,"row":14,"rowSpan":12}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"bar","col":36,"span":1,"row":14,"rowSpan":12,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+### CONCLUSION
+## 8. Conclusion
+
+<!-- notes: Section divider. Keep it short. The argument has been made. The conclusion lands the killer line and points forward. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":8,"span":40,"row":8,"rowSpan":22}],"accents":[{"type":"bar","col":4,"span":1,"row":6,"rowSpan":26,"color":"B7311A"}],"typography":{"body":{"size":16,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
+### What We Found
+
+Three findings, from the specific to the general:
+
+**1. A single feedback loop is dangerous.** The rubric that scored 100% was the most dangerous artifact in the system — it was confident, precise, and wrong. The inner loop alone converges on rubric-satisfying behavior, not quality.
+
+**2. The outer loop is where quality happens.** Every improvement in the rubric was triggered by a human noticing something the metrics missed. No automated analysis discovered a rubric blind spot. The score-perception gap is not a bug — it is the signal that drives genuine improvement.
+
+**3. The methodology must evolve.** Exhaustive evaluation, wireframe comparison, structured feedback protocols, unified scoring engines — each of these was a methodological decision prompted by the outer loop's own failures. The system that evaluates the evaluator must itself be evaluated.
+
+<!-- notes: Three findings at three levels: inner (dangerous alone), outer (necessary for quality), outer-outer (necessary for the outer loop). The structure mirrors the concentric loops themselves. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":18,"span":36,"row":8,"rowSpan":22}],"accents":[],"typography":{"body":{"size":16,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Remaining Frontier
 
 The rubric has learned to measure absence-of-bad with increasing sophistication: missing zones, content collisions, accessibility violations, layout monotony.
@@ -14,8 +36,7 @@ Fractal design does not resolve this question. It provides a structure for livin
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":48,"span":10,"row":2,"rowSpan":2},{"role":"body","col":4,"span":42,"row":4,"rowSpan":34}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"bar","col":58,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":4,"span":42,"row":3,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":14,"leading":"1.6","align":"left"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### CLOSING
+<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":48,"span":2,"row":4,"rowSpan":32,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.48}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Postscript
 
 This paper was composed, rendered, and evaluated using the system it describes.

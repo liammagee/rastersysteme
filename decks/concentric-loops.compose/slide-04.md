@@ -1,5 +1,4 @@
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":4,"rowSpan":2},{"role":"body","col":8,"span":34,"row":10,"rowSpan":20}],"accents":[{"type":"bar","col":46,"span":1,"row":8,"rowSpan":24,"color":"B7311A"},{"type":"line","col":8,"span":34,"row":9,"rowSpan":1,"color":"E5DFD3"}],"typography":{"body":{"size":16,"leading":"1.75","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### CONVERGENCE
+<!-- design: {"zones":[{"role":"body","col":14,"span":32,"row":8,"rowSpan":24}],"accents":[{"type":"bar","col":10,"span":1,"row":6,"rowSpan":28,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Case Study: The Invented Labels
 
 In an early composition run, the AI was asked to add design directives to 36 slides. It was explicitly instructed: "NEVER invent ### labels. If the source slide has no ### heading, the composed slide must have no ### heading."
@@ -16,8 +15,7 @@ The fix was both mechanical (add a content fidelity check to the rubric) and str
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":2,"span":26,"row":6,"rowSpan":16},{"role":"bullets","col":2,"span":26,"row":24,"rowSpan":12}],"accents":[{"type":"line","col":2,"span":26,"row":23,"rowSpan":1,"color":"B7311A"},{"type":"block","col":32,"span":26,"row":0,"rowSpan":40,"color":"E5DFD3"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### DYNAMICS
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":28,"row":3,"rowSpan":10},{"role":"body","col":4,"span":36,"row":15,"rowSpan":22}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Case Study: Invisible Images
 
 The image integration pipeline splices AI-generated images into rendered slides. The rubric checks: "Are images present?" It found images on 24 of 36 slides. Score: high.
@@ -36,8 +34,7 @@ This is the absence-of-bad vs presence-of-good distinction in miniature. The rub
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":10,"row":2,"rowSpan":2},{"role":"bullets","col":2,"span":24,"row":5,"rowSpan":16},{"role":"body","col":28,"span":30,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":26,"span":1,"row":2,"rowSpan":36,"color":"B7311A"},{"type":"line","col":2,"span":24,"row":4,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":12,"leading":"1.45","align":"left"},"bullets":{"size":13,"leading":"1.55"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"B7311A"}},"bg":"E5DFD3","font":"Palatino"} -->
-### CATALOGUE
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":2,"rowSpan":14},{"role":"body","col":4,"span":24,"row":17,"rowSpan":21}],"accents":[{"type":"bar","col":30,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":14,"weight":600},"body":{"size":13,"leading":1.4}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Wireframe as Intent Artifact
 
 To bridge the gap between intent and reality, we built a wireframe tool that renders the *design directive* — the plan for each slide — as an ASCII diagram. Compare three slides from the same deck:
@@ -90,8 +87,7 @@ Every outer loop review compares wireframes to screenshots for problem slides. T
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":48,"span":10,"row":3,"rowSpan":2},{"role":"body","col":16,"span":40,"row":6,"rowSpan":16},{"role":"bullets","col":16,"span":40,"row":24,"rowSpan":12}],"accents":[{"type":"dot","col":8,"span":5,"row":14,"rowSpan":5,"color":"B7311A"},{"type":"line","col":16,"span":40,"row":23,"rowSpan":1,"color":"E5DFD3"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### TENSION
+<!-- design: {"zones":[{"role":"bullets","col":22,"span":34,"row":3,"rowSpan":10},{"role":"body","col":22,"span":34,"row":15,"rowSpan":22}],"accents":[{"type":"bar","col":18,"span":1,"row":4,"rowSpan":24,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Double-Loop Learning
 
 Chris Argyris distinguished two kinds of organizational learning:
@@ -110,8 +106,7 @@ In our system, this transition is triggered by the score-perception gap — the 
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":1,"rowSpan":2},{"role":"body","col":2,"span":56,"row":3,"rowSpan":36}],"accents":[{"type":"line","col":2,"span":56,"row":2,"rowSpan":1,"color":"B7311A"}],"typography":{"body":{"size":11,"leading":"1.4","align":"left","columns":2},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### CORPUS
+<!-- design: {"zones":[{"role":"body","col":4,"span":28,"row":1,"rowSpan":38}],"accents":[{"type":"bar","col":56,"span":2,"row":4,"rowSpan":16,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.38}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Feedback Protocol
 
 Each outer loop iteration follows a traceable path from perception to code:

@@ -1,5 +1,4 @@
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":2,"rowSpan":2},{"role":"bullets","col":2,"span":18,"row":5,"rowSpan":14},{"role":"body","col":22,"span":34,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":20,"span":1,"row":2,"rowSpan":36,"color":"E5DFD3"},{"type":"line","col":2,"span":18,"row":4,"rowSpan":1,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":"1.5","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### WORKFLOW
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":2,"rowSpan":12},{"role":"body","col":4,"span":24,"row":15,"rowSpan":23}],"accents":[{"type":"bar","col":30,"span":1,"row":2,"rowSpan":36,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":13,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Convergence Behavior
 
 Three refine-loop runs on the same deck show a consistent pattern:
@@ -40,8 +39,8 @@ The question the inner loop cannot answer: **good according to whom?**
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":14,"span":40,"row":14,"rowSpan":12}],"accents":[{"type":"bar","col":58,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":14,"span":40,"row":27,"rowSpan":1,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":400,"tracking":"0.08em","transform":"uppercase","align":"right","color":"0A1628"}},"bg":"E5DFD3","font":"Futura"} -->
-### SECTION
+<!-- design: {"zones":[{"role":"title","col":4,"span":30,"row":14,"rowSpan":12}],"accents":[{"type":"bar","col":0,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+### SECTION THREE
 ## 3. The Outer Loop
 
 ### When the Rubric Lies
@@ -50,8 +49,7 @@ The question the inner loop cannot answer: **good according to whom?**
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":3,"rowSpan":2},{"role":"body","col":4,"span":36,"row":4,"rowSpan":10},{"role":"bullets","col":4,"span":36,"row":16,"rowSpan":20}],"accents":[{"type":"line","col":4,"span":36,"row":15,"rowSpan":1,"color":"B7311A"},{"type":"block","col":44,"span":14,"row":2,"rowSpan":36,"color":"FAF6EE"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.65"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"E5DFD3","font":"Palatino"} -->
-### ITERATION
+<!-- design: {"zones":[{"role":"body","col":4,"span":36,"row":2,"rowSpan":14},{"role":"bullets","col":4,"span":36,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":44,"span":1,"row":4,"rowSpan":22,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Score-Perception Gap
 
 Outer loop iteration 1. The rubric reports **100%** — a perfect score across all dimensions.
@@ -69,8 +67,7 @@ The gap between 100% and reality is not a rounding error. It is a **category err
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":18,"span":38,"row":4,"rowSpan":32}],"accents":[{"type":"dot","col":6,"span":4,"row":7,"rowSpan":4,"color":"B7311A"},{"type":"line","col":18,"span":38,"row":3,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### STRUCTURE
+<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":3,"rowSpan":34}],"accents":[],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Absence-of-Bad vs Presence-of-Good
 
 The rubric evolution traces a philosophical arc:
@@ -90,8 +87,7 @@ Each row was prompted by a human saying: "The rubric scored this well, but I can
 
 ---
 
-<!-- design: {"zones":[{"role":"quote","col":6,"span":40,"row":3,"rowSpan":14},{"role":"body","col":6,"span":40,"row":20,"rowSpan":18}],"accents":[{"type":"bar","col":4,"span":1,"row":3,"rowSpan":14,"color":"B7311A"},{"type":"line","col":6,"span":40,"row":18,"rowSpan":1,"color":"E5DFD3"}],"typography":{"quote":{"size":20,"weight":400,"leading":"1.5","align":"left","color":"0A1628"},"body":{"size":14,"leading":"1.65","align":"left"}},"bg":"FAF6EE","font":"Palatino"} -->
-### REFLECTION
+<!-- design: {"zones":[{"role":"quote","col":6,"span":32,"row":3,"rowSpan":12},{"role":"body","col":4,"span":40,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":57,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"quote":{"size":18,"weight":400,"leading":1.5,"color":"2C3E50"},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Schon's Conversation with the Situation
 
 Donald Schon described professional practice as a "conversation with the situation" — each design move provokes a response from the material, which surprises the practitioner, who reflects and adjusts.

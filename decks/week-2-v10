@@ -2,7 +2,7 @@
 <!-- design: {"zones":[{"role":"title","col":2,"span":38,"row":12,"rowSpan":14},{"role":"image","col":44,"span":14,"row":8,"rowSpan":24}],"accents":[],"typography":{"title":{"size":52,"weight":800,"transform":"uppercase","tracking":"0.08em","color":"F8F4EE"}},"bg":"0B0B0F","font":"Helvetica Neue"} -->
 # Gen AI - Week 2 - Pathways to AI
 
-![Image](images/gen_ai___week_1___pathways_to_ai_img_1.png)
+![Pathways to AI title visual](images/gen_ai___week_1___pathways_to_ai_img_1.png)
 
 ```notes
 Design: Void opening — signal emerging from darkness. Monument archetype, poster-scale title. Image floats right as secondary element.
@@ -16,7 +16,7 @@ Design: Void opening — signal emerging from darkness. Monument archetype, post
 
 | | |
 |---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_4.png)“*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955) |  |
+| ![McCarthy 1955 AI definition](images/gen_ai___week_1___pathways_to_ai_img_4.png)”*how to make machines use language, form abstractions and concepts, solve kinds of problems now reserved for humans, and improve themselves*” (McCarthy et al., 1955) |  |
 
 ```notes
 Design: First clarity — Emission explodes from Void. Editorial archetype with definition table and McCarthy quote. Interference bottom rule.
@@ -25,12 +25,12 @@ Design: First clarity — Emission explodes from Void. Editorial archetype with 
 ---
 
 <!-- bg: F0EBE4 -->
-<!-- design: {"zones":[{"role":"table","col":3,"span":55,"row":1,"rowSpan":38}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"body":{"size":12,"leading":1.35,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"title","col":3,"span":55,"row":1,"rowSpan":5},{"role":"table","col":3,"span":55,"row":7,"rowSpan":32}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"title":{"size":15,"weight":700,"tracking":"0.04em","color":"0B0B0F"},"body":{"size":12,"leading":1.35,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 ### Themes: Cybernetics vs Artificial Intelligence?
 
 | Cybernetics | AI |
 |---|---|
-| ![Image](images/pasted-image-2026-03-26T20-29-19-509Z-8579ae13.png) | ![Image](images/pasted-image-2026-03-26T20-48-24-695Z-584cb2c6.png) |
+| ![Norbert Wiener portrait](images/pasted-image-2026-03-26T20-29-19-509Z-8579ae13.png) | ![John McCarthy portrait](images/pasted-image-2026-03-26T20-48-24-695Z-584cb2c6.png) |
 | Norbert Weiner | John McCarthy |
 | Cybernetics | Artificial Intelligence |
 | Vision: Humans teaming with Machines (Cyborg) | Vision: A Machine Reproducing Human Intelligence |
@@ -47,8 +47,8 @@ Design: Cybernetics vs AI — two waves meeting. Resonance siren stripe at col 1
 ---
 
 <!-- bg: EDE5D8 -->
-<!-- design: {"zones":[{"role":"body","col":4,"span":52,"row":1,"rowSpan":38}],"accents":[{"type":"line","col":4,"span":50,"row":39,"rowSpan":1,"color":"6B6B6B"}],"typography":{"body":{"size":14,"leading":1.5,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
-### Melancholic Echoes of Cybernetics Today? 
+<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":1,"rowSpan":5},{"role":"body","col":4,"span":52,"row":7,"rowSpan":8},{"role":"table","col":4,"span":52,"row":16,"rowSpan":22}],"accents":[{"type":"line","col":4,"span":50,"row":39,"rowSpan":1,"color":"6B6B6B"}],"typography":{"title":{"size":15,"weight":700,"tracking":"0.04em","color":"0B0B0F"},"body":{"size":14,"leading":1.5,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+### Melancholic Echoes of Cybernetics Today?
 
  - Attempts to reclaim the more "human" form
  - An Era of Symbiotic (or Sympoetic / Co-intelligent / Cyber-social) Pedagogy?   
@@ -57,7 +57,7 @@ Design: Cybernetics vs AI — two waves meeting. Resonance siren stripe at col 1
 | | | |
 |---|---|---|
 | Andrew Pickering (2010) *The Cybernetic Brain* | Donna Haraway (2016) *Staying with the Trouble* | Ethan Mollick (2024) *Co-intelligence* | 
-| ![Image](images/pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_5.png)> | ![Image](images/gen_ai___week_1___pathways_to_ai_img_6.png) |
+| ![Andrew Pickering The Cybernetic Brain cover](images/pasted-image-2026-03-26T21-01-13-367Z-8017cd5f.png) | ![Donna Haraway Staying with the Trouble cover](images/gen_ai___week_1___pathways_to_ai_img_5.png) | ![Ethan Mollick Co-intelligence cover](images/gen_ai___week_1___pathways_to_ai_img_6.png) |
 
 ```notes
 Design: Melancholic echoes — wide body for book trio with images. Emission ground continues. Interference bottom rule.
@@ -99,8 +99,8 @@ Design: Fundamental processes — very dense nested bullets need full-width body
 ---
 
 <!-- bg: 1A2E5A -->
-<!-- design: {"zones":[{"role":"table","col":2,"span":56,"row":1,"rowSpan":38}],"accents":[{"type":"line","col":2,"span":56,"row":39,"rowSpan":1,"color":"D4940A"}],"typography":{"body":{"size":14,"leading":1.5,"color":"F8F4EE"}},"bg":"1A2E5A","font":"Helvetica Neue"} -->
-![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)  
+<!-- design: {"zones":[{"role":"image","col":2,"span":22,"row":2,"rowSpan":16},{"role":"body","col":26,"span":18,"row":2,"rowSpan":16},{"role":"image","col":46,"span":12,"row":2,"rowSpan":16},{"role":"table","col":2,"span":56,"row":20,"rowSpan":18}],"accents":[{"type":"line","col":2,"span":56,"row":39,"rowSpan":1,"color":"D4940A"}],"typography":{"body":{"size":14,"leading":1.5,"color":"F8F4EE"}},"bg":"1A2E5A","font":"Helvetica Neue"} -->
+![Ars brevis Fourth Figure manuscript](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Al-Khwarizmi proto-computing diagram](images/gen_ai___week_1___pathways_to_ai_img_13.png)
 
 | | |
 |---|---|
@@ -114,7 +114,7 @@ Design: Proto-computing 8th-13th centuries — Deep Frequency for deepest histor
 
 <!-- bg: F0EBE4 -->
 <!-- design: {"zones":[{"role":"image","col":2,"span":28,"row":2,"rowSpan":34},{"role":"body","col":32,"span":26,"row":8,"rowSpan":28}],"accents":[{"type":"line","col":32,"span":26,"row":7,"rowSpan":1,"color":"D4940A"}],"typography":{"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
-![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.
+![Medieval automaton illustration](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.
 
 ```notes
 Design: Medieval robots — image-dominant left, text right with Phosphor rule. Historical excavation continues on Emission ground.
@@ -124,7 +124,7 @@ Design: Medieval robots — image-dominant left, text right with Phosphor rule. 
 
 <!-- bg: EDE5D8 -->
 <!-- design: {"zones":[{"role":"image","col":2,"span":27,"row":3,"rowSpan":34},{"role":"image","col":31,"span":27,"row":3,"rowSpan":34}],"accents":[],"typography":{},"bg":"F8F4EE","font":"Helvetica Neue"} -->
-![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)
+![Historical computing artifact](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Early mechanical computation device](images/gen_ai___week_1___pathways_to_ai_img_16.png)
 
 ```notes
 Design: Image-only slide — no body zone to avoid empty zone penalty. Dual image split, no accents. Visual breathing room.
@@ -133,8 +133,8 @@ Design: Image-only slide — no body zone to avoid empty zone penalty. Dual imag
 ---
 
 <!-- bg: 0B0B0F -->
-<!-- design: {"zones":[{"role":"body","col":4,"span":48,"row":2,"rowSpan":36},{"role":"image","col":50,"span":8,"row":24,"rowSpan":14}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"body":{"size":13,"leading":1.4,"color":"F8F4EE"}},"bg":"0B0B0F","font":"Helvetica Neue"} -->
-‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)
+<!-- design: {"zones":[{"role":"body","col":4,"span":44,"row":2,"rowSpan":36},{"role":"image","col":50,"span":8,"row":24,"rowSpan":14}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"body":{"size":13,"leading":1.4,"color":"F8F4EE"}},"bg":"0B0B0F","font":"Helvetica Neue"} -->
+‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Atlas of AI book cover](images/gen_ai___week_1___pathways_to_ai_img_17.png)
 
 ```notes
 Design: Maximum voltage — Void background with Resonance siren stripe. Crawford's key passage dense at 13px. The most important quote in the deck.
@@ -144,7 +144,7 @@ Design: Maximum voltage — Void background with Resonance siren stripe. Crawfor
 
 <!-- bg: 1A2E5A -->
 <!-- design: {"zones":[{"role":"image","col":2,"span":26,"row":2,"rowSpan":18},{"role":"table","col":30,"span":28,"row":2,"rowSpan":36}],"accents":[{"type":"line","col":2,"span":56,"row":38,"rowSpan":1,"color":"D4940A"}],"typography":{"body":{"size":15,"leading":1.55,"color":"F8F4EE"}},"bg":"1A2E5A","font":"Courier New"} -->
-![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
+![17th century computation manuscript](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![18th century mechanical calculator](images/gen_ai___week_1___pathways_to_ai_img_19.png)  
 
 | | |
 |---|---|
@@ -160,7 +160,7 @@ Design: 17th/18th century computation — Deep Frequency excavation. Courier New
 <!-- design: {"zones":[{"role":"table","col":2,"span":56,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"},{"type":"line","col":30,"span":1,"row":2,"rowSpan":36,"color":"D62B1F"}],"typography":{"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 | Feudalism | Capitalism |
 |---|---|
-| ![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png) | ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png) |
+| ![Feudal hand-mill illustration](images/gen_ai___week_1___pathways_to_ai_img_20.png) | ![Industrial steam-mill illustration](images/gen_ai___week_1___pathways_to_ai_img_21.png) |
 | **“The hand-mill gives you society with the feudal lord;** | **the steam-mill society with the industrial capitalist.” (Marx, 1847)** |
 
 ```notes
@@ -170,7 +170,7 @@ Design: Feudalism vs capitalism — Marx quote. Resonance siren stripe plus cent
 ---
 
 <!-- bg: F8F4EE -->
-<!-- design: {"zones":[{"role":"body","col":12,"span":36,"row":14,"rowSpan":12}],"accents":[{"type":"line","col":12,"span":36,"row":13,"rowSpan":1,"color":"6B6B6B"}],"typography":{"body":{"size":18,"leading":1.6,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"body","col":6,"span":48,"row":8,"rowSpan":24}],"accents":[{"type":"line","col":6,"span":48,"row":7,"rowSpan":1,"color":"6B6B6B"}],"typography":{"body":{"size":22,"leading":1.6,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 [The Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)
 
 ```notes
@@ -216,7 +216,7 @@ Design: Ballistics origin — Resonance siren stripe marks intellectual friction
 ---
 
 <!-- bg: EDE5D8 -->
-<!-- design: {"zones":[{"role":"body","col":8,"span":32,"row":8,"rowSpan":24}],"accents":[{"type":"line","col":8,"span":32,"row":7,"rowSpan":1,"color":"D4940A"}],"typography":{"body":{"size":16,"leading":1.6,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"body","col":8,"span":32,"row":8,"rowSpan":24}],"accents":[],"typography":{"body":{"size":16,"leading":1.6,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 People likely know the famous first examples of computers for solving decryption. A kind of "safe" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!
 
 But what of their other use? Ballistics, missile trajectory...
@@ -302,7 +302,7 @@ Design: Relevance to education — right-offset as counterpoint to slide 19's ha
 ---
 
 <!-- bg: EDE5D8 -->
-<!-- design: {"zones":[{"role":"body","col":6,"span":40,"row":4,"rowSpan":32}],"accents":[{"type":"line","col":6,"span":40,"row":3,"rowSpan":1,"color":"6B6B6B"}],"typography":{"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"title","col":6,"span":40,"row":2,"rowSpan":5},{"role":"body","col":6,"span":40,"row":8,"rowSpan":28}],"accents":[],"typography":{"title":{"size":16,"weight":700,"color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 For those mathematically / philosophically minded:
 
  - Much of AI-related - and general - computing from 1940s to 2020s involves mapping continuous (derivates) into discrete (very small differences). At least as far as *simulation* (from ballistics to language generation) are concerned.
@@ -316,7 +316,7 @@ Design: Mathematical/philosophical aside — Emission with Void type. Narrow edi
 ---
 
 <!-- bg: F4F0EA -->
-<!-- design: {"zones":[{"role":"label","col":8,"span":32,"row":3,"rowSpan":5},{"role":"body","col":12,"span":40,"row":10,"rowSpan":26}],"accents":[{"type":"line","col":8,"span":32,"row":2,"rowSpan":1,"color":"6B6B6B"}],"typography":{"label":{"size":16,"weight":700,"tracking":"0.04em","color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Courier New"} -->
+<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":2,"rowSpan":5},{"role":"body","col":8,"span":44,"row":8,"rowSpan":28}],"accents":[{"type":"line","col":8,"span":44,"row":1,"rowSpan":1,"color":"6B6B6B"}],"typography":{"title":{"size":16,"weight":700,"tracking":"0.04em","color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Courier New"} -->
 ### Looking ahead…  
 
 What **fundamentals** makes for AI / Machine Learning / Deep Learning / Neural network?<br>Calculus (17th century – Leibniz, Newton)
@@ -334,7 +334,7 @@ Design: Mathematical fundamentals — Courier New for data register. Centered ed
 ---
 
 <!-- bg: F8F4EE -->
-<!-- design: {"zones":[{"role":"label","col":8,"span":44,"row":4,"rowSpan":5},{"role":"body","col":8,"span":44,"row":10,"rowSpan":26}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"label":{"size":14,"weight":700,"tracking":"0.06em","color":"0B0B0F"},"body":{"size":22,"weight":300,"leading":1.5,"tracking":"0.02em","color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"label","col":4,"span":52,"row":2,"rowSpan":4},{"role":"body","col":4,"span":52,"row":7,"rowSpan":32}],"accents":[{"type":"bar","col":1,"span":1,"row":0,"rowSpan":40,"color":"D62B1F"}],"typography":{"label":{"size":14,"weight":700,"tracking":"0.06em","color":"0B0B0F"},"body":{"size":22,"weight":300,"leading":1.5,"tracking":"0.02em","color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 ### And a bold proposition…  
 
 
@@ -464,7 +464,7 @@ Design: Agentive AI — hard-left. Three bullet categories need wide body span. 
 ---
 
 <!-- bg: F0EBE4 -->
-<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":3,"rowSpan":10},{"role":"body","col":8,"span":44,"row":14,"rowSpan":24}],"accents":[{"type":"line","col":8,"span":44,"row":2,"rowSpan":1,"color":"6B6B6B"}],"typography":{"title":{"size":38,"weight":700,"color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":3,"rowSpan":10},{"role":"body","col":8,"span":44,"row":14,"rowSpan":24}],"accents":[],"typography":{"title":{"size":38,"weight":700,"color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 ## Education Issues: Cons
 
  - Plagiarism & Cognitive Offloading
@@ -481,7 +481,7 @@ Design: Education cons — editorial offset archetype. Interference gray rule. N
 ---
 
 <!-- bg: EDE5D8 -->
-<!-- design: {"zones":[{"role":"title","col":24,"span":32,"row":4,"rowSpan":10},{"role":"body","col":24,"span":32,"row":16,"rowSpan":22}],"accents":[{"type":"line","col":24,"span":32,"row":3,"rowSpan":1,"color":"6B6B6B"}],"typography":{"title":{"size":38,"weight":700,"color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
+<!-- design: {"zones":[{"role":"title","col":24,"span":32,"row":4,"rowSpan":10},{"role":"body","col":24,"span":32,"row":16,"rowSpan":22}],"accents":[],"typography":{"title":{"size":38,"weight":700,"color":"0B0B0F"},"body":{"size":15,"leading":1.55,"color":"0B0B0F"}},"bg":"F8F4EE","font":"Helvetica Neue"} -->
 ## Education Issues: Pros
 
 
@@ -529,7 +529,7 @@ No easy answers:
    - Care industries? (hospitals, childcare, counselling)
  - Humanities? Peter Thiel...
 
-![Image](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
+![Jensen Huang on future skills](images/pasted-image-2026-03-23T03-45-24-207Z-faad918f.png)
 
 ```notes
 Design: What to learn and teach — sidebar-L with image right. Text anchored left, image floats opposite. Interference rule.

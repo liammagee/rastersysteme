@@ -1,5 +1,60 @@
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":4,"span":40,"row":6,"rowSpan":30}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":4,"span":40,"row":5,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### OUTCOMES
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":28,"row":2,"rowSpan":16},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
+### Score Progression
+
+| Deck | Rubric | A11y | Grid | Color | Coher. | Images | Content | **Total** |
+|------|--------|------|------|-------|--------|--------|---------|-----------|
+| week-2 (early) | v2 | 1 | 10 | 10 | 8 | 10 | 1.4 | **40.4/60** |
+| week-2-v8 | v2 | 10 | 9.9 | 9 | 8.5 | 10 | 9.7 | **57.1/60** |
+| week-2-v9 | v4 | 10 | 10 | 9 | 10 | 8 | 7.5 | **54.5/60** |
+| week-2-v10 | v5/v6 | 6.5 | 4 | 10 | 8.5 | 8 | 7 | **44/60** |
+| week-2-v11 | v7 | 10 | 10 | 10 | 10 | 10 | 8.5 | **58.5/60** |
+
+Read this table row by row, not column by column. The total does not monotonically decrease:
+
+- **Early → v8** (+17 points): inner loop fixes. Accessibility jumped from 1 to 10 (contrast fixed). Content from 1.4 to 9.7 (body zones populated). But the rubric is v2 — still lenient.
+- **v8 → v9** (-2.6 points): new rubric, new compose. v4 rubric detects 16 generic alt-text images for the first time. The deck got a new composition but the rubric got stricter — Images and Content drop.
+- **v9 → v10** (-10.5 points): zone collision detection added. Grid crashes from 10 to 4 — four collision slides that were always there, now visible. This is the most honest score.
+- **v10 → v11** (+14.5 points): renderer and source fixes, not rubric changes. Collisions fixed (Grid: 4→10), alt text replaced (Images: 8→10), contrast resolved (A11y: 6.5→10). The rubric is unchanged. The artifact is better.
+
+The story is not "scores went up." The story is that three things improved in parallel — the rubric (more honest), the deck (better designed), and the renderer (fewer bugs) — and the per-dimension breakdown reveals which improvement caused each change.
+
+<!-- notes: This is the data slide. The per-dimension breakdown matters because it defeats the naive narrative. A single total score hides the drama: Grid going from 10 to 4 and back to 10 is invisible in the total. The reader needs to see that Grid scored 10/10 at v2 (no collision detection), crashed to 4/10 at v6 (collision detection added), and returned to 10/10 at v7 (collisions actually fixed). That's three different meanings of "10/10" — ignorant, impossible, and earned. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":1,"rowSpan":38}],"accents":[{"type":"bar","col":32,"span":1,"row":2,"rowSpan":24,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.42}},"bg":"FAF6EE","font":"Palatino"} -->
+### Three Meanings of 10/10
+
+Grid Utilization scored 10/10 three times. Each time it meant something different.
+
+```
+Grid
+Score
+  10 │ ●                                     ●      ← EARNED
+     │  \                                   /         (collisions fixed,
+   8 │   \                                 /           layouts genuinely
+     │    \                               /            varied)
+   6 │     \                             /
+     │      \                           /
+   4 │       \_________________________●             ← HONEST
+     │         (no collision detector)   (4 collision   (collisions
+   2 │                                   slides found)  detected)
+     │
+  10 │ ●·····●·····●                                 ← IGNORANT
+     │  (rubric blind to collisions)                   (no metric
+     │                                                  existed)
+     └──────┬──────┬──────┬──────┬──────┬──────
+          early    v8     v9    v10    v11
+          (v2)    (v2)   (v4)  (v5/6)  (v7)
+```
+
+The top line is the real score. The bottom line is what the score *would have been* if collision detection existed from the start. The gap between them is the rubric's blind spot — invisible until the outer loop added the metric at v5/v6.
+
+<!-- notes: This diagram is the single most important visual in the paper. It shows that a score is not a fixed quantity — it is relative to the instrument that produces it. "10/10" at v2 and "10/10" at v7 are not the same claim. The first means "I see no problems" (which says more about the rubric than the deck). The second means "I see no problems AND I have been trained to see zone collisions, layout runs, whitespace utilization, and default-zone detection." The instrument's vocabulary determines the score's meaning. This is Goodhart made visible across time. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":4,"rowSpan":32}],"accents":[],"typography":{"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### What Improved, and Who Improved It
 
 | Improvement | Loop | Agent | Timescale |
@@ -18,8 +73,7 @@ No row says "the AI fixed the rubric." The inner loop makes design changes. The 
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":48,"span":10,"row":3,"rowSpan":2},{"role":"body","col":16,"span":30,"row":4,"rowSpan":14},{"role":"bullets","col":16,"span":30,"row":20,"rowSpan":18}],"accents":[{"type":"bar","col":14,"span":1,"row":4,"rowSpan":34,"color":"E5DFD3"},{"type":"line","col":16,"span":30,"row":19,"rowSpan":1,"color":"B7311A"},{"type":"dot","col":6,"span":5,"row":10,"rowSpan":5,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### PATTERNS
+<!-- design: {"zones":[{"role":"body","col":4,"span":38,"row":2,"rowSpan":14},{"role":"bullets","col":6,"span":32,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":56,"span":2,"row":4,"rowSpan":28,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Cybernetics Recursion
 
 The slides being designed are about cybernetics — Norbert Wiener, feedback loops, the distinction between cybernetics (human-machine co-operation) and AI (machine autonomy).
@@ -37,48 +91,10 @@ The recursion is not a coincidence. It is the design system demonstrating what t
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":8,"span":46,"row":13,"rowSpan":14}],"accents":[{"type":"bar","col":56,"span":3,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":8,"span":46,"row":28,"rowSpan":1,"color":"E5DFD3"}],"typography":{"title":{"size":48,"weight":400,"tracking":"0.06em","transform":"uppercase","align":"right","color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
-### SECTION
+<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":4,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE","align":"center"}},"bg":"FAF6EE","font":"Futura"} -->
+### SECTION SEVEN
 ## 7. Discussion
 
 ### Fractal Design
 
 <!-- notes: Section divider. Act II begins. "Fractal design" reframes the concentric loops as a three-part concept: recursive (self-similar loops at different scales), symbiotic (human and machine intelligence at different positions in the structure), and generative (the system produces increasingly complex quality through iteration of simple rules). This framing connects the paper's specific findings to broader traditions in design thinking, computation, and AI collaboration. -->
-
----
-
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":2,"span":26,"row":6,"rowSpan":16},{"role":"bullets","col":2,"span":26,"row":24,"rowSpan":14}],"accents":[{"type":"line","col":2,"span":26,"row":23,"rowSpan":1,"color":"B7311A"},{"type":"block","col":32,"span":26,"row":0,"rowSpan":40,"color":"E5DFD3"}],"typography":{"body":{"size":15,"leading":"1.7","align":"left"},"bullets":{"size":14,"leading":"1.6"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### TENSIONS
-### A General Framework
-
-The concentric loops pattern applies wherever:
-
-1. An AI system produces creative artifacts
-2. Quality is partially but not fully formalizable
-3. Automated evaluation is necessary (too many artifacts for human review) but insufficient (metrics miss things that matter)
-
-The pattern:
-
-- **Inner loop**: optimize against a formal quality model. Fast, automated, narrow.
-- **Outer loop**: calibrate the quality model against human perception. Slower, human-in-the-loop, broadening.
-- **Outer-outer loop**: evolve the calibration process itself. Slowest, reflective, structural.
-
-The loops are defined by their relationship to the quality model: the inner loop trusts it, the outer loop questions it, the outer-outer loop questions how it's questioned.
-
-<!-- notes: The generalization needs to be careful — not every AI system needs three concentric loops. The claim is specific: when quality is partially formalizable (meaning metrics help but don't capture everything), the concentric loops pattern outperforms either pure automation (inner loop only) or pure human review (no inner loop). The key condition is "partially but not fully formalizable" — if quality is fully formalizable, the inner loop is sufficient; if quality is fully ineffable, metrics aren't worth building. The interesting case is the middle, where metrics are useful guides but unreliable judges. -->
-
----
-
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":4,"rowSpan":2},{"role":"body","col":8,"span":34,"row":12,"rowSpan":16}],"accents":[{"type":"line","col":8,"span":34,"row":11,"rowSpan":1,"color":"E5DFD3"},{"type":"bar","col":46,"span":1,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"body":{"size":17,"leading":"1.8","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"0A1628"}},"bg":"E5DFD3","font":"Palatino"} -->
-### POSITION
-### Recursive, Symbiotic, Generative
-
-The concentric loops pattern exhibits three properties that, taken together, constitute what we call **fractal design**:
-
-**Recursive**: the loops are self-similar at different scales. Each loop follows the same structure — observe, evaluate, adjust — but operates on a different object. The inner loop adjusts the design. The outer loop adjusts the rubric. The outer-outer loop adjusts the methodology. The pattern recurses: each level applies the same logic to the output of the level below. Like a fractal, the shape of the whole is repeated in the shape of the parts.
-
-**Symbiotic**: human and machine intelligence occupy different positions in the structure, and the system works only because both are present. The machine is fast, tireless, and literal — it optimizes against whatever metric it is given. The human is slow, selective, and perceptual — they see what the metric misses. This is not a division of labor but a symbiosis: the machine's speed makes the human's perception actionable (you cannot manually review 36 slides after every 2-minute iteration), and the human's perception makes the machine's speed meaningful (fast optimization against a broken metric produces polished mediocrity). J.C.R. Licklider's "Man-Computer Symbiosis" (1960) described exactly this interdependence: "Men will set the goals, formulate the hypotheses, determine the criteria... Computers will do the routinizable work."
-
-**Generative**: the system produces complex quality through iteration of simple rules, in the older algorithmic sense of "generative." A generative grammar (Chomsky) produces infinite sentences from finite rules. An L-system (Lindenmayer) produces complex branching structures from a single axiom and a few rewrite rules. The concentric loops are generative in the same sense: the rule is simple — "evaluate, find the gap, fix it" — but applied recursively across scales, it generates an increasingly sophisticated understanding of quality that no single iteration could produce. The "generative AI" that powers the inner loop is generative in the newer, narrower sense: it generates artifacts. The concentric loops are generative in the deeper sense: they generate the criteria by which those artifacts are judged.
-
-<!-- notes: "Fractal design" is the paper's conceptual contribution. The three properties are individually well-known: recursion is structural, symbiosis is relational, and generativity is procedural. The claim is that the concentric loops pattern exhibits all three simultaneously, and that this combination is what makes it effective. Remove any one and the system degrades: without recursion, the loops don't nest and the methodology can't improve itself. Without symbiosis, the system either optimizes blindly (machine only) or reviews exhaustingly (human only). Without generativity, the system doesn't accumulate — each iteration starts from scratch rather than building on what the previous iteration learned. The Licklider reference is deliberate: his 1960 paper anticipated exactly the kind of human-machine collaboration that the concentric loops implement, fifty years before "generative AI" existed. The generative grammar and L-system references connect to the computational tradition that predates neural networks — the idea that complex structure emerges from simple recursive rules, not from large models. -->

@@ -485,6 +485,19 @@ function evaluate(htmlPath) {
     }
     perSlideFlowScore.push(flowViolations === 0 ? 1 : flowViolations === 1 ? 0.5 : 0);
 
+    // ── Focal point hierarchy: title zone should have highest visual weight ──
+    if (zoneRects.length >= 2) {
+      const zoneWeights = zoneRects.map(r => {
+        const area = (r.right - r.left) * (r.bottom - r.top);
+        const roleMatch = r.cls.match(/zone-(\w+)/);
+        return { role: roleMatch ? roleMatch[1] : 'unknown', area };
+      }).sort((a, b) => b.area - a.area);
+      // Largest zone should be title or body (not image or table)
+      if (zoneWeights[0] && !['title', 'body', 'bullets'].includes(zoneWeights[0].role)) {
+        slideIssues.push('focal-point-not-text');
+      }
+    }
+
     // ── Content preservation ──
     slide.querySelectorAll('.zone-body,.zone-bullets,.zone-quote').forEach(z => {
       if (!z.textContent.trim()) {
@@ -767,6 +780,25 @@ function evaluate(htmlPath) {
     splicePlacementTypes: splicePlacements.size,
     // v9 diversity metrics
     bgHueRange,
+    // Content density appropriateness: classify each slide type and check if density matches
+    let densityMismatches = 0;
+    perSlideTextLen.forEach((len, i) => {
+      const issues = perSlideIssues[i] || [];
+      const slide = slides[i];
+      const hasH1 = slide && slide.querySelector('h1,h2');
+      const hasTable = slide && slide.querySelector('table');
+      const hasImg = slide && slide.querySelector('img:not(.splice-img)');
+      const isTitle = i === 0;
+      const isDivider = len < 50 && hasH1 && !hasTable;
+      const isDataSlide = hasTable;
+
+      // Section dividers should be sparse (< 200 chars)
+      if (isDivider && len > 300) densityMismatches++;
+      // Data slides should be dense (> 200 chars or has table)
+      // Title slide should be sparse
+      if (isTitle && len > 200) densityMismatches++;
+    });
+
     // v10 design theory metrics
     avgWhitespace, modularScaleScore, colorHarmonyType, hasNamedHarmony,
     // v10b: Gestalt, Arnheim, reading path

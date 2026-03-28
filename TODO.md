@@ -98,14 +98,14 @@ A minimalist slide with title + 3 bullets scores 10/10 on everything. There's no
 The rubric implicitly encodes Muller-Brockmann (grid), Itten (color), and Weingart (typography) but doesn't measure several formalizable design principles. Ordered by implementation feasibility:
 
 **High priority (formalizable now):**
-- [ ] **Whitespace-to-content ratio** — `whitespaceRatio = empty grid cells / total cells`. Reward 25-45% range. Measures Beatrice Warde's "crystal goblet" principle: negative space as active design element. Currently whitespace is invisible to the rubric.
-- [ ] **Gestalt proximity scoring** — measure distances between zone centers. Penalize unrelated zones that are closer than related zones. E.g. a label and its body zone should be closer than two unrelated body zones.
-- [ ] **Typographic modular scale** — check if title/body/label sizes follow a mathematical scale (perfect fourth 1.333x, major third 1.25x, golden ratio 1.618x). Currently checks ratio range (1.8-3.0x) but not scale consistency.
-- [ ] **Visual weight distribution** — approximate Arnheim's balance: `weight = luminance_inverse × area × distance_from_center`. Score for balanced distribution (not necessarily symmetric). Requires per-zone bounding box data.
-- [ ] **Color harmony classification** — detect whether palette follows a named harmony system (complementary, analogous, triadic, split-complementary). Currently measures variety and transitions but not harmonic relationships.
+- [x] **Whitespace-to-content ratio** — `whitespaceRatio = empty grid cells / total cells`. Reward 25-45% range. Measures Beatrice Warde's "crystal goblet" principle: negative space as active design element. Currently whitespace is invisible to the rubric.
+- [x] **Gestalt proximity scoring** — measure distances between zone centers. Penalize unrelated zones that are closer than related zones. E.g. a label and its body zone should be closer than two unrelated body zones.
+- [x] **Typographic modular scale** — check if title/body/label sizes follow a mathematical scale (perfect fourth 1.333x, major third 1.25x, golden ratio 1.618x). Currently checks ratio range (1.8-3.0x) but not scale consistency.
+- [x] **Visual weight distribution** — approximate Arnheim's balance: `weight = luminance_inverse × area × distance_from_center`. Score for balanced distribution (not necessarily symmetric). Requires per-zone bounding box data.
+- [x] **Color harmony classification** — detect whether palette follows a named harmony system (complementary, analogous, triadic, split-complementary). Currently measures variety and transitions but not harmonic relationships.
 
 **Medium priority (partially formalizable):**
-- [ ] **Reading path / visual flow** — analyze zone sequence (title row → label → body → image). Penalize layouts where the eye must jump backwards. Could use simple top-to-bottom, left-to-right heuristic.
+- [x] **Reading path / visual flow** — analyze zone sequence (title row → label → body → image). Penalize layouts where the eye must jump backwards. Could use simple top-to-bottom, left-to-right heuristic.
 - [ ] **Focal point hierarchy** — measure which zone has the highest visual weight (largest area × highest contrast). Should be the title zone on most slides. Currently not distinguished from accent elements.
 - [ ] **Content density appropriateness** — different slide types need different densities. A section divider should be sparse (title only). A data slide should be dense (table + annotation). The rubric penalizes both equally via `lowDensitySlides`.
 - [ ] **Golden ratio detection** — check if key zone proportions approximate 1:1.618 (zone width / zone height, or body width / margin width). Aspirational but mathematically tractable.

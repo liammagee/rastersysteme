@@ -1,5 +1,4 @@
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":4,"rowSpan":2},{"role":"body","col":4,"span":36,"row":8,"rowSpan":24}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":4,"span":36,"row":7,"rowSpan":1,"color":"E5DFD3"}],"typography":{"body":{"size":16,"leading":"1.75","align":"left"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"E5DFD3","font":"Palatino"} -->
-### INFRA
+<!-- design: {"zones":[{"role":"body","col":8,"span":38,"row":6,"rowSpan":28}],"accents":[],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Evaluation Instruments
 
 Three instruments, each with different capabilities:
@@ -16,8 +15,7 @@ The shared scoring module (`rubric-scores.js`) normalizes results from any engin
 
 ---
 
-<!-- design: {"zones":[{"role":"label","col":48,"span":10,"row":2,"rowSpan":2},{"role":"body","col":18,"span":38,"row":4,"rowSpan":16},{"role":"bullets","col":18,"span":38,"row":22,"rowSpan":16}],"accents":[{"type":"bar","col":16,"span":1,"row":4,"rowSpan":34,"color":"B7311A"},{"type":"line","col":18,"span":38,"row":21,"rowSpan":1,"color":"0A1628"}],"typography":{"body":{"size":14,"leading":"1.6","align":"left"},"bullets":{"size":14,"leading":"1.55"},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"0A1628"}},"bg":"FAF6EE","font":"Palatino"} -->
-### AUTOMATION
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":26,"row":2,"rowSpan":14},{"role":"body","col":4,"span":34,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":32,"span":1,"row":4,"rowSpan":28,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Commit Protocol as Design Rationale
 
 Every rubric revision is committed separately with a structured message:
@@ -41,68 +39,54 @@ The git log becomes a design methodology journal. Each entry is a calibration st
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":4,"span":52,"row":15,"rowSpan":10}],"accents":[{"type":"bar","col":2,"span":1,"row":10,"rowSpan":20,"color":"B7311A"},{"type":"line","col":4,"span":52,"row":26,"rowSpan":1,"color":"FAF6EE"}],"typography":{"title":{"size":48,"weight":700,"tracking":"0.02em","align":"left","color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
-### SECTION
+<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":14,"span":1,"row":2,"rowSpan":36,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
+### What the Rubric Sees and What It Doesn't
+
+The rubric's six dimensions encode specific design theories — mostly implicitly:
+
+| Dimension | Design theory embedded | Design theory missing |
+|-----------|----------------------|----------------------|
+| **Grid Utilization** | Muller-Brockmann's grid systems: zone variety, asymmetric balance, non-default positioning | Golden ratio proportions, rule of thirds, Gestalt grouping of related zones |
+| **Color Harmonics** | Itten's chromatic arc, Albers' interaction of color (transitions between adjacent slides) | Color harmony systems (complementary, triadic), semantic color (does red mean warning?), mood alignment |
+| **Coherence** | Typographic hierarchy (Weingart's tension between scale extremes), content density rhythm | Bringhurst's modular scale (mathematical ratio between sizes), visual rhythm as distinct from content rhythm |
+| **Content Fidelity** | Tufte's data-ink ratio (every element carries information), Lupton's content preservation | Semantic loss (is the *meaning* preserved, not just the text?), information hierarchy |
+| **Image Integration** | Figure-ground relationship (Gestalt), layered composition | Focal point hierarchy, visual weight distribution, image-content semantic relevance |
+| **Accessibility** | WCAG as formalized color theory (contrast as mathematical relationship) | Readability at projection distance, cognitive load, attention management |
+
+Three dimensions are defined in the rubric but permanently null: **Communicability** (does the design help you understand faster?), **Taste** (does it show design-historical awareness?), and **Balance** (does it feel right?). These are the dimensions that require human perception — the outer loop.
+
+The gap between what the rubric measures and what design theory considers important is not accidental. It is a map of the boundary between what can be automated and what cannot. The measured dimensions correspond to design theories that can be formalized (grids, color math, typographic ratios). The unmeasured dimensions correspond to theories that resist formalization (Gestalt perception, aesthetic judgment, communicative intent).
+
+This boundary is itself an object of study for the outer-outer loop: as the rubric evolves, does the boundary shift? Can Gestalt proximity be formalized (distance between zone centers)? Can visual balance be approximated (luminance-weighted center of gravity)? Each attempt to formalize a previously-intuitive quality is an outer-outer loop iteration.
+
+<!-- notes: This slide does two things: it grounds the rubric in named design theories (giving the audience specific references), and it makes explicit what the rubric can't see. The table format lets the audience scan quickly. The key insight is the final paragraph: the boundary between measurable and unmeasurable design quality is itself moving, and the concentric loops are the mechanism that moves it. Muller-Brockmann's grid systems are fully formalized in the 60-column grid. Itten's color theory is partially formalized in the chromatic arc metric. Gestalt principles are not yet formalized at all. The progression from "fully formal" to "not formal" maps to the progression from inner-loop-solvable to outer-loop-required. -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":2,"rowSpan":12},{"role":"bullets","col":4,"span":36,"row":16,"rowSpan":22}],"accents":[{"type":"bar","col":56,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+### Design Theory as Rubric Frontier
+
+The history of design theory can be read as a progressive formalization of intuition:
+
+- **Muller-Brockmann** (1961): formalized layout into grid systems — now fully automatable
+- **Itten** (1961): formalized color relationships into contrasts and harmonies — partially automatable (the rubric measures transition distances but not semantic color)
+- **Tschichold** (1928): formalized typography into hierarchical rules — partially automatable (the rubric checks ratios but not readability)
+- **Gestalt psychologists** (1920s-): described perception principles (proximity, closure, figure-ground) — formalizable in principle (zone proximity = distance between centers) but not yet implemented
+- **Arnheim** (1954): described visual balance as weight distribution — formalizable (luminance × area × distance from center) but not yet implemented
+- **Tufte** (1983): formalized information design into data-ink ratio — partially automatable (content fidelity checks empty zones but not information density)
+
+Each formalization made a previously-intuitive quality measurable. Each moved a design judgment from the outer loop (human perception) to the inner loop (automated metric). The rubric's evolution recapitulates this history in miniature: the move from absence-of-bad to presence-of-good is the move from checking rules (Muller-Brockmann's grid) to assessing perception (Arnheim's balance).
+
+The remaining frontier — communicability, taste, balance — may require vision models that can approximate human perception. Or it may require accepting that some design qualities are irreducibly perceptual, accessible only through the outer loop. The concentric loops framework accommodates both possibilities: formalize what you can, perceive what you must, and continuously renegotiate the boundary.
+
+<!-- notes: This slide connects design history to the paper's thesis. The key move is reading the history of design theory as a progressive formalization — each theorist made something measurable that was previously intuitive. The rubric's evolution follows the same trajectory, just faster. The audience should come away with the sense that the rubric's limitations are not failures of implementation but reflections of where design theory itself hits the limits of formalization. The specific references (Muller-Brockmann, Itten, Tschichold, Gestalt, Arnheim, Tufte) are chosen because they're canonical and map cleanly to rubric dimensions. -->
+
+---
+
+<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":26,"span":2,"row":6,"rowSpan":28,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+### SECTION SIX
 ## 6. Results
 
 ### week-2 Through the Loops
 
 <!-- notes: Section divider. This section presents the empirical data. The key message is not "scores went up" but "what kind of improvement happened at each stage, and who or what caused it." -->
-
----
-
-<!-- design: {"zones":[{"role":"label","col":2,"span":12,"row":3,"rowSpan":2},{"role":"body","col":2,"span":30,"row":6,"rowSpan":18},{"role":"bullets","col":2,"span":30,"row":26,"rowSpan":12}],"accents":[{"type":"line","col":2,"span":30,"row":25,"rowSpan":1,"color":"B7311A"},{"type":"block","col":36,"span":22,"row":0,"rowSpan":40,"color":"E5DFD3"}],"typography":{"body":{"size":14,"leading":"1.6","align":"left"},"bullets":{"size":14,"leading":"1.55"},"label":{"size":12,"transform":"uppercase","tracking":"0.1em","color":"B7311A"}},"bg":"FAF6EE","font":"Palatino"} -->
-### FINDINGS
-### Score Progression
-
-| Deck | Rubric | A11y | Grid | Color | Coher. | Images | Content | **Total** |
-|------|--------|------|------|-------|--------|--------|---------|-----------|
-| week-2 (early) | v2 | 1 | 10 | 10 | 8 | 10 | 1.4 | **40.4/60** |
-| week-2-v8 | v2 | 10 | 9.9 | 9 | 8.5 | 10 | 9.7 | **57.1/60** |
-| week-2-v9 | v4 | 10 | 10 | 9 | 10 | 8 | 7.5 | **54.5/60** |
-| week-2-v10 | v5/v6 | 6.5 | 4 | 10 | 8.5 | 8 | 7 | **44/60** |
-| week-2-v11 | v7 | 10 | 10 | 10 | 10 | 10 | 8.5 | **58.5/60** |
-
-Read this table row by row, not column by column. The total does not monotonically decrease:
-
-- **Early → v8** (+17 points): inner loop fixes. Accessibility jumped from 1 to 10 (contrast fixed). Content from 1.4 to 9.7 (body zones populated). But the rubric is v2 — still lenient.
-- **v8 → v9** (-2.6 points): new rubric, new compose. v4 rubric detects 16 generic alt-text images for the first time. The deck got a new composition but the rubric got stricter — Images and Content drop.
-- **v9 → v10** (-10.5 points): zone collision detection added. Grid crashes from 10 to 4 — four collision slides that were always there, now visible. This is the most honest score.
-- **v10 → v11** (+14.5 points): renderer and source fixes, not rubric changes. Collisions fixed (Grid: 4→10), alt text replaced (Images: 8→10), contrast resolved (A11y: 6.5→10). The rubric is unchanged. The artifact is better.
-
-The story is not "scores went up." The story is that three things improved in parallel — the rubric (more honest), the deck (better designed), and the renderer (fewer bugs) — and the per-dimension breakdown reveals which improvement caused each change.
-
-<!-- notes: This is the data slide. The per-dimension breakdown matters because it defeats the naive narrative. A single total score hides the drama: Grid going from 10 to 4 and back to 10 is invisible in the total. The reader needs to see that Grid scored 10/10 at v2 (no collision detection), crashed to 4/10 at v6 (collision detection added), and returned to 10/10 at v7 (collisions actually fixed). That's three different meanings of "10/10" — ignorant, impossible, and earned. -->
-
----
-
-<!-- design: {"zones":[{"role":"label","col":46,"span":12,"row":1,"rowSpan":2},{"role":"body","col":2,"span":56,"row":3,"rowSpan":36}],"accents":[{"type":"line","col":2,"span":56,"row":2,"rowSpan":1,"color":"B7311A"},{"type":"dot","col":52,"span":4,"row":1,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":"1.5","align":"left","columns":2},"label":{"size":11,"transform":"uppercase","tracking":"0.12em","color":"0A1628"}},"bg":"E5DFD3","font":"Palatino"} -->
-### DATA
-### Three Meanings of 10/10
-
-Grid Utilization scored 10/10 three times. Each time it meant something different.
-
-```
-Grid
-Score
-  10 │ ●                                     ●      ← EARNED
-     │  \                                   /         (collisions fixed,
-   8 │   \                                 /           layouts genuinely
-     │    \                               /            varied)
-   6 │     \                             /
-     │      \                           /
-   4 │       \_________________________●             ← HONEST
-     │         (no collision detector)   (4 collision   (collisions
-   2 │                                   slides found)  detected)
-     │
-  10 │ ●·····●·····●                                 ← IGNORANT
-     │  (rubric blind to collisions)                   (no metric
-     │                                                  existed)
-     └──────┬──────┬──────┬──────┬──────┬──────
-          early    v8     v9    v10    v11
-          (v2)    (v2)   (v4)  (v5/6)  (v7)
-```
-
-The top line is the real score. The bottom line is what the score *would have been* if collision detection existed from the start. The gap between them is the rubric's blind spot — invisible until the outer loop added the metric at v5/v6.
-
-<!-- notes: This diagram is the single most important visual in the paper. It shows that a score is not a fixed quantity — it is relative to the instrument that produces it. "10/10" at v2 and "10/10" at v7 are not the same claim. The first means "I see no problems" (which says more about the rubric than the deck). The second means "I see no problems AND I have been trained to see zone collisions, layout runs, whitespace utilization, and default-zone detection." The instrument's vocabulary determines the score's meaning. This is Goodhart made visible across time. -->

@@ -1,9 +1,9 @@
 {
   "slideCount": 36,
   "counts": {
-    "critical": 2,
-    "warning": 4,
-    "info": 74
+    "critical": 0,
+    "warning": 3,
+    "info": 55
   },
   "issues": [
     {
@@ -20,18 +20,8 @@
       "slide": 2,
       "issues": [
         {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-extras by 1536x891px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-title by 1382x94px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "type": "clipped-overflow",
+          "detail": "zone-title: 13px clipped overflow",
           "severity": "info"
         }
       ]
@@ -40,18 +30,8 @@
       "slide": 3,
       "issues": [
         {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-extras by 1536x918px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-title by 1382x121px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "type": "clipped-overflow",
+          "detail": "zone-title: 13px clipped overflow",
           "severity": "info"
         }
       ]
@@ -59,41 +39,6 @@
     {
       "slide": 4,
       "issues": [
-        {
-          "type": "zone-collision",
-          "detail": "zone-label overlaps zone-extras by 704x81px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-label overlaps zone-title by 627x52px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-extras by 704x324px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-body overlaps zone-title by 627x40px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-extras by 704x972px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-title by 627x146px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-title by 1382x146px",
-          "severity": "info"
-        },
         {
           "type": "out-of-bounds",
           "detail": "accent-el extends beyond slide edge",
@@ -117,58 +62,12 @@
       ]
     },
     {
-      "slide": 6,
-      "issues": [
-        {
-          "type": "out-of-bounds",
-          "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        },
-        {
-          "type": "out-of-bounds",
-          "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
       "slide": 7,
       "issues": [
         {
           "type": "clipped-overflow",
-          "detail": "zone-image: 23px clipped overflow",
+          "detail": "zone-image: 131px clipped overflow",
           "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-extras by 704x432px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-image overlaps zone-body by 627x189px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-extras by 704x432px",
-          "severity": "info"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-table overlaps zone-body by 627x189px",
-          "severity": "critical"
-        },
-        {
-          "type": "zone-collision",
-          "detail": "zone-extras overlaps zone-body by 1382x700px",
-          "severity": "info"
-        },
-        {
-          "type": "text-image-collision",
-          "sameCell": null,
-          "detail": "\"Fourth Figure. Ars brevis XVIII Century....\" over gen_ai___week_1___pathways_to_ai_img_12.png",
-          "severity": "warning"
         },
         {
           "type": "text-image-collision",
@@ -306,16 +205,6 @@
     },
     {
       "slide": 19,
-      "issues": [
-        {
-          "type": "out-of-bounds",
-          "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 20,
       "issues": [
         {
           "type": "out-of-bounds",
@@ -466,16 +355,6 @@
       ]
     },
     {
-      "slide": 28,
-      "issues": [
-        {
-          "type": "out-of-bounds",
-          "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
       "slide": 30,
       "issues": [
         {
@@ -492,16 +371,6 @@
     },
     {
       "slide": 31,
-      "issues": [
-        {
-          "type": "out-of-bounds",
-          "detail": "accent-el extends beyond slide edge",
-          "severity": "info"
-        }
-      ]
-    },
-    {
-      "slide": 32,
       "issues": [
         {
           "type": "out-of-bounds",
