@@ -907,8 +907,11 @@ Seven versions of the same 36-slide deck, each with a genuinely different design
 | v14 | Brutalist concrete | 51.0 (85%) | 9 | 72.5 (81%) |
 | v15 | Pop chromatic | 51.3 (86%) | 6 | 70.8 (79%) |
 | v16 | Terminal editorial | 50.5 (84%) | 8 | 73.5 (82%) |
+| **v17** | **Post-Swiss deconstruction** | **36.6 (61%)** | **?** | **Rubric failure case** |
 
-The computed scores cluster tightly (81-86%), confirming the inner loop is aesthetic-agnostic: it optimizes structural quality regardless of design direction. The aesthetic itself is an outer-loop choice.
+v17 breaks the cluster. Its 61% computed score is not a quality failure — it is a *rubric* failure. The metrics penalize intentional design choices (binary palette, monospace austerity) alongside genuine accessibility violations (low contrast on dark backgrounds). See Case Study below.
+
+The computed scores for v10-v16 cluster tightly (81-86%), confirming the inner loop is aesthetic-agnostic: it optimizes structural quality regardless of design direction. The aesthetic itself is an outer-loop choice.
 
 But the visual scores diverge dramatically. v15 Pop Chromatic scores highest on computed metrics (86%) yet lowest on visual taste (6/10) — its cheerful rotating hues satisfy every metric but lack design rigor. v14 Brutalist scores highest on taste (9/10) but lower computed. This divergence is the formalization frontier made visible: computed metrics capture absence-of-bad, visual assessment captures presence-of-good. The gap between them is precisely what the outer loop exists to address.
 
@@ -927,6 +930,31 @@ Not every outer loop iteration improved the system. Two cases of regression:
 These failures demonstrate that the outer loop is not monotonically improving. Each intervention can introduce new problems. The concentric loops framework handles this through iteration, not infallibility: the outer-outer loop's value is in catching outer-loop regressions, not preventing them.
 
 <!-- notes: Honest reporting of failure cases strengthens the paper's credibility. The lowDensity example is particularly instructive: it shows a rubric metric that was locally correct (sparse slides are usually bad) but globally wrong (some sparse slides are intentional). The splice targeting case shows that the outer loop's diagnosis can be correct while its fix is wrong. Both cases demonstrate that the concentric loops are not a guaranteed improvement mechanism — they are a structured way of detecting and correcting regressions, including regressions introduced by previous corrections. -->
+
+---
+
+### Case Study: Post-Swiss Deconstruction (v17)
+
+The rubric's strongest test came from a design that deliberately confronted its assumptions. Version 17 was briefed as a "post-Swiss deconstruction" — Wolfgang Weingart meets David Carson. Near-black backgrounds (#0A0A0A) on 78% of slides. Courier New monospace throughout. Neon magenta (#FF3366) and electric green (#00FF88) as accent signals. The brief explicitly invited rule-breaking: "the 60-column grid is your material, not your master."
+
+The rubric scored it **36.6/60 (61%)** — the lowest of any version that reached evaluation. The breakdown:
+
+| Dimension | Score | What the rubric saw | What a designer sees |
+|---|---|---|---|
+| Accessibility | 1/10 | 10 contrast warnings (light on dark) | **Legitimate concern** — Courier at 14px on near-black is genuinely hard to read. Not all contrast failures are aesthetic choices. |
+| Grid | 7.1/10 | Low archetype variety, 1 collision | Mixed — the collision is real, but "low variety" misreads deliberate monotony |
+| Color | 6/10 | Only 2 backgrounds, palette monotony | **Wrong** — binary black/white with neon accents is an intentional palette, not poverty |
+| Coherence | 8/10 | Single font, good scale | **Right** — correctly recognizes the monospace discipline |
+| Images | 7/10 | Background splices on dense text | **Partially right** — some backgrounds genuinely hurt readability |
+| Content | 7.5/10 | 1 empty zone, 2 sparse slides | **Right** — structural issues are real regardless of aesthetic |
+
+The user's outer-loop assessment confirmed: "there are legitimate accessibility issues alongside the different design — a low score is not just aesthetic preference." The rubric was right about readability (Accessibility 1/10 reflects real problems) but wrong about palette (Color 6/10 mistakes intentional minimalism for incompetence).
+
+This case reveals where the line between **craft failure** and **aesthetic choice** actually falls. Accessibility violations are never just aesthetic — they are functional failures that exclude audiences. But a two-color palette is a design decision that the rubric should recognize, not penalize. The outer loop's value is precisely in making this distinction: the human confirms the accessibility score ("yes, that Courier IS too small") while overriding the color score ("no, that binary palette IS the point").
+
+The implication for the rubric: accessibility metrics should be aesthetic-agnostic (contrast failures are always failures), but palette and layout metrics should be calibratable by declared intent. A "post-Swiss" brief should adjust the color variety threshold downward, while leaving accessibility thresholds unchanged. This is the **deck-type parameter** — a future outer-outer loop iteration.
+
+<!-- notes: v17 is the paper's most important case study because it tests the rubric at its limits. Previous versions explored within the rubric's comfort zone (warm editorial, Swiss discipline). v17 attacks the rubric's assumptions: dark backgrounds, monospace only, deliberate sparseness, neon accents. The rubric's response reveals its biases — it confuses aesthetic austerity with design poverty. But it also catches real problems: the accessibility score of 1/10 is not aesthetic bias, it's functional failure. The Courier New at 14px on #0A0A0A is genuinely illegible for many viewers. The outer loop's role is to separate the legitimate accessibility failures (raise the font size, increase contrast) from the illegitimate palette penalties (the binary palette is intentional). This distinction — between functional quality and aesthetic preference — is the most important boundary in automated design evaluation. -->
 
 ---
 
@@ -1005,6 +1033,9 @@ The fractal design framework applies under specific conditions. It does not appl
 - Fully ineffable domains: if quality cannot be decomposed into any measurable dimensions (abstract art, emotional resonance), metrics are not worth building. The inner loop has nothing to optimize against.
 - Single-artifact contexts: if you are designing one poster, not 36 slides, human review is feasible without automated screening. The inner loop adds overhead without value.
 - Opaque evaluators: if the scoring model is a neural network, the outer loop cannot diagnose *why* a score diverges from perception. The framework requires transparency.
+
+**Where the rubric conflates craft and taste**:
+- The v17 case study demonstrates that automated metrics cannot distinguish between functional failures (low contrast = hard to read) and aesthetic choices (binary palette = intentional minimalism). The rubric penalizes both equally. A future direction is a *deck-type parameter* that adjusts metric thresholds based on the declared design intent — a post-Swiss brief should relax palette variety requirements while maintaining accessibility standards. The principle: accessibility is universal, aesthetics are contextual.
 
 **Where it is uncertain**:
 - At industrial scale (millions of artifacts, thousands of evaluators): the outer loop's reliance on individual human perception may not scale. Crowdsourced calibration is possible but untested in this framework.

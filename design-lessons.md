@@ -471,3 +471,5 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-29] **week-2-v16.spliced.html**: All computed dimensions scored >= 8. No new lessons.
 
 - [2026-03-29] **week-2-v17.spliced.html**: 30 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+
+- [2026-03-29] **week-2-v17.spliced.html**: 30 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
