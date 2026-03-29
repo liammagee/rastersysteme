@@ -105,6 +105,7 @@ This is not a new idea. It has appeared in different vocabularies:
 | **Organizational learning** (Argyris, 1977) | Single-loop: correct actions | Double-loop: question governing variables | Deutero-learning: learn how to learn |
 | **Reflective practice** (Schon, 1983) | Technical rationality: apply rules | Reflection-in-action: surprise and puzzlement | Reflection on reflection-in-action |
 | **RLHF** (Christiano et al., 2017) | RL optimization against reward model | Human feedback recalibrates reward model | Reward model architecture evolves |
+| **Autoresearch** (Karpathy, 2025; Qu & Lu, 2026) | Optimize task against objective | Meta-optimize the optimization process | (Absent when objective function is clear) |
 | **Generative systems** (Chomsky; Lindenmayer) | Generate artifacts from rules | Generate rules from observation | Generate the rule-generation process |
 | **Man-computer symbiosis** (Licklider, 1960) | Machine: routinizable optimization | Human: goals, hypotheses, criteria | Both: evolving the collaboration itself |
 | **Design formalization** (Muller-Brockmann; Itten; Arnheim) | Apply formalized rules (grids, color math, type ratios) | Perceive what rules can't capture (balance, taste, communicability) | Formalize previously-intuitive qualities |
@@ -608,6 +609,26 @@ The shared scoring module (`rubric-scores.js`) normalizes results from any engin
 
 ---
 
+### The Image Generation Side Loop
+
+Parallel to the main compose-render-evaluate cycle, a side loop generates slide-specific images through Midjourney:
+
+```
+imagine.js → prompt per slide → Midjourney → PNG → splice-images.js → deck
+```
+
+The `/rs:imagine` skill analyzes each slide's content and generates image prompts with a "visual thread" — a consistent stylistic directive (e.g., "monochrome architectural photography with grain") that unifies the series. These prompts are sent to Midjourney, which produces images that are then spliced into the rendered deck.
+
+This is not a nested loop but a parallel one — the image generation process has its own quality cycle (prompt refinement, style consistency, resolution) that runs alongside the main design iteration. The splice step is where the two loops converge: `splice-images.js` must place generated images without conflicting with the designed zones.
+
+The splice algorithm itself went through a concentric loop during development. The initial algorithm placed images only on slides that already had content images — the opposite of what was needed. Text-only slides, which most needed visual enhancement, received nothing. Three outer-loop iterations were required: fix targeting (skip content-image slides), add background mode as atmospheric texture for text-heavy slides, and introduce a three-tier visibility model (invisible < 0.15, atmospheric 0.15-0.40, visible >= 0.40) that recognizes low-opacity backgrounds as a valid design choice rather than a failure.
+
+The Midjourney dependency is a limitation: image generation is the one step in the pipeline that cannot be automated from within the system. The prompt generation is automated (imagine.js); the image generation requires an external service with its own aesthetic logic; the integration is automated (splice-images.js). The side loop is an honest acknowledgment that the design pipeline depends on tools beyond its control.
+
+<!-- notes: The image generation side loop is important for three reasons. First, it shows the system is not self-contained — it depends on external generative tools (Midjourney) with their own quality dynamics. Second, the splice algorithm's own outer loop is a fractal demonstration of the concentric pattern at the tool level. Third, the three-tier visibility model (invisible/atmospheric/visible) is a rubric calibration that came from human perception — the user said "background images are valid" and the metric was adjusted. This is the outer loop in miniature, operating on a single component. -->
+
+---
+
 ### The Commit Protocol as Design Rationale
 
 Every rubric revision is committed separately with a structured message:
@@ -856,6 +877,22 @@ But the concentric loops framework differs in three ways:
 
 ---
 
+### Why Three Loops? The Autoresearch Argument
+
+Karpathy (2025) introduced "autoresearch" as a pattern where an LLM autonomously runs experiments, evaluates results, and iterates toward a goal. Qu and Lu (2026) extended this to "bilevel autoresearch," where an outer loop meta-optimizes the inner loop's search strategy. Their system achieved a 5x improvement over the standard inner loop alone on GPT pretraining benchmarks, discovering optimization mechanisms "without human specification of which domains to explore."
+
+The bilevel structure works because their objective function is unambiguous: validation bits-per-byte (val_bpb) is a scalar that decreases as the model improves. The inner loop optimizes the model; the outer loop optimizes the optimizer. Two loops suffice because the metric never lies — lower val_bpb always means a better language model. Qu and Lu explicitly state their approach applies to any task "with a measurable objective."
+
+Our domain has no such objective. A slide deck's quality is not reducible to a scalar. We *constructed* a rubric as a proxy, but the rubric itself required validation — it scored 100% on decks with overlapping text and invisible images. The metric can lie. This is the fundamental motivation for the third loop: when the objective function is not given but constructed, someone must validate the construction. The inner loop optimizes the design against the rubric. The outer loop validates the rubric against human perception. The outer-outer loop evolves the validation methodology itself.
+
+The bilevel autoresearch framework implicitly assumes the third loop is unnecessary: if the objective is clear, you need only optimize and meta-optimize. We claim the third loop becomes necessary precisely at the boundary where quality ceases to be fully formalizable — where metrics are useful but incomplete, where the score-perception gap opens. Design, education assessment, creative writing, UX — any domain where "good" is partially but not fully measurable. In these domains, a two-loop system converges on what it can measure, not what matters. The third loop is the structural mechanism for bridging the gap.
+
+The autoresearch tradition provides the inner two loops. The design evaluation tradition provides the critique of fixed metrics. The concentric loops framework synthesizes both: autoresearch the designable, but validate the objective with human perception, and evolve the validation when patterns of failure emerge.
+
+<!-- notes: The autoresearch connection is strategically important: it positions our work within the rapidly growing "AI for AI research" literature while making a precise claim about where that literature's assumptions break down. Karpathy's original concept and Qu/Lu's bilevel extension both depend on clear objective functions. Our contribution is showing what happens when the objective must be constructed and contested. The three-loop structure is not arbitrary — it emerges from the structural necessity of validating a constructed metric. This subsection should be read as: "autoresearch is the right framework; we extend it to domains without natural objectives." -->
+
+---
+
 ### Second-Order Cybernetics
 
 Heinz von Foerster's second-order cybernetics insists that the observer cannot be separated from the observed system. The act of measuring changes what is measured.
@@ -914,6 +951,10 @@ v17 breaks the cluster. Its 61% computed score is not a quality failure — it i
 The computed scores for v10-v16 cluster tightly (81-86%), confirming the inner loop is aesthetic-agnostic: it optimizes structural quality regardless of design direction. The aesthetic itself is an outer-loop choice.
 
 But the visual scores diverge dramatically. v15 Pop Chromatic scores highest on computed metrics (86%) yet lowest on visual taste (6/10) — its cheerful rotating hues satisfy every metric but lack design rigor. v14 Brutalist scores highest on taste (9/10) but lower computed. This divergence is the formalization frontier made visible: computed metrics capture absence-of-bad, visual assessment captures presence-of-good. The gap between them is precisely what the outer loop exists to address.
+
+The comparison is visible in the screenshots. Slide 24 ("Discussion / Break") across all seven versions shows the same content rendered through seven design languages — from v10's literary darkness to v13's cyan-and-magenta Weingart to v14's severe Courier monospace. The inner loop brought each to structural soundness. The outer loop would judge which *communicates*.
+
+![v10 slide 24](comparison/v10-slide-24.png) ![v11 slide 24](comparison/v11-slide-24.png) ![v12 slide 24](comparison/v12-slide-24.png) ![v13 slide 24](comparison/v13-slide-24.png) ![v14 slide 24](comparison/v14-slide-24.png) ![v15 slide 24](comparison/v15-slide-24.png) ![v16 slide 24](comparison/v16-slide-24.png)
 
 <!-- notes: This data from the 7-version comparison study is the strongest empirical evidence that the inner loop and outer loop measure different things. The tight computed cluster means the inner loop reliably achieves structural quality. The visual divergence means structural quality is necessary but not sufficient. The Pop Chromatic / Brutalist contrast is the paper's argument in miniature: the metrics say Pop is better, the eye says Brutalist is better, and neither is wrong — they are measuring different qualities. The 80% convergence threshold was a methodological decision ("back yourself, don't give up below 80%") that prevented premature stopping and forced fixing real issues. -->
 
@@ -1004,6 +1045,16 @@ Our work extends this literature in two directions. First, we use a *transparent
 Panickssery et al. (2024) study LLM self-evaluation and find that models are systematically biased toward their own outputs. Our invented-labels case study (Section 3) demonstrates the same dynamic in a design context: the composition AI, informed by rubric-derived design lessons, produces artifacts that satisfy the rubric because the rubric shaped the generator's training signal. The concentric loops framework is a structural response to this circularity.
 
 <!-- notes: LLM-as-judge is the most directly relevant related work. Our contribution is not a better judge but a better process for improving judges. The transparent-evaluator point is important: most LLM-as-judge work uses neural judges that cannot be debugged. Our explicit-formula approach trades expressiveness for transparency, and the outer loop exploits that transparency to drive systematic improvement. The self-evaluation bias finding connects directly to our Goodhart analysis. -->
+
+---
+
+### Autoresearch and Bilevel Optimization
+
+Karpathy (2025) coined "autoresearch" for the practice of using LLMs to autonomously run experiments, evaluate results, and iterate — collapsing the research loop into a single automated cycle. Qu and Lu (2026) extended this to bilevel autoresearch, where an outer loop meta-optimizes the inner loop's search strategy, achieving 5x improvements on GPT pretraining benchmarks. Their system discovers optimization mechanisms autonomously, "without human specification of which domains to explore."
+
+The bilevel framework assumes a clear objective function (validation loss, accuracy). Our work addresses the case where no natural objective exists. Design quality is not a scalar — we constructed a rubric as a proxy, and that proxy required 11 calibration iterations before it agreed with human perception. The three-loop structure emerges from this structural difference: the third loop validates the constructed objective, a step that is unnecessary when the objective is given. This positions the concentric loops framework as an extension of autoresearch to partially-formalizable domains — domains where the optimization target itself is an artifact of the process, not a given.
+
+<!-- notes: The autoresearch comparison is strategically important. Karpathy's concept is widely known in the ML community and positions our work in a current conversation. The key move: their two loops work because val_bpb is unambiguous. Our three loops are needed because "good design" is not. This is not a criticism of autoresearch but a boundary condition: the framework applies beautifully when objectives are clear. We extend it to where objectives must be constructed. -->
 
 ---
 
