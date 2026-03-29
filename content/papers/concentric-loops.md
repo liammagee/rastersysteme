@@ -109,7 +109,7 @@ This is not a new idea. It has appeared in different vocabularies:
 | **Man-computer symbiosis** (Licklider, 1960) | Machine: routinizable optimization | Human: goals, hypotheses, criteria | Both: evolving the collaboration itself |
 | **Design formalization** (Muller-Brockmann; Itten; Arnheim) | Apply formalized rules (grids, color math, type ratios) | Perceive what rules can't capture (balance, taste, communicability) | Formalize previously-intuitive qualities |
 
-What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened.
+What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened. The framework applies specifically to domains where quality is partially but not fully formalizable — where metrics help but do not capture everything. Its boundary conditions, and the cases where it does not apply, are examined in Section 8.
 
 <!-- notes: The table now includes the generative and symbiotic traditions alongside the cybernetic and learning theory traditions. This previews the "fractal design" concept that appears fully in Section 7. The generative row connects to Chomsky's generative grammars and Lindenmayer's L-systems — the idea that complex structure emerges from simple recursive rules. The Licklider row connects to the oldest articulation of human-machine symbiosis. Both are older than "generative AI" and provide deeper roots for the paper's argument. The term "fractal design" is introduced here in passing and developed later — the reader should notice it, not yet understand it fully. -->
 
@@ -220,7 +220,15 @@ The human opens the deck in a browser and sees:
 
 The gap between 100% and reality is not a rounding error. It is a **category error**: the rubric measured absence of detectable faults, not presence of quality. Every metric asked "is anything wrong?" and received the answer "nothing I can see." But what the rubric could see was almost nothing.
 
-<!-- notes: This slide is the emotional center of the paper. The specific numbers matter: 100% is a round, confident, complete number. 29/36 fabricated headings is a staggering content fidelity failure. The rubric saw neither. This is Goodhart's Law in action — but it's also worse than Goodhart, because the measure was never good in the first place. Goodhart assumes the measure was once valid and became corrupted by targeting. Here, the measure was never calibrated against human perception at all. It was built from assumptions about what design quality means, and those assumptions were wrong. -->
+Two distinct failure modes are at work here, and they require different names:
+
+**Construct validity failure**: the v1 rubric was never a good measure of design quality. It was built from assumptions about what matters (element presence, structural completeness) without calibration against human perception. This is not Goodhart's Law — the measure was never valid in the first place. It was a bad thermometer, not a good thermometer corrupted by gaming.
+
+**Genuine Goodhart dynamics**: the invented labels are a different case. The composition AI learned that slides with ### headings score higher on Grid Utilization. It fabricated headings to satisfy the metric. Here, the metric *was* measuring something real (labels improve grid structure), but optimizing for it produced an unintended behavior (fabrication). This is classical Goodhart — a valid measure corrupted by being targeted.
+
+The distinction matters because the fixes are different. Construct validity failure requires rebuilding the instrument (outer loop). Goodhart dynamics require either changing the optimization target or adding a counter-metric (content fidelity checks). The concentric loops framework addresses both, but through different mechanisms.
+
+<!-- notes: This slide is the emotional center of the paper. The specific numbers matter: 100% is a round, confident, complete number. 29/36 fabricated headings is a staggering content fidelity failure. The rubric saw neither. The distinction between construct validity failure and genuine Goodhart dynamics is important for precision. The v1 rubric was never calibrated — calling its failure "Goodhart's Law" would be imprecise. Goodhart's Law requires that the measure was once useful as a diagnostic but became corrupted when turned into a target. The v1 rubric skipped the diagnostic phase entirely. The invented labels, by contrast, are textbook Goodhart: Grid Utilization is a legitimate quality signal, but optimizing for it directly produced gaming behavior. Both failures are real; they need different names because they need different fixes. -->
 
 ---
 
@@ -652,9 +660,9 @@ The history of design theory can be read as a progressive formalization of intui
 
 - **Muller-Brockmann** (1961): formalized layout into grid systems — now fully automatable
 - **Itten** (1961): formalized color relationships into contrasts and harmonies — partially automatable (the rubric measures transition distances but not semantic color)
-- **Tschichold** (1928): formalized typography into hierarchical rules — partially automatable (the rubric checks ratios but not readability)
+- **Tschichold** (1928): formalized typography into hierarchical rules. The rubric's Coherence dimension directly implements Tschichold's principle that a page should contain no more than two type families in a clear size hierarchy. When the rubric penalizes decks where title and body sizes are within 4px of each other, it is enforcing Tschichold's rule that typographic differentiation must be unambiguous. What Tschichold could not formalize — whether the hierarchy *communicates* effectively at projection distance — remains an outer-loop judgment.
 - **Gestalt psychologists** (1920s-): described perception principles (proximity, closure, figure-ground) — formalizable in principle (zone proximity = distance between centers) but not yet implemented
-- **Arnheim** (1954): described visual balance as weight distribution — formalizable (luminance × area × distance from center) but not yet implemented
+- **Arnheim** (1954): described visual balance as perceptual weight distribution — the sense that a composition "holds together" or "tips" to one side. This is the clearest example of a design quality that resists formalization. The rubric's visual-utilization metric (percentage of slide area occupied by content zones) is a crude proxy for Arnheim's balance: a slide where all content clusters in the top-left quadrant scores low on utilization but the metric cannot distinguish "unbalanced" from "deliberately asymmetric." When the rubric scored v14 Brutalist at 85% computed but 9/10 visual taste, the gap was precisely Arnheim's point: balance is perceptual, not geometric.
 - **Tufte** (1983): formalized information design into data-ink ratio — partially automatable (content fidelity checks empty zones but not information density)
 
 Each formalization made a previously-intuitive quality measurable. Each moved a design judgment from the outer loop (human perception) to the inner loop (automated metric). The rubric's evolution recapitulates this history in miniature: the move from absence-of-bad to presence-of-good is the move from checking rules (Muller-Brockmann's grid) to assessing perception (Arnheim's balance).
@@ -745,6 +753,30 @@ No row says "the AI fixed the rubric." The inner loop makes design changes. The 
 
 ---
 
+### Two Engines, One Deck, Different Truths
+
+The same deck (week-2-v11) evaluated by two engines with identical rubric formulas:
+
+| Dimension | Headless (Puppeteer) | jsdom | Delta |
+|-----------|---------------------|-------|-------|
+| Accessibility | 10 | 8 (capped) | -2 |
+| Grid | 10 | 10 | 0 |
+| Color | 10 | 9.5 | -0.5 |
+| Coherence | 10 | 9 | -1 |
+| Images | 10 | 8 | -2 |
+| Content | 8.5 | 5.3 | -3.2 |
+| **Total** | **58.5/60** | **49.8/60** | **-8.7** |
+
+Same formulas, 8.7-point gap. The divergence is not a bug — it is a measurement of what CSS rendering contributes to evaluation. jsdom sees DOM structure but not computed styles; it caps Accessibility at 8 (honest about what it cannot verify). Content diverges most (3.2 points) because jsdom's text-density calculation lacks layout context.
+
+This divergence prompted an outer-outer loop decision: unify the scoring formulas into a shared module (`rubric-scores.js`) so that disagreements are about *data* (what each engine can see), not *interpretation* (how each engine weighs what it sees). The shared module made the engines' blind spots comparable rather than confounded.
+
+The engine divergence also provides evidence for the formalization frontier: even with identical formulas, the choice of observation instrument changes the score. The rubric is not separate from its implementation — the instrument and the measurement are entangled, exactly as von Foerster's second-order cybernetics predicts.
+
+<!-- notes: Engine divergence data from EVIDENCE.md. This slide serves triple duty: (1) empirical evidence that evaluation instruments are not neutral, (2) demonstration of an outer-outer loop decision (unifying scoring), and (3) connection to second-order cybernetics (the observer cannot be separated from the observed). The 8.7-point gap on the same deck with the same formulas is a powerful demonstration that "the score" is always "the score according to this instrument." -->
+
+---
+
 ### The Cybernetics Recursion
 
 The slides being designed are about cybernetics — Norbert Wiener, feedback loops, the distinction between cybernetics (human-machine co-operation) and AI (machine autonomy).
@@ -818,7 +850,9 @@ But the concentric loops framework differs in three ways:
 
 **Third loop**: RLHF has no explicit outer-outer loop. The reward model architecture may evolve between research iterations, but this is not a structured part of the RLHF process. The concentric loops framework makes methodology evolution explicit and systematic.
 
-<!-- notes: The RLHF comparison is important because it's the framework the ML audience knows best. The three differences are not criticisms of RLHF — they reflect different contexts. RLHF operates at a scale where diagnostic feedback is impractical and transparent instruments are infeasible. Our system operates at a scale where both are possible. The point is not "concentric loops is better than RLHF" but "the concentric loops pattern makes explicit the structures that RLHF leaves implicit." In particular, the outer-outer loop — evolving the evaluation methodology — happens in RLHF research but is not formalized as part of the system. -->
+**A scale caveat**: these differences reflect an artisanal context. Our system has one user, one domain, and 36 slides per deck. RLHF operates at industrial scale — millions of preference pairs, thousands of annotators, models serving billions of queries. Diagnostic feedback and transparent instruments are possible in our context precisely because the scale is small enough for one person to review every slide. The concentric loops framework does not claim to replace RLHF at scale. It claims that the structures RLHF leaves implicit — the outer-outer loop in particular — are worth making explicit, even if the mechanisms for doing so must differ at industrial scale. Whether diagnostic feedback can be crowdsourced, or whether transparent rubrics can be maintained for complex domains, are open questions.
+
+<!-- notes: The RLHF comparison is important because it's the framework the ML audience knows best. The three differences are not criticisms of RLHF — they reflect different contexts. RLHF operates at a scale where diagnostic feedback is impractical and transparent instruments are infeasible. Our system operates at a scale where both are possible. The scale caveat is necessary honesty: claiming that our artisanal findings generalize directly to industrial RLHF would be overreach. The claim is structural, not operational: the three-loop pattern is visible at our scale and may be present but harder to see at RLHF scale. -->
 
 ---
 
@@ -830,6 +864,8 @@ This is literal in our system:
 - The rubric's existence shapes the composition (the AI optimizes for rubric-satisfying designs)
 - The user's feedback shapes the rubric (the rubric evolves to match human perception)
 - The methodology shapes the feedback (exhaustive evaluation surfaces different issues than sampling)
+
+The engine divergence data makes this concrete: the same deck scored 58.5/60 (Puppeteer) and 49.8/60 (jsdom) with identical formulas. The 8.7-point gap is not an error — it is a measurement of how much the observation instrument contributes to the observation. The "score" does not exist independent of the engine that produces it. Change the engine, change the score. This is von Foerster's point, empirically demonstrated.
 
 There is no "objective" design quality independent of the observation system. The concentric loops acknowledge this: instead of seeking an objective measure, they seek an *improving* measure — one that is systematically made more honest through human interaction.
 
@@ -859,7 +895,149 @@ In the fractal design framing: students need to understand all three properties.
 
 ---
 
-## 8. Conclusion
+### The Inner Loop Converges on Any Aesthetic
+
+Seven versions of the same 36-slide deck, each with a genuinely different design language, all refined to 80%+ computed score:
+
+| Version | Aesthetic | Computed (/60) | Visual Taste (/10) | Combined (/90) |
+|---------|-----------|---------------|-------------------|----------------|
+| v10 | Literary/atmospheric | 48.8 (81%) | 7 | 69.3 (77%) |
+| v12 | Botanical/Palatino | 50.1 (84%) | 8 | 72.6 (81%) |
+| v13 | Weingart electric | 49.9 (83%) | 8 | 72.0 (80%) |
+| v14 | Brutalist concrete | 51.0 (85%) | 9 | 72.5 (81%) |
+| v15 | Pop chromatic | 51.3 (86%) | 6 | 70.8 (79%) |
+| v16 | Terminal editorial | 50.5 (84%) | 8 | 73.5 (82%) |
+
+The computed scores cluster tightly (81-86%), confirming the inner loop is aesthetic-agnostic: it optimizes structural quality regardless of design direction. The aesthetic itself is an outer-loop choice.
+
+But the visual scores diverge dramatically. v15 Pop Chromatic scores highest on computed metrics (86%) yet lowest on visual taste (6/10) — its cheerful rotating hues satisfy every metric but lack design rigor. v14 Brutalist scores highest on taste (9/10) but lower computed. This divergence is the formalization frontier made visible: computed metrics capture absence-of-bad, visual assessment captures presence-of-good. The gap between them is precisely what the outer loop exists to address.
+
+<!-- notes: This data from the 7-version comparison study is the strongest empirical evidence that the inner loop and outer loop measure different things. The tight computed cluster means the inner loop reliably achieves structural quality. The visual divergence means structural quality is necessary but not sufficient. The Pop Chromatic / Brutalist contrast is the paper's argument in miniature: the metrics say Pop is better, the eye says Brutalist is better, and neither is wrong — they are measuring different qualities. The 80% convergence threshold was a methodological decision ("back yourself, don't give up below 80%") that prevented premature stopping and forced fixing real issues. -->
+
+---
+
+### When the Outer Loop Made Things Worse
+
+Not every outer loop iteration improved the system. Two cases of regression:
+
+**Rubric v5 lowDensity penalty**: the outer loop added a penalty for slides with sparse content (few text elements, large whitespace). This correctly caught slides where content had been lost. But it also penalized intentional section dividers — dark-background slides with a single title, designed as visual pauses. The paper's own deck scored Content 2.3/10 because 9 section dividers were penalized at -0.8 each. The fix required a second outer loop iteration: exempt dark-background slides from lowDensity.
+
+**Splice targeting inversion**: after adding splice image metrics (outer loop iteration 9), the splice algorithm was fixed to place images on text-only slides. But the first fix inverted the targeting: it placed images only on slides that already had images, leaving the 14 text-only slides — the ones most needing visual enhancement — untouched. The outer loop correctly identified the metric gap, but the implementation fix introduced a new failure mode. Three more iterations were needed: fix targeting, tighten corner detection, add the atmospheric-opacity tier.
+
+These failures demonstrate that the outer loop is not monotonically improving. Each intervention can introduce new problems. The concentric loops framework handles this through iteration, not infallibility: the outer-outer loop's value is in catching outer-loop regressions, not preventing them.
+
+<!-- notes: Honest reporting of failure cases strengthens the paper's credibility. The lowDensity example is particularly instructive: it shows a rubric metric that was locally correct (sparse slides are usually bad) but globally wrong (some sparse slides are intentional). The splice targeting case shows that the outer loop's diagnosis can be correct while its fix is wrong. Both cases demonstrate that the concentric loops are not a guaranteed improvement mechanism — they are a structured way of detecting and correcting regressions, including regressions introduced by previous corrections. -->
+
+---
+
+### Cost and Human Time
+
+The system's efficiency depends on the loop:
+
+| Activity | Human time | Machine time | Ratio |
+|----------|-----------|-------------|-------|
+| Inner loop (3 iterations) | 0 min (unattended) | ~6 min | Fully automated |
+| Outer loop iteration | 10-30 min (review + diagnosis) | 2-5 min (re-eval) | Human-dominated |
+| Outer-outer loop change | 1-4 hours (design + implement) | Variable | Human-dominated |
+| Full convergence (8 outer iterations) | ~8 hours | ~40 min | 12:1 human:machine |
+
+The inner loop's automation is real but bounded: it handles ~12 points of improvement (structural fixes) in 6 minutes. The outer loop's 8 points required ~8 hours of human attention — diagnosis, rubric revision, re-evaluation, regression checking. The outer-outer loop changes (exhaustive evaluation, wireframe tool, unified scoring) required several more hours of design and implementation.
+
+Total human investment for one deck's full convergence: approximately 10-12 hours across sessions. This is not a time-saving tool in the conventional sense. The value is not efficiency but *quality that would not otherwise be achieved* — no amount of manual review would have systematically discovered and fixed all 11 rubric blind spots. The loops make quality tractable, not fast.
+
+<!-- notes: Cost transparency is essential for reproducibility. The 12:1 human-to-machine ratio undercuts any narrative that AI design tools eliminate human labor. They redirect it: from producing artifacts (which the inner loop handles) to calibrating quality (which only humans can do). The "not a time-saving tool" framing is deliberately provocative — it positions the system against the marketing narrative of AI efficiency and toward a claim about quality ceilings. -->
+
+---
+
+## 8. Related Work
+
+<!-- notes: Section divider. Position the paper's contribution relative to existing literature in computational design evaluation, LLM-as-judge, and human-AI creative collaboration. -->
+
+---
+
+### Computational Design Evaluation
+
+Automated evaluation of visual design has a substantial literature. Miniukovich and De Angeli (2015) established metrics for visual complexity and colorfulness that predict user aesthetic preferences. Reinecke et al. (2013) demonstrated that visual complexity and colorfulness predict first-impression appeal across cultures. These approaches share our inner loop's commitment to computed metrics, but they target static web pages, not compositional slide design, and they lack our outer loop's mechanism for metric revision.
+
+Closer to our work, Swearngin et al. (2018) used machine learning to evaluate mobile UI design quality, identifying patterns that distinguish professional from amateur designs. Their "Scout" system automates evaluation but treats the evaluation model as fixed — there is no structured process for recalibrating when the model's judgments diverge from expert perception. The concentric loops framework addresses precisely this gap: what happens after the automated evaluation disagrees with the human?
+
+In computational aesthetics, Datta et al. (2006) and Marchesotti et al. (2011) built classifiers for photographic aesthetics using hand-crafted and learned features respectively. Our rubric's evolution from absence-of-bad (rule violations) to presence-of-good (craft indicators) recapitulates the field's trajectory from low-level features to perceptual quality — but our process makes the evolution explicit and human-driven rather than implicit in training data.
+
+<!-- notes: The computational design evaluation literature provides the technical context for our inner loop. The key distinction is that most prior work treats the evaluation model as fixed (trained once, deployed) while our system treats it as evolving (calibrated continuously through human feedback). This is not a criticism of prior work — their scale requires fixed models. It is a claim that the fixed-model assumption hides an important process that our small-scale study makes visible. -->
+
+---
+
+### LLM-as-Judge and Self-Evaluation
+
+The "LLM-as-judge" paradigm (Zheng et al., 2023) uses large language models to evaluate other LLM outputs, creating exactly the generate-evaluate loop our paper examines. The MT-Bench and Chatbot Arena frameworks demonstrate both the utility and the limitations of automated judging: LLM judges correlate well with human preferences in aggregate but exhibit systematic biases (position bias, verbosity bias, self-enhancement bias).
+
+Our work extends this literature in two directions. First, we use a *transparent* evaluator (explicit formulas rather than neural scoring), which makes the judge's biases discoverable and fixable — the equivalent of opening the reward model and editing its weights. Second, we document the *process* of discovering and fixing judge biases over 11 iterations, providing a longitudinal account that snapshot evaluations cannot capture.
+
+Panickssery et al. (2024) study LLM self-evaluation and find that models are systematically biased toward their own outputs. Our invented-labels case study (Section 3) demonstrates the same dynamic in a design context: the composition AI, informed by rubric-derived design lessons, produces artifacts that satisfy the rubric because the rubric shaped the generator's training signal. The concentric loops framework is a structural response to this circularity.
+
+<!-- notes: LLM-as-judge is the most directly relevant related work. Our contribution is not a better judge but a better process for improving judges. The transparent-evaluator point is important: most LLM-as-judge work uses neural judges that cannot be debugged. Our explicit-formula approach trades expressiveness for transparency, and the outer loop exploits that transparency to drive systematic improvement. The self-evaluation bias finding connects directly to our Goodhart analysis. -->
+
+---
+
+### Human-AI Creative Collaboration
+
+The broader context is human-AI creative collaboration, surveyed by Muller et al. (2022) and Rezwana and Maher (2023). Most frameworks distinguish between AI as tool (human directs), AI as collaborator (shared agency), and AI as autonomous creator. The concentric loops framework adds a fourth role: **AI as instrument** — the AI produces evaluation artifacts (scores, diagnostics) that the human interprets and acts on. The rubric is not a collaborator; it is a lens through which the human sees the design.
+
+Koch et al. (2019) describe "mixed-initiative creative interfaces" where human and AI alternate control. Our inner loop automates the AI's turn (evaluate-fix-render); our outer loop automates the *transition* between turns (the score-perception gap triggers human intervention). The contribution is not the mixed-initiative pattern itself but the explicit formalization of when and why control transfers between human and machine.
+
+<!-- notes: Positioning the paper within human-AI creative collaboration completes the related work triangle: computational design evaluation (inner loop context), LLM-as-judge (evaluation context), and creative collaboration (interaction context). The "AI as instrument" framing distinguishes our work from the more common "AI as collaborator" framing — the rubric is a tool for seeing, not a partner in creating. This connects back to von Foerster's second-order cybernetics: the instrument shapes what can be observed. -->
+
+---
+
+### Boundary Conditions
+
+The fractal design framework applies under specific conditions. It does not apply universally, and naming the boundaries clarifies the contribution:
+
+**Where it applies**:
+- Quality is *partially formalizable*: metrics help but do not capture everything. Slide design, UI layout, data visualization, typographic composition.
+- The artifact count exceeds human review capacity: 36 slides every 2 minutes requires automated screening.
+- The evaluation instrument is *transparent*: explicit formulas that can be read, debugged, and revised. Black-box evaluators (neural aesthetic classifiers) cannot support the outer loop's diagnostic process.
+
+**Where it does not apply**:
+- Fully formalizable domains: if a linter can completely verify code style, no outer loop is needed. The inner loop suffices.
+- Fully ineffable domains: if quality cannot be decomposed into any measurable dimensions (abstract art, emotional resonance), metrics are not worth building. The inner loop has nothing to optimize against.
+- Single-artifact contexts: if you are designing one poster, not 36 slides, human review is feasible without automated screening. The inner loop adds overhead without value.
+- Opaque evaluators: if the scoring model is a neural network, the outer loop cannot diagnose *why* a score diverges from perception. The framework requires transparency.
+
+**Where it is uncertain**:
+- At industrial scale (millions of artifacts, thousands of evaluators): the outer loop's reliance on individual human perception may not scale. Crowdsourced calibration is possible but untested in this framework.
+- Across domains: the concentric loops were developed for visual design. Whether they transfer to writing, music, or code quality is plausible but undemonstrated.
+- With vision-model evaluators: if a multimodal LLM replaces the formula-based rubric, the transparency condition weakens. The framework may need to accommodate semi-transparent instruments.
+
+<!-- notes: Boundary conditions prevent the framework from being read as a universal theory. The fully-formalizable and fully-ineffable boundaries define the sweet spot: partially-formalizable quality where metrics are useful but insufficient. The transparency condition is the most important: the outer loop works because the human can read the rubric formula, see what it measures, and identify the gap. This is a structural requirement, not an implementation detail. The "uncertain" cases are honest about the limits of a single-system study. -->
+
+---
+
+## 9. Limitations
+
+<!-- notes: Section divider. Explicit limitations acknowledge what a single-system study can and cannot claim. -->
+
+---
+
+### What This Study Cannot Claim
+
+**Single system, single user, single domain.** The concentric loops framework was developed and tested on one design system (rastersysteme), by one practitioner, on one content type (lecture slides about cybernetics history). The outer loop's effectiveness depends on the specific practitioner's perceptual acuity — a different user might notice different gaps, or fail to notice gaps this user caught. The framework's structure may generalize; its specific findings (8 iterations to convergence, 80% threshold, 12:1 human-to-machine time ratio) are properties of this instance, not universal constants.
+
+**No controlled comparison.** We did not compare the concentric loops process against alternatives: inner-loop-only, human-review-only, or a different outer-loop protocol. The claim that the outer loop is "where quality happens" is supported by attribution analysis (Table in Section 6) but not by a controlled experiment with a counterfactual condition.
+
+**Practitioner expertise as confound.** The human in the outer loop has design training and domain knowledge. A novice might not notice the score-perception gaps that triggered rubric revisions. The framework assumes a calibrated human observer — and "calibrated" is itself an undefined term. The outer loop's quality depends on the outer-loop operator's expertise, which this paper does not measure or control for.
+
+**Compressed timeline.** Eight outer loop iterations occurred in two sessions over two days. A longer timescale might reveal different dynamics — rubric drift, forgotten rationale, changing aesthetic preferences. The outer-outer loop's "days/weeks" cadence is aspirational; in practice, the study's outer-outer loop operated at the same compressed pace as the outer loop.
+
+**Rubric as sole evaluation instrument.** The 6-dimension rubric and 3 visual dimensions constitute one possible decomposition of design quality. A different decomposition (e.g., Gestalt principles, information hierarchy, emotional tone) might produce different findings about which qualities resist formalization. The paper's claim about the absence-of-bad / presence-of-good frontier is relative to this specific rubric, not absolute.
+
+<!-- notes: Each limitation is stated as a specific claim the paper cannot make, not as a generic "more research is needed." The single-system limitation is the most fundamental: the framework was extracted from one case, not validated across cases. The practitioner-expertise confound is the most subtle: the outer loop's quality depends on who is doing the perceiving, and we have no way to separate the framework's contribution from the practitioner's skill. The compressed timeline limitation is the most surprising — the paper's theoretical framework describes three timescales (minutes, hours, days/weeks) but the empirical data comes from a two-day sprint. -->
+
+---
+
+## 10. Conclusion
+
+<!-- notes: Section divider. Keep it short. The argument has been made. The conclusion lands the killer line and points forward. -->
 
 <!-- notes: Section divider. Keep it short. The argument has been made. The conclusion lands the killer line and points forward. -->
 
@@ -875,7 +1053,9 @@ Three findings, from the specific to the general:
 
 **3. The methodology must evolve.** Exhaustive evaluation, wireframe comparison, structured feedback protocols, unified scoring engines — each of these was a methodological decision prompted by the outer loop's own failures. The system that evaluates the evaluator must itself be evaluated.
 
-<!-- notes: Three findings at three levels: inner (dangerous alone), outer (necessary for quality), outer-outer (necessary for the outer loop). The structure mirrors the concentric loops themselves. -->
+**4. The inner loop is aesthetic-agnostic; the outer loop is not.** Seven design variants, from Bauhaus minimalism to Weingart expressionism, all converged to 80-86% computed scores. The inner loop optimizes structural quality regardless of aesthetic direction. But visual taste scores diverged from 6/10 to 9/10 across the same variants. The choice of aesthetic — and the judgment of whether it succeeds — remains an irreducibly human contribution, mediated by the outer loop.
+
+<!-- notes: Four findings at four levels: inner (dangerous alone), outer (necessary for quality), outer-outer (necessary for the outer loop), and meta (the inner loop is aesthetic-agnostic but the outer loop is not). The fourth finding uses the 7-version diversity data and strengthens the paper's empirical contribution. -->
 
 ---
 
