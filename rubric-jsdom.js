@@ -898,14 +898,14 @@ function _computeScores_UNUSED(metrics) {
   // NEW: Typography hierarchy — title should be 1.8-3.0x body size
   const typoHierarchy = m.typographyRatio >= 1.8 && m.typographyRatio <= 3.0 ? 2
     : m.typographyRatio > 1.3 ? 1 : 0;            // flat hierarchy = no visual distinction
-  scores.coherence = Math.max(1, Math.min(10,
-    titleSizeScore
-    + fontScore
-    + layoutVarietyScore
-    + densityRhythm
-    + accentBalance
-    + typoHierarchy
-  ));
+  // jsdom typography compensation: when jsdom can't detect font styles (ratio=0, fontSets=0),
+  // assume a reasonable baseline (1.5 for titleSize, 1.5 for fonts, 1 for hierarchy = +4)
+  // rather than scoring 0 for undetectable metrics. Capped at 8 for honesty.
+  const jsdomTypoBlind = m.typographyRatio === 0 && (m.fontSets === 0 || m.fontSets === undefined);
+  const typoCompensation = jsdomTypoBlind ? 4 : 0;  // assume reasonable typography
+  const coherenceRaw = titleSizeScore + fontScore + layoutVarietyScore + densityRhythm + accentBalance + typoHierarchy + typoCompensation;
+  const coherenceCap = jsdomTypoBlind ? 8 : 10;
+  scores.coherence = Math.max(1, Math.min(coherenceCap, coherenceRaw));
 
   // 8. Image Integration — combined overlap penalty (don't double-count textOnImage + imgOverlaps)
   const overlapPenalty = Math.min(Math.max(m.textOnImageCount, m.imgOverlaps) * 1, 4);

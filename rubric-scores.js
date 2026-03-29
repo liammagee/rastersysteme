@@ -119,10 +119,16 @@ function computeScores(metrics, opts = {}) {
   const ws = m.avgWhitespace || 0.5;
   const whitespaceQuality = ws >= 0.25 && ws <= 0.55 ? 0.5 : 0;
 
-  scores.coherence = Math.max(1, Math.min(10,
+  // When jsdom can't detect typography (ratio=0, fontSets=0), assume reasonable
+  // baseline (+3) rather than scoring 0 for undetectable metrics. Cap at 8.
+  const typoBlind = m.typographyRatio === 0 && (fontSets === 0);
+  const typoCompensation = typoBlind ? 3 : 0;
+  const coherenceCap = typoBlind ? 8 : 10;
+  scores.coherence = Math.max(1, Math.min(coherenceCap,
     titleSizeScore + fontConsistency + layoutVarietyScore
     + densityRhythm + accentBalance + typoHierarchy
     + spliceMonotony + modularScale + whitespaceQuality
+    + typoCompensation
   ));
 
   // ── 8. Image Integration ──
