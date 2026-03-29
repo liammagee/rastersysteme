@@ -1,22 +1,21 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080">
   <rect width="1920" height="1080" fill="#FAF6EE" />
-  <g transform="rotate(177 1540 351)">
-  <circle cx="1539.9852078715305" cy="351.11832228748085" r="572.2" fill="#6A1B9A" fill-opacity="0.18" stroke="#6A1B9A" stroke-width="5.3" opacity="0.74" />
-  <circle cx="1539.9852078715305" cy="351.11832228748085" r="457.8" fill="#2E7D32" fill-opacity="0.18" stroke="#2E7D32" stroke-width="5.8" opacity="0.61" />
-  <circle cx="1539.9852078715305" cy="351.11832228748085" r="343.3" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="6.7" opacity="0.56" />
-  <circle cx="1539.9852078715305" cy="351.11832228748085" r="228.9" fill="#F9A825" fill-opacity="0.18" stroke="#F9A825" stroke-width="2.4" opacity="0.51" />
-  <circle cx="1539.9852078715305" cy="351.11832228748085" r="114.4" fill="#1565C0" fill-opacity="0.29" stroke="#1565C0" stroke-width="5.9" opacity="0.58" />
-  <path d="M 807.4 22.1 A 803.0 803.0 0 1 1 2151.7 871.3" fill="none" stroke="#F9A825" stroke-width="3.8" opacity="0.72" stroke-linecap="round" />
-  <path d="M 1066.0 -36.8 A 612.5 612.5 0 0 1 1510.6 -260.6" fill="none" stroke="#0A1628" stroke-width="2.2" opacity="0.72" stroke-linecap="round" />
-  <path d="M 836.7 534.3 A 726.8 726.8 0 0 1 1931.8 -261.0" fill="none" stroke="#2E7D32" stroke-width="5.9" opacity="0.79" stroke-linecap="round" />
+  <g transform="translate(205 -127) rotate(-8 960 540) scale(0.92)">
+  <circle cx="456.7471980025869" cy="653.443519207985" r="245.7" fill="none" fill-opacity="0.00" stroke="#2E7D32" stroke-width="3.1" opacity="0.63" />
+  <circle cx="456.7471980025869" cy="653.443519207985" r="184.3" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="4.8" opacity="0.53" />
+  <circle cx="456.7471980025869" cy="653.443519207985" r="122.8" fill="#F9A825" fill-opacity="0.12" stroke="#F9A825" stroke-width="4.1" opacity="0.42" />
+  <circle cx="456.7471980025869" cy="653.443519207985" r="61.4" fill="none" fill-opacity="0.00" stroke="#1565C0" stroke-width="2.7" opacity="0.69" />
   </g>
-  <circle cx="1545.0498849770636" cy="1019.4992815748553" r="321.3" fill="none" fill-opacity="0.00" stroke="#0A1628" stroke-width="2.9" opacity="0.40" />
-  <circle cx="1545.0498849770636" cy="1019.4992815748553" r="214.2" fill="#F9A825" fill-opacity="0.10" stroke="#F9A825" stroke-width="5.5" opacity="0.42" />
-  <circle cx="1545.0498849770636" cy="1019.4992815748553" r="107.1" fill="#1565C0" fill-opacity="0.27" stroke="#1565C0" stroke-width="3.8" opacity="0.68" />
-  <circle cx="740.2" cy="159.0" r="4.1" fill="#2E7D32" opacity="0.56" />
-  <circle cx="494.2" cy="1057.1" r="12.8" fill="#F9A825" opacity="0.31" />
-  <circle cx="397.1" cy="33.9" r="13.2" fill="#C62828" opacity="0.30" />
-  <circle cx="1095.5" cy="999.5" r="21.3" fill="#2E7D32" opacity="0.63" />
-  <circle cx="1672.5" cy="580.1" r="7.5" fill="#6A1B9A" opacity="0.69" />
+  <g transform="translate(-34 -146) rotate(-2 960 540) scale(0.80)">
+  <path d="M 1554.7 566.3 A 129.5 129.5 0 1 1 1375.7 397.7" fill="none" stroke="#6A1B9A" stroke-width="7.9" opacity="0.56" stroke-linecap="round" />
+  <path d="M 1303.1 478.8 A 138.3 138.3 0 0 1 1511.1 394.5" fill="none" stroke="#F9A825" stroke-width="2.6" opacity="0.65" stroke-linecap="round" />
+  <path d="M 1499.8 399.2 A 128.5 128.5 0 0 1 1565.4 522.0" fill="none" stroke="#C62828" stroke-width="5.7" opacity="0.43" stroke-linecap="round" />
+  <path d="M 1467.9 789.6 A 279.7 279.7 0 1 1 1418.0 232.5" fill="none" stroke="#2E7D32" stroke-width="7.7" opacity="0.71" stroke-linecap="round" />
+  <path d="M 1412.1 261.1 A 251.7 251.7 0 1 1 1305.3 725.8" fill="none" stroke="#2E7D32" stroke-width="6.3" opacity="0.41" stroke-linecap="round" />
+  <path d="M 1305.0 336.0 A 219.9 219.9 0 1 1 1438.5 731.4" fill="none" stroke="#1565C0" stroke-width="4.1" opacity="0.52" stroke-linecap="round" />
+  <path d="M 1380.1 417.6 A 110.0 110.0 0 0 1 1525.7 445.9" fill="none" stroke="#6A1B9A" stroke-width="5.8" opacity="0.83" stroke-linecap="round" />
+  <path d="M 1589.3 519.3 A 152.1 152.1 0 0 1 1287.7 538.2" fill="none" stroke="#2E7D32" stroke-width="7.5" opacity="0.79" stroke-linecap="round" />
+  <path d="M 1423.9 423.6 A 88.9 88.9 0 0 1 1502.5 451.0" fill="none" stroke="#6A1B9A" stroke-width="3.2" opacity="0.63" stroke-linecap="round" />
+  </g>
 
 </svg>
