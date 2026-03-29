@@ -1975,3 +1975,722 @@ describe("generative-art.js", () => {
     }
   });
 });
+
+// ═══════════════════════════════════════════════════════
+// EXPORT-GSLIDES
+// ═══════════════════════════════════════════════════════
+
+describe("export-gslides.js", () => {
+  const {
+    _internals: {
+      hexToRgb, rgbColor, inchesToEmu, ptToEmu,
+      createEmuGrid,
+      buildSlideRequests,
+      discoverSplicedImages,
+      createShapeRequest, createEllipseRequest,
+      shapeFillRequest, insertTextRequest,
+      textStyleRequest, paragraphStyleRequest,
+      createImageRequest, sendToBackRequest, imageTransparencyRequest,
+      slideBackgroundRequest,
+      EMU_PER_INCH, SLIDE_WIDTH_EMU, SLIDE_HEIGHT_EMU,
+    },
+  } = require("./export-gslides.js");
+  const { parseMarkdown, THEMES, adaptThemeForBg, createGrid } = require("./raster.js");
+  const gslidesFs = require("fs");
+  const gslidesPath = require("path");
+
+  // ── Unit Conversions ──
+
+  describe("unit conversions", () => {
+    it("inchesToEmu converts correctly", () => {
+      assert.equal(inchesToEmu(1), 914400);
+      assert.equal(inchesToEmu(10), 9144000);
+      assert.equal(inchesToEmu(0), 0);
+    });
+
+    it("ptToEmu converts correctly", () => {
+      assert.equal(ptToEmu(1), 12700);
+      assert.equal(ptToEmu(12), 152400);
+    });
+
+    it("slide dimensions match 16:9", () => {
+      assert.equal(SLIDE_WIDTH_EMU, 10 * EMU_PER_INCH);
+      assert.equal(SLIDE_HEIGHT_EMU, 5.625 * EMU_PER_INCH);
+    });
+  });
+
+  // ── Color Conversion ──
+
+  describe("color conversion", () => {
+    it("hexToRgb converts 6-char hex", () => {
+      const rgb = hexToRgb("FF0000");
+      assert.deepEqual(rgb, { red: 1, green: 0, blue: 0 });
+    });
+
+    it("hexToRgb strips # prefix", () => {
+      const rgb = hexToRgb("#00FF00");
+      assert.deepEqual(rgb, { red: 0, green: 1, blue: 0 });
+    });
+
+    it("hexToRgb handles 3-char hex", () => {
+      const rgb = hexToRgb("F00");
+      assert.deepEqual(rgb, { red: 1, green: 0, blue: 0 });
+    });
+
+    it("rgbColor wraps in Google API format", () => {
+      const c = rgbColor("0000FF");
+      assert.ok(c.rgbColor);
+      assert.equal(c.rgbColor.blue, 1);
+    });
+  });
+
+  // ── EMU Grid ──
+
+  describe("EMU grid", () => {
+    it("createEmuGrid returns EMU conversion functions", () => {
+      const g = createEmuGrid();
+      assert.ok(g.ex);
+      assert.ok(g.ey);
+      assert.ok(g.ew);
+      assert.ok(g.eh);
+    });
+
+    it("grid origin matches margin in EMU", () => {
+      const g = createEmuGrid();
+      const rasterGrid = createGrid(10, 5.625);
+      assert.equal(g.ex(0), inchesToEmu(rasterGrid.cx(0)));
+      assert.equal(g.ey(0), inchesToEmu(rasterGrid.cy(0)));
+    });
+
+    it("grid full span covers slide width minus margins", () => {
+      const g = createEmuGrid();
+      const fullWidth = g.ew(60);
+      // 60 columns should span the interior width (10 - 2*0.5 = 9 inches)
+      assert.ok(fullWidth > inchesToEmu(8.9));
+      assert.ok(fullWidth <= inchesToEmu(9.01));
+    });
+
+    it("grid EMU values match inch values scaled by EMU_PER_INCH", () => {
+      const g = createEmuGrid();
+      const rasterGrid = createGrid(10, 5.625);
+      // Check several points
+      for (const col of [0, 6, 30, 59]) {
+        assert.equal(g.ex(col), inchesToEmu(rasterGrid.cx(col)),
+          `ex(${col}) should match`);
+      }
+      for (const row of [0, 10, 20, 39]) {
+        assert.equal(g.ey(row), inchesToEmu(rasterGrid.cy(row)),
+          `ey(${row}) should match`);
+      }
+    });
+  });
+
+  // ── Request Builders ──
+
+  describe("request builders", () => {
+    it("createShapeRequest generates valid structure", () => {
+      const req = createShapeRequest("shape1", "slide_0", 1000, 2000, 3000, 4000);
+      assert.equal(req.createShape.objectId, "shape1");
+      assert.equal(req.createShape.elementProperties.pageObjectId, "slide_0");
+      assert.equal(req.createShape.shapeType, "RECTANGLE");
+      assert.equal(req.createShape.elementProperties.size.width.magnitude, 3000);
+      assert.equal(req.createShape.elementProperties.size.height.magnitude, 4000);
+    });
+
+    it("createEllipseRequest generates ELLIPSE shape", () => {
+      const req = createEllipseRequest("dot1", "slide_0", 100, 200, 300, 300);
+      assert.equal(req.createShape.shapeType, "ELLIPSE");
+    });
+
+    it("shapeFillRequest sets color and outline", () => {
+      const req = shapeFillRequest("shape1", "FF0000");
+      assert.ok(req.updateShapeProperties.shapeProperties.shapeBackgroundFill.solidFill);
+      assert.equal(req.updateShapeProperties.shapeProperties.outline.propertyState, "NOT_RENDERED");
+    });
+
+    it("shapeFillRequest supports alpha transparency", () => {
+      const req = shapeFillRequest("shape1", "0000FF", 0.5);
+      assert.equal(req.updateShapeProperties.shapeProperties.shapeBackgroundFill.solidFill.alpha, 0.5);
+    });
+
+    it("insertTextRequest places text at index 0", () => {
+      const req = insertTextRequest("shape1", "Hello world");
+      assert.equal(req.insertText.objectId, "shape1");
+      assert.equal(req.insertText.text, "Hello world");
+      assert.equal(req.insertText.insertionIndex, 0);
+    });
+
+    it("textStyleRequest uses ALL range for defaults", () => {
+      const req = textStyleRequest("shape1", { fontSize: 24, bold: true });
+      assert.equal(req.updateTextStyle.textRange.type, "ALL");
+      assert.equal(req.updateTextStyle.textRange.startIndex, undefined);
+    });
+
+    it("textStyleRequest uses FIXED_RANGE for explicit range", () => {
+      const req = textStyleRequest("shape1", { fontSize: 24 }, 5, 10);
+      assert.equal(req.updateTextStyle.textRange.type, "FIXED_RANGE");
+      assert.equal(req.updateTextStyle.textRange.startIndex, 5);
+      assert.equal(req.updateTextStyle.textRange.endIndex, 10);
+    });
+
+    it("textStyleRequest returns null for empty style", () => {
+      const req = textStyleRequest("shape1", {});
+      assert.equal(req, null);
+    });
+
+    it("textStyleRequest sets all style fields", () => {
+      const req = textStyleRequest("shape1", {
+        fontSize: 32,
+        fontFamily: "Futura",
+        color: "1A1A1A",
+        bold: true,
+        italic: true,
+      });
+      assert.equal(req.updateTextStyle.style.fontSize.magnitude, 32);
+      assert.equal(req.updateTextStyle.style.fontFamily, "Futura");
+      assert.ok(req.updateTextStyle.style.foregroundColor);
+      assert.equal(req.updateTextStyle.style.bold, true);
+      assert.equal(req.updateTextStyle.style.italic, true);
+      assert.ok(req.updateTextStyle.fields.includes("fontSize"));
+      assert.ok(req.updateTextStyle.fields.includes("fontFamily"));
+      assert.ok(req.updateTextStyle.fields.includes("foregroundColor"));
+      assert.ok(req.updateTextStyle.fields.includes("bold"));
+      assert.ok(req.updateTextStyle.fields.includes("italic"));
+    });
+
+    it("paragraphStyleRequest uses ALL range for defaults", () => {
+      const req = paragraphStyleRequest("shape1", { alignment: "CENTER" });
+      assert.equal(req.updateParagraphStyle.textRange.type, "ALL");
+    });
+
+    it("paragraphStyleRequest sets lineSpacing from leading", () => {
+      const req = paragraphStyleRequest("shape1", { lineSpacing: 150 });
+      assert.equal(req.updateParagraphStyle.style.lineSpacing, 150);
+    });
+
+    it("slideBackgroundRequest sets solid fill", () => {
+      const req = slideBackgroundRequest("slide_0", "0A1628");
+      assert.ok(req.updatePageProperties.pageProperties.pageBackgroundFill.solidFill);
+    });
+  });
+
+  // ── Image Request Builders ──
+
+  describe("image requests", () => {
+    it("createImageRequest places image at correct position", () => {
+      const req = createImageRequest("img1", "slide_0", "https://example.com/img.png", 1000, 2000, 5000, 3000);
+      assert.equal(req.createImage.objectId, "img1");
+      assert.equal(req.createImage.url, "https://example.com/img.png");
+      assert.equal(req.createImage.elementProperties.pageObjectId, "slide_0");
+      assert.equal(req.createImage.elementProperties.size.width.magnitude, 5000);
+    });
+
+    it("sendToBackRequest uses correct operation", () => {
+      const req = sendToBackRequest("img1", "slide_0");
+      assert.equal(req.updatePageElementsZOrder.operation, "SEND_TO_BACK");
+      assert.deepEqual(req.updatePageElementsZOrder.pageElementObjectIds, ["img1"]);
+    });
+
+    it("imageTransparencyRequest sets transparency value", () => {
+      const req = imageTransparencyRequest("img1", 0.65);
+      assert.equal(req.updateImageProperties.imageProperties.transparency, 0.65);
+      assert.ok(req.updateImageProperties.fields.includes("transparency"));
+    });
+  });
+
+  // ── Image Discovery ──
+
+  describe("image discovery", () => {
+    it("discovers spliced images from composed-images directory", () => {
+      const images = discoverSplicedImages("decks/concentric-loops.composed.md");
+      const count = Object.keys(images).length;
+      // Should find at least some images (the dir has ~60 PNGs)
+      assert.ok(count > 0, `Should find images, got ${count}`);
+      // Keys should be slide numbers (integers)
+      for (const key of Object.keys(images)) {
+        assert.ok(Number.isInteger(Number(key)), `Key ${key} should be integer`);
+      }
+      // Values should be absolute paths to existing PNGs
+      for (const val of Object.values(images)) {
+        assert.ok(gslidesPath.isAbsolute(val), `Path should be absolute: ${val}`);
+        assert.ok(val.endsWith(".png"), `Path should be PNG: ${val}`);
+      }
+    });
+
+    it("returns empty object for nonexistent deck", () => {
+      const images = discoverSplicedImages("decks/nonexistent.composed.md");
+      assert.deepEqual(images, {});
+    });
+  });
+
+  // ── Slide Builder (designed slides) ──
+
+  describe("buildSlideRequests — designed slides", () => {
+    const g = createEmuGrid();
+    const theme = THEMES.light;
+    const testMd = `<!-- design: {"zones":[{"role":"title","col":6,"span":30,"row":12,"rowSpan":16,"typography":{"size":44,"weight":700}}],"accents":[{"type":"bar","col":2,"span":3,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":700,"color":"FAF6EE"}},"bg":"0A1628","font":"Futura"} -->
+# Test Title Slide`;
+    const slides = parseMarkdown(testMd);
+
+    it("generates createSlide as first request", () => {
+      const { requests, slideId } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      assert.equal(requests[0].createSlide.objectId, slideId);
+      assert.equal(requests[0].createSlide.slideLayoutReference.predefinedLayout, "BLANK");
+    });
+
+    it("sets background color from design directive", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const bgReq = requests.find(r => r.updatePageProperties);
+      assert.ok(bgReq, "Should have background request");
+      const fill = bgReq.updatePageProperties.pageProperties.pageBackgroundFill.solidFill;
+      assert.ok(fill.color.rgbColor);
+    });
+
+    it("creates accent shapes", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const shapeReqs = requests.filter(r => r.createShape && r.createShape.objectId.startsWith("accent"));
+      assert.ok(shapeReqs.length >= 1, "Should create at least 1 accent shape");
+    });
+
+    it("creates text zones with correct content", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const insertReqs = requests.filter(r => r.insertText);
+      assert.ok(insertReqs.length >= 1, "Should have text inserts");
+      const titleInsert = insertReqs.find(r => r.insertText.text === "Test Title Slide");
+      assert.ok(titleInsert, "Should insert title text");
+    });
+
+    it("applies typography styling to zones", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const styleReqs = requests.filter(r => r.updateTextStyle);
+      assert.ok(styleReqs.length >= 1, "Should have text style requests");
+      // Title should be bold (weight 700)
+      const titleStyle = styleReqs.find(r => r.updateTextStyle.style.bold === true);
+      assert.ok(titleStyle, "Title should be bold");
+    });
+
+    it("uses correct font from design directive", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const styleReqs = requests.filter(r => r.updateTextStyle);
+      const fontReq = styleReqs.find(r => r.updateTextStyle.style.fontFamily === "Futura");
+      assert.ok(fontReq, "Should use Futura from design directive");
+    });
+  });
+
+  // ── Slide Builder (undesigned slides) ──
+
+  describe("buildSlideRequests — undesigned slides", () => {
+    const g = createEmuGrid();
+    const theme = THEMES.light;
+    const testMd = "# Simple Title\n\nSome body text here\n\n- Bullet one\n- Bullet two";
+    const slides = parseMarkdown(testMd);
+
+    it("creates title text box for undesigned slide", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const insertReqs = requests.filter(r => r.insertText);
+      assert.ok(insertReqs.length >= 1, "Should have text inserts");
+    });
+
+    it("creates bullet text for undesigned slide", () => {
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const insertReqs = requests.filter(r => r.insertText);
+      const bulletInsert = insertReqs.find(r => r.insertText.text.includes("\u2022"));
+      assert.ok(bulletInsert, "Should create bullet text with bullet character");
+    });
+  });
+
+  // ── Slide Builder (accents) ──
+
+  describe("buildSlideRequests — accent types", () => {
+    const g = createEmuGrid();
+    const theme = THEMES.light;
+
+    it("renders dot accent as ELLIPSE", () => {
+      const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"accents":[{"type":"dot","col":50,"span":5,"row":5,"rowSpan":5,"color":"FF0000"}],"bg":"FFFFFF"} -->\n# Test';
+      const slides = parseMarkdown(md);
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const ellipseReq = requests.find(r => r.createShape && r.createShape.shapeType === "ELLIPSE");
+      assert.ok(ellipseReq, "Dot accent should create ELLIPSE shape");
+    });
+
+    it("renders block accent with transparency", () => {
+      const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"accents":[{"type":"block","col":0,"span":60,"row":0,"rowSpan":40,"color":"0000FF"}],"bg":"FFFFFF"} -->\n# Test';
+      const slides = parseMarkdown(md);
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const fillReq = requests.find(r =>
+        r.updateShapeProperties &&
+        r.updateShapeProperties.shapeProperties.shapeBackgroundFill &&
+        r.updateShapeProperties.shapeProperties.shapeBackgroundFill.solidFill &&
+        r.updateShapeProperties.shapeProperties.shapeBackgroundFill.solidFill.alpha === 0.15
+      );
+      assert.ok(fillReq, "Block accent should have 0.15 alpha transparency");
+    });
+
+    it("renders line accent as thin rectangle", () => {
+      const md = '<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"accents":[{"type":"line","col":6,"span":36,"row":24,"rowSpan":1,"color":"B7311A"}],"bg":"FFFFFF"} -->\n# Test';
+      const slides = parseMarkdown(md);
+      const { requests } = buildSlideRequests(slides[0], 0, 1, theme, "Helvetica Neue", g);
+      const lineShape = requests.find(r =>
+        r.createShape &&
+        r.createShape.objectId.startsWith("accent") &&
+        r.createShape.shapeType === "RECTANGLE"
+      );
+      assert.ok(lineShape, "Line accent should create RECTANGLE shape");
+      // Horizontal line: width should be much larger than height
+      const size = lineShape.createShape.elementProperties.size;
+      assert.ok(size.width.magnitude > size.height.magnitude * 10,
+        "Horizontal line should be much wider than tall");
+    });
+  });
+
+  // ── Fidelity: HTML vs Google Slides ──
+
+  describe("HTML ↔ Google Slides fidelity", () => {
+    const { generateHTML } = require("./raster.js");
+    const g = createEmuGrid();
+    const rasterGrid = createGrid(10, 5.625);
+
+    // Parse a composed markdown that exists on disk
+    const samplePath = "decks/concentric-loops.composed.md";
+    let sampleSlides;
+    try {
+      const md = gslidesFs.readFileSync(samplePath, "utf-8");
+      sampleSlides = parseMarkdown(md);
+    } catch {
+      sampleSlides = null;
+    }
+
+    it("zone positions match between raster grid and EMU grid", () => {
+      if (!sampleSlides || sampleSlides.length === 0) return;
+      const slide = sampleSlides.find(s => s.design && s.design.zones.length > 0);
+      if (!slide) return;
+
+      for (const zone of slide.design.zones) {
+        // Raster grid gives inches; EMU grid should give the same * EMU_PER_INCH
+        const inchX = rasterGrid.cx(zone.col);
+        const inchY = rasterGrid.cy(zone.row);
+        const emuX = g.ex(zone.col);
+        const emuY = g.ey(zone.row);
+        assert.equal(emuX, inchesToEmu(inchX),
+          `Zone ${zone.role} X: EMU ${emuX} should equal inches*EMU ${inchesToEmu(inchX)}`);
+        assert.equal(emuY, inchesToEmu(inchY),
+          `Zone ${zone.role} Y: EMU ${emuY} should equal inches*EMU ${inchesToEmu(inchY)}`);
+      }
+    });
+
+    it("background colors match between HTML and API requests", () => {
+      if (!sampleSlides || sampleSlides.length === 0) return;
+      const theme = THEMES.light;
+
+      for (const slide of sampleSlides.slice(0, 5)) {
+        if (!slide.design || !slide.design.bg) continue;
+        const { requests } = buildSlideRequests(slide, 0, 1, theme, "Helvetica Neue", g);
+        const bgReq = requests.find(r => r.updatePageProperties);
+        assert.ok(bgReq, `Slide with bg=${slide.design.bg} should have background request`);
+
+        // HTML renderer uses design.bg directly; verify the API request matches
+        const expectedRgb = hexToRgb(slide.design.bg);
+        const actualRgb = bgReq.updatePageProperties.pageProperties.pageBackgroundFill.solidFill.color.rgbColor;
+        assert.deepEqual(actualRgb, expectedRgb,
+          `Background color should match: expected ${slide.design.bg}`);
+      }
+    });
+
+    it("accent count matches between parsed design and generated requests", () => {
+      if (!sampleSlides || sampleSlides.length === 0) return;
+      const theme = THEMES.light;
+
+      for (const slide of sampleSlides.slice(0, 10)) {
+        if (!slide.design) continue;
+        const expectedAccents = (slide.design.accents || []).length;
+        const { requests } = buildSlideRequests(slide, 0, 1, theme, "Helvetica Neue", g);
+        // Each accent produces a createShape request with an accent-prefixed ID
+        const accentShapes = requests.filter(r =>
+          r.createShape && r.createShape.objectId.startsWith("accent")
+        );
+        assert.equal(accentShapes.length, expectedAccents,
+          `Accent count should match: expected ${expectedAccents}, got ${accentShapes.length}`);
+      }
+    });
+
+    it("zone count matches between parsed design and generated text inserts", () => {
+      if (!sampleSlides || sampleSlides.length === 0) return;
+      const theme = THEMES.light;
+
+      for (const slide of sampleSlides.slice(0, 10)) {
+        if (!slide.design) continue;
+        const { requests } = buildSlideRequests(slide, 0, 1, theme, "Helvetica Neue", g);
+        // Count zone shapes (prefixed with "zone")
+        const zoneShapes = requests.filter(r =>
+          r.createShape && r.createShape.objectId.startsWith("zone")
+        );
+        // Zones without text content are skipped, so count should be <= design.zones.length
+        const designZoneCount = (slide.design.zones || []).length;
+        assert.ok(zoneShapes.length <= designZoneCount,
+          `Zone shapes (${zoneShapes.length}) should not exceed design zones (${designZoneCount})`);
+        // A zone is only created if its role has matching content in the slide.
+        // Empty zones (e.g., body zone with no body text) are correctly skipped.
+      }
+    });
+
+    it("font family from design directive propagates to text style", () => {
+      if (!sampleSlides || sampleSlides.length === 0) return;
+      const theme = THEMES.light;
+
+      for (const slide of sampleSlides.slice(0, 5)) {
+        if (!slide.design || !slide.design.font) continue;
+        const { requests } = buildSlideRequests(slide, 0, 1, theme, "Helvetica Neue", g);
+        const fontReqs = requests.filter(r =>
+          r.updateTextStyle && r.updateTextStyle.style.fontFamily === slide.design.font
+        );
+        assert.ok(fontReqs.length > 0,
+          `Font ${slide.design.font} should appear in text style requests`);
+      }
+    });
+
+    it("theme adaptation inverts text color on dark backgrounds", () => {
+      const lightTheme = THEMES.light;
+      const adapted = adaptThemeForBg(lightTheme, "0A1628"); // dark navy
+      // Adapted theme should have light text for dark background
+      assert.notEqual(adapted.text, lightTheme.text,
+        "Text color should change for dark background");
+    });
+  });
+});
+
+// ═══════════════════════════════════════════════════════
+// GSLIDES-FIDELITY
+// ═══════════════════════════════════════════════════════
+
+describe("gslides-fidelity.js", () => {
+  const {
+    evaluateSlide, computeFidelityScores,
+    renderedSize, rgbToHex, hexDistance, extractText, extractFont,
+  } = require("./gslides-fidelity.js");
+  const { parseMarkdown, createGrid } = require("./raster.js");
+  const fidelityFs = require("fs");
+
+  describe("measurement helpers", () => {
+    it("renderedSize computes actual size from size * scale", () => {
+      const el = {
+        size: { width: { magnitude: 3000000 }, height: { magnitude: 3000000 } },
+        transform: { scaleX: 2, scaleY: 0.5, translateX: 100, translateY: 200 },
+      };
+      const r = renderedSize(el);
+      assert.equal(r.w, 6000000);
+      assert.equal(r.h, 1500000);
+      assert.equal(r.x, 100);
+      assert.equal(r.y, 200);
+    });
+
+    it("renderedSize handles missing transform", () => {
+      const el = {
+        size: { width: { magnitude: 5000 }, height: { magnitude: 3000 } },
+      };
+      const r = renderedSize(el);
+      assert.equal(r.w, 5000);
+      assert.equal(r.h, 3000);
+    });
+
+    it("rgbToHex converts normalized RGB to hex string", () => {
+      assert.equal(rgbToHex({ red: 1, green: 0, blue: 0 }), "ff0000");
+      assert.equal(rgbToHex({ red: 0, green: 1, blue: 0 }), "00ff00");
+      assert.equal(rgbToHex({ red: 0, green: 0, blue: 1 }), "0000ff");
+      assert.equal(rgbToHex({ red: 0.5, green: 0.5, blue: 0.5 }), "808080");
+    });
+
+    it("rgbToHex handles missing values as 0", () => {
+      assert.equal(rgbToHex({}), "000000");
+      assert.equal(rgbToHex(null), null);
+    });
+
+    it("hexDistance returns 0 for identical colors", () => {
+      assert.equal(hexDistance("FF0000", "FF0000"), 0);
+    });
+
+    it("hexDistance returns >0 for different colors", () => {
+      assert.ok(hexDistance("FF0000", "0000FF") > 0.5);
+      assert.ok(hexDistance("FFFFFF", "000000") > 0.9);
+    });
+
+    it("hexDistance is case-insensitive", () => {
+      assert.equal(hexDistance("ff0000", "FF0000"), 0);
+    });
+
+    it("extractText pulls text from shape text elements", () => {
+      const shape = {
+        text: {
+          textElements: [
+            { textRun: { content: "Hello " } },
+            { textRun: { content: "World" } },
+          ],
+        },
+      };
+      assert.equal(extractText(shape), "Hello World");
+    });
+
+    it("extractText returns empty for shapes without text", () => {
+      assert.equal(extractText(null), "");
+      assert.equal(extractText({}), "");
+    });
+
+    it("extractFont pulls font info from first text run", () => {
+      const shape = {
+        text: {
+          textElements: [
+            {
+              textRun: {
+                content: "Test",
+                style: {
+                  fontFamily: "Futura",
+                  fontSize: { magnitude: 24 },
+                  bold: true,
+                  italic: false,
+                  foregroundColor: { opaqueColor: { rgbColor: { red: 1, green: 0, blue: 0 } } },
+                },
+              },
+            },
+          ],
+        },
+      };
+      const f = extractFont(shape);
+      assert.equal(f.family, "Futura");
+      assert.equal(f.size, 24);
+      assert.equal(f.bold, true);
+      assert.equal(f.color, "ff0000");
+    });
+  });
+
+  describe("evaluateSlide", () => {
+    const grid = createGrid(10, 5.625);
+    const EMU = 914400;
+
+    function mockApiSlide(options = {}) {
+      return {
+        pageProperties: options.bg ? {
+          pageBackgroundFill: {
+            solidFill: {
+              color: {
+                rgbColor: {
+                  red: parseInt(options.bg.slice(0, 2), 16) / 255,
+                  green: parseInt(options.bg.slice(2, 4), 16) / 255,
+                  blue: parseInt(options.bg.slice(4, 6), 16) / 255,
+                },
+              },
+            },
+          },
+        } : {},
+        pageElements: options.elements || [],
+      };
+    }
+
+    function mockZoneElement(col, span, row, rowSpan, text, font) {
+      const x = grid.cx(col) * EMU;
+      const y = grid.cy(row) * EMU;
+      const w = grid.cw(span) * EMU;
+      const h = grid.ch(rowSpan) * EMU;
+      return {
+        objectId: "zone_test_" + Math.random().toString(36).slice(2),
+        size: { width: { magnitude: w }, height: { magnitude: h } },
+        transform: { scaleX: 1, scaleY: 1, translateX: x, translateY: y },
+        shape: {
+          text: text ? {
+            textElements: [
+              { textRun: { content: text, style: font || {} } },
+            ],
+          } : undefined,
+        },
+      };
+    }
+
+    it("detects background color mismatch", () => {
+      const source = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"bg":"0A1628"} -->\n# Test')[0];
+      const apiSlide = mockApiSlide({ bg: "FF0000" }); // wrong color
+      const result = evaluateSlide(apiSlide, source, 0, grid);
+      const bgIssue = result.issues.find(i => i.type === "bg_mismatch");
+      assert.ok(bgIssue, "Should detect background color mismatch");
+    });
+
+    it("detects missing background", () => {
+      const source = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10}],"bg":"0A1628"} -->\n# Test')[0];
+      const apiSlide = mockApiSlide({}); // no background
+      const result = evaluateSlide(apiSlide, source, 0, grid);
+      const bgIssue = result.issues.find(i => i.type === "bg_missing");
+      assert.ok(bgIssue, "Should detect missing background");
+    });
+
+    it("detects zone height drift from autofit", () => {
+      const source = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":6,"span":30,"row":12,"rowSpan":16}],"bg":"FFFFFF"} -->\n# Test')[0];
+      // Simulate autofit shrinking: correct width but 50% height
+      const x = grid.cx(6) * EMU;
+      const y = grid.cy(12) * EMU;
+      const w = grid.cw(30) * EMU;
+      const h = grid.ch(16) * EMU * 0.5; // 50% of expected height
+      const apiSlide = mockApiSlide({
+        bg: "FFFFFF",
+        elements: [{
+          objectId: "zone_test",
+          size: { width: { magnitude: w }, height: { magnitude: h } },
+          transform: { scaleX: 1, scaleY: 1, translateX: x, translateY: y },
+          shape: { text: { textElements: [{ textRun: { content: "Test", style: { fontFamily: "Helvetica Neue" } } }] } },
+        }],
+      });
+      const result = evaluateSlide(apiSlide, source, 0, grid);
+      const heightIssue = result.issues.find(i => i.type === "zone_height_drift");
+      assert.ok(heightIssue, "Should detect zone height drift");
+      assert.ok(heightIssue.pct > 40, "Height drift should be ~50%");
+    });
+
+    it("passes with perfect fidelity", () => {
+      const source = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":6,"span":30,"row":12,"rowSpan":16}],"bg":"FAF6EE","font":"Futura"} -->\n# Perfect')[0];
+      const apiSlide = mockApiSlide({
+        bg: "FAF6EE",
+        elements: [
+          mockZoneElement(6, 30, 12, 16, "Perfect", { fontFamily: "Futura", fontSize: { magnitude: 14 } }),
+          { objectId: "img_test", image: { sourceUrl: "https://example.com/img.png" }, size: { width: { magnitude: 9144000 }, height: { magnitude: 5143500 } }, transform: { scaleX: 1, scaleY: 1, translateX: 0, translateY: 0 } },
+        ],
+      });
+      const result = evaluateSlide(apiSlide, source, 0, grid);
+      assert.equal(result.issues.length, 0, "Should have no issues: " + JSON.stringify(result.issues));
+    });
+
+    it("detects missing zones", () => {
+      const source = parseMarkdown('<!-- design: {"zones":[{"role":"title","col":0,"span":30,"row":0,"rowSpan":10},{"role":"body","col":0,"span":30,"row":12,"rowSpan":20}],"bg":"FFFFFF"} -->\n# Test\n\nBody text')[0];
+      const apiSlide = mockApiSlide({ bg: "FFFFFF", elements: [] }); // no zones
+      const result = evaluateSlide(apiSlide, source, 0, grid);
+      const missingIssue = result.issues.find(i => i.type === "zones_missing");
+      assert.ok(missingIssue, "Should detect missing zones");
+    });
+  });
+
+  describe("computeFidelityScores", () => {
+    it("returns perfect scores for no issues", () => {
+      const scores = computeFidelityScores([{ issues: [] }], 1);
+      assert.equal(scores.normalized, 100);
+    });
+
+    it("penalizes grid drift", () => {
+      const scores = computeFidelityScores([{
+        issues: [
+          { dim: "grid", type: "zone_height_drift", pct: 40 },
+          { dim: "grid", type: "zone_width_drift", pct: 20 },
+        ],
+      }], 1);
+      assert.ok(scores.dimensions.gridFidelity < 10, "Grid score should be penalized");
+    });
+
+    it("penalizes missing backgrounds", () => {
+      const scores = computeFidelityScores([{
+        issues: [{ dim: "color", type: "bg_missing", expected: "0A1628" }],
+      }], 1);
+      assert.ok(scores.dimensions.colorFidelity < 10, "Color score should be penalized");
+    });
+
+    it("clamps scores to [0, 10]", () => {
+      // Many issues should clamp to 0, not go negative
+      const issues = Array(20).fill({ dim: "grid", type: "zone_height_drift", pct: 50 });
+      const scores = computeFidelityScores([{ issues }], 1);
+      assert.equal(scores.dimensions.gridFidelity, 0);
+    });
+  });
+});

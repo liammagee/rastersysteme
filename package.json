@@ -17,6 +17,7 @@
     "design": "node design-system.js",
     "pdf": "node export-pdf.js",
     "reveal": "node export-reveal.js",
+    "gslides": "node export-gslides.js",
     "masters": "node masters.js",
     "ui": "node server.js",
     "serve": "python3 -m http.server 8701",
@@ -40,6 +41,7 @@
   "dependencies": {
     "chalk": "^4.1.2",
     "dotenv": "^17.3.1",
+    "googleapis": "^171.4.0",
     "image-size": "^1.1.1",
     "midjourney": "^4.3.18",
     "pptxgenjs": "^4.0.1",

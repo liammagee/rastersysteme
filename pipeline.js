@@ -27,7 +27,7 @@ const teal = chalk.cyan;
 const sage = chalk.green;
 const amber = chalk.yellow;
 
-const STAGES = ["split", "design", "compose", "render"];
+const STAGES = ["split", "design", "compose", "render", "gslides"];
 
 // ═══════════════════════════════════════════════════════
 // UTILITIES
@@ -462,6 +462,45 @@ async function render(context) {
 }
 
 // ═══════════════════════════════════════════════════════
+// STAGE 5: GSLIDES — composed.md → Google Slides (optional)
+// ═══════════════════════════════════════════════════════
+
+async function gslides(context) {
+  const { source, buildDir, options } = context;
+
+  if (!options.gslides) {
+    process.stderr.write(`  ${dim("gslides")} ${dim("skipped (pass --gslides to enable)")}\n`);
+    return null;
+  }
+
+  const baseName = path.basename(source, ".md");
+  const composedPath = path.join(buildDir, `${baseName}.composed.md`);
+
+  if (!fs.existsSync(composedPath)) {
+    throw new Error(`No composed file at ${composedPath} — run the compose stage first`);
+  }
+
+  const { exportToGoogleSlides } = require("./export-gslides.js");
+
+  const result = await exportToGoogleSlides(composedPath, {
+    theme: options.theme,
+    font: options.font,
+    title: options.gslidesTitle || baseName.replace(/[-_]/g, " "),
+    credentials: options.gslidesCredentials,
+    token: options.gslidesToken,
+    open: options.gslidesOpen,
+  });
+
+  process.stderr.write(`  ${dim("gslides")} ${sage("✓")} → ${teal(result.url)} (${result.slideCount} slides)\n`);
+
+  return {
+    presentationId: result.presentationId,
+    url: result.url,
+    slideCount: result.slideCount,
+  };
+}
+
+// ═══════════════════════════════════════════════════════
 // ORCHESTRATOR — run stages sequentially
 // ═══════════════════════════════════════════════════════
 
@@ -482,7 +521,9 @@ async function runPipeline(sourcePath, options = {}) {
   ensureDir(buildDir);
 
   const fromIdx = options.from ? STAGES.indexOf(options.from) : 0;
-  const toIdx = options.to ? STAGES.indexOf(options.to) : STAGES.length - 1;
+  // Default: stop at render unless --gslides is passed or --to gslides is explicit
+  const defaultTo = options.gslides ? STAGES.length - 1 : STAGES.indexOf("render");
+  const toIdx = options.to ? STAGES.indexOf(options.to) : defaultTo;
 
   if (fromIdx < 0) throw new Error(`Unknown stage: ${options.from}`);
   if (toIdx < 0) throw new Error(`Unknown stage: ${options.to}`);
@@ -510,6 +551,9 @@ async function runPipeline(sourcePath, options = {}) {
       case "render":
         results.render = await render(context);
         break;
+      case "gslides":
+        results.gslides = await gslides(context);
+        break;
     }
   }
 
@@ -536,10 +580,15 @@ if (require.main === module) {
     design    generate or load a design system
     compose   run Claude to assign layout/bg/font directives
     render    produce HTML (with external CSS) and PPTX
+    gslides   export to Google Slides (requires --gslides flag)
 
   ${dim("Options:")}
-    --from <stage>        start from: split, design, compose, render
-    --to <stage>          stop after: split, design, compose, render
+    --from <stage>        start from: split, design, compose, render, gslides
+    --to <stage>          stop after: split, design, compose, render, gslides
+    --gslides             enable Google Slides export stage
+    --gslides-credentials <path>  OAuth credentials JSON
+    --gslides-title <name>        presentation title
+    --gslides-open        open in browser after export
     --flat                flat output (no .build/ directory)
     --inline-css          inline CSS instead of external (default: external)
     --theme <name>        theme: light, dark, red, blue
@@ -576,6 +625,11 @@ if (require.main === module) {
     designSystem: flag("design-system"),
     brief: flag("brief"),
     recompose: hasFlag("recompose"),
+    gslides: hasFlag("gslides"),
+    gslidesCredentials: flag("gslides-credentials"),
+    gslidesTitle: flag("gslides-title"),
+    gslidesOpen: hasFlag("gslides-open"),
+    gslidesToken: flag("gslides-token"),
     withImages: !hasFlag("no-images"),
     imagesDir: flag("images-dir"),
     imageStyle: flag("image-style"),
@@ -588,4 +642,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { runPipeline, split, design, compose, render, parseComposition, writeComposition, STAGES };
+module.exports = { runPipeline, split, design, compose, render, gslides, parseComposition, writeComposition, STAGES };
