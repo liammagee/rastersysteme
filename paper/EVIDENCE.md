@@ -84,13 +84,34 @@ Note: iterations 1-4 happened in rapid succession within a single session, commi
 - v9+ scorecards: 0 invented labels
 - Fix: explicit rule in compose prompt + inventedLabels metric in rubric
 
-### Splice Image Invisibility
+### Splice Image Invisibility (extended 2026-03-28, session 2)
 
-- Images spliced with default opacity (0.55) and mix-blend-mode
-- On dark backgrounds (#0a0a0a, #1a1a2e): effectively invisible
-- Rubric checked img count > 0 (presence), not contrast against background (visibility)
-- Fix: opacity bumped to 0.70, inset frame added (commit eafb167)
-- Rubric fix: lowOpacitySplice metric tracked (but not yet penalized)
+- Original issue: images spliced with default opacity (0.55) on dark backgrounds — effectively invisible
+- Rubric scored 98% on deck with invisible images (Goodhart failure)
+- Session 2 discovery: `lowOpacitySplice` was calculated in rubric-jsdom.js but NEVER EXPORTED — dead code
+- No splice count, no visibility tracking, no scoring penalty existed
+
+**Outer loop fix (iterations 9-11):**
+- Added `spliceCount`, `spliceVisibleCount`, `spliceAtmosphericCount` to both jsdom and headless evaluators
+- Added scoring penalties: -2 for unspliced decks, -1.5 if >50% invisible
+- Three-tier visibility model: invisible (<0.15 opacity), atmospheric (0.15-0.40), visible (>=0.40)
+- Atmospheric tier added after user feedback: "background images at 0.22 opacity are valid design, not invisible"
+- The decision to ACCEPT atmospheric images rather than RAISE their opacity was an outer-loop calibration choice
+
+**Splice algorithm fix (same session):**
+- Algorithm only placed images on slides that already HAD images (perverse targeting)
+- Text-only slides (14 of 36) got nothing — the slides most needing visual enhancement
+- Root cause: `hasTextContent` early-exit restricted all text slides to corner insets only
+- Fix: skip slides with content images entirely; let text-only slides use full grid analysis including background mode
+- Result: 12/36 placed → 26/36 placed, 0 slides with no images
+
+**Evidence of concentric loop at tool level:**
+The splice algorithm itself went through a miniature outer loop:
+1. User: "not seeing spliced images" → added metrics (outer loop)
+2. User: "images only where existing images exist" → fixed targeting (outer loop)
+3. User: "still getting conflicts on slide 27" → tightened corner detection (outer loop)
+4. User: "background images are valid" → three-tier model (outer loop calibration)
+Each fix was triggered by human perception, not rubric scores.
 
 ### Zone Collisions
 
@@ -190,6 +211,86 @@ Structural limits reached:
 - **Content 2.3/10**: 9 lowDensity slides (section dividers) penalized at -0.8 each. These are intentionally minimal. The rubric doesn't exempt dark dividers from lowDensity.
 - **Images 5/10**: no source images in an academic text-only paper. The rubric expects image placement variety.
 - Both are rubric blind spots for this deck type — the rubric was calibrated for image-heavy lecture decks, not text-heavy papers. This is itself an outer loop observation.
+
+---
+
+## Cross-Version Design Diversity (Session 2, 2026-03-28)
+
+Seven versions of week-2 (36 slides each), each with a genuinely different aesthetic, all refined to >=80% computed rubric score. The inner loop converges on diverse design targets — there is no single "optimal" design.
+
+### Computed Scores (6 dimensions, /60)
+
+| Version | Aesthetic | A11y | Grid | Color | Coher. | Images | Content | Total | Pct |
+|---------|-----------|------|------|-------|--------|--------|---------|-------|-----|
+| v10 | Literary/atmospheric | 8 | 10 | 9 | 10 | 8 | 3.8 | 48.8 | 81% |
+| v11 | Bauhaus/Futura | 8 | 10 | 9.5 | 9 | 8 | 5.3 | 49.8 | 83% |
+| v12 | Botanical/Palatino | 8 | 10 | 10 | 8.5 | 8 | 5.6 | 50.1 | 84% |
+| v13 | Weingart electric | 8 | 9.3 | 9.5 | 8.5 | 8 | 6.6 | 49.9 | 83% |
+| v14 | Brutalist concrete | 8 | 9.7 | 9.5 | 10 | 8 | 5.8 | 51.0 | 85% |
+| v15 | Pop chromatic | 8 | 10 | 10 | 10 | 8 | 5.3 | 51.3 | 86% |
+| v16 | Terminal editorial | 8.5 | 9 | 9 | 8 | 7 | 9 | 50.5 | 84% |
+
+### Visual Scores (3 dimensions, manual vision assessment, /30)
+
+| Version | Communicability | Taste | Balance | Visual Total |
+|---------|----------------|-------|---------|--------------|
+| v10 | 7 | 7 | 7 | 21 |
+| v11 | 7 | 7 | 7 | 21 |
+| v12 | 7 | 8 | 8 | 23 |
+| v13 | 6 | 8 | 8 | 22 |
+| v14 | 6 | 9 | 7 | 22 |
+| v15 | 7 | 6 | 7 | 20 |
+| v16 | 7 | 8 | 8 | 23 |
+
+### Full 9-Dimension Combined (/90)
+
+| Version | Computed | Visual | Full | Pct |
+|---------|----------|--------|------|-----|
+| v10 | 48.3 | 21 | 69.3 | 77% |
+| v11 | 50.8 | 21 | 71.8 | 80% |
+| v12 | 49.6 | 23 | 72.6 | 81% |
+| v13 | 50.0 | 22 | 72.0 | 80% |
+| v14 | 50.5 | 22 | 72.5 | 81% |
+| v15 | 50.8 | 20 | 70.8 | 79% |
+| v16 | 50.5 | 23 | 73.5 | 82% |
+
+### Key findings
+
+**1. Computed-visual divergence as evidence for the formalization frontier:**
+- v15 Pop Chromatic scores HIGHEST on computed metrics (86%) but LOWEST on visual taste (6/10). The cheerful rotating hues satisfy every metric but lack Swiss rigor.
+- v14 Brutalist scores HIGHEST on visual taste (9/10) but lower computed (85%). Courier monospace + monochrome grays + vermillion is architecturally pure but reduces communicability.
+- This divergence IS the paper's argument: computed metrics capture "absence-of-bad" but visual assessment captures "presence-of-good."
+
+**2. The inner loop converges on any aesthetic:**
+- v13 started at 63% (radical Weingart, cold electric palette, 9px-72px type scale) and reached 83% in 3 iterations without softening the design. The fixes were technical (zone collisions, consecutive backgrounds), not aesthetic.
+- This suggests the inner loop is aesthetic-agnostic — it optimizes structural quality regardless of design direction. The aesthetic itself is an outer-loop choice.
+
+**3. The 80% minimum as practical convergence threshold:**
+- Established by user: "back yourself, don't give up below 80%"
+- All 7 versions reached 80%+ computed. The ceiling is content-inherent (sparse slides, link-only slides) at ~5-7/10 on Content, which can't be fixed without changing source text.
+- The 80% rule prevented premature stopping and forced fixing real issues (zone collisions, splice targeting, background variety) that the old approach would have accepted.
+
+**4. Agent architecture as concentric loop operationalization:**
+- Three agents created: splice-evaluator (quality gate), inner-loop (automated convergence), outer-loop (rubric calibration)
+- These map directly to the paper's three loops: inner = automated, outer = human-calibrated, outer-outer = methodological
+- The agents encode the methodology as reusable automation — but the outer-loop agent still requires human judgment as input
+
+**5. Fractal iteration at the tool level:**
+The splice algorithm itself went through a concentric loop:
+- Inner: fix splice placement algorithm (targeting, background mode, corner detection)
+- Outer: user feedback drove each fix ("images only where existing images exist", "still getting conflicts", "background images are valid")
+- Outer-outer: splice metrics added to the rubric itself (spliceCount, spliceVisibleCount, splicePlacementTypes)
+This demonstrates the concentric pattern is fractal — it appears at every scale of the system.
+
+---
+
+## Outer Loop Iteration Log (continued from session 2)
+
+| # | Date | User Feedback | Rubric Change | Before | After |
+|---|------|--------------|---------------|--------|-------|
+| 9 | 2026-03-28 (s2) | "rubric scored 98% but spliced images invisible" | Added spliceCount, spliceVisibleCount, lowOpacitySpliceTotal to both engines; -2 missing, -1.5 invisible penalties | 98% | 81% (unspliced penalized) |
+| 10 | 2026-03-28 (s2) | "background images at 0.22 are valid, not invisible" | Three-tier model: invisible (<0.15), atmospheric (0.15-0.40), visible (>=0.40) | Images 6.5 | Images 8 |
+| 11 | 2026-03-28 (s2) | "splicePlacementTypes not tracked in jsdom" | Added splicePlacementTypes metric, spliceMonotony penalty | Coherence 7 | Coherence 8.5 |
 
 ---
 
