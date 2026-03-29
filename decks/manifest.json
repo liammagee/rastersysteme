@@ -2,6 +2,50 @@
   {
     "type": "spliced",
     "category": "decks",
+    "path": "decks/week-2-v17.spliced.html",
+    "name": "week-2-v17.spliced",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "102K",
+    "modified": "2026-03-29T00:24:50.759Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v17.html",
+    "name": "week-2-v17",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "95K",
+    "modified": "2026-03-29T00:24:50.707Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/fractal-reference.spliced.html",
+    "name": "fractal-reference.spliced",
+    "slides": 51,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "104K",
+    "modified": "2026-03-28T22:33:02.139Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/fractal-reference.html",
+    "name": "fractal-reference",
+    "slides": 51,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "91K",
+    "modified": "2026-03-28T22:33:02.038Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
     "path": "decks/week-2-v16.spliced.html",
     "name": "week-2-v16.spliced",
     "slides": 36,
@@ -20,28 +64,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "91K",
     "modified": "2026-03-28T22:26:24.205Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/fractal-reference.spliced.html",
-    "name": "fractal-reference.spliced",
-    "slides": 51,
-    "theme": "light",
-    "firstTitle": "Fractal Design Reference Deck",
-    "size": "104K",
-    "modified": "2026-03-28T22:20:38.491Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/fractal-reference.html",
-    "name": "fractal-reference",
-    "slides": 51,
-    "theme": "light",
-    "firstTitle": "Fractal Design Reference Deck",
-    "size": "91K",
-    "modified": "2026-03-28T22:20:38.433Z"
   },
   {
     "type": "spliced",
