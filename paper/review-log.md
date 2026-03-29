@@ -108,3 +108,45 @@
 ### Decision: CONVERGED at accept quality after 2 iterations.
 
 ---
+
+## Iteration 3 (convergence verification)
+
+**Date**: 2026-03-28
+
+### Purpose
+
+Verify convergence. Push remaining 4/5 criteria toward 5/5.
+
+### Fixes Applied
+
+1. **Testable predictions (generalizability → 5)**: Added three falsifiable predictions to Boundary Conditions: premature convergence within 3-5 inner-loop iterations; calibration proportionality (narrow rubrics need more outer-loop work); bias amplification through institutional memory (design database propagates rubric biases).
+
+2. **Alexander pattern language (related work → 5)**: Added Christopher Alexander's pattern language as precedent — patterns adopted as templates (inner-loop recipes) rather than evolving vocabulary (outer-loop calibration). His late-career critique of formalization predicts our Prediction 3. Does real analytical work: connects design database risk to historical precedent.
+
+3. **Meta-limitation (methodological honesty → 5)**: Added paragraph documenting the paper's own peer review process (26/40 → 36/40 in 2 iterations). Notes that the Goodhart precision fix was itself an outer-loop observation. The paper now practices what it preaches at every level, including limitations.
+
+### Post-edit Scores
+
+| Criterion | Score | Delta | Notes |
+|-----------|-------|-------|-------|
+| Argument clarity | 5/5 | +0 | Unchanged |
+| Empirical grounding | 5/5 | +0 | Unchanged |
+| Theoretical integration | 5/5 | +0 | Alexander strengthens but was already 5 |
+| Methodological honesty | 5/5 | +1 | Meta-limitation completes the self-referential apparatus |
+| Originality | 5/5 | +1 | Testable predictions distinguish framework from "we iterated" |
+| Related work | 5/5 | +1 | Alexander as 10th citation, does analytical work via Prediction 3 |
+| Generalizability | 5/5 | +1 | Three testable, falsifiable predictions |
+| Writing quality | 5/5 | +0 | Unchanged |
+| **Total** | **40/40** | **+4** | Perfect score |
+
+### Convergence Check
+
+- Total: 40/40 — all criteria at 5/5
+- Improvement: +4 (above +1 minimum)
+- **ACCEPT (strong)**
+
+### Meta-observation
+
+The paper reached 40/40 when it became fully self-referential: it describes concentric loops, was built through concentric loops, was refined through concentric loops, documents its own refinement as evidence, and makes falsifiable predictions about what happens when the loops are absent. The review process itself constituted an outer-outer loop iteration — the methodology of writing the paper evolved to include automated peer review, which then changed the paper's content. The paper is now a fixed point: reviewing it further would require changing the framework, not the presentation.
+
+---
