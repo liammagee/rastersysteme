@@ -2401,6 +2401,11 @@ body{background:#000;overflow:hidden;-webkit-font-smoothing:antialiased;-moz-osx
 /* === Designed slides (parameterised grid) === */
 .slide.designed{position:absolute;inset:0;overflow:hidden;padding:0}
 .slide.designed .zone{position:absolute;display:flex;flex-direction:column;justify-content:flex-start;overflow:hidden;z-index:2}
+/* Zone font-size cascades to all children — overrides clamp() defaults for dense content */
+.slide.designed .zone p,.slide.designed .zone li,.slide.designed .zone td,.slide.designed .zone th,
+.slide.designed .zone .bullet,.slide.designed .zone blockquote{font-size:inherit;line-height:inherit}
+/* Table zones scroll instead of clip to ensure all content is accessible */
+.slide.designed .zone-table{overflow:auto}
 .slide.designed .accent-el{position:absolute;pointer-events:none}
 
 /* Typography — uses CSS custom properties for per-slide overrides */
