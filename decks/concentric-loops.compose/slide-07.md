@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"body","col":8,"span":38,"row":6,"rowSpan":28}],"accents":[],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":8,"span":44,"row":8,"rowSpan":24}],"accents":[{"type":"line","col":8,"span":44,"row":7,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":4,"span":2,"row":10,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":4,"span":2,"row":28,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":1.65}},"bg":"F0EBE0","font":"Palatino"} -->
 ### The Evaluation Instruments
 
 Three instruments, each with different capabilities:
@@ -15,7 +15,7 @@ The shared scoring module (`rubric-scores.js`) normalizes results from any engin
 
 ---
 
-<!-- design: {"zones":[{"role":"bullets","col":4,"span":26,"row":2,"rowSpan":14},{"role":"body","col":4,"span":34,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":32,"span":1,"row":4,"rowSpan":28,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"bullets","col":34,"span":22,"row":4,"rowSpan":14},{"role":"body","col":4,"span":26,"row":4,"rowSpan":24}],"accents":[{"type":"line","col":32,"span":1,"row":4,"rowSpan":32,"color":"2C3E50"},{"type":"dot","col":56,"span":2,"row":4,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":26,"row":30,"rowSpan":1,"color":"E8E2D6"}],"typography":{"bullets":{"size":14,"weight":500,"leading":1.55},"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Commit Protocol as Design Rationale
 
 Every rubric revision is committed separately with a structured message:
@@ -39,7 +39,7 @@ The git log becomes a design methodology journal. Each entry is a calibration st
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":14,"span":1,"row":2,"rowSpan":36,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":16,"span":40,"row":3,"rowSpan":34}],"accents":[{"type":"bar","col":0,"span":12,"row":0,"rowSpan":40,"color":"0A1628"},{"type":"dot","col":5,"span":2,"row":18,"rowSpan":2,"color":"B7311A"},{"type":"line","col":16,"span":40,"row":2,"rowSpan":1,"color":"2C3E50"}],"typography":{"body":{"size":13,"leading":1.7,"color":"2C3E50"}},"bg":"FAF6EE","font":"Palatino"} -->
 ### What the Rubric Sees and What It Doesn't
 
 The rubric's six dimensions encode specific design theories — mostly implicitly:
@@ -63,16 +63,16 @@ This boundary is itself an object of study for the outer-outer loop: as the rubr
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":2,"rowSpan":12},{"role":"bullets","col":4,"span":36,"row":16,"rowSpan":22}],"accents":[{"type":"bar","col":56,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":52,"row":3,"rowSpan":8},{"role":"bullets","col":4,"span":52,"row":14,"rowSpan":24}],"accents":[{"type":"line","col":4,"span":52,"row":12,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":54,"span":2,"row":14,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":54,"span":2,"row":34,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.55}},"bg":"F0EBE0","font":"Palatino"} -->
 ### Design Theory as Rubric Frontier
 
 The history of design theory can be read as a progressive formalization of intuition:
 
 - **Muller-Brockmann** (1961): formalized layout into grid systems — now fully automatable
 - **Itten** (1961): formalized color relationships into contrasts and harmonies — partially automatable (the rubric measures transition distances but not semantic color)
-- **Tschichold** (1928): formalized typography into hierarchical rules — partially automatable (the rubric checks ratios but not readability)
+- **Tschichold** (1928): formalized typography into hierarchical rules. The rubric's Coherence dimension directly implements Tschichold's principle that a page should contain no more than two type families in a clear size hierarchy. When the rubric penalizes decks where title and body sizes are within 4px of each other, it is enforcing Tschichold's rule that typographic differentiation must be unambiguous. What Tschichold could not formalize — whether the hierarchy *communicates* effectively at projection distance — remains an outer-loop judgment.
 - **Gestalt psychologists** (1920s-): described perception principles (proximity, closure, figure-ground) — formalizable in principle (zone proximity = distance between centers) but not yet implemented
-- **Arnheim** (1954): described visual balance as weight distribution — formalizable (luminance × area × distance from center) but not yet implemented
+- **Arnheim** (1954): described visual balance as perceptual weight distribution — the sense that a composition "holds together" or "tips" to one side. This is the clearest example of a design quality that resists formalization. The rubric's visual-utilization metric (percentage of slide area occupied by content zones) is a crude proxy for Arnheim's balance: a slide where all content clusters in the top-left quadrant scores low on utilization but the metric cannot distinguish "unbalanced" from "deliberately asymmetric." When the rubric scored v14 Brutalist at 85% computed but 9/10 visual taste, the gap was precisely Arnheim's point: balance is perceptual, not geometric.
 - **Tufte** (1983): formalized information design into data-ink ratio — partially automatable (content fidelity checks empty zones but not information density)
 
 Each formalization made a previously-intuitive quality measurable. Each moved a design judgment from the outer loop (human perception) to the inner loop (automated metric). The rubric's evolution recapitulates this history in miniature: the move from absence-of-bad to presence-of-good is the move from checking rules (Muller-Brockmann's grid) to assessing perception (Arnheim's balance).
@@ -83,7 +83,7 @@ The remaining frontier — communicability, taste, balance — may require visio
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":26,"span":2,"row":6,"rowSpan":28,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":0,"span":58,"row":14,"rowSpan":10},{"role":"label","col":4,"span":14,"row":26,"rowSpan":2}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"bar","col":58,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":4,"span":52,"row":25,"rowSpan":1,"color":"2C3E50"}],"typography":{"title":{"size":52,"weight":700,"leading":1.05,"align":"center","color":"FAF6EE"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION SIX
 ## 6. Results
 

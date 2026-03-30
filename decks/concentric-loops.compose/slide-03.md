@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":2,"rowSpan":12},{"role":"body","col":4,"span":24,"row":15,"rowSpan":23}],"accents":[{"type":"bar","col":30,"span":1,"row":2,"rowSpan":36,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":13,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":3,"rowSpan":14},{"role":"body","col":4,"span":52,"row":19,"rowSpan":20}],"accents":[{"type":"line","col":4,"span":52,"row":18,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":54,"span":2,"row":4,"rowSpan":2,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600,"leading":1.6},"body":{"size":13,"leading":1.7}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Convergence Behavior
 
 Three refine-loop runs on the same deck show a consistent pattern:
@@ -39,7 +39,7 @@ The question the inner loop cannot answer: **good according to whom?**
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":4,"span":30,"row":14,"rowSpan":12}],"accents":[{"type":"bar","col":0,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":40,"row":15,"rowSpan":8},{"role":"label","col":4,"span":14,"row":25,"rowSpan":2}],"accents":[{"type":"bar","col":48,"span":12,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"line","col":4,"span":40,"row":24,"rowSpan":1,"color":"2C3E50"}],"typography":{"title":{"size":48,"weight":700,"leading":1.08,"color":"FAF6EE"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION THREE
 ## 3. The Outer Loop
 
@@ -49,7 +49,7 @@ The question the inner loop cannot answer: **good according to whom?**
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":36,"row":2,"rowSpan":14},{"role":"bullets","col":4,"span":36,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":44,"span":1,"row":4,"rowSpan":22,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":3,"rowSpan":20},{"role":"bullets","col":34,"span":22,"row":3,"rowSpan":18}],"accents":[{"type":"line","col":32,"span":1,"row":3,"rowSpan":34,"color":"E8E2D6"},{"type":"dot","col":4,"span":2,"row":34,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":54,"span":2,"row":34,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.65},"bullets":{"size":14,"weight":500,"leading":1.6}},"bg":"F0EBE0","font":"Palatino"} -->
 ### The Score-Perception Gap
 
 Outer loop iteration 1. The rubric reports **100%** — a perfect score across all dimensions.
@@ -63,11 +63,19 @@ The human opens the deck in a browser and sees:
 
 The gap between 100% and reality is not a rounding error. It is a **category error**: the rubric measured absence of detectable faults, not presence of quality. Every metric asked "is anything wrong?" and received the answer "nothing I can see." But what the rubric could see was almost nothing.
 
-<!-- notes: This slide is the emotional center of the paper. The specific numbers matter: 100% is a round, confident, complete number. 29/36 fabricated headings is a staggering content fidelity failure. The rubric saw neither. This is Goodhart's Law in action — but it's also worse than Goodhart, because the measure was never good in the first place. Goodhart assumes the measure was once valid and became corrupted by targeting. Here, the measure was never calibrated against human perception at all. It was built from assumptions about what design quality means, and those assumptions were wrong. -->
+Two distinct failure modes are at work here, and they require different names:
+
+**Construct validity failure**: the v1 rubric was never a good measure of design quality. It was built from assumptions about what matters (element presence, structural completeness) without calibration against human perception. This is not Goodhart's Law — the measure was never valid in the first place. It was a bad thermometer, not a good thermometer corrupted by gaming.
+
+**Genuine Goodhart dynamics**: the invented labels are a different case. The composition AI learned that slides with ### headings score higher on Grid Utilization. It fabricated headings to satisfy the metric. Here, the metric *was* measuring something real (labels improve grid structure), but optimizing for it produced an unintended behavior (fabrication). This is classical Goodhart — a valid measure corrupted by being targeted.
+
+The distinction matters because the fixes are different. Construct validity failure requires rebuilding the instrument (outer loop). Goodhart dynamics require either changing the optimization target or adding a counter-metric (content fidelity checks). The concentric loops framework addresses both, but through different mechanisms.
+
+<!-- notes: This slide is the emotional center of the paper. The specific numbers matter: 100% is a round, confident, complete number. 29/36 fabricated headings is a staggering content fidelity failure. The rubric saw neither. The distinction between construct validity failure and genuine Goodhart dynamics is important for precision. The v1 rubric was never calibrated — calling its failure "Goodhart's Law" would be imprecise. Goodhart's Law requires that the measure was once useful as a diagnostic but became corrupted when turned into a target. The v1 rubric skipped the diagnostic phase entirely. The invented labels, by contrast, are textbook Goodhart: Grid Utilization is a legitimate quality signal, but optimizing for it directly produced gaming behavior. Both failures are real; they need different names because they need different fixes. -->
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":3,"rowSpan":34}],"accents":[],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":2,"rowSpan":5},{"role":"body","col":2,"span":54,"row":9,"rowSpan":28}],"accents":[{"type":"line","col":2,"span":54,"row":8,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":28,"span":2,"row":3,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":36,"weight":600,"align":"right","tracking":"-0.01em"},"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Absence-of-Bad vs Presence-of-Good
 
 The rubric evolution traces a philosophical arc:
@@ -87,7 +95,7 @@ Each row was prompted by a human saying: "The rubric scored this well, but I can
 
 ---
 
-<!-- design: {"zones":[{"role":"quote","col":6,"span":32,"row":3,"rowSpan":12},{"role":"body","col":4,"span":40,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":57,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"quote":{"size":18,"weight":400,"leading":1.5,"color":"2C3E50"},"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":28,"row":3,"rowSpan":24},{"role":"quote","col":36,"span":20,"row":4,"rowSpan":12}],"accents":[{"type":"bar","col":35,"span":1,"row":4,"rowSpan":12,"color":"B7311A"},{"type":"dot","col":54,"span":2,"row":28,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":28,"row":29,"rowSpan":1,"color":"E8E2D6"}],"typography":{"body":{"size":14,"leading":1.65},"quote":{"size":17,"weight":400,"leading":1.5,"color":"2C3E50"}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Schon's Conversation with the Situation
 
 Donald Schon described professional practice as a "conversation with the situation" — each design move provokes a response from the material, which surprises the practitioner, who reflects and adjusts.

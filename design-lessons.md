@@ -473,3 +473,167 @@ Automatically appended by `rubric-headless.js` after each evaluation.
 - [2026-03-29] **week-2-v17.spliced.html**: 30 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
 
 - [2026-03-29] **week-2-v17.spliced.html**: 30 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+
+- [2026-03-29] **week-2-v15.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-29] **week-2-v16.spliced.html**: All computed dimensions scored >= 8. No new lessons.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-29] **concentric-loops.spliced.html**: 8 text-on-image collisions. Use `--image-scale subtle` when splicing. Avoid `overlay` and `background` placement on text-heavy slides.
+- [2026-03-29] **concentric-loops.spliced.html**: 3 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-29] **concentric-loops.spliced.html**: 12 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-29] **concentric-loops.spliced.html**: 14 text-on-image collisions. Use `--image-scale subtle` when splicing. Avoid `overlay` and `background` placement on text-heavy slides.
+- [2026-03-29] **concentric-loops.spliced.html**: 7 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-29] **concentric-loops.spliced.html**: 6 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-29] **concentric-loops.spliced.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-29] **concentric-loops.spliced.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+
+- [2026-03-29] **concentric-loops.spliced.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+
+- [2026-03-30] **week-2-v18.html**: 2 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 2 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 6 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 19 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 19 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 19 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 19 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 3 WCAG contrast failures. On dark backgrounds (lum < 0.2), use FFFFFF/F8F5F0 for titles, F0EBE3 for body. Avoid mid-tone text on any background.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 19 contrast warnings. Darken label colors on light backgrounds (use 6A6052 or darker). Theme accent colors fail on dark backgrounds — let renderer adapt them.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 5 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 2 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 6 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 10 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 9 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 9 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 text overflows. Reduce title sizes to <= 44px on content slides. Widen body zones to span >= 44 on slides with >10 content lines.
+- [2026-03-30] **week-2-v18.html**: 16 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 7 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 7 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 8 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 7 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 3 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 7 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 table truncations. Tables need dedicated table zones with span >= 50 and rowSpan >= 30. Reduce body font-size to 10-11px for dense tables.
+- [2026-03-30] **week-2-v18.html**: 2 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 6 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 6 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.
+
+- [2026-03-30] **week-2-v18.html**: 1 text elements below 12px. Increase label/caption font-size to >= 12px in design directives.
+- [2026-03-30] **week-2-v18.html**: 1 slides with clipped content. Expand body zone rowSpan (>= 24 for bullet slides, >= 28 for prose). Add explicit body zones for slides with unzoned text.
+- [2026-03-30] **week-2-v18.html**: 6 slides with 3+ issues each. Systematic design problems — review zone sizing, contrast, and image placement across the deck.

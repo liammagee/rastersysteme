@@ -1,33 +1,43 @@
 {
-  "aesthetic": "Journal Restraint — academic editorial with dark navy section dividers, warm cream body slides, and red accent bars that shift column position across the deck like marginalia in a scholarly journal.",
+  "aesthetic": "Swiss Journal — academic editorial restraint with Palatino warmth, Futura precision, and red-dot constellation punctuation across a cream field",
   "palette": [
     {
-      "hex": "0A1628",
-      "name": "midnight navy",
-      "role": "accent"
-    },
-    {
       "hex": "FAF6EE",
-      "name": "parchment cream",
+      "name": "Parchment",
       "role": "ground"
     },
     {
+      "hex": "0A1628",
+      "name": "Deep Navy",
+      "role": "accent"
+    },
+    {
       "hex": "B7311A",
-      "name": "editorial red",
+      "name": "Archive Red",
+      "role": "signal"
+    },
+    {
+      "hex": "E8E2D6",
+      "name": "Linen",
       "role": "accent"
     },
     {
       "hex": "2C3E50",
-      "name": "slate ink",
-      "role": "signal"
+      "name": "Slate",
+      "role": "accent"
+    },
+    {
+      "hex": "F0EBE0",
+      "name": "Warm Fog",
+      "role": "ground"
     }
   ],
-  "chromaticArc": "Opens on midnight navy title, crosses to parchment cream for body runs, dips to navy on three section dividers at slides 1, 17, and 33, with red accent bars intensifying through the middle third then receding to sparse punctuation in the final act.",
-  "gridStrategy": "Title zones alternate between left-anchored (col 0–2), centred (col 12–16), and right-offset (col 30–35) placements across consecutive slides; body zones vary from narrow 20-col emphasis columns to wide 40-col detail fields, with accent bars placed at shifting columns (col 0, col 57, col 28) to create a lateral rhythm across the deck.",
+  "chromaticArc": "Opens on parchment, first divider at slide 8 plunges to navy, cream body resumes through mid-deck with linen accent bands, second navy divider at slide 31, warm fog variation carries the final third, closing navy divider at slide 55 before a parchment coda",
+  "gridStrategy": "Title zones migrate across a 5-position cycle — left-flush col 0, offset col 8, centred col 12, right-offset col 30, full-width col 0 span 58 — while body zones alternate between narrow-20 emphasis columns and wide-40 detail fields, creating asymmetric editorial spreads",
   "typeScale": {
     "titleRange": [
-      32,
-      44
+      36,
+      52
     ],
     "bodySize": 16,
     "labelSize": 12,
@@ -37,10 +47,10 @@
     ]
   },
   "fontStrategy": {
-    "default": "Futura",
-    "secondary": "Palatino",
+    "default": "Palatino",
+    "secondary": "Futura",
     "tertiary": null,
-    "secondarySlides": "Palatino used for all body text and labels; Futura reserved for headings, titles, and slide numbers"
+    "secondarySlides": "Futura used for all slide titles and labels; Palatino reserved for body text, block quotes, and code annotations — reversing the expected hierarchy for editorial tension"
   },
-  "accentStrategy": "Thin red (#B7311A) bars (span 1–2 cols, rowSpan 6–20) appear on ~65% of slides, each at a different column position — creating a staggered vertical rhythm across the deck like red thread stitching through a bound journal."
+  "accentStrategy": "Small 2×2 dot accents in Archive Red appear at varied grid positions on ~65% of slides — upper-right corners, baseline anchors, mid-gutter punctuation — forming a loose constellation motif, complemented by thin 1px navy rules on ~30% of slides to divide title and body zones"
 }

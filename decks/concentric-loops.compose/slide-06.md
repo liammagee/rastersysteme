@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"body","col":16,"span":34,"row":6,"rowSpan":28}],"accents":[{"type":"bar","col":12,"span":1,"row":4,"rowSpan":32,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":30,"row":6,"rowSpan":28}],"accents":[{"type":"dot","col":38,"span":2,"row":8,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":30,"row":5,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":38,"span":2,"row":30,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Design Database as Institutional Memory
 
 Each compose-render-evaluate cycle produces artifacts that feed forward:
@@ -16,7 +16,7 @@ This is why the outer loop must run before the database updates. Calibrating the
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":36,"row":2,"rowSpan":14},{"role":"bullets","col":4,"span":30,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":57,"span":2,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":32,"span":24,"row":4,"rowSpan":12},{"role":"bullets","col":32,"span":24,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":0,"span":28,"row":0,"rowSpan":40,"color":"E8E2D6"},{"type":"dot","col":13,"span":2,"row":18,"rowSpan":2,"color":"B7311A"},{"type":"line","col":32,"span":24,"row":17,"rowSpan":1,"color":"2C3E50"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Deutero-Learning
 
 Argyris called it "deutero-learning" — learning about the learning process. Bateson called it "Learning III." The outer-outer loop is neither:
@@ -36,7 +36,7 @@ Each of these is a methodological decision triggered by the outer loop's failure
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":4,"span":40,"row":10,"rowSpan":16}],"accents":[{"type":"bar","col":0,"span":2,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"bar","col":48,"span":1,"row":10,"rowSpan":20,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":14,"rowSpan":8},{"role":"label","col":8,"span":18,"row":24,"rowSpan":2}],"accents":[{"type":"line","col":8,"span":44,"row":13,"rowSpan":1,"color":"2C3E50"},{"type":"bar","col":54,"span":6,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"dot","col":4,"span":2,"row":16,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":700,"leading":1.1,"color":"FAF6EE"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION FIVE
 ## 5. Tools and Infrastructure
 
@@ -46,7 +46,7 @@ Each of these is a methodological decision triggered by the outer loop's failure
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":42,"row":3,"rowSpan":34}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":32,"row":2,"rowSpan":5},{"role":"body","col":4,"span":52,"row":9,"rowSpan":28}],"accents":[{"type":"line","col":4,"span":52,"row":8,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":54,"span":2,"row":3,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":36,"weight":600,"tracking":"-0.01em"},"body":{"size":14,"leading":1.65}},"bg":"F0EBE0","font":"Palatino"} -->
 ### rastersysteme
 
 A Swiss-inspired 60-column grid system for slide design. Markdown source is transformed through a pipeline:
@@ -69,7 +69,7 @@ The pipeline is linear but the feedback loops are circular: evaluation results f
 
 ---
 
-<!-- design: {"zones":[{"role":"bullets","col":22,"span":34,"row":2,"rowSpan":12},{"role":"body","col":22,"span":34,"row":16,"rowSpan":22}],"accents":[{"type":"bar","col":18,"span":1,"row":2,"rowSpan":34,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":13,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":3,"rowSpan":14},{"role":"body","col":4,"span":52,"row":19,"rowSpan":20}],"accents":[{"type":"line","col":4,"span":52,"row":18,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":30,"span":2,"row":6,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":54,"span":2,"row":36,"rowSpan":2,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600,"leading":1.55},"body":{"size":13,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Composition Step
 
 `compose.js` takes raw markdown and produces composed markdown with JSON design directives:

@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":2,"rowSpan":36}],"accents":[{"type":"bar","col":32,"span":1,"row":2,"rowSpan":20,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.45}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":2,"span":26,"row":2,"rowSpan":36}],"accents":[{"type":"line","col":30,"span":1,"row":2,"rowSpan":36,"color":"E8E2D6"},{"type":"dot","col":34,"span":2,"row":4,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":34,"span":2,"row":34,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.7}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Three Loops
 
 ```
@@ -34,7 +34,7 @@
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":4,"rowSpan":32}],"accents":[{"type":"bar","col":57,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":4,"rowSpan":30}],"accents":[{"type":"bar","col":0,"span":14,"row":0,"rowSpan":40,"color":"F0EBE0"},{"type":"dot","col":6,"span":2,"row":18,"rowSpan":2,"color":"B7311A"},{"type":"line","col":18,"span":38,"row":3,"rowSpan":1,"color":"2C3E50"}],"typography":{"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Intellectual Debts
 
 This is not a new idea. It has appeared in different vocabularies:
@@ -49,13 +49,13 @@ This is not a new idea. It has appeared in different vocabularies:
 | **Man-computer symbiosis** (Licklider, 1960) | Machine: routinizable optimization | Human: goals, hypotheses, criteria | Both: evolving the collaboration itself |
 | **Design formalization** (Muller-Brockmann; Itten; Arnheim) | Apply formalized rules (grids, color math, type ratios) | Perceive what rules can't capture (balance, taste, communicability) | Formalize previously-intuitive qualities |
 
-What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened.
+What is new is the empirical account — and the synthesis. We call the pattern **fractal design**: recursive (self-similar loops at every scale), symbiotic (human and machine intelligence at different positions), and generative (producing criteria, not just artifacts). We ran these loops on a real design system over 8 iterations and recorded what happened. The framework applies specifically to domains where quality is partially but not fully formalizable — where metrics help but do not capture everything. Its boundary conditions, and the cases where it does not apply, are examined in Section 8.
 
 <!-- notes: The table now includes the generative and symbiotic traditions alongside the cybernetic and learning theory traditions. This previews the "fractal design" concept that appears fully in Section 7. The generative row connects to Chomsky's generative grammars and Lindenmayer's L-systems — the idea that complex structure emerges from simple recursive rules. The Licklider row connects to the oldest articulation of human-machine symbiosis. Both are older than "generative AI" and provide deeper roots for the paper's argument. The term "fractal design" is introduced here in passing and developed later — the reader should notice it, not yet understand it fully. -->
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":26,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":12,"span":36,"row":13,"rowSpan":10},{"role":"label","col":12,"span":16,"row":25,"rowSpan":2}],"accents":[{"type":"bar","col":0,"span":60,"row":0,"rowSpan":40,"color":"0A1628"},{"type":"dot","col":50,"span":2,"row":8,"rowSpan":2,"color":"B7311A"},{"type":"line","col":12,"span":36,"row":24,"rowSpan":1,"color":"2C3E50"}],"typography":{"title":{"size":52,"weight":700,"leading":1.05,"color":"FAF6EE"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION TWO
 ## 2. The Inner Loop
 
@@ -65,7 +65,7 @@ What is new is the empirical account — and the synthesis. We call the pattern 
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":3,"rowSpan":34}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":28,"row":2,"rowSpan":5},{"role":"body","col":4,"span":36,"row":9,"rowSpan":28}],"accents":[{"type":"line","col":4,"span":36,"row":8,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":44,"span":2,"row":3,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":36,"weight":600,"tracking":"-0.01em"},"body":{"size":14,"leading":1.65}},"bg":"F0EBE0","font":"Palatino"} -->
 ### How the Rubric Works
 
 The automated evaluator scores each deck across **6 computed dimensions**, using 11 metrics:
@@ -85,7 +85,7 @@ Each dimension scores 0-10. Total: 60 points.
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":12,"span":36,"row":4,"rowSpan":30}],"accents":[],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":2,"rowSpan":5},{"role":"body","col":30,"span":26,"row":9,"rowSpan":26}],"accents":[{"type":"bar","col":0,"span":26,"row":0,"rowSpan":40,"color":"E8E2D6"},{"type":"dot","col":12,"span":2,"row":18,"rowSpan":2,"color":"B7311A"},{"type":"line","col":30,"span":26,"row":8,"rowSpan":1,"color":"2C3E50"}],"typography":{"title":{"size":36,"weight":700,"align":"right"},"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Refine-Step Pattern
 
 Each iteration follows a fixed protocol:

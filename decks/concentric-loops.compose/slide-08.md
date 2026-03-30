@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"bullets","col":4,"span":28,"row":2,"rowSpan":16},{"role":"body","col":4,"span":36,"row":20,"rowSpan":18}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600},"body":{"size":14,"leading":1.5}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":24,"row":3,"rowSpan":16},{"role":"body","col":32,"span":24,"row":3,"rowSpan":34}],"accents":[{"type":"line","col":30,"span":1,"row":3,"rowSpan":34,"color":"E8E2D6"},{"type":"dot","col":4,"span":2,"row":36,"rowSpan":2,"color":"B7311A"}],"typography":{"bullets":{"size":15,"weight":600,"leading":1.55},"body":{"size":13,"leading":1.7}},"bg":"FAF6EE","font":"Palatino"} -->
 ### Score Progression
 
 | Deck | Rubric | A11y | Grid | Color | Coher. | Images | Content | **Total** |
@@ -22,7 +22,7 @@ The story is not "scores went up." The story is that three things improved in pa
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":1,"rowSpan":38}],"accents":[{"type":"bar","col":32,"span":1,"row":2,"rowSpan":24,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.42}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":52,"row":2,"rowSpan":36}],"accents":[{"type":"dot","col":4,"span":2,"row":2,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":52,"row":19,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":54,"span":2,"row":36,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.65}},"bg":"F0EBE0","font":"Palatino"} -->
 ### Three Meanings of 10/10
 
 Grid Utilization scored 10/10 three times. Each time it meant something different.
@@ -54,7 +54,7 @@ The top line is the real score. The bottom line is what the score *would have be
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":4,"rowSpan":32}],"accents":[],"typography":{"body":{"size":14,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":18,"span":38,"row":6,"rowSpan":28}],"accents":[{"type":"bar","col":0,"span":14,"row":0,"rowSpan":40,"color":"0A1628"},{"type":"dot","col":6,"span":2,"row":12,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":6,"span":2,"row":26,"rowSpan":2,"color":"B7311A"},{"type":"line","col":18,"span":38,"row":5,"rowSpan":1,"color":"2C3E50"}],"typography":{"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### What Improved, and Who Improved It
 
 | Improvement | Loop | Agent | Timescale |
@@ -73,7 +73,32 @@ No row says "the AI fixed the rubric." The inner loop makes design changes. The 
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":38,"row":2,"rowSpan":14},{"role":"bullets","col":6,"span":32,"row":18,"rowSpan":20}],"accents":[{"type":"bar","col":56,"span":2,"row":4,"rowSpan":28,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":36,"row":4,"rowSpan":34}],"accents":[{"type":"bar","col":44,"span":16,"row":0,"rowSpan":40,"color":"E8E2D6"},{"type":"dot","col":50,"span":2,"row":10,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":36,"row":3,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":50,"span":2,"row":28,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":13,"leading":1.7}},"bg":"FAF6EE","font":"Palatino"} -->
+### Two Engines, One Deck, Different Truths
+
+The same deck (week-2-v11) evaluated by two engines with identical rubric formulas:
+
+| Dimension | Headless (Puppeteer) | jsdom | Delta |
+|-----------|---------------------|-------|-------|
+| Accessibility | 10 | 8 (capped) | -2 |
+| Grid | 10 | 10 | 0 |
+| Color | 10 | 9.5 | -0.5 |
+| Coherence | 10 | 9 | -1 |
+| Images | 10 | 8 | -2 |
+| Content | 8.5 | 5.3 | -3.2 |
+| **Total** | **58.5/60** | **49.8/60** | **-8.7** |
+
+Same formulas, 8.7-point gap. The divergence is not a bug — it is a measurement of what CSS rendering contributes to evaluation. jsdom sees DOM structure but not computed styles; it caps Accessibility at 8 (honest about what it cannot verify). Content diverges most (3.2 points) because jsdom's text-density calculation lacks layout context.
+
+This divergence prompted an outer-outer loop decision: unify the scoring formulas into a shared module (`rubric-scores.js`) so that disagreements are about *data* (what each engine can see), not *interpretation* (how each engine weighs what it sees). The shared module made the engines' blind spots comparable rather than confounded.
+
+The engine divergence also provides evidence for the formalization frontier: even with identical formulas, the choice of observation instrument changes the score. The rubric is not separate from its implementation — the instrument and the measurement are entangled, exactly as von Foerster's second-order cybernetics predicts.
+
+<!-- notes: Engine divergence data from EVIDENCE.md. This slide serves triple duty: (1) empirical evidence that evaluation instruments are not neutral, (2) demonstration of an outer-outer loop decision (unifying scoring), and (3) connection to second-order cybernetics (the observer cannot be separated from the observed). The 8.7-point gap on the same deck with the same formulas is a powerful demonstration that "the score" is always "the score according to this instrument." -->
+
+---
+
+<!-- design: {"zones":[{"role":"body","col":4,"span":26,"row":4,"rowSpan":14},{"role":"bullets","col":4,"span":50,"row":22,"rowSpan":16}],"accents":[{"type":"line","col":4,"span":50,"row":20,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":34,"span":2,"row":6,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":54,"span":2,"row":36,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Cybernetics Recursion
 
 The slides being designed are about cybernetics — Norbert Wiener, feedback loops, the distinction between cybernetics (human-machine co-operation) and AI (machine autonomy).
@@ -88,13 +113,3 @@ Slides about Wiener were designed through Wiener's methods. Slides about the cyb
 The recursion is not a coincidence. It is the design system demonstrating what the content describes.
 
 <!-- notes: This slide connects the paper's theoretical framework to its specific content domain. The week-2 lecture is about the historical tension between cybernetics (cooperative, feedback-driven, human-in-the-loop) and AI (autonomous, self-improving, human-out-of-the-loop). The paper argues that good AI-mediated design requires the cybernetic approach — that the outer loops are what make the inner loop valuable. The recursion — cybernetics content designed through cybernetic methods — makes this argument performative, not just descriptive. -->
-
----
-
-<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":4,"span":2,"row":8,"rowSpan":24,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE","align":"center"}},"bg":"FAF6EE","font":"Futura"} -->
-### SECTION SEVEN
-## 7. Discussion
-
-### Fractal Design
-
-<!-- notes: Section divider. Act II begins. "Fractal design" reframes the concentric loops as a three-part concept: recursive (self-similar loops at different scales), symbiotic (human and machine intelligence at different positions in the structure), and generative (the system produces increasingly complex quality through iteration of simple rules). This framing connects the paper's specific findings to broader traditions in design thinking, computation, and AI collaboration. -->

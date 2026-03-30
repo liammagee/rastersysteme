@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"title","col":8,"span":44,"row":12,"rowSpan":12}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":400,"color":"FAF6EE","align":"center","tracking":0.12}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":32,"row":12,"rowSpan":10},{"role":"label","col":4,"span":20,"row":24,"rowSpan":2}],"accents":[{"type":"dot","col":38,"span":2,"row":3,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":32,"row":23,"rowSpan":1,"color":"0A1628"}],"typography":{"title":{"size":44,"weight":700,"leading":1.1,"tracking":"-0.02em"},"label":{"size":12,"weight":400,"transform":"uppercase","tracking":"0.12em","color":"2C3E50"}},"bg":"FAF6EE","font":"Futura"} -->
 # Concentric Loops in AI-Mediated Design
 
 ### Feedback, Failure, and the Problem of Automated Quality
@@ -7,7 +7,7 @@
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":4,"span":28,"row":14,"rowSpan":10}],"accents":[{"type":"bar","col":57,"span":2,"row":6,"rowSpan":28,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"color":"FAF6EE"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":8,"span":28,"row":14,"rowSpan":8},{"role":"label","col":8,"span":12,"row":23,"rowSpan":2}],"accents":[{"type":"bar","col":0,"span":4,"row":0,"rowSpan":40,"color":"B7311A"},{"type":"dot","col":52,"span":2,"row":6,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":52,"weight":700,"leading":1.05},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION ONE
 ## 1. The Problem
 
@@ -15,7 +15,7 @@
 
 ---
 
-<!-- design: {"zones":[{"role":"bullets","col":4,"span":34,"row":3,"rowSpan":13},{"role":"quote","col":6,"span":36,"row":18,"rowSpan":10},{"role":"body","col":4,"span":38,"row":30,"rowSpan":7}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"bullets":{"size":14},"quote":{"size":16,"weight":400,"leading":1.5},"body":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"bullets","col":4,"span":26,"row":3,"rowSpan":16},{"role":"quote","col":34,"span":22,"row":6,"rowSpan":10},{"role":"body","col":34,"span":22,"row":28,"rowSpan":6}],"accents":[{"type":"line","col":32,"span":1,"row":3,"rowSpan":24,"color":"2C3E50"},{"type":"dot","col":56,"span":2,"row":35,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":36,"weight":600},"body":{"size":14,"leading":1.6},"bullets":{"size":14,"leading":1.7},"quote":{"size":16,"weight":400,"leading":1.5,"color":"2C3E50"}},"bg":"FAF6EE","font":"Palatino"} -->
 ### When a Measure Becomes a Target
 
 > "When a measure becomes a target, it ceases to be a good measure."
@@ -31,7 +31,7 @@ The score is perfect. The design is not.
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":4,"rowSpan":32}],"accents":[{"type":"bar","col":56,"span":2,"row":6,"rowSpan":18,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":28,"row":3,"rowSpan":6},{"role":"body","col":4,"span":40,"row":11,"rowSpan":26}],"accents":[{"type":"dot","col":48,"span":2,"row":4,"rowSpan":2,"color":"B7311A"},{"type":"line","col":4,"span":40,"row":9,"rowSpan":1,"color":"E8E2D6"}],"typography":{"title":{"size":36,"weight":700,"tracking":"-0.01em"},"body":{"size":14,"leading":1.65}},"bg":"F0EBE0","font":"Palatino"} -->
 ### The Rubric-as-Judge Pattern
 
 Most AI design tools follow a generate-evaluate loop:
@@ -49,7 +49,7 @@ It works in the narrow sense that scores go up. But scores going up and quality 
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":10,"span":40,"row":4,"rowSpan":32}],"accents":[],"typography":{"body":{"size":14,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"title","col":30,"span":26,"row":3,"rowSpan":6},{"role":"body","col":4,"span":24,"row":4,"rowSpan":28}],"accents":[{"type":"bar","col":56,"span":4,"row":0,"rowSpan":40,"color":"0A1628"},{"type":"dot","col":32,"span":2,"row":32,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":36,"weight":600,"align":"right"},"body":{"size":14,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### What This Paper Argues
 
 A single feedback loop between generator and evaluator is necessary but insufficient. Quality in AI-mediated design requires **three concentric loops** operating at different timescales:

@@ -1,5 +1,82 @@
 [
   {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v18.html",
+    "name": "week-2-v18",
+    "slides": 40,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "117K",
+    "modified": "2026-03-30T19:08:00.265Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v18-bgimg.html",
+    "name": "week-2-v18-bgimg",
+    "slides": 21,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "68K",
+    "modified": "2026-03-29T20:28:54.718Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/week-2-v12-bgimg.html",
+    "name": "week-2-v12-bgimg",
+    "slides": 36,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "101K",
+    "modified": "2026-03-29T19:41:55.749Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/concentric-loops.spliced.html",
+    "name": "concentric-loops.spliced",
+    "slides": 64,
+    "theme": "light",
+    "firstTitle": "Concentric Loops in AI-Mediated Design",
+    "size": "191K",
+    "modified": "2026-03-29T14:46:25.460Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/concentric-loops.html",
+    "name": "concentric-loops",
+    "slides": 64,
+    "theme": "light",
+    "firstTitle": "Concentric Loops in AI-Mediated Design",
+    "size": "176K",
+    "modified": "2026-03-29T14:46:25.400Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/fractal-reference.spliced.html",
+    "name": "fractal-reference.spliced",
+    "slides": 51,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "104K",
+    "modified": "2026-03-29T14:42:13.840Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
+    "path": "decks/fractal-reference.html",
+    "name": "fractal-reference",
+    "slides": 51,
+    "theme": "light",
+    "firstTitle": "Fractal Design Reference Deck",
+    "size": "91K",
+    "modified": "2026-03-29T14:18:26.055Z"
+  },
+  {
     "type": "spliced",
     "category": "decks",
     "path": "decks/week-2-v17.spliced.html",
@@ -20,28 +97,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "95K",
     "modified": "2026-03-29T00:24:50.707Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/fractal-reference.spliced.html",
-    "name": "fractal-reference.spliced",
-    "slides": 51,
-    "theme": "light",
-    "firstTitle": "Fractal Design Reference Deck",
-    "size": "104K",
-    "modified": "2026-03-28T22:33:02.139Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/fractal-reference.html",
-    "name": "fractal-reference",
-    "slides": 51,
-    "theme": "light",
-    "firstTitle": "Fractal Design Reference Deck",
-    "size": "91K",
-    "modified": "2026-03-28T22:33:02.038Z"
   },
   {
     "type": "spliced",
@@ -152,28 +207,6 @@
     "firstTitle": "Gen AI - Week 2 - Pathways to AI",
     "size": "91K",
     "modified": "2026-03-28T21:49:29.169Z"
-  },
-  {
-    "type": "spliced",
-    "category": "decks",
-    "path": "decks/concentric-loops.spliced.html",
-    "name": "concentric-loops.spliced",
-    "slides": 49,
-    "theme": "light",
-    "firstTitle": "Concentric Loops in AI-Mediated Design",
-    "size": "133K",
-    "modified": "2026-03-28T21:47:54.625Z"
-  },
-  {
-    "type": "deck",
-    "category": "decks",
-    "path": "decks/concentric-loops.html",
-    "name": "concentric-loops",
-    "slides": 49,
-    "theme": "light",
-    "firstTitle": "Concentric Loops in AI-Mediated Design",
-    "size": "118K",
-    "modified": "2026-03-28T21:47:54.574Z"
   },
   {
     "type": "spliced",

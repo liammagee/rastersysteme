@@ -1,4 +1,4 @@
-<!-- design: {"zones":[{"role":"body","col":6,"span":36,"row":6,"rowSpan":28}],"accents":[{"type":"bar","col":46,"span":1,"row":8,"rowSpan":20,"color":"B7311A"}],"typography":{"body":{"size":15,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":8,"rowSpan":24}],"accents":[{"type":"bar","col":0,"span":16,"row":0,"rowSpan":40,"color":"E8E2D6"},{"type":"dot","col":7,"span":2,"row":18,"rowSpan":2,"color":"B7311A"},{"type":"line","col":20,"span":36,"row":7,"rowSpan":1,"color":"2C3E50"}],"typography":{"body":{"size":15,"leading":1.65}},"bg":"FAF6EE","font":"Palatino"} -->
 ### The Score That Went Back Up
 
 Between rubric versions v5 and v6, the overall score increased from 88% to 98%.
@@ -17,7 +17,7 @@ Not all quality improvements are design changes. Some are infrastructure changes
 
 ---
 
-<!-- design: {"zones":[{"role":"title","col":14,"span":36,"row":12,"rowSpan":14}],"accents":[{"type":"bar","col":10,"span":2,"row":6,"rowSpan":28,"color":"B7311A"}],"typography":{"title":{"size":44,"weight":700,"color":"FAF6EE","align":"center"}},"bg":"FAF6EE","font":"Futura"} -->
+<!-- design: {"zones":[{"role":"title","col":4,"span":44,"row":12,"rowSpan":10},{"role":"label","col":4,"span":18,"row":24,"rowSpan":2}],"accents":[{"type":"line","col":4,"span":44,"row":23,"rowSpan":1,"color":"2C3E50"},{"type":"dot","col":52,"span":2,"row":14,"rowSpan":2,"color":"B7311A"},{"type":"dot","col":52,"span":2,"row":18,"rowSpan":2,"color":"B7311A"}],"typography":{"title":{"size":48,"weight":700,"leading":1.08,"color":"FAF6EE"},"label":{"size":11,"weight":400,"transform":"uppercase","tracking":"0.14em","color":"E8E2D6"}},"bg":"FAF6EE","font":"Futura"} -->
 ### SECTION FOUR
 ## 4. The Outer-Outer Loop
 
@@ -27,7 +27,7 @@ Not all quality improvements are design changes. Some are infrastructure changes
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":38,"row":2,"rowSpan":12},{"role":"bullets","col":4,"span":34,"row":16,"rowSpan":22}],"accents":[{"type":"bar","col":0,"span":1,"row":0,"rowSpan":40,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":24,"row":4,"rowSpan":8},{"role":"bullets","col":4,"span":50,"row":16,"rowSpan":20}],"accents":[{"type":"line","col":4,"span":50,"row":14,"rowSpan":1,"color":"E8E2D6"},{"type":"dot","col":56,"span":2,"row":4,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.6}},"bg":"F0EBE0","font":"Palatino"} -->
 ### When the Outer Loop Isn't Enough
 
 The outer loop catches rubric blind spots: the human sees something the rubric missed, the rubric gets updated. But the outer loop itself has blind spots:
@@ -42,7 +42,7 @@ Each of these is a failure not of the rubric but of the **methodology around the
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":20,"span":36,"row":2,"rowSpan":10},{"role":"bullets","col":20,"span":36,"row":14,"rowSpan":24}],"accents":[{"type":"bar","col":16,"span":1,"row":2,"rowSpan":32,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":34,"span":22,"row":4,"rowSpan":8},{"role":"bullets","col":4,"span":26,"row":4,"rowSpan":32}],"accents":[{"type":"line","col":32,"span":1,"row":4,"rowSpan":32,"color":"2C3E50"},{"type":"dot","col":34,"span":2,"row":34,"rowSpan":2,"color":"B7311A"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.55}},"bg":"FAF6EE","font":"Palatino"} -->
 ### From Sampling to Exhaustive
 
 Outer-outer loop iteration 1:
@@ -59,7 +59,7 @@ This is not a rubric change. The rubric formulas are untouched. What changed is 
 
 ---
 
-<!-- design: {"zones":[{"role":"body","col":4,"span":40,"row":2,"rowSpan":10},{"role":"bullets","col":4,"span":40,"row":14,"rowSpan":24}],"accents":[],"typography":{"body":{"size":14,"leading":1.55},"bullets":{"size":14}},"bg":"FAF6EE","font":"Palatino"} -->
+<!-- design: {"zones":[{"role":"body","col":4,"span":52,"row":3,"rowSpan":6},{"role":"bullets","col":8,"span":48,"row":12,"rowSpan":26}],"accents":[{"type":"bar","col":4,"span":2,"row":12,"rowSpan":26,"color":"B7311A"},{"type":"line","col":4,"span":52,"row":10,"rowSpan":1,"color":"E8E2D6"}],"typography":{"body":{"size":14,"leading":1.6},"bullets":{"size":14,"weight":500,"leading":1.6}},"bg":"FAF6EE","font":"Palatino"} -->
 ### From Aggregate Scores to Per-Slide Comparison
 
 Outer-outer loop iteration 2:
