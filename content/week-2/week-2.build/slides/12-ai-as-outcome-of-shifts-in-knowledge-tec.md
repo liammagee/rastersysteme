@@ -1,4 +1,4 @@
-## AI as instead a process of accumulating layers - an "archaeology":
+## AI as outcome of shifts in knowledge, techniques, instruments...
 
 “The centre of knowledge, in the seventeenth and eighteenth centuries, is the **table**.” (Foucault, Michel. The Order of Things: An Archaeology of the Human Sciences. Trans. Alan Sheridan. New York: Vintage, 1973, 74.
 

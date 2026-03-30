@@ -25,3 +25,4 @@ test-features.build/
 .claude/marketplace/
 .claude/.DS_Store
 .claude/**/.DS_Store
+.gslides-token.json

@@ -1,6 +1,6 @@
 {
-  "sourceHash": "3d4c95d7f4450b0d",
-  "generated": "2026-03-30T12:51:23.016Z",
+  "sourceHash": "755ee04ef0e640c0",
+  "generated": "2026-03-30T21:14:31.046Z",
   "slides": [
     {
       "index": 1,
@@ -9,212 +9,237 @@
     },
     {
       "index": 2,
-      "file": "02-eurocentric-history.md",
-      "title": "Eurocentric history?"
+      "file": "02-todays-structure.md",
+      "title": "Today's Structure"
     },
     {
       "index": 3,
-      "file": "03-side-note-for-the-historically-curious.md",
-      "title": "Side-note for the historically curious…"
+      "file": "03-assessments.md",
+      "title": "Assessments"
     },
     {
       "index": 4,
-      "file": "04-an-archaeology-of-artificial-intelligenc.md",
-      "title": "[An Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)"
-    },
-    {
-      "index": 5,
-      "file": "05-first-definition-1955-artificial-intelli.md",
+      "file": "04-first-definition-1955-artificial-intelli.md",
       "title": "First Definition (1955): Artificial Intelligence involves…."
     },
     {
-      "index": 6,
-      "file": "06-themes-cybernetics-vs-artificial-intelli.md",
+      "index": 5,
+      "file": "05-themes-cybernetics-vs-artificial-intelli.md",
       "title": "Themes: Cybernetics vs Artificial Intelligence?"
     },
     {
+      "index": 6,
+      "file": "06-roman-tech-ism-melancholic-echoes-of-cyb.md",
+      "title": "*Roman-tech-ism*? Melancholic Echoes of Cybernetics Today?"
+    },
+    {
       "index": 7,
-      "file": "07-melancholic-echoes-of-cybernetics-today.md",
-      "title": "Melancholic Echoes of Cybernetics Today?"
+      "file": "07-eurocentrism-afro-eurasian-new-worldism-.md",
+      "title": "Eurocentrism, Afro-Eurasian, New Worldism or Planetary AI?"
     },
     {
       "index": 8,
-      "file": "08-heroic-version-of-ai-history-whiggish-hi.md",
-      "title": "Heroic version of AI history (\"Whiggish\" history)"
+      "file": "08-side-note-for-the-historically-curious.md",
+      "title": "Side-note for the historically curious…"
     },
     {
       "index": 9,
-      "file": "09-la-longue-duree-annales-school-fernand-b.md",
-      "title": "“La Longue Duree” (Annales School, Fernand Braudel)"
+      "file": "09-an-archaeology-of-artificial-intelligenc.md",
+      "title": "[An Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)"
     },
     {
       "index": 10,
-      "file": "10-ai-as-instead-a-process-of-accumulating-.md",
-      "title": "AI as instead a process of accumulating layers - an \"archaeology\":"
+      "file": "10-heroic-version-of-ai-history-whiggish-hi.md",
+      "title": "Heroic version of AI history (\"Whiggish\" history)"
     },
     {
       "index": 11,
-      "file": "11-sciences-of-the-human.md",
-      "title": "Sciences of the Human"
+      "file": "11-la-longue-duree-annales-school-fernand-b.md",
+      "title": "“La Longue Duree” (Annales School, Fernand Braudel)"
     },
     {
       "index": 12,
-      "file": "12-automating-the-table-developments-in-big.md",
-      "title": "Automating the Table: Developments in \"Big Data\""
+      "file": "12-ai-as-outcome-of-shifts-in-knowledge-tec.md",
+      "title": "AI as outcome of shifts in knowledge, techniques, instruments..."
     },
     {
       "index": 13,
-      "file": "13-17th18th-century-19th-century.md",
-      "title": "| **17th/18th** Century | **19th Century** |"
+      "file": "13-sciences-of-the-human.md",
+      "title": "Sciences of the Human"
     },
     {
       "index": 14,
-      "file": "14-feudalism-capitalism.md",
-      "title": "| Feudalism | Capitalism |"
+      "file": "14-automating-the-table-developments-in-ste.md",
+      "title": "Automating the Table: Developments in Steampunk \"Big Data\""
     },
     {
       "index": 15,
-      "file": "15-17th18th-c-dawn-of-modernity-19thearly-2.md",
-      "title": "| 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |"
+      "file": "15-17th18th-century-19th-century.md",
+      "title": "| **17th/18th** Century | **19th Century** |"
     },
     {
       "index": 16,
-      "file": "16-kate-crawford-atlas-of-ai.md",
-      "title": "Kate Crawford, *Atlas of AI*"
+      "file": "16-feudalism-capitalism.md",
+      "title": "| Feudalism | Capitalism |"
     },
     {
       "index": 17,
-      "file": "17-women-in-computing-and-technology-from-f.md",
-      "title": "Women in Computing and Technology: From Frankenstein to \"World's First Programmer\""
+      "file": "17-17th18th-c-dawn-of-modernity-19thearly-2.md",
+      "title": "| 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |"
     },
     {
       "index": 18,
-      "file": "18-case-study-the-little-stone-of-ai.md",
-      "title": "Case Study: The \"little stone\" of AI"
+      "file": "18-kate-crawford-atlas-of-ai.md",
+      "title": "Kate Crawford, *Atlas of AI*"
     },
     {
       "index": 19,
-      "file": "19-people-likely-know-the-famous-first-exam.md",
-      "title": "People likely know the famous first examples of computers for solving decryption. A kind of \"safe\" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!"
+      "file": "19-women-in-computing-and-technology-from-f.md",
+      "title": "Women in Computing and Technology: From Frankenstein to \"World's First Programmer\""
     },
     {
       "index": 20,
-      "file": "20-.md",
-      "title": "## \""
+      "file": "20-cross-domain-case-study-the-little-stone.md",
+      "title": "Cross-Domain Case Study: The \"little stone\" of AI"
     },
     {
       "index": 21,
-      "file": "21-drawing-a-long-bow-from-ballistics-to-ai.md",
-      "title": "Drawing a Long Bow\": From Ballistics to AI"
+      "file": "21-people-likely-know-the-famous-first-exam.md",
+      "title": "People likely know the famous first examples of computers for solving decryption. A kind of \"safe\" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!"
     },
     {
       "index": 22,
-      "file": "22-practice.md",
-      "title": "Practice"
+      "file": "22-drawing-a-long-bow-from-ballistics-to-ai.md",
+      "title": "Drawing a Long Bow\": From Ballistics to AI"
     },
     {
       "index": 23,
-      "file": "23-thought-experiment-throwing-a-stone.md",
-      "title": "Thought experiment: Throwing a Stone"
+      "file": "23-practice.md",
+      "title": "Practice"
     },
     {
       "index": 24,
-      "file": "24-relevance-to-education.md",
-      "title": "Relevance to Education"
+      "file": "24-thought-experiment-throwing-a-stone.md",
+      "title": "Thought experiment: Throwing a Stone"
     },
     {
       "index": 25,
-      "file": "25-for-those-mathematically-philosophically.md",
-      "title": "For those mathematically / philosophically minded:"
+      "file": "25-education-following-the-arc-of-history.md",
+      "title": "Education: following the arc of history"
     },
     {
       "index": 26,
-      "file": "26-looking-ahead.md",
-      "title": "Looking ahead…"
+      "file": "26-for-those-mathematically-philosophically.md",
+      "title": "For those mathematically / philosophically minded:"
     },
     {
       "index": 27,
-      "file": "27-and-a-bold-proposition.md",
-      "title": "And a bold proposition…"
-    },
-    {
-      "index": 28,
-      "file": "28-discussion-break.md",
-      "title": "Discussion / Break"
-    },
-    {
-      "index": 29,
-      "file": "29-ai-in-2026-an-opinionated-take-on-the-pr.md",
+      "file": "27-ai-in-2026-an-opinionated-take-on-the-pr.md",
       "title": "AI in 2026: An Opinionated Take on the Present"
     },
     {
-      "index": 30,
-      "file": "30-ai-consolidation.md",
+      "index": 28,
+      "file": "28-ai-consolidation.md",
       "title": "AI Consolidation"
     },
     {
-      "index": 31,
-      "file": "31-rise-of-open-source-models.md",
+      "index": 29,
+      "file": "29-rise-of-open-source-models.md",
       "title": "Rise of open source models"
     },
     {
-      "index": 32,
-      "file": "32-contradictory-tendencies-increasing-dema.md",
+      "index": 30,
+      "file": "30-contradictory-tendencies-increasing-dema.md",
       "title": "Contradictory tendencies: Increasing demand..."
     },
     {
-      "index": 33,
-      "file": "33-but-also.md",
+      "index": 31,
+      "file": "31-but-also.md",
       "title": "...but also:"
     },
     {
-      "index": 34,
-      "file": "34-agentive-ai.md",
+      "index": 32,
+      "file": "32-agentive-ai.md",
       "title": "Agentive AI"
     },
     {
-      "index": 35,
-      "file": "35-education-issues-cons.md",
+      "index": 33,
+      "file": "33-education-issues-cons.md",
       "title": "Education Issues: Cons"
     },
     {
-      "index": 36,
-      "file": "36-education-issues-pros.md",
+      "index": 34,
+      "file": "34-education-issues-pros.md",
       "title": "Education Issues: Pros"
     },
     {
-      "index": 37,
-      "file": "37-however-bigger-picture-issues.md",
+      "index": 35,
+      "file": "35-however-bigger-picture-issues.md",
       "title": "However: \"Bigger Picture\" Issues"
     },
     {
-      "index": 38,
-      "file": "38-what-do-we-need-to-learn-now-what-do-we-.md",
+      "index": 36,
+      "file": "36-what-do-we-need-to-learn-now-what-do-we-.md",
       "title": "What do we need to learn now? What do we need to teach?"
     },
     {
-      "index": 39,
-      "file": "39-crisis-in-higher-ed.md",
+      "index": 37,
+      "file": "37-crisis-in-higher-ed.md",
       "title": "Crisis in Higher Ed"
     },
     {
+      "index": 38,
+      "file": "38-looking-ahead.md",
+      "title": "Looking ahead…"
+    },
+    {
+      "index": 39,
+      "file": "39-and-a-bold-proposition.md",
+      "title": "And a bold proposition…"
+    },
+    {
       "index": 40,
-      "file": "40-next-week-the-technological-lens.md",
-      "title": "Next Week: The Technological Lens"
+      "file": "40-discussion.md",
+      "title": "Discussion"
     },
     {
       "index": 41,
-      "file": "41-case-study-geist-in-the-machine-magee-20.md",
-      "title": "Case Study: *Geist* in the Machine (Magee 2026)"
+      "file": "41-break.md",
+      "title": "Break!"
     },
     {
       "index": 42,
-      "file": "42-case-study-key-concepts.md",
-      "title": "Case Study: Key Concepts"
+      "file": "42-report-back.md",
+      "title": "Report back"
     },
     {
       "index": 43,
-      "file": "43-what-ai-can-do-for-research.md",
+      "file": "43-practice-groups.md",
+      "title": "Practice Groups"
+    },
+    {
+      "index": 44,
+      "file": "44-assessment-questions.md",
+      "title": "Assessment Questions?"
+    },
+    {
+      "index": 45,
+      "file": "45-next-week-the-technological-lens.md",
+      "title": "Next Week: The Technological Lens"
+    },
+    {
+      "index": 46,
+      "file": "46-case-study-geist-in-the-machine-magee-20.md",
+      "title": "Case Study: *Geist* in the Machine (Magee 2026)"
+    },
+    {
+      "index": 47,
+      "file": "47-case-study-key-concepts.md",
+      "title": "Case Study: Key Concepts"
+    },
+    {
+      "index": 48,
+      "file": "48-what-ai-can-do-for-research.md",
       "title": "What AI can do for research"
     }
   ]
