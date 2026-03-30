@@ -391,9 +391,18 @@ function speakerNotesRequest(slideId, notesText) {
  */
 function discoverSplicedImages(inputPath) {
   const base = path.basename(inputPath, ".composed.md");
+  // Strip version suffix (e.g., week-2-v12 → week-2) for shared image dirs
+  const baseNoVersion = /-v\d+$/.test(base) ? base.replace(/-v\d+$/, "") : base;
+  const dir = path.dirname(inputPath);
   const candidates = [
-    path.join(path.dirname(inputPath), `${base}.composed-images`),
+    path.join(dir, `${base}.composed-images`),
     path.join("decks", `${base}.composed-images`),
+    path.join(dir, `${baseNoVersion}.composed-images`),
+    path.join("decks", `${baseNoVersion}.composed-images`),
+    path.join(dir, `${base}-images`),
+    path.join("decks", `${base}-images`),
+    path.join(dir, `${baseNoVersion}-images`),
+    path.join("decks", `${baseNoVersion}-images`),
   ];
   const imgDir = candidates.find((d) => fs.existsSync(d));
   if (!imgDir) return {};
@@ -542,6 +551,7 @@ function parseMarkdownRuns(text) {
 function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
   const requests = [];
   const slideId = `slide_${idx}`;
+  const deferredImages = []; // inline images needing upload, returned for later processing
   const design = slide.design;
   const effectiveTheme = adaptThemeForBg(theme, slide.bgOverride || (design && design.bg));
 
@@ -587,7 +597,8 @@ function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
       }
     });
 
-    // Zones (text regions)
+    // Zones (text regions + image zones)
+    const imageZonePositions = [];
     (design.zones || []).forEach((zone) => {
       const typo = typography[zone.role] || zone.typography || {};
       const shapeId = nextId("zone");
@@ -603,9 +614,34 @@ function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
         case "title":
           text = slide.title || slide.subtitle || "";
           break;
-        case "body":
-          text = slide.body.join("\n");
+        case "subtitle":
+          text = slide.subtitle || "";
           break;
+        case "body": {
+          // Body zone: include body text. Only fall back to bullets if there's
+          // no separate bullets zone AND no body text.
+          const bodyText = slide.body.join("\n");
+          const hasBulletsZone = (design.zones || []).some(z => z.role === "bullets");
+          if (bodyText) {
+            text = bodyText;
+            // Append bullets only if no separate bullets zone
+            if (!hasBulletsZone && slide.bullets.length > 0) {
+              const bulletText = slide.bullets.map((b) => {
+                const prefix = (b.level || 0) === 0 ? "\u2022 " : "  \u2014 ";
+                return prefix + b.text;
+              }).join("\n");
+              text += "\n\n" + bulletText;
+            }
+          } else if (!hasBulletsZone && slide.bullets.length > 0) {
+            // No body text and no bullets zone — put bullets here
+            text = slide.bullets.map((b) => {
+              const prefix = (b.level || 0) === 0 ? "\u2022 " : "  \u2014 ";
+              return prefix + b.text;
+            }).join("\n");
+          }
+          // If still empty (body has 0 text AND bullets are in a separate zone), skip this zone
+          break;
+        }
         case "bullets":
           text = slide.bullets
             .map((b) => {
@@ -621,6 +657,23 @@ function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
           text = slide.blockquote || "";
           isItalic = true;
           break;
+        case "table": {
+          // Render table as formatted text (Google Slides native tables require a different API)
+          if (slide.tables.length > 0) {
+            const t = slide.tables[0];
+            const rows = [];
+            if (t.headers && t.headers.some(h => h.trim())) {
+              rows.push(t.headers.join("  |  "));
+            }
+            (t.rows || []).forEach(r => rows.push(r.join("  |  ")));
+            text = rows.join("\n");
+          }
+          break;
+        }
+        case "image":
+          // Track image zone position; actual image placed via inline images below
+          imageZonePositions.push({ x, y, w, h });
+          return;
         default:
           break;
       }
@@ -695,6 +748,19 @@ function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
       const pReq = paragraphStyleRequest(shapeId, pStyle);
       if (pReq) requests.push(pReq);
     });
+
+    // Place inline images into tracked image zone positions
+    // These are queued as deferred image requests (need Drive upload first)
+    if (imageZonePositions.length > 0 && slide.images && slide.images.length > 0) {
+      for (let iz = 0; iz < Math.min(imageZonePositions.length, slide.images.length); iz++) {
+        const pos = imageZonePositions[iz];
+        deferredImages.push({
+          slideId,
+          img: slide.images[iz],
+          x: pos.x, y: pos.y, w: pos.w, h: pos.h,
+        });
+      }
+    }
   } else {
     // ── UNDESIGNED SLIDE (simple layout fallback) ──
     // Place content in sensible default positions
@@ -836,7 +902,7 @@ function buildSlideRequests(slide, idx, totalSlides, theme, fontFace, g) {
     }
   }
 
-  return { requests, slideId };
+  return { requests, slideId, deferredImages };
 }
 
 // ═══════════════════════════════════════════════════════
@@ -949,13 +1015,15 @@ async function exportToGoogleSlides(inputPath, options = {}) {
   const allRequests = [];
   const slideIds = [];
   const slideNotes = [];
+  const allDeferredImages = []; // inline images in image zones, need upload later
 
   slides.forEach((slide, idx) => {
-    const { requests, slideId } = buildSlideRequests(
+    const { requests, slideId, deferredImages } = buildSlideRequests(
       slide, idx, slides.length, theme, fontFace, g
     );
     allRequests.push(...requests);
     slideIds.push(slideId);
+    allDeferredImages.push(...deferredImages);
     if (slide.notes) {
       slideNotes.push({ slideId, notes: slide.notes });
     }
@@ -1001,7 +1069,7 @@ async function exportToGoogleSlides(inputPath, options = {}) {
   console.log(dim("  │ ") + sage(`Created ${slides.length} slides`));
 
   // Upload and place images
-  const totalImages = splicedCount + inlineImages.length;
+  const totalImages = splicedCount + Math.max(allDeferredImages.length, inlineImages.length);
   if (totalImages > 0) {
     console.log(dim("  │"));
     console.log(dim("  │ ") + `Uploading ${totalImages} images to Drive...`);
@@ -1038,10 +1106,14 @@ async function exportToGoogleSlides(inputPath, options = {}) {
       }
     }
 
-    // Upload inline images (positioned in image zones or default placement)
-    for (const { slideIdx, img, imgPath } of inlineImages) {
-      const slideId = `slide_${slideIdx}`;
-      const design = slides[slideIdx].design;
+    // Upload inline images — use deferred positions from image zones, fall back to inlineImages
+    const imagesToUpload = allDeferredImages.length > 0 ? allDeferredImages : inlineImages;
+    for (const item of imagesToUpload) {
+      const slideId = item.slideId || `slide_${item.slideIdx}`;
+      const img = item.img;
+      const imgPath = item.imgPath || (path.isAbsolute(img.src) ? img.src : path.join(basePath, img.src));
+
+      if (!fs.existsSync(imgPath)) continue;
 
       try {
         const fileName = `${title} - ${path.basename(imgPath)}`;
@@ -1049,17 +1121,11 @@ async function exportToGoogleSlides(inputPath, options = {}) {
         const imageUrl = `https://drive.google.com/uc?id=${fileId}`;
         const imageId = nextId("inlineimg");
 
-        // Check if there's an image zone in the design directive
-        const imageZone = design && (design.zones || []).find((z) => z.role === "image");
-        if (imageZone) {
-          // Place in the designated image zone
-          imageRequests.push(createImageRequest(
-            imageId, slideId, imageUrl,
-            g.ex(imageZone.col), g.ey(imageZone.row),
-            g.ew(imageZone.span), g.eh(imageZone.rowSpan)
-          ));
+        if (item.x !== undefined) {
+          // Pre-computed position from image zone
+          imageRequests.push(createImageRequest(imageId, slideId, imageUrl, item.x, item.y, item.w, item.h));
         } else {
-          // Default: right side of slide, moderate size
+          // Default: right side of slide
           imageRequests.push(createImageRequest(
             imageId, slideId, imageUrl,
             inchesToEmu(5.5), inchesToEmu(1.0),

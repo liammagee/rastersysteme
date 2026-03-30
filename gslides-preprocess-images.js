@@ -94,9 +94,17 @@ main().catch(e => { console.error(e.message); process.exit(1); });
 
 function discoverSplicedImages(inputPath) {
   const base = path.basename(inputPath, ".composed.md");
+  const baseNoVersion = /-v\d+$/.test(base) ? base.replace(/-v\d+$/, "") : base;
+  const dir = path.dirname(inputPath);
   const candidates = [
-    path.join(path.dirname(inputPath), `${base}.composed-images`),
+    path.join(dir, `${base}.composed-images`),
     path.join("decks", `${base}.composed-images`),
+    path.join(dir, `${baseNoVersion}.composed-images`),
+    path.join("decks", `${baseNoVersion}.composed-images`),
+    path.join(dir, `${base}-images`),
+    path.join("decks", `${base}-images`),
+    path.join(dir, `${baseNoVersion}-images`),
+    path.join("decks", `${baseNoVersion}-images`),
   ];
   const imgDir = candidates.find((d) => fs.existsSync(d));
   if (!imgDir) return {};

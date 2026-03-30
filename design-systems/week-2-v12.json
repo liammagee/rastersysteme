@@ -1,0 +1,29 @@
+{
+  "aesthetic": "Scholarly Terroir — warm parchment grounds with sage-green and terracotta punctuation, Palatino serif authority breathing through asymmetric grid layouts with generous whitespace",
+  "palette": [
+    { "hex": "F5F0E6", "name": "Warm Parchment", "role": "ground" },
+    { "hex": "2A2A28", "name": "Deep Charcoal", "role": "signal" },
+    { "hex": "F2EDE4", "name": "Light Beige", "role": "ground" },
+    { "hex": "EDE4D3", "name": "Warm Bisque", "role": "ground" },
+    { "hex": "6B7F5E", "name": "Sage Green", "role": "dominant" },
+    { "hex": "4A5D4A", "name": "Forest Sage", "role": "accent" },
+    { "hex": "A0522D", "name": "Terracotta", "role": "accent" },
+    { "hex": "8B7355", "name": "Warm Brown", "role": "accent" },
+    { "hex": "C4956A", "name": "Gold Tan", "role": "accent" }
+  ],
+  "chromaticArc": "Opens on deep charcoal title, warms through parchment and bisque for body slides 2-15, introduces sage green accents as dominant punctuation throughout, terracotta dots appear on transitional slides, returns to charcoal for section dividers at slides 11 and 25, closes warm",
+  "gridStrategy": "Asymmetric breathing layouts: titles anchored right (col 30-38) or left (col 2-6), body text in narrow columns (span 18-28) with generous whitespace on the opposing side. Image zones balanced against text. Four archetypes cycled: right-anchored title, left-sidebar split, centred column, full-bleed title.",
+  "typeScale": {
+    "titleRange": [28, 52],
+    "bodySize": 14,
+    "labelSize": 11,
+    "titleWeightRange": [600, 700]
+  },
+  "fontStrategy": {
+    "default": "Palatino",
+    "secondary": "Courier New",
+    "tertiary": null,
+    "secondarySlides": "Courier New used for data-heavy slides, tables, and code-like content — approximately every 6th slide. Palatino carries all other text."
+  },
+  "accentStrategy": "Minimal geometry only: thin vertical lines (1px, sage green or forest sage) at column boundaries as margin punctuation on ~40% of slides; small terracotta or warm brown dots (1px) as decorative elements on transitional slides; occasional horizontal rules separating title from body zones. No blocks, bars, or heavy shapes."
+}

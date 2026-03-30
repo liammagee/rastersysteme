@@ -96,6 +96,8 @@ function adaptThemeForBg(theme, bgHex) {
     return {
       ...theme,
       text: "F0EBE3", textMid: "B8B0A2", textLight: "A09890",
+      // Accent colors bright enough for link text on dark bg (4.5:1 vs dark)
+      // Dot backgrounds handled separately via CSS filter on dark slides
       accent: "E8604A", accentLight: "F09080",
       accent2: "5AADCC", accent3: "6EBB80", accent4: "D4A840",
       white: "F0EBE3",
@@ -108,6 +110,57 @@ function adaptThemeForBg(theme, bgHex) {
     };
   }
   return theme;
+}
+
+// ═══════════════════════════════════════════════════════
+// BACKGROUND IMAGE DISCOVERY
+// ═══════════════════════════════════════════════════════
+
+/**
+ * Discover per-slide background images for atmospheric full-bleed rendering.
+ * Follows the same conventions as splice-images.js for directory discovery.
+ * Returns a map of { slideNumber: relativePath } for use in <img> src attributes.
+ *
+ * @param {string} inputPath - Path to the .composed.md file
+ * @param {string|boolean} imgDirOrAuto - true for auto-discover, or explicit directory path
+ */
+function discoverBgImages(inputPath, imgDirOrAuto, outputPath) {
+  const base = path.basename(inputPath, ".composed.md");
+  const baseNoVersion = /-v\d+$/.test(base) ? base.replace(/-v\d+$/, "") : base;
+  const dir = path.dirname(inputPath);
+
+  let imgDir = null;
+  if (typeof imgDirOrAuto === "string" && imgDirOrAuto !== "true") {
+    imgDir = imgDirOrAuto;
+  } else {
+    const candidates = [
+      path.join(dir, `${base}.composed-images`),
+      path.join("decks", `${base}.composed-images`),
+      path.join(dir, `${baseNoVersion}.composed-images`),
+      path.join("decks", `${baseNoVersion}.composed-images`),
+      path.join(dir, `${base}-images`),
+      path.join("decks", `${base}-images`),
+      path.join(dir, `${baseNoVersion}-images`),
+      path.join("decks", `${baseNoVersion}-images`),
+    ];
+    imgDir = candidates.find((d) => fs.existsSync(d));
+  }
+
+  if (!imgDir || !fs.existsSync(imgDir)) return null;
+
+  const map = {};
+  const files = fs.readdirSync(imgDir).filter((f) => f.endsWith(".png") && f.startsWith("slide-"));
+  for (const f of files) {
+    const m = f.match(/slide-(\d+)\.png/);
+    if (m) {
+      // Compute path relative to the output HTML's directory
+      const absImgPath = path.resolve(path.join(imgDir, f));
+      const htmlDir = outputPath ? path.dirname(path.resolve(outputPath)) : process.cwd();
+      map[parseInt(m[1], 10)] = path.relative(htmlDir, absImgPath);
+    }
+  }
+
+  return Object.keys(map).length > 0 ? map : null;
 }
 
 // ═══════════════════════════════════════════════════════
@@ -1836,7 +1889,7 @@ const HTML_LAYOUTS = {
 // ═══════════════════════════════════════════════════════
 
 // Minimum font sizes by zone role — keeps text readable even when composition assigns small values
-const FONT_FLOOR = { title: 22, body: 15, bullets: 15, quote: 14, label: 10 };
+const FONT_FLOOR = { title: 20, body: 12, bullets: 12, quote: 12, label: 10 };
 
 function typographyToCSS(typo, role, bgHex) {
   if (!typo) return "";
@@ -2018,7 +2071,10 @@ function renderDesigned(slide) {
         break;
       }
       case "image": {
-        content = imagesHTML(slide.images);
+        // Full-bleed images inside image zones — fill the zone completely
+        content = slide.images.map(img =>
+          `<img src="${attrEsc(img.src)}" alt="${attrEsc(img.alt)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;border-radius:4px">`
+        ).join("\n");
         break;
       }
       case "links": {
@@ -2368,6 +2424,8 @@ blockquote{border-left:3px solid var(--accent);padding:1.5vmin 2vmin;margin:1vmi
 .dot{width:2.4vmin;height:2.4vmin;min-width:18px;min-height:18px;border-radius:50%;color:var(--white);
   font-size:clamp(0.7rem,1vmin,0.75rem);font-weight:700;display:inline-flex;align-items:center;
   justify-content:center;flex-shrink:0}
+/* Dot a11y: on dark slides, use dark text on bright dot backgrounds for WCAG AA */
+.dark-bg .dot{color:#1A1A1A}
 .dash{color:var(--text-light);flex-shrink:0}
 
 /* Tables */
@@ -2906,6 +2964,10 @@ async function generateHTML(inputPath, outputPath, options = {}) {
   const md = fs.readFileSync(inputPath, "utf-8");
   const slides = parseMarkdown(md);
 
+  // Auto-discover background images if bgImages option is set
+  // bgImages can be: true (auto-discover), or a directory path
+  const bgImages = options.bgImages ? discoverBgImages(inputPath, options.bgImages, outputPath) : null;
+
   const cssVars = Object.entries({
     bg: theme.bg, "bg-alt": theme.bgAlt, "bg-dark": theme.bgDark,
     "code-bg": isDarkColor(theme.bg) ? "111111" : "2D2D2D",
@@ -2970,6 +3032,16 @@ async function generateHTML(inputPath, outputPath, options = {}) {
     const extraVideos = (slide.videos && slide.videos.length > 0 && layout !== "video")
       ? `<div class="extra-videos">${videosHTML(slide.videos)}</div>` : "";
 
+    // Inject background image if available (atmospheric full-bleed behind content)
+    const bgImageHTML = (() => {
+      if (!bgImages) return "";
+      const slideNum = idx + 1;
+      const imgPath = bgImages[slideNum];
+      if (!imgPath) return "";
+      const bgOpacity = options.bgImageOpacity || 0.2;
+      return `<div class="slide-bg-image" style="position:absolute;inset:0;z-index:0;opacity:${bgOpacity};overflow:hidden;pointer-events:none"><img src="${attrEsc(imgPath)}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block"></div>`;
+    })();
+
     // Use designed renderer for slides with a design directive
     if (slide.design) {
       const designStyle = [];
@@ -2990,11 +3062,12 @@ async function generateHTML(inputPath, outputPath, options = {}) {
       designStyle.push(...styleParts);
       const ds = designStyle.length ? ` style="${designStyle.join(";")}"` : "";
       const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${attrEsc(slide.title)}"` : ` aria-roledescription="slide"`;
-      return `<section class="slide designed"${ds}${trans}${slideAria}>${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
+      const darkClass = (slide.design.bg && isDarkColor(slide.design.bg.replace(/^#/, ""))) ? " dark-bg" : "";
+      return `<section class="slide designed${darkClass}"${ds}${trans}${slideAria}>${bgImageHTML}${renderDesigned(slide)}${extraVideos}${slideNotes(slide)}</section>`;
     }
 
     const slideAria = slide.title ? ` aria-roledescription="slide" aria-label="${attrEsc(slide.title)}"` : ` aria-roledescription="slide"`;
-    return `<section class="slide layout-${layout}"${style}${trans}${slideAria}>${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
+    return `<section class="slide layout-${layout}"${style}${trans}${slideAria}>${bgImageHTML}${renderer(slide)}${extraVideos}${slideNotes(slide)}</section>`;
   }).join("\n");
 
   // Derive descriptive page title from first slide's h1 or filename

@@ -1438,10 +1438,14 @@ Don't use the same layout as the last slide. Maintain variety.`;
     // Enforce theme-appropriate bg colours
     const themeName = options.theme || "light";
     const groundColour = (designSystem.palette || []).find(c => c.role === "ground")?.hex || "F8F5F0";
+    // Build set of palette hex values — these are always allowed regardless of luminance
+    const paletteHexSet = new Set((designSystem.palette || []).map(c => (c.hex || "").replace(/^#/, "").toLowerCase()));
     directives.forEach(d => {
       if (!d.bg) return;
       const hex = d.bg.replace(/^#/, "");
       if (hex.length !== 6) return;
+      // Skip luminance check for colors in the design system's palette
+      if (paletteHexSet.has(hex.toLowerCase())) return;
       const r = parseInt(hex.slice(0, 2), 16), g = parseInt(hex.slice(2, 4), 16), b = parseInt(hex.slice(4, 6), 16);
       const lum = r * 0.299 + g * 0.587 + b * 0.114;
       if (themeName === "light" && lum < 100) {
