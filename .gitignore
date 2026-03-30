@@ -26,3 +26,4 @@ test-features.build/
 .claude/.DS_Store
 .claude/**/.DS_Store
 .gslides-token.json
+.gslides-token.json
