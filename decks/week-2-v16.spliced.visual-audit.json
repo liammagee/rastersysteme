@@ -1,0 +1,315 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 0,
+    "info": 32
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 103px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 2,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 3,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 4,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 8,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 39px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 404px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 10,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 612px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 12,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 13,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 14,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 15,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 17,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 18,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 20,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 22,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 23,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 24,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 25,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 26,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 27,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 28,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 30,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 31,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 33,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 34,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

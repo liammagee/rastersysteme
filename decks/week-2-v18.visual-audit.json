@@ -1,0 +1,1588 @@
+{
+  "slideCount": 40,
+  "counts": {
+    "critical": 2,
+    "warning": 194,
+    "info": 43
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Gen AI - Week 2 - Pathways to AI...\" over slide-01.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"WEEK 2...\" over slide-01.png",
+          "severity": "warning"
+        },
+        {
+          "type": "tiny-text",
+          "detail": "11.0px: \"WEEK 2...\"",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 2,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Eurocentric history?...\" over slide-02.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Fourth Figure. Ars brevis XVIII Century....\" over slide-02.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Proto-Computing in the 8th–13th Centurie...\" over slide-02.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 3,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Side-note for the historically curious…...\" over slide-03.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Truitt, E. R. (2015). Medieval robots: M...\" over slide-03.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 4,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Side note: Example for final assessment....\" over slide-04.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"An Archaeology of Artificial Intelligenc...\" over slide-04.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 5,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1024x648px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 947x13px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"First Definition (1955): Artificial Inte...\" over slide-05.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 6,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 896x864px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 819x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Themes: Cybernetics vs Artificial Intell...\" over slide-06.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-body: 35px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 960x378px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 883x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 960x432px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Attempts to reclaim the more \"human\" fo...\" over slide-07.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2An Era of Symbiotic (or Sympoetic / Co-...\" over slide-07.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Melancholic Echoes of Cybernetics Today?...\" over slide-07.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 8,
+      "issues": [
+        {
+          "type": "broken-image",
+          "detail": "pasted-image-2026-03-29T19-42-08-143Z-3219dc31.png",
+          "severity": "critical"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Heroic version of AI history (\"Whiggish\"...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1AI as the output of individual genius (...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Lots of fights: who came first? What is...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Lots of language of \"heros\": \"godfather...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Paths not taken: deductive syllogisms v...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5Obscures \"hidden figures\" - women are n...\" over slide-08.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"“La Longue Duree” (Annales School, Ferna...\" over slide-09.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Concept of \"Total History\" - accumulati...\" over slide-09.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Braudel would like us to think of histo...\" over slide-09.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Side note: we think of things happening...\" over slide-09.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 10,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"AI as instead a process of accumulating ...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"“The centre of knowledge, in the sevente...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"As we'll see, tables are also good memor...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Astronomy (Tycho Brahe - 16th century)...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Human Mortality (John Graunt - 17th cen...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Biology (Linnaeus)...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Finance (double-book entry keeping)...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5Language (dictionaries, encyclopaedias)...\" over slide-10.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"6Ballistics: \"Firing Tables\"...\" over slide-10.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "broken-image",
+          "detail": "pasted-image-2026-03-29T14-56-31-629Z-c40355a7.png",
+          "severity": "critical"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Sciences of the Human...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1What happens alongside these tables?...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2The natural sciences can predict phenom...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3What about sciences of the human? Are h...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Need to manage populations at home (ris...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—institutions (the school, the clinic, t...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—paradoxically: democracy deepens the ne...\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5To tabulate is to control....\" over slide-11.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 12,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1024x270px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 947x146px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 1024x675px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1The Jacquard Loom (1800s) - first punch...\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Babbage's \"Difference Engine\" (1830s) -...\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Lovelace - general programmable machine...\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4The typewriter (1860s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5The tabulating machine (1890s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"6The computer (1930s/40s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"7The relational database (1960s/70s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"8The spreadsheet (1970s/1980s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"9Big Data (2000s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"10AI (2010s/20s)....\" over slide-12.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Automating the Table: Developments in \"B...\" over slide-12.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 14,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 15,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-body: 212px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 16,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-body: 205px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Kate Crawford, Atlas of AI...\" over slide-16.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"‘If AI systems are seen as more reliable...\" over slide-16.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 17,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Women in Computing and Technology: From ...\" over slide-17.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Romantic Poets: Percy Shelley, Lord Byr...\" over slide-17.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Mary Shelley, husband: Author of Franke...\" over slide-17.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Byron's daughter: Ada Lovelace, author ...\" over slide-17.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 18,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Case Study: The \"little stone\" of AI...\" over slide-18.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Newton / Leibniz: 17th century...\" over slide-18.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Material / Mathematical foundations (Bu...\" over slide-18.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Among first uses of computers in 1940s:...\" over slide-18.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Fundamental to backpropagation, fundame...\" over slide-18.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 19,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"People likely know the famous first exam...\" over slide-19.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"But what of their other use? Ballistics,...\" over slide-19.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 20,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"\"...\" over slide-20.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—The problem of curvature. “Old school” ...\" over slide-20.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Problems of astronomy, ship navigation ...\" over slide-20.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Ballistics - force, resistance, shape o...\" over slide-20.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—limited help - until we “square the cir...\" over slide-20.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 21,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-bullets: 101px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Drawing a Long Bow\": From Ballistics to ...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Without drag - how do we calculate moti...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Parabola - models a curved symmetrical ...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Can handle gravity - constant downward ...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—side question: what level mathematics?...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3But what really happens? We throw a sto...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Stones / arrows etc - looks like a Gall...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Gunpowder - greater velocity means grea...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Acceleration changes every instant - re...\" over slide-21.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 22,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Practice...\" over slide-22.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Side note: \"Make me a simple simulation ...\" over slide-22.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Early Ballistic Computer Simulation →...\" over slide-22.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 23,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Thought experiment: Throwing a Stone...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"So let's throw a stone; we have essentia...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Can be done by hand, but each angle + ve...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"New problems: mass, shape of stone (etc....\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1angle of release...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2velocity (metres/yards per second)...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3gravity (wants to pull the stone back t...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4drag (air resistance; varies with veloc...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5So we now need fancy (17th century and ...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Euler's method (following Newton / Leib...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Step 1: x, y, velocity x, velocity y...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Step 2: new x, new y -> then new veloci...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—etc......\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"6Euler: 1760s...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"7Runge–Kutta Corrections: 1890s/1900s...\" over slide-23.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"8Initial computation: Euler method (1940...\" over slide-23.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 24,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Relevance to Education...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Now think about education as a parallael...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"For military purposes, we need trigonome...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"The \"computer\" pre-1940s: a person calcu...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Governmental, Industrial, Military uses:...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Curriculum: shaped by the growing need t...\" over slide-24.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Then no longer just how to compute but a...\" over slide-24.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 25,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 896x378px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 819x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 896x432px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Much of AI-related - and general - comp...\" over slide-25.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Note analog (non digital) calculators c...\" over slide-25.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Continuous > discrete is always \"lossy\"...\" over slide-25.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"For those mathematically / philosophical...\" over slide-25.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 26,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 896x378px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 819x146px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-bullets overlaps zone-extras by 896x486px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"What fundamentals makes for AI / Machine...\" over slide-26.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Calculus (17th century – Leibniz, Newto...\" over slide-26.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Probability [think “stochastic parrots”...\" over slide-26.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Linear algebra (19th century – James Jo...\" over slide-26.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Markov Models (very early 20th century ...\" over slide-26.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Looking ahead…...\" over slide-26.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 27,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1280x432px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"All the mathematics for AI in 2025 was d...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Are the last 125 years just hardware, ne...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Is our sense of modernity just the long ...\" over slide-27.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"And a bold proposition…...\" over slide-27.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 28,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1024x270px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Discussion / Break...\" over slide-28.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 29,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"AI in 2026: An Opinionated Take on the P...\" over slide-29.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"What's going on in the world of AI today...\" over slide-29.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 30,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"AI Consolidation...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1\"Big Three\": OpenAI's ChatGPT, Anthropi...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Other big names have slowed down: Xai, ...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Apple: using Google Gemini...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Amazon: investor in Anthropic, provider...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Shift from free / $20 per month to:...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Advertising (ChatGPT)...\" over slide-30.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Higher tier models ($200 per month)...\" over slide-30.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 31,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-bullets: 52px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Rise of open source models...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Mostly developed in China...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Xiaomi...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Alibaba Qwen...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Kimi...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Minimax...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—DeepSeek...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Mistral (France)...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Nemotron (Nvidia)...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Estimated 3-9 months beyond commercial ...\" over slide-31.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5Issues around \"benchmaxxing\"; IP theft(...\" over slide-31.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 32,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Contradictory tendencies: Increasing dem...\" over slide-32.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Scaling laws (Week 3)...\" over slide-32.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Bigger models...\" over slide-32.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3More \"thinking\" (inference) time...\" over slide-32.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Huge investment data centers, power pla...\" over slide-32.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 33,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"...but also:...\" over slide-33.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"In Workshop 4 we'll be examining critici...\" over slide-33.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1More efficient GPUs (see Nvidia)...\" over slide-33.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Better algorithms (especially from Chin...\" over slide-33.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Better hardware (Apple): Open source mo...\" over slide-33.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 34,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Agentive AI...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Code automation...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—OpenAI Codex...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Claude Code...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Google Gemini...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Computer use:...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—OpenClaw: local agent, social media for...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Claude Cowork...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Design:...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Google Stitch, Nano Banana 2, Midjourne...\" over slide-34.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Embedded tools in Adobe, Figma etc...\" over slide-34.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 35,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Education Issues: Cons...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Plagiarism & Cognitive Offloading...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Biased Results & Unequal Access...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Potential Obsolescence of Teachers?...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Perverse Effects: Automated Assignments...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Bernard Stiegler's The Automatic Societ...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5Subtle Changes: transfer of expertise f...\" over slide-35.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Education Issues: Pros...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1Personalized, adaptive learning...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2Accessibility...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Can support Universal Design for Learni...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Attractive as a form of inclusive educa...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—But expensive, time-consuming...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Can AI generate multiple forms of engag...\" over slide-36.png",
+          "severity": "warning"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 37,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"However: \"Bigger Picture\" Issues...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1. Predicted Erasure of White-Collar (Co...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2. What happens When AI works properly? ...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3. Concentration of Power: Owners of AI;...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Programming...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Design...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Games...\" over slide-37.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Entry-level professions...\" over slide-37.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 38,
+      "issues": [
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"What do we need to learn now? What do we...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"No easy answers:...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"1\"Core\" Machine Learning? highly special...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"2\"Prompt engineering\"? But AI can write ...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"3Hardware? Again, specialized - traditio...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"4Services?...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—plumbing, electrician - Jensen Huang - ...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"—Care industries? (hospitals, childcare,...\" over slide-38.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"5Humanities? Peter Thiel......\" over slide-38.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 39,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

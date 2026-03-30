@@ -1,0 +1,10 @@
+| 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |
+|---|---|---|
+| **Renaissance → Enlightenment Rationality** | **England as Factory of the World:** high-precision mass mechanization | **Politics & economics:** false “sciences” (two world wars, Great Depression) |
+| **Mathematics:** Descartes, Leibniz, Newton | The horror of the machine — Romanticism, *Frankenstein*, the Gothic genre | **Paradox:** Computation arises from negative mathematics, 1930s (Gödel, Church, Turing) — what computation *cannot* do |
+| **Science:** Bacon, Newton | **1820s** — Luddism, English Socialism | **First computers in WWII:** differencing engines (Leibniz, Babbage → ChatGPT) — calculus for missile trajectories |
+| **Philosophy:** Descartes, Spinoza, Leibniz | **1830s/40s** — Babbage, Lovelace, Engels, Marx (Marx cited Babbage — Marxism as response to technology; “General Intellect” looks like AI) | **Post-war 1950s:** AI, cybernetics, information theory (Shannon), Turing test, game theory (Nash, von Neumann) — back to *”calculemus”*? |
+| **Birth of the (Political) Subject:** Luther, Calvin → Descartes, Rousseau | **Comte:** Positivist sociology (society can be scientific) | **Markets as perfect computers:** neoliberalism as epistemology |
+| *”Calculemus!”* (Let us Calculate — Leibniz) — but see Nietzsche’s reaction… | **Darwin:** Man is not the centre of things… (evolution orients towards history — perfectable or degenerative) | Post-Fordism, immaterial / flexibilized / cognitive labor |
+| **Proto-Industrialization / Globalization / Colonization** | **Ricœur:** “Hermeneutics of Suspicion” (Marx, Nietzsche, Freud) — beyond Descartes: ideology / will to power / unconscious desire | **Counter-narratives:** Cultural Marxism, existentialism, poststructuralism; “ends” talk (Foucault, Fukuyama, Lyotard) |
+| **Machines:** Steam Engine / Jacquard Loom | **Fordism / Taylorism** | Post-Enlightenment disenchantment. AI Winter / Spring / glorious Summer? Transhumanism, return to Enlightenment, or enshittification (Doctorow)? |

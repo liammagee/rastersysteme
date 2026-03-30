@@ -1,0 +1,3 @@
+People likely know the famous first examples of computers for solving decryption. A kind of "safe" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!
+
+But what of their other use? Ballistics, missile trajectory...

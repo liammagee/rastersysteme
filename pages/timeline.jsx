@@ -30,6 +30,269 @@ const ERAS = [
   { start: 2012, end: 2026, label: "Deep Learning & Beyond", color: "rgba(196,161,255,0.12)", accent: "#9B7ED8", bg: "radial-gradient(ellipse at 50% 40%, rgba(155,126,216,0.06) 0%, transparent 50%)", motif: "neural", desc: "San Francisco · London · Seoul · Montreal" },
 ];
 
+// Foucauldian epistemic formations — not periods of "progress" but discontinuous
+// knowledge regimes that define what is thinkable within them
+const EPISTEMES = {
+  embedded: { label: "Embedded Knowledge", color: "#FF9F43",
+    desc: "Knowledge inseparable from practice, place, and oral tradition. No split between 'knower' and 'knowledge'. Information encoding is material: knots, bones, songs, architecture." },
+  resemblance: { label: "Episteme of Resemblance", color: "#C8956C",
+    desc: "Knowledge as finding correspondences — microcosm and macrocosm, the divine and the mechanical. Automata as imitations of life." },
+  representation: { label: "Episteme of Representation", color: "#4A7FB5",
+    desc: "Knowledge as ordering, classifying, tabulating. Calculus and probability as universal languages. The 'thinking machine' becomes conceivable because thought itself is reconceived as computation." },
+  formalisation: { label: "Episteme of Formalisation", color: "#7A9B8A",
+    desc: "Knowledge turns inward: what are the limits of formal systems? The answer (Gödel, Turing) is no — and this failure creates computation." },
+  cybernetic: { label: "Cybernetic Episteme", color: "#8B7EC8",
+    desc: "Knowledge as information processing, feedback, signal. Mind reimagined as machine. But 'intelligence' is defined by those with the power to define it." },
+  learning: { label: "Episteme of Learning", color: "#9B7ED8",
+    desc: "The machine extracts patterns from data. But 'learning' means gradient descent on a loss function — a historically contingent definition, not a universal truth." },
+};
+
+// Braudel's three temporal registers (Fernand Braudel, The Mediterranean, 1949)
+// History operates simultaneously at three speeds:
+const BRAUDEL = {
+  longue: {
+    label: "Longue Durée",
+    sublabel: "Deep structural time",
+    color: "#5B8A72",
+    desc: "The nearly immobile history of human relationships with the environment, mathematical structures, and epistemic formations. Changes over centuries and millennia. The deep grammar of thought.",
+    icon: "▬",
+  },
+  conjoncture: {
+    label: "Conjoncture",
+    sublabel: "Social & economic cycles",
+    color: "#B8926A",
+    desc: "Cycles of decades: institutional formations, funding regimes, geopolitical shifts, paradigm contests. AI winters, expert system booms, the GPU accident, the venture capital flood. The medium-term rhythms of collective life.",
+    icon: "◆",
+  },
+  evenement: {
+    label: "Événement",
+    sublabel: "Surface events",
+    color: "#C4A1FF",
+    desc: "The froth on the waves: individual papers, product launches, competition results, dramatic demonstrations. The history that makes headlines — and that traditional narratives mistake for the whole.",
+    icon: "•",
+  },
+};
+
+// Braudelian temporal layer assignments — which register is PRIMARY for each event?
+// Many events participate in all three; this tags the dominant temporal register.
+const BRAUDEL_MAP = {
+  // === LONGUE DURÉE: deep structures, epistemic formations, mathematical invariants ===
+  "Aboriginal Australian Songlines": "longue",
+  "Ishango Bone": "longue",
+  "Andean Knotted-String Precursors": "longue",
+  "Pāṇini's Aṣṭādhyāyī": "longue",
+  "Aristotle's Syllogistic Logic": "longue",
+  "Mayan Vigesimal System & Zero": "longue",
+  "Euclid's Elements": "longue",
+  "Archimedes' Method of Exhaustion": "longue",
+  "The Nine Chapters on the Mathematical Art": "longue",
+  "Brahmagupta's Brāhmasphuṭasiddhānta": "longue",
+  "Al-Khwarizmi's Algebra": "longue",
+  "African Fractal Architecture & Recursive Design": "longue",
+  "Polynesian Wayfinding": "longue",
+  "Haudenosaunee (Iroquois) Governance Systems": "longue",
+  "Madhava & the Kerala School": "longue",
+  "Omar Khayyam's Cubic Equations": "longue",
+  "Boole's Mathematical Analysis of Logic": "longue",
+  "Frege's Begriffsschrift": "longue",
+  "Cayley's Theory of Matrices": "longue",
+  "Peano's Axioms for Vector Spaces": "longue",
+  "Pearson's Principal Component Analysis": "longue",
+  "Markov Chains": "longue",
+  "Gödel's Incompleteness Theorems": "longue",
+  "Kolmogorov's Axioms of Probability": "longue",
+  "Turing's 'On Computable Numbers'": "longue",
+  "Church's Lambda Calculus": "longue",
+  "Shannon's Information Theory": "longue",
+  "Bayes' Theorem Published Posthumously": "longue",
+  "Bernoulli's Ars Conjectandi": "longue",
+  "Newton's Principia Mathematica": "longue",
+  "Leibniz Publishes the Calculus": "longue",
+  "Euler's Foundations of Analysis": "longue",
+  "Cramer's Rule for Linear Systems": "longue",
+  "Fisher's Statistical Methods": "longue",
+  "Hilbert's Entscheidungsproblem": "longue",
+  "Von Neumann's Minimax Theorem": "longue",
+  "Dantzig's Simplex Algorithm": "longue",
+  "SVD Algorithms": "longue",
+  "Cooley-Tukey FFT": "longue",
+  "Random Matrices & High-Dimensional Statistics": "longue",
+  "Linnainmaa's Backpropagation": "longue",
+  "McCulloch-Pitts Neuron Model": "longue",
+  "Hebb's Rule": "longue",
+  "Stiegler's Automatic Society": "longue",
+  // Philosophy/literature as longue durée — they shift the conditions of thought
+  "Leibniz's Calculus Ratiocinator": "longue",
+  "Descartes' Discourse on Method": "longue",
+  "La Mettrie's L'Homme Machine": "longue",
+  "Hofstadter begins Gödel, Escher, Bach": "longue",
+  "Shelley's Frankenstein": "longue",
+  "The Golem of Prague": "longue",
+  "Čapek's R.U.R.": "longue",
+  "Butler's Erewhon": "longue",
+  "Bostrom's Superintelligence": "longue",
+
+  // === CONJONCTURE: institutional cycles, funding regimes, paradigm contests ===
+  "Babbage's Analytical Engine": "conjoncture",  // British imperial administration
+  "Ada Lovelace's Notes": "conjoncture",         // gendered credit structures
+  "Inca Quipu as Data Encoding System": "conjoncture",  // imperial administration + colonial destruction
+  "Minsky & Papert's Perceptrons": "conjoncture",       // manufactured AI winter
+  "Ivakhnenko & Lapa's Deep Learning Networks": "conjoncture",  // Cold War knowledge structures
+  "Amari's Stochastic Gradient Descent for Deep Networks": "conjoncture",  // Japanese institutional formation
+  "Fukushima's ReLU Activation": "conjoncture",
+  "Fukushima's Neocognitron": "conjoncture",     // NHK broadcast-to-AI pipeline
+  "Japan's Fifth Generation Computer Project": "conjoncture",  // geopolitical AI competition
+  "Backpropagation Popularised for Neural Networks": "conjoncture",  // Anglo-American credit capture
+  "Expert Systems Boom": "conjoncture",
+  "Second AI Winter": "conjoncture",             // funding regime collapse
+  "Schmidhuber's 'Annus Mirabilis'": "conjoncture",  // credit politics
+  "AlexNet & the Deep Learning Revolution": "conjoncture",  // GPU accident + dataset + institutional momentum
+  "Eglash's African Fractals": "conjoncture",    // decolonial scholarly intervention
+  "Dreyfus' Alchemy and AI": "conjoncture",
+  "Wiener's Cybernetics": "conjoncture",
+  "Dartmouth Workshop": "conjoncture",           // institutional founding
+  "McCarthy's LISP": "conjoncture",
+  "Vapnik's Support Vector Machines": "conjoncture",  // Soviet-to-American knowledge migration
+  "LeCun's CNN for Handwriting": "conjoncture",
+  "Searle's Chinese Room": "conjoncture",
+  "'Attention Is All You Need'": "conjoncture",  // global labour, Silicon Valley address
+  "BERT & GPT": "conjoncture",
+  "Frontier Models & the Alignment Challenge": "conjoncture",
+
+  // === ÉVÉNEMENT: surface events, demonstrations, product launches ===
+  "Pascal's Pascaline": "evenement",
+  "Leibniz's Stepped Reckoner": "evenement",
+  "The Mechanical Turk": "evenement",
+  "Antikythera Mechanism": "evenement",
+  "Automata of Ctesibius & Philo": "evenement",
+  "Al-Jazari's Programmable Automata": "evenement",
+  "Ramon Llull's Ars Magna": "evenement",
+  "Shannon's Symbolic Analysis of Relay Circuits": "evenement",
+  "Rosenblatt's Perceptron": "evenement",
+  "Widrow & Hoff's Gradient Descent (ADALINE)": "evenement",
+  "Weizenbaum's ELIZA": "evenement",
+  "Colmerauer & Roussel's Prolog": "evenement",
+  "Hochreiter & Schmidhuber's LSTM": "evenement",
+  "Deep Blue Defeats Kasparov": "evenement",
+  "Watson Wins Jeopardy!": "evenement",
+  "Goodfellow's GANs": "evenement",
+  "Variational Autoencoders": "evenement",
+  "AlphaGo Defeats Lee Sedol": "evenement",
+  "GPT-3: Scaling Laws Vindicated": "evenement",
+  "ChatGPT & the Public Awakening": "evenement",
+  "GPT-4 & Multimodal AI": "evenement",
+  "Agentic AI & Reasoning Models": "evenement",
+  "Spielberg's A.I.": "evenement",
+  "Gibson's Neuromancer": "evenement",
+  "Villiers' Tomorrow's Eve": "evenement",
+  "Swift's Engine in Gulliver's Travels": "evenement",
+  "Legendre & the Method of Least Squares": "evenement",
+  "Laplace's Théorie Analytique des Probabilités": "evenement",
+  "Pascal & Fermat's Probability Correspondence": "evenement",
+  "Cardano's Ars Magna & Games of Chance": "evenement",
+  "Russell & Whitehead's Principia Mathematica": "evenement",
+};
+
+// Social-Economic-Epistemic Context Periods
+// Drawn from Cope & Kalantzis (2022), Stiegler, and the course periodization
+// Each event exists within a thick context of economic, philosophical, and political forces
+const SOCIAL_CONTEXT = {
+  premodern: {
+    label: "Pre-Modern Knowledge Worlds",
+    range: "Deep time – 1600",
+    strata: [
+      { register: "Economic", text: "Subsistence, agrarian empire, trade networks. Knowledge embedded in production (navigation, agriculture, architecture, governance)." },
+      { register: "Political", text: "Theocratic and imperial orders. Knowledge as sacred, cosmological, or administrative — not 'scientific' in the modern sense." },
+      { register: "Epistemic", text: "Multiple independent knowledge traditions (Aboriginal, Andean, Indian, Chinese, Islamic, Mesoamerican, African). No single 'world system' of knowledge. Colonisation has not yet imposed hierarchy." },
+      { register: "Relation to AI", text: "Formal systems, recursive structures, positional number systems, and information-encoding technologies emerge in multiple civilisations independently — evidence that the 'foundations of computation' are a human universal, not a European invention." },
+    ],
+    color: "#FF9F43",
+  },
+  early_modern: {
+    label: "Dawn of Modernity",
+    range: "17th – 18th Century",
+    strata: [
+      { register: "Economic", text: "Proto-industrialisation, globalisation, colonisation. The steam engine, the Jacquard loom. Extraction economies fund the leisure for 'pure' mathematics." },
+      { register: "Political", text: "Birth of the political subject: Luther, Calvin → Descartes, Rousseau. The sovereign rational individual as foundation of both democracy and computation." },
+      { register: "Epistemic", text: "Renaissance → Enlightenment rationality. 'Calculemus!' (Leibniz) — the dream that all disputes can be resolved by calculation. Mathematics (Descartes, Leibniz, Newton), science (Bacon, Newton), philosophy (Descartes, Spinoza, Leibniz) converge on a vision of the universe as mechanism." },
+      { register: "Relation to AI", text: "The thinking machine becomes conceivable because thought itself is reconceived as rule-following. Calculus, probability, and the calculating machine emerge together — not as separate inventions but as expressions of a single epistemic shift. But see Nietzsche's later reaction..." },
+    ],
+    color: "#B8926A",
+  },
+  modernity: {
+    label: "Modernity Proper",
+    range: "19th – Early 20th Century",
+    strata: [
+      { register: "Economic", text: "England as factory of the world. High-precision mass mechanisation. Fordism, Taylorism — the human body subordinated to the rhythm of the machine. Marx cites Babbage; Marxism as response to technology." },
+      { register: "Political", text: "1820s Luddism, English Socialism. Comte's positivist sociology (society can be scientific). Darwin — man is not the centre of things. The 'hermeneutics of suspicion' (Ricœur): Marx (ideology), Nietzsche (will to power), Freud (unconscious desire) — all challenge the Cartesian rational subject." },
+      { register: "Epistemic", text: "The horror of the machine — Romanticism, Frankenstein, the Gothic genre as reaction to mechanisation. But simultaneously, the formalisation project: Boole, Frege, Cantor, Hilbert push toward a complete mathematical foundation. The 'General Intellect' (Marx, Grundrisse) looks remarkably like AI." },
+      { register: "Relation to AI", text: "The social conditions (imperial administration, industrial management) generate demand for calculation. Babbage's engine serves the British Empire's need to compute. Lovelace imagines machine creativity. Boolean algebra bridges logic and mechanism. But the foundations crisis is brewing." },
+    ],
+    color: "#7A9B8A",
+  },
+  late_modern: {
+    label: "Post/Late Modernity",
+    range: "Mid 20th – Early 21st Century",
+    strata: [
+      { register: "Economic", text: "Post-Fordism, immaterial/flexibilised/cognitive labour. Markets reimagined as 'perfect computers' — neoliberalism as epistemology. The platform economy. Data as the new oil (Crawford, 2021). Venture capital as the funding regime of AI." },
+      { register: "Political", text: "False 'sciences' of politics and economics — two world wars, Great Depression. Cold War structures AI funding (DARPA, Soviet cybernetics). Decolonisation. Counter-narratives: Cultural Marxism, existentialism, poststructuralism. 'Ends' talk (Foucault, Fukuyama, Lyotard). Post-Enlightenment disenchantment." },
+      { register: "Epistemic", text: "The paradox: computation arises from negative mathematics (Gödel, Church, Turing, 1930s) — what computation cannot do. First computers in WWII: differencing engines, calculus for missile trajectories (Leibniz → Babbage → ChatGPT). AI, cybernetics, information theory, game theory — back to 'Calculemus'? Or Stiegler's 'proletarianisation' of knowledge itself?" },
+      { register: "Relation to AI", text: "AI Winter / Spring / 'glorious Summer'? Transhumanism, return to Enlightenment, or enshittification (Doctorow)? The contributions of Kyiv, Tokyo, Helsinki systematically erased by Anglo-American institutional power. ChatGPT as grammatisation of the General Intellect." },
+    ],
+    color: "#9B7ED8",
+  },
+};
+
+// Map events to their social context period
+function getSocialContext(year) {
+  const y = Math.floor(year);
+  if (y < 1600) return SOCIAL_CONTEXT.premodern;
+  if (y < 1850) return SOCIAL_CONTEXT.early_modern;
+  if (y < 1940) return SOCIAL_CONTEXT.modernity;
+  return SOCIAL_CONTEXT.late_modern;
+}
+
+// Archaeological metadata — keyed by event title
+const ARCH = {
+  "Aboriginal Australian Songlines": { episteme: "embedded", condition: "Knowledge not 'discovered' by an individual but sustained collectively across 65,000 years. The songline is simultaneously map, law, ecology, and cosmology — a unity the Western episteme fractures into separate disciplines." },
+  "Ishango Bone": { episteme: "embedded", condition: "Mathematical thinking predating any named mathematician by tens of thousands of years. The standard history begins with Greece; the archaeological record begins in Africa." },
+  "Andean Knotted-String Precursors": { episteme: "embedded", condition: "Information technology without writing — a category the Western episteme cannot accommodate. The quipu challenges the assumption that computation requires inscription on flat surfaces." },
+  "Pāṇini's Aṣṭādhyāyī": { episteme: "resemblance", forgotten: "Largely unknown to Western linguists until the 19th century. Chomsky's generative grammar reinvents many principles without acknowledgement of the 2,300-year priority.", condition: "The conditions for formal language theory existed in ancient India. That they were not 'transmitted' to Europe is not absence but discontinuity between epistemic traditions." },
+  "Aristotle's Syllogistic Logic": { episteme: "resemblance", condition: "The whiggish narrative makes Aristotle the 'father of logic'. But Pāṇini's formal system is contemporaneous and arguably more sophisticated. What makes Aristotle foundational is not priority but the institutional continuity of the Western tradition." },
+  "Mayan Vigesimal System & Zero": { episteme: "embedded", forgotten: "The destruction of Mayan codices by Spanish missionaries constitutes an epistemic rupture — the deliberate erasure of an alternative mathematical tradition.", condition: "Zero was invented independently at least three times (Babylon, India, Mesoamerica). This is not 'convergent evolution toward truth' but evidence that number systems are shaped by the social practices that require them." },
+  "The Nine Chapters on the Mathematical Art": { episteme: "resemblance", forgotten: "Chinese matrix methods were unknown in Europe until modern sinology. 'Gaussian elimination' bears Gauss's name (1809) despite being routine in China for two millennia.", condition: "The 'Nine Chapters' emerged from the needs of empire — taxation, land measurement, engineering. Mathematics as technology of governance, not pure contemplation." },
+  "African Fractal Architecture & Recursive Design": { episteme: "embedded", condition: "Recursion was not 'discovered' by European mathematicians. It was practised in African architecture and divination for centuries. Eglash reveals not a 'precursor' to fractal geometry but an independent computational tradition." },
+  "Polynesian Wayfinding": { episteme: "embedded", condition: "Bayesian reasoning without Bayes, probability without probability theory. The navigator's knowledge is embodied, distributed across community and environment. It resists formalisation — which is precisely why it is invisible to the Western episteme." },
+  "Madhava & the Kerala School": { episteme: "resemblance", forgotten: "Unknown in Europe. Whether transmission to Newton/Leibniz occurred via Jesuits remains debated (Joseph, 2009), but the standard history — 'Newton and Leibniz invented calculus' — is an epistemic erasure regardless.", condition: "Infinite series emerged from Indian astronomical needs and a philosophical tradition comfortable with infinity — conditions absent in contemporary European mathematics." },
+  "Inca Quipu as Data Encoding System": { episteme: "embedded", forgotten: "The Spanish Inquisition deliberately destroyed quipus as suspected repositories of idolatrous knowledge. This is not 'loss' but epistemic violence — the systematic destruction of an alternative information technology by a colonising power.", condition: "Urton's 7-bit binary coding hypothesis: the quipu was informationally as sophisticated as early digital systems. The failure to decode them is a consequence of colonial destruction, not inherent simplicity." },
+  "Brahmagupta's Brāhmasphuṭasiddhānta": { episteme: "resemblance", condition: "Zero as number (not placeholder) required a conceptual leap that Indian philosophical traditions — comfortable with śūnyatā (emptiness) — were epistemically prepared for in ways Greek thought was not." },
+  "Newton's Principia Mathematica": { episteme: "representation", condition: "The whiggish narrative: Newton 'invents' calculus. The archaeological view: the conditions existed independently in Kerala (Madhava, c. 1400). Newton's priority is institutional, not intellectual." },
+  "Leibniz Publishes the Calculus": { episteme: "representation", condition: "Leibniz's notation survives not because it was 'better' but because Continental institutional networks propagated it more effectively. The priority dispute reveals how credit assignment is a function of power, not discovery." },
+  "Babbage's Analytical Engine": { episteme: "representation", condition: "Never built. It became foundational retrospectively — reread through 20th-century computation. The 'prophet ahead of his time' narrative obscures the social conditions (British Empire's administrative apparatus) that made such a machine conceivable." },
+  "Ada Lovelace's Notes": { episteme: "representation", condition: "Lovelace's contribution was minimised for over a century. Her recognition is itself an archaeological recovery — feminist historiography excavating what the standard narrative buried." },
+  "Gödel's Incompleteness Theorems": { episteme: "formalisation", rupture: true, condition: "A genuine epistemic rupture: formal systems cannot ground themselves. This does not 'advance' the formalisation project — it destroys its foundational assumption. And from that destruction, computation emerges." },
+  "Turing's 'On Computable Numbers'": { episteme: "formalisation", rupture: true, condition: "Born from failure — the failure of Hilbert's programme. 'Computation' emerges not from engineering ambition but from a crisis in the foundations of mathematics. The Turing machine is a philosophical argument before it is a blueprint." },
+  "Minsky & Papert's Perceptrons": { episteme: "cybernetic", rupture: true, condition: "A deliberately engineered epistemic rupture. This book did not merely demonstrate limitations — it actively discouraged funding for neural networks for over a decade. The 'AI Winter' was not natural cooling but manufactured discontinuity driven by institutional power." },
+  "Ivakhnenko & Lapa's Deep Learning Networks": { episteme: "cybernetic", forgotten: "Published in 1965 in Kyiv, widely known in the Soviet bloc, ignored by Anglo-American researchers who did not read Russian-language journals. This is not accidental forgetting but structural epistemic exclusion.", condition: "The Ukrainian SSR had one of the world's strongest cybernetics traditions. The conditions for deep learning existed in Kyiv decades before they existed in Toronto." },
+  "Amari's Stochastic Gradient Descent for Deep Networks": { episteme: "cybernetic", forgotten: "Amari's 1967 work at the University of Tokyo anticipated 'backpropagation for deep nets' by 20 years. The failure to credit Japanese researchers reflects the same Anglo-American epistemic hegemony that erased Ivakhnenko.", condition: "Japan's intersection of mathematical neuroscience and government investment created conditions distinct from — not derivative of — American AI." },
+  "Fukushima's ReLU Activation": { episteme: "cybernetic", forgotten: "Known but inadequately credited when 'rediscovered' in the 2010s deep learning boom. Schmidhuber's credit-assignment campaign is itself an archaeological practice — excavating suppressed layers." },
+  "Fukushima's Neocognitron": { episteme: "cybernetic", forgotten: "Emerged from NHK's 'bionics of vision' programme — television engineers studying human visual perception. The CNN architecture was born from broadcast media research, not computer science. This origin has been effaced.", condition: "Conditions for CNNs existed in Japan's intersection of public broadcasting, neurophysiology, and engineering — an institutional configuration with no American equivalent." },
+  "Linnainmaa's Backpropagation": { episteme: "cybernetic", forgotten: "A Finnish master's student publishes the algorithm underpinning all modern AI — in a thesis written in Finnish, in 1970. 'Discovered' by Rumelhart et al. in 1986, who did not cite it. The language barrier as epistemic barrier." },
+  "Backpropagation Popularised for Neural Networks": { episteme: "learning", condition: "Presented in the whiggish narrative as a 'discovery'. Archaeological view: the popularisation, within Anglo-American institutional networks, of techniques invented in Finland (1970), theorised in Japan (1967), and implemented in Ukraine (1965). Credit flows to those with institutional power." },
+  "Japan's Fifth Generation Computer Project": { episteme: "cybernetic", rupture: true, condition: "Narrated in the West as a 'failure'. Better understood as the collision of two epistemes: the symbolic (logic programming) and the emergent connectionist paradigm. Its 'failure' accelerated the shift toward statistical learning." },
+  "Schmidhuber's 'Annus Mirabilis'": { episteme: "learning", forgotten: "Published years before the concepts were 'invented' by others who received credit. His persistent attribution campaign is a one-man archaeology of modern AI." },
+  "AlexNet & the Deep Learning Revolution": { episteme: "learning", condition: "The 'revolution' narrative (2012 as year zero) erases everything before it. AlexNet is a CNN (Fukushima 1979) trained by backprop (Linnainmaa 1970) on GPUs (an accident of the gaming industry). The 'breakthrough' is an assemblage, not an invention." },
+  "Second AI Winter": { episteme: "learning", rupture: true, condition: "Not a 'cooling of interest' but a rupture in the funding regime. The epistemic content of research did not change — what changed was the willingness of military and corporate sponsors to pay. The 'winter' is political, not intellectual." },
+  "Searle's Chinese Room": { episteme: "cybernetic", condition: "Not a discovery about computation but a symptom of anxiety when the boundary between 'understanding' and 'processing' becomes unstable. It marks where the cybernetic episteme begins undermining its own foundations." },
+  "'Attention Is All You Need'": { episteme: "learning", condition: "The team includes researchers from India, Germany, Canada, Poland, Ukraine — but bears a Google Mountain View affiliation. The global labour producing 'Silicon Valley AI' is rendered invisible by institutional address." },
+  "ChatGPT & the Public Awakening": { episteme: "learning", condition: "Not a technical discontinuity — GPT-3.5 is incremental. The 'awakening' is an event in the public episteme, not the technical one. What changed is not what machines can do but who knows about it." },
+  "Stiegler's Automatic Society": { episteme: "learning", condition: "Stiegler's framework — grammatisation as externalisation of knowledge into technical systems, leading to proletarianisation — provides vocabulary for what LLMs do: grammatise cognitive labour, transforming knowledge-work into a 'standing reserve' of tokenised text." },
+  "Agentic AI & Reasoning Models": { episteme: "learning", condition: "The technology rests on epistemic strata accumulated over millennia — most forgotten, suppressed, or misattributed. The 'archaeology' reveals AI is not the achievement of Silicon Valley but the contingent convergence of knowledge traditions from every inhabited continent." },
+  "Eglash's African Fractals": { episteme: "learning", condition: "Eglash's work is itself an archaeological intervention — excavating computational thinking from African traditions that Western CS had rendered invisible. 'Computation' is not a Western invention but a human capacity expressed in radically different material forms." },
+  "Haudenosaunee (Iroquois) Governance Systems": { episteme: "embedded", condition: "Distributed consensus — what CS would later call 'distributed computing' — was practised by the Haudenosaunee centuries before formalisation. Wampum belts are structured data artefacts." },
+  "Pascal's Pascaline": { episteme: "representation", condition: "The calculating machine becomes thinkable only when thought itself is reconceived as rule-following. Not a breakthrough of genius but a symptom of a broader epistemic shift toward mechanised reason." },
+};
+
 const EVENTS = [
   // Deep Time & Classical Antiquity
   { year: -65000, title: "Aboriginal Australian Songlines", category: "indigenous", place: "Australia-wide", region: "Aboriginal Australia", desc: "Aboriginal Australians develop the world's oldest continuous knowledge system: songlines encode navigation data, ecological relationships, and law into oral-musical sequences mapped across the landscape. These vast, structured information networks — spanning thousands of kilometres and tens of thousands of years — represent the earliest known system for encoding, transmitting, and error-correcting complex structured data across generations.", refs: "Chatwin (1987) The Songlines; Kelly (2016) The Memory Code; Dunn & Hercock in Blackwell Companion to the Anthropology of Oceania", blocks: { computation: 3, logic: 2 } },
@@ -59,23 +322,23 @@ const EVENTS = [
   { year: 1642, title: "Pascal's Pascaline", category: "computation", place: "Rouen", region: "France", desc: "Blaise Pascal builds an arithmetic machine for addition and subtraction.", refs: "Pascal (Mesnard ed. 1964-) Oeuvres Complètes; Goldstine (1972) The Computer from Pascal to von Neumann, ch. 1", blocks: { computation: 3 } },
   { year: 1654, title: "Pascal & Fermat's Probability Correspondence", category: "mathematics", place: "Paris ↔ Toulouse", region: "France", desc: "In a legendary exchange on the 'problem of points', Pascal and Fermat found probability theory.", refs: "Devlin (2008) The Unfinished Game; Hacking (1975) The Emergence of Probability, ch. 7", blocks: { probability: 8 } },
   { year: 1666, title: "Leibniz's Calculus Ratiocinator", category: "philosophy", place: "Leipzig", region: "Saxony", desc: "Leibniz envisions a universal logical calculus and machine — the first specification of artificial general reasoning.", refs: "Leibniz (Parkinson trans. 1966) Logical Papers; Davis (2000) The Universal Computer, ch. 1", blocks: { logic: 5 } },
-  { year: 1687, title: "Newton's Principia Mathematica", category: "mathematics", place: "Cambridge", region: "England", desc: "Newton publishes calculus alongside the laws of motion — the language of continuous optimisation.", refs: "Newton (1687/Cohen & Whitman trans. 1999) The Principia; Guicciardini (2009) Isaac Newton on Mathematical Certainty", blocks: { calculus: 14 } },
-  { year: 1693, title: "Leibniz Publishes the Calculus", category: "mathematics", place: "Hanover", region: "Brunswick-Lüneburg", desc: "Leibniz independently develops calculus with the notation (dx, ∫) still used today.", refs: "Leibniz (Child trans. 1920) The Early Mathematical Manuscripts; Bos (1974) 'Differentials, Higher-Order Differentials', Archive Hist. Exact Sci. 14", blocks: { calculus: 12 } },
+  { year: 1687, title: "Newton's Principia Mathematica", category: "mathematics", place: "Cambridge", region: "England", desc: "Newton publishes calculus alongside the laws of motion — the language of continuous optimisation.", refs: "Newton (1687/Cohen & Whitman trans. 1999) The Principia; Guicciardini (2009) Isaac Newton on Mathematical Certainty", blocks: { calculus: 20 } },
+  { year: 1693, title: "Leibniz Publishes the Calculus", category: "mathematics", place: "Hanover", region: "Brunswick-Lüneburg", desc: "Leibniz independently develops calculus with the notation (dx, ∫) still used today.", refs: "Leibniz (Child trans. 1920) The Early Mathematical Manuscripts; Bos (1974) 'Differentials, Higher-Order Differentials', Archive Hist. Exact Sci. 14", blocks: { calculus: 16 } },
   { year: 1713, title: "Bernoulli's Ars Conjectandi", category: "mathematics", place: "Basel", region: "Swiss Confederacy", desc: "Bernoulli proves the law of large numbers — the first link between probability and frequency.", refs: "Bernoulli (Sylla trans. 2006) The Art of Conjecturing; Stigler (1986) History of Statistics, ch. 2", blocks: { probability: 8 } },
   { year: 1714, title: "Leibniz's Stepped Reckoner", category: "computation", place: "Hanover", region: "Brunswick-Lüneburg", desc: "Leibniz constructs a calculator for all four arithmetic operations.", refs: "Goldstine (1972) The Computer from Pascal to von Neumann, ch. 1; Morar (2015) 'Leibniz's Calculating Machine'", blocks: { computation: 3 } },
   { year: 1726, title: "Swift's Engine in Gulliver's Travels", category: "literature", place: "London", region: "Great Britain", desc: "Swift satirises a machine generating every possible sentence — a prescient image of language models.", refs: "Swift (1726) Gulliver's Travels, Part III, ch. 5; Standage (2002) The Turk, ch. 1", blocks: {} },
-  { year: 1736, title: "Euler's Foundations of Analysis", category: "mathematics", place: "St Petersburg", region: "Russian Empire", desc: "Euler systematises calculus, establishing functions, series, and e^x as core vocabulary.", refs: "Euler (1748) Introductio in Analysin Infinitorum; Dunham (1999) Euler: The Master of Us All", blocks: { calculus: 7 } },
+  { year: 1736, title: "Euler's Foundations of Analysis", category: "mathematics", place: "St Petersburg", region: "Russian Empire", desc: "Euler systematises calculus, establishing functions, series, and e^x as core vocabulary.", refs: "Euler (1748) Introductio in Analysin Infinitorum; Dunham (1999) Euler: The Master of Us All", blocks: { calculus: 12 } },
   { year: 1747, title: "La Mettrie's L'Homme Machine", category: "philosophy", place: "Leiden", region: "Dutch Republic", desc: "La Mettrie argues humans are entirely material machines.", refs: "La Mettrie (Thomson trans. 1996) Machine Man and Other Writings", blocks: {} },
   { year: 1750, title: "Cramer's Rule for Linear Systems", category: "mathematics", place: "Geneva", region: "Republic of Geneva", desc: "Cramer publishes a formula for solving linear systems using determinants.", refs: "Cramer (1750) Introduction à l'Analyse des Lignes Courbes Algébriques", blocks: { linalg: 6 } },
-  { year: 1763, title: "Bayes' Theorem Published Posthumously", category: "mathematics", place: "London", region: "Great Britain", desc: "Bayes' essay introduces inverse probability — how to update beliefs from evidence.", refs: "Bayes (1763) 'An Essay towards solving a Problem in the Doctrine of Chances', Phil. Trans. 53; McGrayne (2011) The Theory That Would Not Die", blocks: { probability: 12 } },
+  { year: 1763, title: "Bayes' Theorem Published Posthumously", category: "mathematics", place: "London", region: "Great Britain", desc: "Bayes' essay introduces inverse probability — how to update beliefs from evidence.", refs: "Bayes (1763) 'An Essay towards solving a Problem in the Doctrine of Chances', Phil. Trans. 53; McGrayne (2011) The Theory That Would Not Die", blocks: { probability: 16 } },
   { year: 1770, title: "The Mechanical Turk", category: "computation", place: "Pressburg", region: "Habsburg Empire", desc: "Von Kempelen's chess-playing automaton — a hoax that sparked genuine debate about machine intelligence.", refs: "Standage (2002) The Turk; Schaffer (1999) 'Enlightened Automata' in Clark et al., The Sciences in Enlightened Europe", blocks: { computation: 1 } },
   { year: 1805, title: "Legendre & the Method of Least Squares", category: "mathematics", place: "Paris", region: "Napoleonic France", desc: "Legendre publishes least squares — ancestor of loss functions that train every neural network.", refs: "Legendre (1805) Nouvelles méthodes pour la détermination des orbites des comètes; Stigler (1986) History of Statistics, ch. 1", blocks: { calculus: 8, training: 5 } },
-  { year: 1812, title: "Laplace's Théorie Analytique des Probabilités", category: "mathematics", place: "Paris", region: "Napoleonic France", desc: "Laplace synthesises probability theory and the central limit theorem.", refs: "Laplace (1812) Théorie Analytique; Dale (1999) A History of Inverse Probability, ch. 13", blocks: { probability: 10 } },
+  { year: 1812, title: "Laplace's Théorie Analytique des Probabilités", category: "mathematics", place: "Paris", region: "Napoleonic France", desc: "Laplace synthesises probability theory and the central limit theorem.", refs: "Laplace (1812) Théorie Analytique; Dale (1999) A History of Inverse Probability, ch. 13", blocks: { probability: 14 } },
   { year: 1818, title: "Shelley's Frankenstein", category: "literature", place: "London", region: "United Kingdom", desc: "Shelley's novel explores artificial life and creators' moral responsibility — the ur-text of AI ethics.", refs: "Shelley (1818) Frankenstein; Mellor (1988) Mary Shelley: Her Life, Her Fiction, Her Monsters", blocks: {} },
   { year: 1837, title: "Babbage's Analytical Engine", category: "computation", place: "London", region: "United Kingdom", desc: "Babbage designs a general-purpose computer with memory, processor, and branching.", refs: "Babbage (1864) Passages from the Life of a Philosopher; Swade (2001) The Difference Engine", blocks: { computation: 10 } },
   { year: 1843, title: "Ada Lovelace's Notes", category: "computation", place: "London", region: "United Kingdom", desc: "Lovelace publishes the first algorithm and speculates on machine creativity.", refs: "Lovelace (1843) 'Notes' on Menabrea's 'Sketch of the Analytical Engine'; Essinger (2014) Ada's Algorithm", blocks: { computation: 4 } },
-  { year: 1847, title: "Boole's Mathematical Analysis of Logic", category: "mathematics", place: "Cork", region: "Ireland", desc: "Boole reduces logic to algebra — the mathematics inside every digital circuit.", refs: "Boole (1847) The Mathematical Analysis of Logic; Hailperin (1986) Boole's Logic and Probability", blocks: { logic: 10, computation: 3 } },
-  { year: 1855, title: "Cayley's Theory of Matrices", category: "mathematics", place: "Cambridge", region: "United Kingdom", desc: "Cayley formalises matrix algebra — the fundamental data structure of AI.", refs: "Cayley (1858) 'A Memoir on the Theory of Matrices', Phil. Trans. 148; Hawkins (1977) 'Another Look at Cayley and the Theory of Matrices'", blocks: { linalg: 12 } },
+  { year: 1847, title: "Boole's Mathematical Analysis of Logic", category: "mathematics", place: "Cork", region: "Ireland", desc: "Boole reduces logic to algebra — the mathematics inside every digital circuit.", refs: "Boole (1847) The Mathematical Analysis of Logic; Hailperin (1986) Boole's Logic and Probability", blocks: { logic: 14, computation: 3 } },
+  { year: 1855, title: "Cayley's Theory of Matrices", category: "mathematics", place: "Cambridge", region: "United Kingdom", desc: "Cayley formalises matrix algebra — the fundamental data structure of AI.", refs: "Cayley (1858) 'A Memoir on the Theory of Matrices', Phil. Trans. 148; Hawkins (1977) 'Another Look at Cayley and the Theory of Matrices'", blocks: { linalg: 16 } },
   { year: 1872, title: "Butler's Erewhon", category: "literature", place: "London", region: "United Kingdom", desc: "Butler imagines machines evolving consciousness through Darwinian selection.", refs: "Butler (1872) Erewhon; Dyson (1997) Darwin Among the Machines, ch. 1", blocks: {} },
   { year: 1879, title: "Frege's Begriffsschrift", category: "mathematics", place: "Jena", region: "German Empire", desc: "Frege invents predicate logic — the symbolic system underlying AI knowledge representation.", refs: "Frege (1879/van Heijenoort trans. 1967) Begriffsschrift; Kenny (1995) Frege: An Introduction", blocks: { logic: 8 } },
   { year: 1888, title: "Peano's Axioms for Vector Spaces", category: "mathematics", place: "Turin", region: "Kingdom of Italy", desc: "Peano axiomatises vector spaces — the scaffolding of high-dimensional computation.", refs: "Peano (1888) Calcolo geometrico secondo l'Ausdehnungslehre; Moore (1995) 'The Axiomatization of Linear Algebra'", blocks: { linalg: 8 } },
@@ -87,14 +350,14 @@ const EVENTS = [
   { year: 1925, title: "Fisher's Statistical Methods", category: "mathematics", place: "Rothamsted", region: "United Kingdom", desc: "Fisher establishes maximum likelihood and statistical inference.", refs: "Fisher (1925) Statistical Methods for Research Workers; Hald (1998) A History of Mathematical Statistics, ch. 26", blocks: { probability: 10, training: 5 } },
   { year: 1928, title: "Hilbert's Entscheidungsproblem", category: "mathematics", place: "Bologna / Göttingen", region: "Germany", desc: "Hilbert poses the decision problem. Turing's answer would define computation's limits.", refs: "Hilbert & Ackermann (1928) Grundzüge der Theoretischen Logik; Sieg (2009) 'Hilbert's Programs' in Handbook of Philosophy of Mathematics", blocks: { logic: 5 } },
   { year: 1928.1, title: "Von Neumann's Minimax Theorem", category: "mathematics", place: "Göttingen", region: "Germany", desc: "The minimax theorem for zero-sum games — underpinning adversarial training.", refs: "von Neumann (1928) 'Zur Theorie der Gesellschaftsspiele', Math. Annalen 100; Leonard (2010) Von Neumann, Morgenstern, and the Creation of Game Theory", blocks: { probability: 3, training: 3 } },
-  { year: 1931, title: "Gödel's Incompleteness Theorems", category: "mathematics", place: "Vienna", region: "Austria", desc: "Gödel proves fundamental limits on formal reasoning.", refs: "Gödel (1931) 'Über formal unentscheidbare Sätze', Monatshefte für Math. 38; Nagel & Newman (1958) Gödel's Proof", blocks: { logic: 10 } },
-  { year: 1933, title: "Kolmogorov's Axioms of Probability", category: "mathematics", place: "Moscow", region: "Soviet Union", desc: "Kolmogorov places probability on rigorous foundations.", refs: "Kolmogorov (1933/Morrison trans. 1956) Foundations of the Theory of Probability; Shafer & Vovk (2006) 'The Sources of Kolmogorov's Grundbegriffe'", blocks: { probability: 10 } },
+  { year: 1931, title: "Gödel's Incompleteness Theorems", category: "mathematics", place: "Vienna", region: "Austria", desc: "Gödel proves fundamental limits on formal reasoning.", refs: "Gödel (1931) 'Über formal unentscheidbare Sätze', Monatshefte für Math. 38; Nagel & Newman (1958) Gödel's Proof", blocks: { logic: 14 } },
+  { year: 1933, title: "Kolmogorov's Axioms of Probability", category: "mathematics", place: "Moscow", region: "Soviet Union", desc: "Kolmogorov places probability on rigorous foundations.", refs: "Kolmogorov (1933/Morrison trans. 1956) Foundations of the Theory of Probability; Shafer & Vovk (2006) 'The Sources of Kolmogorov's Grundbegriffe'", blocks: { probability: 14 } },
   { year: 1936, title: "Turing's 'On Computable Numbers'", category: "computation", place: "Cambridge", region: "United Kingdom", desc: "Turing defines the Turing machine — formalising algorithm and universal computation.", refs: "Turing (1936) 'On Computable Numbers', Proc. London Math. Soc. 42; Petzold (2008) The Annotated Turing", blocks: { computation: 15, logic: 5 } },
-  { year: 1936.1, title: "Church's Lambda Calculus", category: "mathematics", place: "Princeton", region: "United States", desc: "Church proves the Entscheidungsproblem unsolvable using lambda calculus.", refs: "Church (1936) 'An Unsolvable Problem of Elementary Number Theory', Amer. J. Math. 58; Barendregt (1984) The Lambda Calculus", blocks: { logic: 5, computation: 3 } },
+  { year: 1936.1, title: "Church's Lambda Calculus", category: "mathematics", place: "Princeton", region: "United States", desc: "Church proves the Entscheidungsproblem unsolvable using lambda calculus.", refs: "Church (1936) 'An Unsolvable Problem of Elementary Number Theory', Amer. J. Math. 58; Barendregt (1984) The Lambda Calculus", blocks: { logic: 4, computation: 2 } },
   { year: 1938, title: "Shannon's Symbolic Analysis of Relay Circuits", category: "computation", place: "Cambridge, MA", region: "United States", desc: "Shannon shows Boolean algebra can be implemented in electrical circuits.", refs: "Shannon (1938) 'A Symbolic Analysis of Relay and Switching Circuits', Trans. AIEE 57; Nahin (2013) The Logician and the Engineer", blocks: { computation: 8 } },
   { year: 1943, title: "McCulloch-Pitts Neuron Model", category: "ai", place: "Chicago", region: "United States", desc: "Networks of threshold units can compute any logical function.", refs: "McCulloch & Pitts (1943) 'A Logical Calculus of the Ideas Immanent in Nervous Activity', Bull. Math. Biophys. 5(4)", blocks: { neuraltheory: 15 } },
-  { year: 1947, title: "Dantzig's Simplex Algorithm", category: "mathematics", place: "Washington, D.C.", region: "United States", desc: "The simplex method for linear programming.", refs: "Dantzig (1963) Linear Programming and Extensions; Todd (2002) 'The Many Facets of Linear Programming', Math. Programming 91(3)", blocks: { calculus: 6, linalg: 5 } },
-  { year: 1948, title: "Shannon's Information Theory", category: "mathematics", place: "Murray Hill, NJ", region: "United States", desc: "Information as entropy at Bell Labs — shaping the cross-entropy loss that trains LLMs.", refs: "Shannon (1948) 'A Mathematical Theory of Communication', Bell System Technical Journal 27; Cover & Thomas (2006) Elements of Information Theory", blocks: { probability: 8, training: 8 } },
+  { year: 1947, title: "Dantzig's Simplex Algorithm", category: "mathematics", place: "Washington, D.C.", region: "United States", desc: "The simplex method for linear programming.", refs: "Dantzig (1963) Linear Programming and Extensions; Todd (2002) 'The Many Facets of Linear Programming', Math. Programming 91(3)", blocks: { calculus: 3, linalg: 3 } },
+  { year: 1948, title: "Shannon's Information Theory", category: "mathematics", place: "Murray Hill, NJ", region: "United States", desc: "Information as entropy at Bell Labs — shaping the cross-entropy loss that trains LLMs.", refs: "Shannon (1948) 'A Mathematical Theory of Communication', Bell System Technical Journal 27; Cover & Thomas (2006) Elements of Information Theory", blocks: { probability: 6, training: 3 } },
   { year: 1948.1, title: "Wiener's Cybernetics", category: "ai", place: "Cambridge, MA", region: "United States", desc: "Intelligence as feedback and control at MIT.", refs: "Wiener (1948) Cybernetics: Or Control and Communication in the Animal and the Machine", blocks: { neuraltheory: 5 } },
   { year: 1949, title: "Hebb's Rule", category: "ai", place: "Montreal", region: "Canada", desc: "'Neurons that fire together wire together' — the first learning rule.", refs: "Hebb (1949) The Organization of Behavior; Brown & Bhatt (2020) 'The Legacy of Donald O. Hebb', Nature Reviews Neuroscience 21", blocks: { neuraltheory: 10, training: 5 } },
   { year: 1950, title: "Turing's 'Computing Machinery and Intelligence'", category: "ai", place: "Manchester", region: "United Kingdom", desc: "Turing proposes the Imitation Game and asks 'Can machines think?'", refs: "Turing (1950) 'Computing Machinery and Intelligence', Mind 59(236); Copeland (2004) The Essential Turing", blocks: { neuraltheory: 3 } },
@@ -105,13 +368,13 @@ const EVENTS = [
   { year: 1960, title: "Widrow & Hoff's Gradient Descent (ADALINE)", category: "ai", place: "Stanford, CA", region: "United States", desc: "The delta rule — gradient descent applied to a single neuron.", refs: "Widrow & Hoff (1960) 'Adaptive Switching Circuits', IRE WESCON Conv. Record", blocks: { training: 10, calculus: 5 } },
   { year: 1965, title: "Dreyfus' Alchemy and AI", category: "philosophy", place: "Cambridge, MA", region: "United States", desc: "Dreyfus critiques symbolic AI, arguing human intelligence is fundamentally embodied.", refs: "Dreyfus (1965/1972) What Computers Can't Do; Dreyfus (1992) What Computers Still Can't Do", blocks: {} },
   { year: 1965.1, title: "Ivakhnenko & Lapa's Deep Learning Networks", category: "ai", place: "Kyiv", region: "Ukrainian SSR", desc: "The first working deep multilayer learning networks at Kyiv's Institute of Cybernetics. By 1971, Ivakhnenko describes 8-layer networks. Schmidhuber: 'The father of Deep Learning is the Ukrainian mathematician Ivakhnenko.'", refs: "Ivakhnenko & Lapa (1965) Cybernetic Predicting Devices; Ivakhnenko (1971) 'Polynomial Theory of Complex Systems', IEEE Trans. SMC 1(4); Schmidhuber (2015) 'Deep Learning in Neural Networks: An Overview', Neural Networks 61", blocks: { neuraltheory: 10, training: 8, architecture: 5 } },
-  { year: 1965.2, title: "Cooley-Tukey FFT", category: "mathematics", place: "Princeton / IBM", region: "United States", desc: "FFT reduces Fourier analysis from O(n²) to O(n log n).", refs: "Cooley & Tukey (1965) 'An Algorithm for the Machine Calculation of Complex Fourier Series', Math. Comp. 19(90)", blocks: { computation: 5, linalg: 3 } },
+  { year: 1965.2, title: "Cooley-Tukey FFT", category: "mathematics", place: "Princeton / IBM", region: "United States", desc: "FFT reduces Fourier analysis from O(n²) to O(n log n).", refs: "Cooley & Tukey (1965) 'An Algorithm for the Machine Calculation of Complex Fourier Series', Math. Comp. 19(90)", blocks: { computation: 3, linalg: 2 } },
   { year: 1966, title: "Weizenbaum's ELIZA", category: "ai", place: "Cambridge, MA", region: "United States", desc: "A chatbot whose users formed emotional bonds, disturbing its creator.", refs: "Weizenbaum (1966) 'ELIZA', CACM 9(1); Weizenbaum (1976) Computer Power and Human Reason", blocks: { architecture: 2 } },
   { year: 1967, title: "Amari's SGD for Deep Networks", category: "ai", place: "Tokyo", region: "Japan", desc: "Amari at the University of Tokyo publishes end-to-end training of a 5-layer MLP by stochastic gradient descent — anticipating backpropagation-based training by two decades.", refs: "Amari (1967) 'Theory of Adaptive Pattern Classifiers', IEEE Trans. EC-16(3); Amari (1993) 'Backpropagation and Stochastic Gradient Descent Method', Neurocomputing 5", blocks: { training: 8, neuraltheory: 5 } },
   { year: 1969, title: "Fukushima's ReLU Activation", category: "ai", place: "Tokyo", region: "Japan", desc: "Fukushima introduces the Rectified Linear Unit at NHK — now standard in virtually all deep networks.", refs: "Fukushima (1969) 'Visual Feature Extraction by a Multilayered Network of Analog Threshold Elements', IEEE Trans. SSC-5(4); Schmidhuber (2022) 'Annotated History of Modern AI and Deep Learning'", blocks: { neuraltheory: 5 } },
   { year: 1969.1, title: "Minsky & Papert's Perceptrons", category: "ai", place: "Cambridge, MA", region: "United States", desc: "Proof of single-layer perceptron limitations triggers the first AI Winter.", refs: "Minsky & Papert (1969) Perceptrons; Olazaran (1996) 'A Sociological Study of the Official History of the Perceptrons Controversy'", blocks: {} },
-  { year: 1970, title: "Linnainmaa's Backpropagation", category: "mathematics", place: "Helsinki", region: "Finland", desc: "Seppo Linnainmaa publishes efficient reverse-mode automatic differentiation — what we now call backpropagation — including FORTRAN code. This is the mathematical invention underlying all neural network training.", refs: "Linnainmaa (1970) 'The Representation of the Cumulative Rounding Error' (MSc thesis, Univ. Helsinki); Schmidhuber (2015) 'Deep Learning in Neural Networks', Neural Networks 61, §5.5", blocks: { training: 10, calculus: 5 } },
-  { year: 1970.1, title: "SVD Algorithms", category: "mathematics", place: "Stanford, CA", region: "United States", desc: "Golub & Reinsch publish efficient SVD — workhorse of dimensionality reduction.", refs: "Golub & Reinsch (1970) 'Singular Value Decomposition and Least Squares Solutions', Num. Math. 14(5)", blocks: { linalg: 7 } },
+  { year: 1970, title: "Linnainmaa's Backpropagation", category: "mathematics", place: "Helsinki", region: "Finland", desc: "Seppo Linnainmaa publishes efficient reverse-mode automatic differentiation — what we now call backpropagation — including FORTRAN code. This is the mathematical invention underlying all neural network training.", refs: "Linnainmaa (1970) 'The Representation of the Cumulative Rounding Error' (MSc thesis, Univ. Helsinki); Schmidhuber (2015) 'Deep Learning in Neural Networks', Neural Networks 61, §5.5", blocks: { training: 4, calculus: 2 } },
+  { year: 1970.1, title: "SVD Algorithms", category: "mathematics", place: "Stanford, CA", region: "United States", desc: "Golub & Reinsch publish efficient SVD — workhorse of dimensionality reduction.", refs: "Golub & Reinsch (1970) 'Singular Value Decomposition and Least Squares Solutions', Num. Math. 14(5)", blocks: { linalg: 4 } },
   { year: 1972, title: "Colmerauer & Roussel's Prolog", category: "ai", place: "Marseille", region: "France", desc: "Logic programming at Aix-Marseille.", refs: "Colmerauer & Roussel (1993) 'The Birth of Prolog', ACM SIGPLAN Notices 28(3); Kowalski (1988) 'The Early Years of Logic Programming'", blocks: { logic: 3, computation: 2 } },
   { year: 1976, title: "Hofstadter begins Gödel, Escher, Bach", category: "philosophy", place: "Bloomington, IN", region: "United States", desc: "Strange loops, self-reference and consciousness.", refs: "Hofstadter (1979) Gödel, Escher, Bach: An Eternal Golden Braid", blocks: {} },
   { year: 1979, title: "Fukushima's Neocognitron", category: "ai", place: "Tokyo", region: "Japan", desc: "The first deep CNN — convolutional and downsampling layers inspired by the visual cortex, born from NHK's 'bionics of vision' research. It prefigures all modern CNNs.", refs: "Fukushima (1980) 'Neocognitron', Biological Cybernetics 36(4); Schmidhuber (2015) 'Deep Learning in Neural Networks', Neural Networks 61, §5.4", blocks: { architecture: 10, neuraltheory: 5 } },
@@ -119,7 +382,7 @@ const EVENTS = [
   { year: 1980.1, title: "Expert Systems Boom", category: "ai", place: "Pittsburgh / Stanford", region: "United States", desc: "Rule-based expert systems bring AI into industry.", refs: "Feigenbaum et al. (1988) The Rise of the Expert Company; Buchanan & Shortliffe (1984) Rule-Based Expert Systems", blocks: { architecture: 3 } },
   { year: 1982, title: "Japan's Fifth Generation Computer Project", category: "computation", place: "Tokyo", region: "Japan", desc: "MITI launches a $400M project for inference machines, galvanising global AI investment.", refs: "Feigenbaum & McCorduck (1983) The Fifth Generation; Fransman (1993) The Market and Beyond, ch. 6", blocks: { computation: 4, logic: 2 } },
   { year: 1984, title: "Gibson's Neuromancer", category: "literature", place: "Vancouver", region: "Canada", desc: "Gibson coins 'cyberspace' — from a manual typewriter.", refs: "Gibson (1984) Neuromancer; McCaffery (1991) Storming the Reality Studio", blocks: {} },
-  { year: 1986, title: "Backpropagation Popularised for Neural Networks", category: "ai", place: "San Diego / Pittsburgh", region: "United States", desc: "Rumelhart, Hinton & Williams demonstrate Linnainmaa's backpropagation on multi-layer networks — building on foundations from Finland, Ukraine, and Japan.", refs: "Rumelhart, Hinton & Williams (1986) 'Learning Representations by Back-Propagating Errors', Nature 323; Schmidhuber (2015) 'Deep Learning in Neural Networks', §5.5 on credit assignment", blocks: { training: 5, architecture: 5 } },
+  { year: 1986, title: "Backpropagation Popularised for Neural Networks", category: "ai", place: "San Diego / Pittsburgh", region: "United States", desc: "Rumelhart, Hinton & Williams demonstrate Linnainmaa's backpropagation on multi-layer networks — building on foundations from Finland, Ukraine, and Japan.", refs: "Rumelhart, Hinton & Williams (1986) 'Learning Representations by Back-Propagating Errors', Nature 323; Schmidhuber (2015) 'Deep Learning in Neural Networks', §5.5 on credit assignment", blocks: { training: 18, architecture: 8, neuraltheory: 5, calculus: 5 } },
   { year: 1988, title: "Second AI Winter", category: "ai", place: "Global", region: "Global", desc: "Expert systems collapse. Funding retreats worldwide.", refs: "Crevier (1993) AI: The Tumultuous History of the Search for Artificial Intelligence, ch. 11", blocks: {} },
   { year: 1989, title: "LeCun's CNN for Handwriting", category: "ai", place: "Murray Hill, NJ", region: "United States", desc: "LeCun at Bell Labs combines Fukushima's convolutions with Linnainmaa's backpropagation.", refs: "LeCun et al. (1989) 'Backpropagation Applied to Handwritten Zip Code Recognition', Neural Computation 1(4)", blocks: { architecture: 5, training: 3 } },
   { year: 1991, title: "Schmidhuber's 'Annus Mirabilis'", category: "ai", place: "Munich / Lugano", region: "Germany / Switzerland", desc: "At TU Munich/IDSIA, Schmidhuber publishes adversarial networks, linear Transformers, and self-supervised pre-training — principles behind GPT.", refs: "Schmidhuber (1991) various; Schmidhuber (2020) 'Generative Adversarial Networks Are Special Cases of Artificial Curiosity'; Schmidhuber (2022) 'Annotated History of Modern AI'", blocks: { architecture: 8, training: 5, neuraltheory: 3 } },
@@ -373,7 +636,7 @@ function EraMotif({ motif, accent }) {
   return null;
 }
 
-function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
+function TimelineEvent({ event, index, isExpanded, onToggle, isActive, lens }) {
   const ref = useRef(null);
   const vis = useInView(ref, 0.08);
   const cat = CATEGORIES[event.category];
@@ -385,6 +648,11 @@ function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
     return `${y}`;
   })();
   const hasBlocks = event.blocks && Object.keys(event.blocks).length > 0;
+  const arch = ARCH[event.title];
+  const isArch = lens === "archaeological";
+  const ep = arch && EPISTEMES[arch.episteme] ? EPISTEMES[arch.episteme] : null;
+  const braudelLayer = BRAUDEL_MAP[event.title] || "evenement";
+  const bl = BRAUDEL[braudelLayer];
 
   return (
     <div ref={ref} data-event-index={index} onClick={onToggle} style={{
@@ -394,18 +662,24 @@ function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
       cursor: "pointer", display: "flex", alignItems: "flex-start", gap: "14px",
       width: "100%", marginBottom: "2px",
     }}>
+      {/* Node dot — reflects temporal depth in archaeological mode */}
       <div style={{
-        flexShrink: 0, width: 12, height: 12, borderRadius: "50%",
-        background: isActive ? cat.color : isExpanded ? cat.color : "transparent",
-        border: `2px solid ${isActive ? cat.color : era.accent + "80"}`,
+        flexShrink: 0,
+        width: isArch ? (braudelLayer === "longue" ? 16 : braudelLayer === "conjoncture" ? 12 : 8) : (arch?.rupture ? 16 : 12),
+        height: isArch ? (braudelLayer === "longue" ? 16 : braudelLayer === "conjoncture" ? 12 : 8) : (arch?.rupture ? 16 : 12),
+        borderRadius: isArch && arch?.rupture ? "2px" : isArch && braudelLayer === "longue" ? "3px" : "50%",
+        background: isActive ? cat.color : isExpanded ? cat.color : isArch && braudelLayer === "longue" ? bl.color + "30" : "transparent",
+        border: `2px solid ${isArch ? (arch?.forgotten ? "#FF6B6B80" : bl.color + "80") : (isActive ? cat.color : era.accent + "80")}`,
         marginTop: "8px",
-        boxShadow: isActive ? `0 0 12px ${cat.color}60` : "none",
+        boxShadow: isActive ? `0 0 12px ${cat.color}60` : isArch && arch?.rupture ? `0 0 8px #FF6B6B40` : "none",
         transition: "all 0.4s ease", zIndex: 2,
+        transform: isArch && arch?.rupture ? "rotate(45deg)" : "none",
       }} />
       <div style={{
         flex: 1,
         background: isExpanded ? `linear-gradient(135deg, ${cat.color}0D, ${cat.color}04)` : isActive ? "rgba(255,255,255,0.012)" : "transparent",
         border: `1px solid ${isExpanded ? cat.color + "28" : isActive ? "rgba(255,255,255,0.035)" : "transparent"}`,
+        borderLeft: isArch && arch?.forgotten ? "2px dashed #FF6B6B30" : isArch && ep ? `2px solid ${ep.color}25` : undefined,
         borderRadius: "10px", padding: isExpanded ? "16px 18px" : "9px 12px",
         transition: "all 0.35s cubic-bezier(0.16,1,0.3,1)",
         position: "relative", overflow: "hidden",
@@ -415,10 +689,40 @@ function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
             fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: cat.color,
             background: cat.color + "12", padding: "1px 6px", borderRadius: "3px", fontWeight: 600,
           }}>{displayYear}</span>
-          <span style={{
-            fontSize: "9px", color: cat.color + "80", textTransform: "uppercase",
-            letterSpacing: "1px", fontFamily: "'JetBrains Mono', monospace",
-          }}>{cat.icon} {cat.label}</span>
+          {/* Episteme badge in archaeological mode */}
+          {isArch && ep ? (
+            <span style={{
+              fontSize: "8px", color: ep.color, textTransform: "uppercase",
+              letterSpacing: "1px", fontFamily: "'JetBrains Mono', monospace",
+              background: ep.color + "15", padding: "1px 6px", borderRadius: "3px",
+            }}>{ep.label}</span>
+          ) : (
+            <span style={{
+              fontSize: "9px", color: cat.color + "80", textTransform: "uppercase",
+              letterSpacing: "1px", fontFamily: "'JetBrains Mono', monospace",
+            }}>{cat.icon} {cat.label}</span>
+          )}
+          {/* Braudel temporal depth in archaeological mode */}
+          {isArch && (
+            <span style={{
+              fontSize: "7.5px", color: bl.color, fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "0.5px", background: bl.color + "12", padding: "1px 5px",
+              borderRadius: "3px",
+            }}>{bl.icon} {bl.label}</span>
+          )}
+          {/* Forgotten/suppressed badge */}
+          {isArch && arch?.forgotten && (
+            <span style={{
+              fontSize: "7.5px", color: "#FF6B6B", fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "1px", textTransform: "uppercase",
+            }}>⊘ suppressed</span>
+          )}
+          {isArch && arch?.rupture && (
+            <span style={{
+              fontSize: "7.5px", color: "#FF6B6B", fontFamily: "'JetBrains Mono', monospace",
+              letterSpacing: "1px", textTransform: "uppercase",
+            }}>◇ rupture</span>
+          )}
           {/* Geography badge */}
           <span style={{
             fontSize: "9px", color: era.accent + "90", fontFamily: "'JetBrains Mono', monospace",
@@ -430,9 +734,10 @@ function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
           fontSize: isExpanded ? "16.5px" : "14.5px", color: "#E8E4DE",
           margin: "5px 0 0 0", fontWeight: 600, lineHeight: 1.3,
           transition: "font-size 0.3s ease",
+          textDecoration: isArch && arch?.forgotten ? "none" : "none",
         }}>{event.title}</h3>
         <div style={{
-          maxHeight: isExpanded ? "500px" : "0px", overflow: "hidden",
+          maxHeight: isExpanded ? "800px" : "0px", overflow: "hidden",
           transition: "max-height 0.5s cubic-bezier(0.16,1,0.3,1), opacity 0.4s ease",
           opacity: isExpanded ? 1 : 0,
         }}>
@@ -444,10 +749,35 @@ function TimelineEvent({ event, index, isExpanded, onToggle, isActive }) {
           }}>
             <span style={{ opacity: 0.6 }}>●</span> {event.region}
           </div>
+          {/* Standard description */}
           <p style={{
             fontFamily: "'Source Serif 4', Georgia, serif",
             fontSize: "13.5px", color: "#B8B2A8", lineHeight: 1.7, margin: "6px 0 0 0",
           }}>{event.desc}</p>
+
+          {/* Archaeological annotations */}
+          {isArch && arch?.forgotten && (
+            <div style={{
+              marginTop: "10px", padding: "10px 12px",
+              background: "rgba(255,107,107,0.04)", borderLeft: "2px solid #FF6B6B30",
+              borderRadius: "0 6px 6px 0",
+            }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7.5px", letterSpacing: "1.5px", color: "#FF6B6B80", textTransform: "uppercase", marginBottom: "4px" }}>Suppressed / Forgotten</div>
+              <p style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: "12.5px", color: "#FF6B6BAA", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>{arch.forgotten}</p>
+            </div>
+          )}
+          {isArch && arch?.condition && (
+            <div style={{
+              marginTop: "10px", padding: "10px 12px",
+              background: ep ? `${ep.color}06` : "rgba(255,255,255,0.02)",
+              borderLeft: `2px solid ${ep ? ep.color + "30" : "rgba(255,255,255,0.08)"}`,
+              borderRadius: "0 6px 6px 0",
+            }}>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "7.5px", letterSpacing: "1.5px", color: ep ? ep.color + "90" : "rgba(255,255,255,0.3)", textTransform: "uppercase", marginBottom: "4px" }}>Conditions of Possibility</div>
+              <p style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: "12.5px", color: "rgba(255,255,255,0.5)", lineHeight: 1.6, margin: 0, fontStyle: "italic" }}>{arch.condition}</p>
+            </div>
+          )}
+
           {hasBlocks && (
             <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginTop: "10px" }}>
               {Object.entries(event.blocks).map(([k, v]) => (
@@ -618,6 +948,7 @@ export default function AITimeline() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [panelOpen, setPanelOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [lens, setLens] = useState("standard"); // "standard" or "archaeological"
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -671,6 +1002,10 @@ export default function AITimeline() {
   const currentYear = currentEvent ? (() => { const y = Math.floor(currentEvent.year); if (y <= -10000) return `~${Math.abs(y/1000)}k BCE`; if (y < 0) return `~${Math.abs(y)} BCE`; return `${y}`; })() : "";
   const currentEra = currentEvent ? getEraForYear(Math.floor(currentEvent.year)) : ERAS[0];
   const activeRegions = useMemo(() => currentEvent ? getRegionIds(currentEvent.region) : [], [currentEvent]);
+  const currentArch = currentEvent ? ARCH[currentEvent.title] : null;
+  const currentEpisteme = currentArch && EPISTEMES[currentArch.episteme] ? EPISTEMES[currentArch.episteme] : null;
+  const currentBraudel = currentEvent ? BRAUDEL[BRAUDEL_MAP[currentEvent.title] || "evenement"] : BRAUDEL.evenement;
+  const currentSocialCtx = currentEvent ? getSocialContext(currentEvent.year) : SOCIAL_CONTEXT.premodern;
 
   useEffect(() => {
     const el = scrollRef.current; if (!el) return;
@@ -773,13 +1108,102 @@ export default function AITimeline() {
             <span style={{ color: "rgba(255,255,255,0.25)", fontSize: "9px" }}>YEAR </span>
             <span style={{ fontWeight: 600 }}>{currentYear}</span>
           </div>
-          {/* Current era indicator */}
+          {/* Current era / episteme indicator */}
           <div style={{
             fontFamily: "'JetBrains Mono', monospace", fontSize: "8px",
-            letterSpacing: "1.5px", color: currentEra.accent + "60",
+            letterSpacing: "1.5px", color: lens === "archaeological" && currentEpisteme ? currentEpisteme.color + "80" : currentEra.accent + "60",
             textTransform: "uppercase", marginTop: "2px",
             transition: "color 1s ease",
-          }}>{currentEra.label}</div>
+          }}>{lens === "archaeological" && currentEpisteme ? currentEpisteme.label : currentEra.label}</div>
+          {lens === "archaeological" && currentEpisteme && (
+            <p style={{
+              fontFamily: "'Source Serif 4', serif", fontSize: "10px",
+              color: currentEpisteme.color + "50", lineHeight: 1.5, margin: "4px 0 0 0",
+              fontStyle: "italic", transition: "color 1s ease",
+            }}>{currentEpisteme.desc}</p>
+          )}
+          {/* Braudel temporal depth indicator */}
+          {lens === "archaeological" && currentBraudel && (
+            <div style={{
+              marginTop: "8px", padding: "6px 8px",
+              background: currentBraudel.color + "08",
+              borderRadius: "6px", border: `1px solid ${currentBraudel.color}15`,
+              transition: "all 0.6s ease",
+            }}>
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "7px",
+                letterSpacing: "1.5px", color: "rgba(255,255,255,0.2)",
+                textTransform: "uppercase", marginBottom: "3px",
+              }}>Braudel · Temporal Register</div>
+              {/* Three-layer depth gauge */}
+              <div style={{ display: "flex", gap: "3px", alignItems: "center", marginBottom: "4px" }}>
+                {Object.entries(BRAUDEL).map(([key, b]) => {
+                  const isActive = (BRAUDEL_MAP[currentEvent?.title] || "evenement") === key;
+                  return (
+                    <div key={key} style={{
+                      flex: 1, height: isActive ? "12px" : "4px",
+                      borderRadius: "2px",
+                      background: isActive ? b.color : b.color + "20",
+                      transition: "all 0.5s ease",
+                      position: "relative",
+                    }}>
+                      {isActive && (
+                        <span style={{
+                          position: "absolute", width: "100%", textAlign: "center",
+                          fontFamily: "'JetBrains Mono', monospace", fontSize: "6.5px",
+                          color: "#fff", lineHeight: "12px", letterSpacing: "0.3px",
+                        }}>{b.label}</span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+              <p style={{
+                fontFamily: "'Source Serif 4', serif", fontSize: "9px",
+                color: currentBraudel.color + "80", lineHeight: 1.5, margin: 0,
+                fontStyle: "italic",
+              }}>{currentBraudel.desc}</p>
+            </div>
+          )}
+          {/* Social-Economic-Epistemic Context */}
+          {lens === "archaeological" && currentSocialCtx && (
+            <div style={{
+              marginTop: "8px", padding: "8px 10px",
+              background: currentSocialCtx.color + "06",
+              borderRadius: "6px", border: `1px solid ${currentSocialCtx.color}10`,
+              transition: "all 0.6s ease",
+            }}>
+              <div style={{
+                fontFamily: "'JetBrains Mono', monospace", fontSize: "7px",
+                letterSpacing: "1.5px", color: "rgba(255,255,255,0.2)",
+                textTransform: "uppercase", marginBottom: "2px",
+              }}>Social Context</div>
+              <div style={{
+                fontFamily: "'Playfair Display', serif", fontSize: "11px",
+                fontWeight: 600, color: currentSocialCtx.color + "CC",
+                marginBottom: "6px", transition: "color 0.6s ease",
+              }}>{currentSocialCtx.label} <span style={{ fontWeight: 400, fontSize: "9px", opacity: 0.6 }}>{currentSocialCtx.range}</span></div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                {currentSocialCtx.strata.map((s, i) => (
+                  <div key={i} style={{
+                    padding: "4px 6px", borderRadius: "4px",
+                    background: i === currentSocialCtx.strata.length - 1 ? currentSocialCtx.color + "0A" : "transparent",
+                    borderLeft: i === currentSocialCtx.strata.length - 1 ? `2px solid ${currentSocialCtx.color}30` : "none",
+                  }}>
+                    <span style={{
+                      fontFamily: "'JetBrains Mono', monospace", fontSize: "7px",
+                      color: currentSocialCtx.color + "80", letterSpacing: "0.8px",
+                      textTransform: "uppercase",
+                    }}>{s.register}</span>
+                    <p style={{
+                      fontFamily: "'Source Serif 4', serif", fontSize: "9.5px",
+                      color: "rgba(255,255,255,0.35)", lineHeight: 1.5, margin: "1px 0 0 0",
+                    }}>{s.text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
         {/* World Map */}
         <div style={{ padding: "0 14px 8px" }}>
@@ -837,21 +1261,48 @@ export default function AITimeline() {
 
       {/* Main content */}
       <div ref={scrollRef} style={{ flex: 1, height: "100vh", overflowY: "auto", overflowX: "hidden", position: "relative", zIndex: 1 }}>
-        <header style={{ textAlign: "center", padding: "65px 20px 14px", maxWidth: "620px", margin: "0 auto" }}>
+        <header style={{ textAlign: "center", padding: "65px 20px 10px", maxWidth: "620px", margin: "0 auto" }}>
           <div style={{
             fontFamily: "'JetBrains Mono', monospace", fontSize: "8.5px",
             letterSpacing: "3.5px", color: "rgba(255,255,255,0.16)", textTransform: "uppercase", marginBottom: "14px",
-          }}>An Interactive Chronicle</div>
+          }}>{lens === "standard" ? "An Interactive Chronicle" : "An Archaeology of Knowledge"}</div>
           <h1 style={{
             fontFamily: "'Playfair Display', serif",
             fontSize: "clamp(26px, 5vw, 44px)", fontWeight: 700, lineHeight: 1.1, margin: 0,
-            background: "linear-gradient(135deg, #E8E4DE, #B8B2A8)",
+            background: lens === "standard" ? "linear-gradient(135deg, #E8E4DE, #B8B2A8)" : "linear-gradient(135deg, #FF9F43, #FF6B6B, #C4A1FF)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
-          }}>The Archaeology of<br />Artificial Intelligence</h1>
+            transition: "all 0.6s ease",
+          }}>{lens === "standard" ? <>The Archaeology of<br />Artificial Intelligence</> : <>Epistemic Strata &<br />Discontinuities</>}</h1>
           <p style={{
-            fontFamily: "'Source Serif 4', serif", fontSize: "14px", color: "#7A756C",
-            lineHeight: 1.7, marginTop: "14px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto",
-          }}>2,400 years across Athens, Baghdad, Paris, Cambridge, and San Francisco. Scroll to watch the building blocks accumulate. Filter by discipline to see each tradition's contribution.</p>
+            fontFamily: "'Source Serif 4', serif", fontSize: "13px", color: "#7A756C",
+            lineHeight: 1.7, marginTop: "12px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto",
+          }}>{lens === "standard"
+            ? "65,000 years across every inhabited continent. Scroll to watch the building blocks accumulate. Filter by discipline to see each tradition's contribution."
+            : "After Foucault: not a march of progress but discontinuous epistemic formations. Who is credited, who is erased, and what conditions make knowledge thinkable? Toggle to see both narratives."
+          }</p>
+          {/* Lens toggle */}
+          <div style={{
+            display: "flex", justifyContent: "center", gap: "0", marginTop: "14px",
+            background: "rgba(255,255,255,0.03)", borderRadius: "20px",
+            border: "1px solid rgba(255,255,255,0.06)",
+            display: "inline-flex", overflow: "hidden",
+          }}>
+            <button onClick={() => setLens("standard")} style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+              letterSpacing: "0.5px", padding: "6px 16px",
+              background: lens === "standard" ? "rgba(255,255,255,0.08)" : "transparent",
+              color: lens === "standard" ? "#E8E4DE" : "rgba(255,255,255,0.25)",
+              border: "none", cursor: "pointer", transition: "all 0.3s ease",
+              borderRight: "1px solid rgba(255,255,255,0.06)",
+            }}>Standard History</button>
+            <button onClick={() => setLens("archaeological")} style={{
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "9px",
+              letterSpacing: "0.5px", padding: "6px 16px",
+              background: lens === "archaeological" ? "rgba(196,107,107,0.12)" : "transparent",
+              color: lens === "archaeological" ? "#FF9F43" : "rgba(255,255,255,0.25)",
+              border: "none", cursor: "pointer", transition: "all 0.3s ease",
+            }}>Archaeology of Knowledge</button>
+          </div>
         </header>
 
         {/* Filters */}
@@ -893,6 +1344,7 @@ export default function AITimeline() {
                 isExpanded={expandedIndex === item.filteredIdx}
                 onToggle={() => setExpandedIndex(expandedIndex === item.filteredIdx ? null : item.filteredIdx)}
                 isActive={currentEventIdx === item.filteredIdx}
+                lens={lens}
               />
             );
           })}

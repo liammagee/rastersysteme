@@ -1,56 +1,71 @@
 {
-  "aesthetic": "Meridian Press — A typographic system inspired by mid-century scientific publishing and Swiss grid theory, where information architecture is the aesthetic and every element earns its place through functional precision.",
+  "aesthetic": "Scholarly Terroir — warm parchment grounds with sage-green and terracotta punctuation, Palatino serif authority breathing through asymmetric grid layouts with generous whitespace",
   "palette": [
     {
-      "hex": "1A1A2E",
-      "name": "Onyx Vault",
-      "role": "dominant"
-    },
-    {
-      "hex": "F5F0E8",
-      "name": "Linen Proof",
+      "hex": "F5F0E6",
+      "name": "Warm Parchment",
       "role": "ground"
     },
     {
-      "hex": "C8441A",
-      "name": "Cinnabar Press",
-      "role": "accent"
-    },
-    {
-      "hex": "4A7C8E",
-      "name": "Prussian Slate",
-      "role": "accent"
-    },
-    {
-      "hex": "E8C547",
-      "name": "Harvest Gilt",
+      "hex": "2A2A28",
+      "name": "Deep Charcoal",
       "role": "signal"
     },
     {
-      "hex": "8C8C7A",
-      "name": "Zinc Fog",
+      "hex": "F2EDE4",
+      "name": "Light Beige",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE4D3",
+      "name": "Warm Bisque",
+      "role": "ground"
+    },
+    {
+      "hex": "6B7F5E",
+      "name": "Sage Green",
       "role": "dominant"
+    },
+    {
+      "hex": "4A5D4A",
+      "name": "Forest Sage",
+      "role": "accent"
+    },
+    {
+      "hex": "A0522D",
+      "name": "Terracotta",
+      "role": "accent"
+    },
+    {
+      "hex": "8B7355",
+      "name": "Warm Brown",
+      "role": "accent"
+    },
+    {
+      "hex": "C4956A",
+      "name": "Gold Tan",
+      "role": "accent"
     }
   ],
-  "chromaticArc": "Opens on Linen Proof grounds with Onyx Vault type — clean, credentialed, zero drama. Cinnabar Press enters at the first structural break (slide 5–7) as a horizontal rule or section flag, signaling transition. Mid-deck (slides 12–22) alternates between Onyx Vault full-bleed spreads with Linen Proof type for emphasis moments, and light Linen Proof slides for data-dense content. Prussian Slate carries supporting charts and callout blocks throughout. Harvest Gilt appears sparingly — only for singular data points or pull quotes that must be remembered. The final 5 slides return to Linen Proof, quieting the palette to let the conclusion land with composure.",
-  "gridStrategy": "12-column grid with a fixed 48px outer margin. Titles anchor consistently to columns 1–8 on standard slides, with a 6px Cinnabar Press rule running 40px above the title baseline — this rule is the deck's persistent signature. On section-break slides, the title drops to the vertical center and spans columns 1–10. Content zones occupy columns 1–7 (text) and 8–12 (visual/data) on split slides. Bottom margin holds a thin 1px Zinc Fog rule with slide number at column 12 and section label at column 1, always at 8pt. Full-bleed image slides suppress the grid entirely and float a single text block at either the upper-left or lower-right quadrant — never centered.",
+  "chromaticArc": "Opens on deep charcoal title, warms through parchment and bisque for body slides 2-15, introduces sage green accents as dominant punctuation throughout, terracotta dots appear on transitional slides, returns to charcoal for section dividers at slides 11 and 25, closes warm",
+  "gridStrategy": "Asymmetric breathing layouts: titles anchored right (col 30-38) or left (col 2-6), body text in narrow columns (span 18-28) with generous whitespace on the opposing side. Image zones balanced against text. Four archetypes cycled: right-anchored title, left-sidebar split, centred column, full-bleed title.",
   "typeScale": {
     "titleRange": [
-      32,
-      44
+      28,
+      52
     ],
     "bodySize": 14,
-    "labelSize": 8,
+    "labelSize": 11,
     "titleWeightRange": [
-      300,
-      600
+      600,
+      700
     ]
   },
   "fontStrategy": {
-    "default": "Freight Text Pro — a serif with editorial authority and optical clarity at small sizes; carries all body copy, captions, and running text",
-    "secondary": "Neue Haas Grotesk Display — the structural workhorse for titles, section labels, and data callouts; its controlled tension against Freight creates the press-room contrast that defines the system",
-    "tertiary": "IBM Plex Mono — reserved exclusively for numerical data, code references, and measurement labels; signals precision and distinguishes quantitative content at a glance",
-    "secondarySlides": "Neue Haas Grotesk takes over entirely on section-break slides and full-bleed feature spreads, reinforcing hierarchy transitions. It also leads on any slide where data visualization is primary — the grotesque neutrality lets numbers speak without serif interference."
+    "default": "Palatino",
+    "secondary": "Courier New",
+    "tertiary": null,
+    "secondarySlides": "Courier New used for data-heavy slides, tables, and code-like content — approximately every 6th slide. Palatino carries all other text."
   },
-  "accentStrategy": "The 6px Cinnabar Press horizontal rule above every title is non-negotiable — it is the studio mark, not decoration. Secondary accents are a single 1px vertical rule in Prussian Slate separating two-column content zones, never decorative, always load-bearing. Harvest Gilt appears as a filled 8px circle preceding pull-quote text — exactly one per slide, maximum. Zinc Fog is used for 0.5px grid lines on data slides only, visible enough to organize, invisible enough to recede. No drop shadows, no gradients, no rounded rectangles. Geometric elements are orthogonal or circular — nothing in between."
+  "accentStrategy": "Minimal geometry only: thin vertical lines (1px, sage green or forest sage) at column boundaries as margin punctuation on ~40% of slides; small terracotta or warm brown dots (1px) as decorative elements on transitional slides; occasional horizontal rules separating title from body zones. No blocks, bars, or heavy shapes."
 }

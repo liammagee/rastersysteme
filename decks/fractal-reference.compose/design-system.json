@@ -1,0 +1,46 @@
+{
+  "aesthetic": "Swiss Editorial Folio — warm-cream ground with dark-navy punctuation, Futura/Palatino pairing evokes mid-century Graphis annual typography",
+  "palette": [
+    {
+      "hex": "FAF6EE",
+      "name": "Warm Cream",
+      "role": "ground"
+    },
+    {
+      "hex": "0A1628",
+      "name": "Dark Navy",
+      "role": "accent"
+    },
+    {
+      "hex": "B8523A",
+      "name": "Burnt Terracotta",
+      "role": "signal"
+    },
+    {
+      "hex": "D6CCBA",
+      "name": "Aged Linen",
+      "role": "accent"
+    }
+  ],
+  "chromaticArc": "Opens on warm cream, navy dividers at slides 10, 26, and 42 create three editorial acts; terracotta accents intensify through the middle third then recede, closing on cream with a navy coda",
+  "gridStrategy": "Centred-axis compositions (cols 12–48) dominate, with monument layouts for openers, sidebar-L and sidebar-R alternating for body slides, and full-width splits reserved for code and table slides",
+  "typeScale": {
+    "titleRange": [
+      32,
+      52
+    ],
+    "bodySize": 14,
+    "labelSize": 10,
+    "titleWeightRange": [
+      400,
+      700
+    ]
+  },
+  "fontStrategy": {
+    "default": "Futura",
+    "secondary": "Palatino",
+    "tertiary": "SF Mono",
+    "secondarySlides": "Palatino used for body text on all slides; Futura reserved for headings and labels; SF Mono for code blocks"
+  },
+  "accentStrategy": "Thin 1px terracotta lines divide title from body zones on 40% of slides; 2-col-wide navy bars punctuate sidebar layouts; dotted rules on table slides"
+}

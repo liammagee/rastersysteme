@@ -1,0 +1,3 @@
+## Side-note for the historically curious…
+
+![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)     Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press.

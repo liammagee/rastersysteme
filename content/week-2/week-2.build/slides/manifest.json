@@ -1,6 +1,6 @@
 {
-  "sourceHash": "5165f1cfa18b8481",
-  "generated": "2026-03-26T04:09:31.169Z",
+  "sourceHash": "3d4c95d7f4450b0d",
+  "generated": "2026-03-30T12:51:23.016Z",
   "slides": [
     {
       "index": 1,
@@ -9,103 +9,213 @@
     },
     {
       "index": 2,
-      "file": "02-la-longue-duree-annales-school-fernand-b.md",
-      "title": "“La Longue Duree” (Annales School, Fernand Braudel)"
+      "file": "02-eurocentric-history.md",
+      "title": "Eurocentric history?"
     },
     {
       "index": 3,
-      "file": "03-people-likely-know-the-famous-first-exam.md",
-      "title": "People likely know the famous first examples of computers for solving decryption. A kind of \"safe\" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!"
+      "file": "03-side-note-for-the-historically-curious.md",
+      "title": "Side-note for the historically curious…"
     },
     {
       "index": 4,
-      "file": "04-galileo-pre-calculus.md",
-      "title": "Galileo (pre-Calculus!)"
+      "file": "04-an-archaeology-of-artificial-intelligenc.md",
+      "title": "[An Archaeology of Artificial Intelligence](https://liammagee.github.io/rastersysteme/pages/ai-archaeology.html)"
     },
     {
       "index": 5,
-      "file": "05-claudeaihttpsclaudeaipublicartifactsc8c0.md",
-      "title": "[claude.ai](https://claude.ai/public/artifacts/c8c048da-b0af-4ac8-befc-33faf70536a4)"
+      "file": "05-first-definition-1955-artificial-intelli.md",
+      "title": "First Definition (1955): Artificial Intelligence involves…."
     },
     {
       "index": 6,
-      "file": "06-early-ballistic-computer-simulationhttps.md",
-      "title": "[Early Ballistic Computer Simulation](https://liammagee.github.io/rastersysteme/pages/ballistic-computer-sim.html)"
+      "file": "06-themes-cybernetics-vs-artificial-intelli.md",
+      "title": "Themes: Cybernetics vs Artificial Intelligence?"
     },
     {
       "index": 7,
-      "file": "07-for-those-mathematically-philosophically.md",
-      "title": "For those mathematically / philosophically minded:"
+      "file": "07-melancholic-echoes-of-cybernetics-today.md",
+      "title": "Melancholic Echoes of Cybernetics Today?"
     },
     {
       "index": 8,
-      "file": "08-cybernetics-artificial-intelligence.md",
-      "title": "Cybernetics   Artificial Intelligence"
+      "file": "08-heroic-version-of-ai-history-whiggish-hi.md",
+      "title": "Heroic version of AI history (\"Whiggish\" history)"
     },
     {
       "index": 9,
-      "file": "09-artificial-intelligence-involves.md",
-      "title": "Artificial Intelligence involves…."
+      "file": "09-la-longue-duree-annales-school-fernand-b.md",
+      "title": "“La Longue Duree” (Annales School, Fernand Braudel)"
     },
     {
       "index": 10,
-      "file": "10-an-era-of-symbiotic-or-sympoetic-or-co-i.md",
-      "title": "An Era of Symbiotic (or Sympoetic***** or Co-intelligent******) Pedagogy?   **Human-to-Human** **Human-to-AI (e.g. GPT)** AI-to-AI (e.g. DeepSeek R1-Zero) **AI to Human**"
+      "file": "10-ai-as-instead-a-process-of-accumulating-.md",
+      "title": "AI as instead a process of accumulating layers - an \"archaeology\":"
     },
     {
       "index": 11,
-      "file": "11-imageimagesgenaiweek1pathwaystoaiimg7png.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_7.png)"
+      "file": "11-sciences-of-the-human.md",
+      "title": "Sciences of the Human"
     },
     {
       "index": 12,
-      "file": "12-imageimagesgenaiweek1pathwaystoaiimg8png.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_8.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_9.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_10.png)   AI as IT?  Or something else?"
+      "file": "12-automating-the-table-developments-in-big.md",
+      "title": "Automating the Table: Developments in \"Big Data\""
     },
     {
       "index": 13,
-      "file": "13-imageimagesgenaiweek1pathwaystoaiimg12pn.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_12.png)   Fourth Figure. *Ars brevis* XVIII Century. Palma de Mallorca BP MS998. Digital version Biblioteca Virtual del Patrimonio Bibliográfico. Spain. Ministerio de Educación, Cultura y Deporte.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_13.png)"
+      "file": "13-17th18th-century-19th-century.md",
+      "title": "| **17th/18th** Century | **19th Century** |"
     },
     {
       "index": 14,
-      "file": "14-imageimagesgenaiweek1pathwaystoaiimg14pn.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_14.png)   Side-note for the historically minded…  Truitt, E. R. (2015). *Medieval robots: Mechanism, magic, nature, and art*. University of Pennsylvania Press."
+      "file": "14-feudalism-capitalism.md",
+      "title": "| Feudalism | Capitalism |"
     },
     {
       "index": 15,
-      "file": "15-imageimagesgenaiweek1pathwaystoaiimg15pn.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_15.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_16.png)"
-    },
-    {
-      "index": 16,
-      "file": "16-if-ai-systems-are-seen-as-more-reliable-.md",
-      "title": "‘If AI systems are seen as more reliable or rational than any human expert, able to take the “best possible action,” then it suggests that they should be trusted to make high-stakes decisions in health, education, and criminal justice. When specific algorithmic techniques are the sole focus, it suggests that only continual technical progress matters, with no consideration of the computational cost of those approaches and their far-reaching impacts on a planet under strain.  In contrast, in this book I argue that AI is **neither artificial nor intelligent**. Rather, artificial intelligence is both embodied and material, made from natural resources, fuel, human labor, infrastructures, logistics, histories, and classifications. AI systems are not autonomous, rational, or able to discern anything without extensive, computationally intensive training with large datasets or predefined rules and rewards. In fact, artificial intelligence as we know it depends entirely on a much wider set of political and social structures…. At a fundamental level, AI is **technical and social practices, institutions and infrastructures, politics and culture**. Computational reason and embodied work are deeply interlinked: AI systems both reflect and produce social relations and understandings of the world.’ Crawford, Kate. (2021). *Atlas of AI: Power, Politics, and the Planetary Costs of Artificial Intelligence* (p. 8). Yale University Press.   ![Image](images/gen_ai___week_1___pathways_to_ai_img_17.png)"
-    },
-    {
-      "index": 17,
-      "file": "17-imageimagesgenaiweek1pathwaystoaiimg18pn.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_18.png)   ![Image](images/gen_ai___week_1___pathways_to_ai_img_19.png)"
-    },
-    {
-      "index": 18,
-      "file": "18-imageimagesgenaiweek1pathwaystoaiimg20pn.md",
-      "title": "![Image](images/gen_ai___week_1___pathways_to_ai_img_20.png)   **“The hand-mill gives you society with the feudal lord;**   ![Image](images/gen_ai___week_1___pathways_to_ai_img_21.png)   **the steam-mill society with the industrial capitalist.” (Marx, 1847)**"
-    },
-    {
-      "index": 19,
-      "file": "19-17th18th-c-dawn-of-modernity-19thearly-2.md",
+      "file": "15-17th18th-c-dawn-of-modernity-19thearly-2.md",
       "title": "| 17th/18th C — Dawn of Modernity | 19th/Early 20th — Modernity Proper | Mid 20th–Early 21st — Post/Late Modernity |"
     },
     {
+      "index": 16,
+      "file": "16-kate-crawford-atlas-of-ai.md",
+      "title": "Kate Crawford, *Atlas of AI*"
+    },
+    {
+      "index": 17,
+      "file": "17-women-in-computing-and-technology-from-f.md",
+      "title": "Women in Computing and Technology: From Frankenstein to \"World's First Programmer\""
+    },
+    {
+      "index": 18,
+      "file": "18-case-study-the-little-stone-of-ai.md",
+      "title": "Case Study: The \"little stone\" of AI"
+    },
+    {
+      "index": 19,
+      "file": "19-people-likely-know-the-famous-first-exam.md",
+      "title": "People likely know the famous first examples of computers for solving decryption. A kind of \"safe\" version of the origins of computing: the Nazis, evil, encrypted messages, the Allies, good, decrypted them. Then onto IBM, Apple, Microsoft!"
+    },
+    {
       "index": 20,
-      "file": "20-looking-ahead.md",
-      "title": "Looking ahead…"
+      "file": "20-.md",
+      "title": "## \""
     },
     {
       "index": 21,
-      "file": "21-and-a-bold-proposition.md",
+      "file": "21-drawing-a-long-bow-from-ballistics-to-ai.md",
+      "title": "Drawing a Long Bow\": From Ballistics to AI"
+    },
+    {
+      "index": 22,
+      "file": "22-practice.md",
+      "title": "Practice"
+    },
+    {
+      "index": 23,
+      "file": "23-thought-experiment-throwing-a-stone.md",
+      "title": "Thought experiment: Throwing a Stone"
+    },
+    {
+      "index": 24,
+      "file": "24-relevance-to-education.md",
+      "title": "Relevance to Education"
+    },
+    {
+      "index": 25,
+      "file": "25-for-those-mathematically-philosophically.md",
+      "title": "For those mathematically / philosophically minded:"
+    },
+    {
+      "index": 26,
+      "file": "26-looking-ahead.md",
+      "title": "Looking ahead…"
+    },
+    {
+      "index": 27,
+      "file": "27-and-a-bold-proposition.md",
       "title": "And a bold proposition…"
+    },
+    {
+      "index": 28,
+      "file": "28-discussion-break.md",
+      "title": "Discussion / Break"
+    },
+    {
+      "index": 29,
+      "file": "29-ai-in-2026-an-opinionated-take-on-the-pr.md",
+      "title": "AI in 2026: An Opinionated Take on the Present"
+    },
+    {
+      "index": 30,
+      "file": "30-ai-consolidation.md",
+      "title": "AI Consolidation"
+    },
+    {
+      "index": 31,
+      "file": "31-rise-of-open-source-models.md",
+      "title": "Rise of open source models"
+    },
+    {
+      "index": 32,
+      "file": "32-contradictory-tendencies-increasing-dema.md",
+      "title": "Contradictory tendencies: Increasing demand..."
+    },
+    {
+      "index": 33,
+      "file": "33-but-also.md",
+      "title": "...but also:"
+    },
+    {
+      "index": 34,
+      "file": "34-agentive-ai.md",
+      "title": "Agentive AI"
+    },
+    {
+      "index": 35,
+      "file": "35-education-issues-cons.md",
+      "title": "Education Issues: Cons"
+    },
+    {
+      "index": 36,
+      "file": "36-education-issues-pros.md",
+      "title": "Education Issues: Pros"
+    },
+    {
+      "index": 37,
+      "file": "37-however-bigger-picture-issues.md",
+      "title": "However: \"Bigger Picture\" Issues"
+    },
+    {
+      "index": 38,
+      "file": "38-what-do-we-need-to-learn-now-what-do-we-.md",
+      "title": "What do we need to learn now? What do we need to teach?"
+    },
+    {
+      "index": 39,
+      "file": "39-crisis-in-higher-ed.md",
+      "title": "Crisis in Higher Ed"
+    },
+    {
+      "index": 40,
+      "file": "40-next-week-the-technological-lens.md",
+      "title": "Next Week: The Technological Lens"
+    },
+    {
+      "index": 41,
+      "file": "41-case-study-geist-in-the-machine-magee-20.md",
+      "title": "Case Study: *Geist* in the Machine (Magee 2026)"
+    },
+    {
+      "index": 42,
+      "file": "42-case-study-key-concepts.md",
+      "title": "Case Study: Key Concepts"
+    },
+    {
+      "index": 43,
+      "file": "43-what-ai-can-do-for-research.md",
+      "title": "What AI can do for research"
     }
   ]
 }

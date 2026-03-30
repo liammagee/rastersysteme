@@ -1,0 +1,187 @@
+{
+  "slideCount": 36,
+  "counts": {
+    "critical": 0,
+    "warning": 2,
+    "info": 19
+  },
+  "issues": [
+    {
+      "slide": 1,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 93px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 5,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 7,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 279px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Fourth Figure. Ars brevis XVIII Century....\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        },
+        {
+          "type": "text-image-collision",
+          "sameCell": null,
+          "detail": "\"Al-Khwarizmi - Esposito, John L., ed. (1...\" over gen_ai___week_1___pathways_to_ai_img_13.png",
+          "severity": "warning"
+        }
+      ]
+    },
+    {
+      "slide": 9,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 338px clipped overflow",
+          "severity": "info"
+        },
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 11,
+      "issues": [
+        {
+          "type": "clipped-overflow",
+          "detail": "zone-image: 611px clipped overflow",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 12,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 17,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 21,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1536x918px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-title by 1382x121px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 23,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 24,
+      "issues": [
+        {
+          "type": "zone-collision",
+          "detail": "zone-body overlaps zone-extras by 1408x324px",
+          "severity": "info"
+        },
+        {
+          "type": "zone-collision",
+          "detail": "zone-extras overlaps zone-title by 1382x146px",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 26,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 29,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 33,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    },
+    {
+      "slide": 36,
+      "issues": [
+        {
+          "type": "out-of-bounds",
+          "detail": "accent-el extends beyond slide edge",
+          "severity": "info"
+        }
+      ]
+    }
+  ]
+}

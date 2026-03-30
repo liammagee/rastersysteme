@@ -1,8 +1,0 @@
-{
-  "name": "rs",
-  "description": "Rastersysteme slide deck tools — compose, render, QA, gallery, and more",
-  "version": "1.0.0",
-  "author": {
-    "name": "machinespirits"
-  }
-}

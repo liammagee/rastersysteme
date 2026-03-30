@@ -1,46 +1,71 @@
 {
-  "aesthetic": "Papier Gris — a warm editorial system built on aged newsprint and ink, where cream fields hold spare typographic architecture and dark espresso erupts only at structural seams",
+  "aesthetic": "Scholarly Terroir — warm parchment grounds with sage-green and terracotta punctuation, Palatino serif authority breathing through asymmetric grid layouts with generous whitespace",
   "palette": [
     {
-      "hex": "F8F5F0",
-      "name": "Antique White",
+      "hex": "F5F0E6",
+      "name": "Warm Parchment",
       "role": "ground"
     },
     {
-      "hex": "E2D9CC",
-      "name": "Warm Linen",
+      "hex": "2A2A28",
+      "name": "Deep Charcoal",
+      "role": "signal"
+    },
+    {
+      "hex": "F2EDE4",
+      "name": "Light Beige",
+      "role": "ground"
+    },
+    {
+      "hex": "EDE4D3",
+      "name": "Warm Bisque",
+      "role": "ground"
+    },
+    {
+      "hex": "6B7F5E",
+      "name": "Sage Green",
       "role": "dominant"
     },
     {
-      "hex": "9C8A76",
-      "name": "Sandstone",
+      "hex": "4A5D4A",
+      "name": "Forest Sage",
       "role": "accent"
     },
     {
-      "hex": "1E1A17",
-      "name": "Press Black",
-      "role": "signal"
+      "hex": "A0522D",
+      "name": "Terracotta",
+      "role": "accent"
+    },
+    {
+      "hex": "8B7355",
+      "name": "Warm Brown",
+      "role": "accent"
+    },
+    {
+      "hex": "C4956A",
+      "name": "Gold Tan",
+      "role": "accent"
     }
   ],
-  "chromaticArc": "Slides 1–6 breathe on Antique White; slides 7–8 drop to Press Black section dividers; slides 9–14 rise back to Warm Linen mid-tones with Sandstone accent bars; slide 15 hits Press Black again; slides 16–19 return to Antique White with Sandstone punctuation; slide 20 closes on a final Press Black divider; slide 21 lands back on clean Antique White — three full light-to-dark crossings across the arc.",
-  "gridStrategy": "Title zones rotate through four column anchors (0, 12, 22, 34) across consecutive slides, body spans alternate between narrow (18–22 cols) and wide (34–40 cols), and the accent bar column position advances by 4–8 columns each slide to build a diagonal visual rhythm across the deck.",
+  "chromaticArc": "Opens on deep charcoal title, warms through parchment and bisque for body slides 2-15, introduces sage green accents as dominant punctuation throughout, terracotta dots appear on transitional slides, returns to charcoal for section dividers at slides 11 and 25, closes warm",
+  "gridStrategy": "Asymmetric breathing layouts: titles anchored right (col 30-38) or left (col 2-6), body text in narrow columns (span 18-28) with generous whitespace on the opposing side. Image zones balanced against text. Four archetypes cycled: right-anchored title, left-sidebar split, centred column, full-bleed title.",
   "typeScale": {
     "titleRange": [
-      32,
+      28,
       52
     ],
     "bodySize": 14,
     "labelSize": 11,
     "titleWeightRange": [
-      400,
+      600,
       700
     ]
   },
   "fontStrategy": {
-    "default": "Helvetica Neue",
-    "secondary": "Georgia",
+    "default": "Palatino",
+    "secondary": "Courier New",
     "tertiary": null,
-    "secondarySlides": "Georgia appears on slides 5, 11, 17 — body-heavy editorial spreads where a serif voice adds warmth and slows reading pace"
+    "secondarySlides": "Courier New used for data-heavy slides, tables, and code-like content — approximately every 6th slide. Palatino carries all other text."
   },
-  "accentStrategy": "Every slide carries a single 1–2 column vertical bar spanning 6–10 rows, placed at a column position that advances irregularly across the deck (cols 2, 10, 18, 26, 34, 42, 50, cycling with variation) so the bars trace a slow diagonal drift when the deck is viewed as a sequence — serving simultaneously as zone divider, page number anchor, and rhythmic spine."
+  "accentStrategy": "Minimal geometry only: thin vertical lines (1px, sage green or forest sage) at column boundaries as margin punctuation on ~40% of slides; small terracotta or warm brown dots (1px) as decorative elements on transitional slides; occasional horizontal rules separating title from body zones. No blocks, bars, or heavy shapes."
 }
