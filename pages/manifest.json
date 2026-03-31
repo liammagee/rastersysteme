@@ -4,5 +4,11 @@
     "file": "ballistic-computer-sim.html",
     "description": "Interactive simulation of early electromechanical ballistic computers used for artillery firing tables.",
     "tags": ["simulation", "history", "computing"]
+  },
+  {
+    "name": "Language Model Fundamentals",
+    "file": "language-models.html",
+    "description": "Interactive exploration of language model evolution through four cumulative stages: Markov Chains (1913), Word2Vec (2013), Transformers (2017), and RLHF (2022).",
+    "tags": ["education", "language-models", "interactive", "history"]
   }
 ]

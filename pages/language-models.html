@@ -1,0 +1,4134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Architecture of Language Models</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+  body { background: #0B0A09; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes glow {
+    0%, 100% { filter: drop-shadow(0 0 4px var(--glow-color)); }
+    50% { filter: drop-shadow(0 0 12px var(--glow-color)); }
+  }
+  @keyframes confetti {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(120px) rotate(720deg); opacity: 0; }
+  }
+  @keyframes typewriter {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  canvas { display: block; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.2/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module">
+const { useState, useEffect, useRef, useMemo, useReducer, useCallback } = React;
+
+// ============================================================
+// STAGE METADATA
+// ============================================================
+
+const STAGES = [
+  {
+    id: "markov", title: "Markov Chains", year: 1913,
+    author: "Andrey Markov",
+    paper: "An Example of Statistical Investigation of the Text of Eugene Onegin",
+    color: "#E8A838", colorDim: "rgba(232,168,56,0.15)", accent: "#C8956C",
+    intuition: "Token prediction from local context",
+    epigraph: "I studied the alternation of vowels and consonants in the first 20,000 letters of the first chapter of Eugene Onegin.",
+    epigraphSource: "A.A. Markov, 1913",
+    concepts: ["Transition Probabilities", "N-grams", "Markov Property", "State Space"],
+    buildsOn: null,
+    intro: "In 1913, Andrey Andreyevich Markov sat in his study at St. Petersburg University with a copy of Alexander Pushkin's verse novel Eugene Onegin. He wasn't reading for pleasure. He was counting \u2014 meticulously tallying the alternation of vowels and consonants across 20,000 consecutive letters. His goal was radical: to demonstrate that the law of large numbers could apply to dependent events, not just independent ones. In doing so, he invented what we now call Markov chains \u2014 and laid the mathematical foundation for every language model that would follow.\n\nThe core insight is deceptively simple: to predict what comes next, you only need to know where you are now. The probability of the next character depends on the current character (or the last few characters), not on the entire history. This \"memoryless\" property makes the mathematics tractable while still capturing real statistical patterns in language.",
+  },
+  {
+    id: "word2vec", title: "Word2Vec", year: 2013,
+    author: "Tomas Mikolov et al.",
+    paper: "Efficient Estimation of Word Representations in Vector Space",
+    color: "#48BFE3", colorDim: "rgba(72,191,227,0.15)", accent: "#3A9BBE",
+    intuition: "Words as points in semantic space",
+    epigraph: "You shall know a word by the company it keeps.",
+    epigraphSource: "J.R. Firth, 1957",
+    concepts: ["Embeddings", "Latent Space", "Distributional Hypothesis", "Vector Arithmetic"],
+    buildsOn: {
+      prevTitle: "Markov Chains",
+      prevColor: "#E8A838",
+      limitation: "Markov chains predict the next token from local statistics, but they treat every word as an opaque symbol. 'Bank' after 'river' and 'bank' after 'savings' get the same prediction table. There is no notion of meaning.",
+      addition: "Word2Vec adds a semantic dimension: each word becomes a point in continuous space where distance encodes meaning. Words that appear in similar contexts cluster together, and relationships become geometric operations.",
+      diagram: [
+        { label: "Markov", desc: "P(next | current)", icon: "chain" },
+        { label: "+Word2Vec", desc: "P(next | current) + meaning(word) = vector", icon: "space" },
+      ],
+    },
+    intro: "A century after Markov's letter-counting experiment, Tomas Mikolov at Google published a deceptively simple paper. Word2Vec showed that by training a shallow neural network to predict a word from its context (or context from a word), the network's internal weights organized themselves into a geometric space where semantic relationships became vector arithmetic. The result was almost magical: the vector for 'king' minus 'man' plus 'woman' landed near 'queen'. Language, it turned out, had a geometry.\n\nThe key idea \u2014 the distributional hypothesis \u2014 is that words appearing in similar contexts tend to have similar meanings. Word2Vec operationalized this by learning dense vector representations (embeddings) where proximity encodes semantic similarity. These embeddings became the foundation for all modern NLP.",
+  },
+  {
+    id: "transformer", title: "Transformers", year: 2017,
+    author: "Vaswani et al.",
+    paper: "Attention Is All You Need",
+    color: "#C4A1FF", colorDim: "rgba(196,161,255,0.15)", accent: "#9B7ED8",
+    intuition: "Attention lets every token consider every other token",
+    epigraph: "Attention is all you need.",
+    epigraphSource: "Vaswani et al., NeurIPS 2017",
+    concepts: ["Self-Attention", "Query-Key-Value", "Positional Encoding", "Multi-Head Attention"],
+    buildsOn: {
+      prevTitle: "Word2Vec",
+      prevColor: "#48BFE3",
+      limitation: "Word2Vec embeddings are static: 'bank' gets one vector whether it means a riverbank or a financial institution. And the model processes words independently \u2014 it cannot capture how words in a sentence relate to each other.",
+      addition: "Transformers add context-dependent understanding. Through self-attention, every word's representation is dynamically reshaped by every other word in the sentence. Embeddings become contextual: 'bank' near 'river' gets a different representation than 'bank' near 'money'.",
+      diagram: [
+        { label: "Word2Vec", desc: "One fixed vector per word", icon: "dot" },
+        { label: "+Transformer", desc: "Vector changes based on full sentence context", icon: "network" },
+      ],
+    },
+    intro: "In June 2017, a team of eight researchers at Google Brain and the University of Toronto published a paper with a provocatively simple title: 'Attention Is All You Need.' The transformer architecture they proposed dispensed with the recurrence and convolution that had dominated sequence modeling. In their place: a mechanism called self-attention, where every element in a sequence could directly attend to every other element.\n\nThe result was not just faster training through parallelization, but a fundamentally different way for models to process language \u2014 one where relationships between distant words were as easy to capture as adjacent ones. The transformer became the backbone of GPT, BERT, and every frontier language model that followed.",
+  },
+  {
+    id: "rlhf", title: "RLHF", year: 2022,
+    author: "Ouyang et al.",
+    paper: "Training language models to follow instructions with human feedback",
+    color: "#FF6B6B", colorDim: "rgba(255,107,107,0.15)", accent: "#D45D5D",
+    intuition: "Aligning prediction to human preference",
+    epigraph: "The objective of language modeling is not the actual objective we care about.",
+    epigraphSource: "Ouyang et al., 2022",
+    concepts: ["Reward Model", "Preference Data", "Policy Optimization", "Alignment"],
+    buildsOn: {
+      prevTitle: "Transformers",
+      prevColor: "#C4A1FF",
+      limitation: "A transformer trained on next-token prediction is extraordinarily capable but has no values. It will generate helpful answers and harmful ones with equal fluency, because the training objective is prediction accuracy, not helpfulness or safety.",
+      addition: "RLHF adds a human preference signal. A reward model learns what humans consider 'good' responses. The transformer is then fine-tuned to maximize this reward \u2014 shifting its probability distributions away from merely likely text toward genuinely helpful text.",
+      diagram: [
+        { label: "Transformer", desc: "P(next token) \u2014 fluent but aimless", icon: "brain" },
+        { label: "+RLHF", desc: "P(next token | human preferences) \u2014 fluent and aligned", icon: "heart" },
+      ],
+    },
+    intro: "By 2022, language models could generate fluent, knowledgeable text. But fluency is not the same as helpfulness, and knowledge is not the same as wisdom. A model trained purely on next-token prediction would happily generate toxic content, fabricate facts, or ignore the user's actual intent \u2014 because none of those failures are penalized by the language modeling objective.\n\nOuyang et al.'s paper at OpenAI proposed a solution: Reinforcement Learning from Human Feedback (RLHF). The idea was to add a second training phase where human preferences directly shaped the model's behavior. First, fine-tune on demonstrations of good behavior. Then train a reward model on human comparisons. Finally, optimize the language model against that reward signal. The result transformed text predictors into helpful assistants \u2014 and directly preceded the launch of ChatGPT.",
+  },
+];
+
+const TRANSITION_TEXTS = [
+  "Markov chains capture statistical patterns in local context \u2014 but they have no understanding of meaning. The word 'bank' after 'river' and 'bank' after 'savings' are treated identically. What if words themselves could carry semantic information? In 2013, exactly one century after Markov's letter-counting experiment, a new approach emerged...",
+  "Word2Vec gave us the geometry of meaning \u2014 but these embeddings are static. The word 'bank' gets one vector regardless of context. And the model processes words one at a time, unable to consider how distant words relate to each other. What if a model could look at an entire sentence at once, weighing the importance of every word relative to every other?",
+  "The transformer architecture gave language models unprecedented power to understand and generate text. But power without direction is dangerous. A model optimized purely to predict the next token has no concept of helpfulness, truthfulness, or safety. How do we bridge the gap between 'what word comes next' and 'what response would actually help this person'?",
+];
+
+
+// ============================================================
+// STAGE 1 DATA: MARKOV CHAINS
+// ============================================================
+
+const SAMPLE_TEXTS = {
+  pushkin: "My uncle, what a worthy man, Fell ill and in his fall began To force respect: a fine direction; His was the best of all infections. An example others might have heeded. But God, the boredom, to be needed, To sit there through the night and day Not daring once to step away! And what duplicity unspoken To amuse a man that's half a broken, To straighten pillows all around, With mournful face bring pills to ground. To think and sigh and shrug, to ponder: Oh when will Devil come for yonder.",
+  shakespeare: "To be or not to be that is the question whether tis nobler in the mind to suffer the slings and arrows of outrageous fortune or to take arms against a sea of troubles and by opposing end them to die to sleep no more and by a sleep to say we end the heartache and the thousand natural shocks that flesh is heir to tis a consummation devoutly to be wished to die to sleep to sleep perchance to dream aye there is the rub for in that sleep of death what dreams may come when we have shuffled off this mortal coil must give us pause.",
+  austen: "It is a truth universally acknowledged that a single man in possession of a good fortune must be in want of a wife. However little known the feelings or views of such a man may be on his first entering a neighbourhood this truth is so well fixed in the minds of the surrounding families that he is considered as the rightful property of some one or other of their daughters. My dear mister bennet said his lady to him one day have you heard that netherfield park is let at last.",
+};
+
+
+// ============================================================
+// STAGE 2 DATA: WORD2VEC EMBEDDINGS
+// ============================================================
+
+// Semantic feature dimensions:
+// 0: gender (m+, f-)  1: authority/royalty  2: animate  3: place
+// 4: country-vs-city  5: temporal  6: valence  7: size  8: abstract  9: nature
+
+const WORD_DATA = [
+  // Royalty cluster
+  { w:"king", x:0.78, y:0.22, c:"royalty", v:[0.82,0.91,0.85,-0.45,0.1,0.05,0.35,0.72,-0.55,0.1] },
+  { w:"queen", x:0.81, y:0.19, c:"royalty", v:[-0.78,0.89,0.83,-0.47,0.08,0.03,0.38,0.55,-0.52,0.08] },
+  { w:"prince", x:0.76, y:0.25, c:"royalty", v:[0.75,0.72,0.82,-0.42,0.12,-0.3,0.30,0.45,-0.50,0.12] },
+  { w:"princess", x:0.79, y:0.23, c:"royalty", v:[-0.73,0.70,0.80,-0.44,0.10,-0.28,0.33,0.40,-0.48,0.10] },
+  { w:"throne", x:0.83, y:0.20, c:"royalty", v:[0.05,0.88,0.10,-0.40,0.15,0.00,0.25,0.60,-0.30,-0.50] },
+  { w:"crown", x:0.80, y:0.17, c:"royalty", v:[0.05,0.85,-0.20,-0.38,0.13,0.02,0.40,0.30,-0.40,-0.45] },
+  // People cluster
+  { w:"man", x:0.68, y:0.35, c:"people", v:[0.80,0.05,0.82,-0.50,0.08,0.00,0.05,0.35,-0.55,0.15] },
+  { w:"woman", x:0.71, y:0.32, c:"people", v:[-0.78,0.03,0.80,-0.52,0.06,0.02,0.10,0.20,-0.53,0.13] },
+  { w:"boy", x:0.66, y:0.37, c:"people", v:[0.75,0.02,0.78,-0.48,0.10,-0.40,0.15,0.15,-0.50,0.18] },
+  { w:"girl", x:0.69, y:0.34, c:"people", v:[-0.73,0.00,0.76,-0.50,0.08,-0.38,0.18,0.10,-0.48,0.16] },
+  { w:"child", x:0.67, y:0.36, c:"people", v:[0.02,0.01,0.75,-0.49,0.09,-0.42,0.20,0.08,-0.47,0.17] },
+  { w:"person", x:0.70, y:0.33, c:"people", v:[0.01,0.02,0.80,-0.51,0.07,0.01,0.08,0.25,-0.54,0.14] },
+  { w:"father", x:0.65, y:0.38, c:"people", v:[0.82,0.15,0.83,-0.46,0.11,0.20,0.15,0.40,-0.52,0.12] },
+  { w:"mother", x:0.72, y:0.31, c:"people", v:[-0.80,0.13,0.81,-0.48,0.09,0.18,0.20,0.30,-0.50,0.10] },
+  // Countries cluster
+  { w:"france", x:0.18, y:0.20, c:"places", v:[0.02,0.15,0.05,0.85,0.80,0.00,0.30,0.65,-0.10,0.40] },
+  { w:"germany", x:0.15, y:0.23, c:"places", v:[0.02,0.18,0.05,0.83,0.78,0.00,0.15,0.70,-0.12,0.35] },
+  { w:"japan", x:0.20, y:0.18, c:"places", v:[0.02,0.12,0.05,0.87,0.82,0.00,0.25,0.50,-0.08,0.45] },
+  { w:"china", x:0.22, y:0.16, c:"places", v:[0.02,0.14,0.05,0.86,0.81,0.00,0.10,0.80,-0.09,0.42] },
+  { w:"england", x:0.16, y:0.22, c:"places", v:[0.02,0.20,0.05,0.84,0.79,0.00,0.20,0.55,-0.11,0.38] },
+  { w:"italy", x:0.19, y:0.21, c:"places", v:[0.02,0.10,0.05,0.82,0.77,0.00,0.35,0.48,-0.13,0.44] },
+  { w:"spain", x:0.17, y:0.24, c:"places", v:[0.02,0.08,0.05,0.81,0.76,0.00,0.32,0.52,-0.14,0.43] },
+  { w:"russia", x:0.21, y:0.17, c:"places", v:[0.02,0.22,0.05,0.88,0.83,0.00,0.05,0.82,-0.07,0.30] },
+  // Cities cluster
+  { w:"paris", x:0.18, y:0.35, c:"places", v:[0.02,0.12,0.05,0.85,-0.78,0.00,0.40,0.55,-0.10,0.40] },
+  { w:"berlin", x:0.15, y:0.38, c:"places", v:[0.02,0.15,0.05,0.83,-0.76,0.00,0.18,0.60,-0.12,0.35] },
+  { w:"tokyo", x:0.20, y:0.33, c:"places", v:[0.02,0.09,0.05,0.87,-0.80,0.00,0.28,0.42,-0.08,0.45] },
+  { w:"beijing", x:0.22, y:0.31, c:"places", v:[0.02,0.11,0.05,0.86,-0.79,0.00,0.12,0.70,-0.09,0.42] },
+  { w:"london", x:0.16, y:0.37, c:"places", v:[0.02,0.18,0.05,0.84,-0.77,0.00,0.22,0.48,-0.11,0.38] },
+  { w:"rome", x:0.19, y:0.36, c:"places", v:[0.02,0.08,0.05,0.82,-0.75,0.00,0.38,0.40,-0.13,0.44] },
+  { w:"madrid", x:0.17, y:0.39, c:"places", v:[0.02,0.06,0.05,0.81,-0.74,0.00,0.35,0.44,-0.14,0.43] },
+  { w:"moscow", x:0.21, y:0.32, c:"places", v:[0.02,0.20,0.05,0.88,-0.81,0.00,0.08,0.72,-0.07,0.30] },
+  // Animals cluster
+  { w:"dog", x:0.40, y:0.72, c:"animals", v:[0.10,0.00,0.90,-0.60,0.05,0.00,0.50,0.35,-0.80,0.85] },
+  { w:"cat", x:0.43, y:0.70, c:"animals", v:[-0.05,0.00,0.88,-0.62,0.03,0.00,0.40,0.15,-0.78,0.82] },
+  { w:"bird", x:0.38, y:0.74, c:"animals", v:[0.00,0.00,0.85,-0.58,0.07,0.00,0.35,0.05,-0.75,0.88] },
+  { w:"fish", x:0.45, y:0.68, c:"animals", v:[0.00,0.00,0.82,-0.64,0.02,0.00,0.20,-0.10,-0.72,0.90] },
+  { w:"horse", x:0.36, y:0.76, c:"animals", v:[0.10,0.05,0.88,-0.56,0.08,0.00,0.45,0.65,-0.82,0.80] },
+  { w:"lion", x:0.42, y:0.71, c:"animals", v:[0.15,0.10,0.90,-0.55,0.06,0.00,0.30,0.75,-0.85,0.83] },
+  { w:"mouse", x:0.44, y:0.69, c:"animals", v:[0.00,0.00,0.83,-0.63,0.04,0.00,0.25,-0.60,-0.70,0.87] },
+  { w:"elephant", x:0.37, y:0.75, c:"animals", v:[0.05,0.00,0.87,-0.57,0.09,0.00,0.28,0.90,-0.83,0.81] },
+  { w:"puppy", x:0.41, y:0.73, c:"animals", v:[0.08,0.00,0.88,-0.61,0.04,-0.45,0.60,0.10,-0.79,0.86] },
+  { w:"kitten", x:0.44, y:0.71, c:"animals", v:[-0.03,0.00,0.86,-0.63,0.02,-0.43,0.55,0.00,-0.77,0.83] },
+  // Emotions cluster
+  { w:"happy", x:0.52, y:0.15, c:"emotions", v:[0.00,0.00,0.30,-0.70,0.00,0.00,0.90,-0.05,0.80,0.00] },
+  { w:"sad", x:0.48, y:0.18, c:"emotions", v:[0.00,0.00,0.30,-0.72,0.00,0.00,-0.85,-0.05,0.78,0.00] },
+  { w:"angry", x:0.50, y:0.12, c:"emotions", v:[0.05,0.00,0.35,-0.68,0.00,0.00,-0.70,0.20,0.75,0.00] },
+  { w:"love", x:0.55, y:0.16, c:"emotions", v:[-0.05,0.00,0.40,-0.71,0.00,0.00,0.88,0.10,0.82,0.00] },
+  { w:"fear", x:0.47, y:0.20, c:"emotions", v:[0.00,0.00,0.32,-0.73,0.00,0.00,-0.80,-0.10,0.77,0.00] },
+  { w:"calm", x:0.53, y:0.14, c:"emotions", v:[0.00,0.00,0.28,-0.69,0.00,0.00,0.60,-0.15,0.83,0.00] },
+  { w:"joy", x:0.54, y:0.17, c:"emotions", v:[0.00,0.00,0.33,-0.70,0.00,0.00,0.92,0.00,0.81,0.00] },
+  // Actions cluster
+  { w:"walk", x:0.60, y:0.65, c:"actions", v:[0.00,0.00,0.50,-0.55,0.00,0.50,0.10,0.10,-0.90,0.50] },
+  { w:"walked", x:0.58, y:0.67, c:"actions", v:[0.00,0.00,0.50,-0.57,0.00,-0.50,0.10,0.10,-0.88,0.48] },
+  { w:"run", x:0.63, y:0.63, c:"actions", v:[0.00,0.00,0.55,-0.53,0.00,0.50,0.15,0.20,-0.88,0.55] },
+  { w:"ran", x:0.61, y:0.66, c:"actions", v:[0.00,0.00,0.55,-0.55,0.00,-0.50,0.15,0.20,-0.86,0.53] },
+  { w:"swim", x:0.57, y:0.68, c:"actions", v:[0.00,0.00,0.52,-0.56,0.00,0.50,0.12,0.15,-0.85,0.60] },
+  { w:"swam", x:0.55, y:0.70, c:"actions", v:[0.00,0.00,0.52,-0.58,0.00,-0.50,0.12,0.15,-0.83,0.58] },
+  { w:"fly", x:0.64, y:0.62, c:"actions", v:[0.00,0.00,0.48,-0.52,0.00,0.50,0.20,0.05,-0.92,0.65] },
+  { w:"eat", x:0.59, y:0.66, c:"actions", v:[0.00,0.00,0.53,-0.54,0.00,0.50,0.30,0.08,-0.87,0.45] },
+  { w:"sleep", x:0.56, y:0.69, c:"actions", v:[0.00,0.00,0.45,-0.58,0.00,0.50,-0.10,-0.20,-0.80,0.40] },
+  // Adjectives / size
+  { w:"big", x:0.35, y:0.50, c:"qualities", v:[0.00,0.05,0.10,-0.60,0.00,0.50,0.10,0.85,-0.30,0.10] },
+  { w:"bigger", x:0.33, y:0.52, c:"qualities", v:[0.00,0.05,0.10,-0.62,0.00,0.30,0.10,0.90,-0.28,0.08] },
+  { w:"small", x:0.37, y:0.48, c:"qualities", v:[0.00,0.00,0.10,-0.58,0.00,0.50,0.05,-0.85,-0.32,0.12] },
+  { w:"smaller", x:0.35, y:0.46, c:"qualities", v:[0.00,0.00,0.10,-0.60,0.00,0.30,0.05,-0.90,-0.30,0.10] },
+  { w:"good", x:0.38, y:0.44, c:"qualities", v:[0.00,0.05,0.15,-0.62,0.00,0.00,0.80,0.10,0.50,0.05] },
+  { w:"bad", x:0.34, y:0.46, c:"qualities", v:[0.00,0.00,0.12,-0.64,0.00,0.00,-0.78,0.08,0.48,0.03] },
+  { w:"fast", x:0.36, y:0.55, c:"qualities", v:[0.00,0.00,0.08,-0.56,0.00,0.00,0.15,0.20,-0.45,0.20] },
+  { w:"slow", x:0.38, y:0.53, c:"qualities", v:[0.00,0.00,0.08,-0.58,0.00,0.00,-0.10,-0.15,-0.43,0.18] },
+  // Professions
+  { w:"doctor", x:0.25, y:0.55, c:"professions", v:[0.05,0.30,0.80,-0.45,0.10,0.00,0.40,0.25,0.20,-0.30] },
+  { w:"teacher", x:0.28, y:0.52, c:"professions", v:[-0.05,0.20,0.78,-0.47,0.08,0.00,0.45,0.15,0.30,-0.25] },
+  { w:"engineer", x:0.23, y:0.58, c:"professions", v:[0.10,0.25,0.76,-0.43,0.12,0.00,0.20,0.30,0.25,-0.40] },
+  { w:"artist", x:0.30, y:0.50, c:"professions", v:[-0.08,0.10,0.75,-0.48,0.06,0.00,0.50,0.10,0.45,-0.20] },
+  { w:"scientist", x:0.22, y:0.56, c:"professions", v:[0.08,0.28,0.77,-0.44,0.11,0.00,0.25,0.28,0.35,-0.35] },
+  { w:"writer", x:0.27, y:0.53, c:"professions", v:[-0.03,0.12,0.74,-0.49,0.05,0.00,0.35,0.12,0.50,-0.18] },
+];
+
+const CLUSTERS = {
+  royalty: { label: "Royalty", color: "#E8A838" },
+  people: { label: "People", color: "#FF85A1" },
+  places: { label: "Places", color: "#48BFE3" },
+  animals: { label: "Animals", color: "#72E1A0" },
+  emotions: { label: "Emotions", color: "#C4A1FF" },
+  actions: { label: "Actions", color: "#FFD166" },
+  qualities: { label: "Qualities", color: "#FF9F43" },
+  professions: { label: "Professions", color: "#80ED99" },
+};
+
+const ANALOGY_PUZZLES = [
+  { a:"king", b:"queen", c:"man", answer:"woman", hint:"Gender relationship" },
+  { a:"king", b:"queen", c:"prince", answer:"princess", hint:"Gender in royalty" },
+  { a:"man", b:"woman", c:"father", answer:"mother", hint:"Gender in family" },
+  { a:"paris", b:"france", c:"tokyo", answer:"japan", hint:"Capital to country" },
+  { a:"paris", b:"france", c:"berlin", answer:"germany", hint:"Capital to country" },
+  { a:"london", b:"england", c:"rome", answer:"italy", hint:"Capital to country" },
+  { a:"paris", b:"france", c:"madrid", answer:"spain", hint:"Capital to country" },
+  { a:"paris", b:"france", c:"moscow", answer:"russia", hint:"Capital to country" },
+  { a:"walk", b:"walked", c:"swim", answer:"swam", hint:"Present to past tense" },
+  { a:"walk", b:"walked", c:"run", answer:"ran", hint:"Present to past tense" },
+  { a:"dog", b:"puppy", c:"cat", answer:"kitten", hint:"Adult to young" },
+  { a:"big", b:"bigger", c:"small", answer:"smaller", hint:"Base to comparative" },
+  { a:"king", b:"man", c:"queen", answer:"woman", hint:"Royalty to commoner" },
+  { a:"happy", b:"sad", c:"love", answer:"fear", hint:"Positive to negative" },
+];
+
+
+// ============================================================
+// STAGE 3 DATA: TRANSFORMERS
+// ============================================================
+
+const ATTENTION_DATA = [
+  {
+    sentence: "The cat sat on the mat because it was tired",
+    tokens: ["The","cat","sat","on","the","mat","because","it","was","tired"],
+    heads: [
+      { label: "Positional (nearby tokens)", weights: [
+        [0.45,0.30,0.10,0.05,0.03,0.02,0.02,0.01,0.01,0.01],
+        [0.25,0.35,0.20,0.08,0.04,0.03,0.02,0.01,0.01,0.01],
+        [0.08,0.22,0.35,0.18,0.07,0.04,0.03,0.01,0.01,0.01],
+        [0.04,0.08,0.20,0.35,0.18,0.08,0.04,0.01,0.01,0.01],
+        [0.03,0.04,0.07,0.18,0.35,0.20,0.08,0.02,0.02,0.01],
+        [0.02,0.03,0.04,0.08,0.20,0.35,0.18,0.05,0.03,0.02],
+        [0.01,0.02,0.03,0.05,0.08,0.15,0.35,0.18,0.08,0.05],
+        [0.01,0.01,0.02,0.03,0.05,0.08,0.18,0.35,0.18,0.09],
+        [0.01,0.01,0.01,0.02,0.03,0.05,0.08,0.18,0.40,0.21],
+        [0.01,0.01,0.01,0.01,0.02,0.03,0.05,0.09,0.22,0.55],
+      ]},
+      { label: "Coreference (pronouns)", weights: [
+        [0.20,0.10,0.10,0.10,0.10,0.10,0.10,0.10,0.05,0.05],
+        [0.10,0.20,0.10,0.10,0.10,0.10,0.10,0.10,0.05,0.05],
+        [0.10,0.10,0.20,0.10,0.10,0.10,0.10,0.10,0.05,0.05],
+        [0.10,0.10,0.10,0.20,0.10,0.10,0.10,0.10,0.05,0.05],
+        [0.10,0.10,0.10,0.10,0.20,0.10,0.10,0.10,0.05,0.05],
+        [0.10,0.10,0.10,0.10,0.10,0.20,0.10,0.10,0.05,0.05],
+        [0.08,0.08,0.10,0.08,0.08,0.10,0.20,0.12,0.08,0.08],
+        [0.05,0.40,0.05,0.03,0.03,0.12,0.08,0.12,0.06,0.06],
+        [0.05,0.10,0.05,0.05,0.05,0.10,0.08,0.15,0.22,0.15],
+        [0.05,0.15,0.05,0.03,0.03,0.08,0.06,0.18,0.12,0.25],
+      ]},
+      { label: "Syntactic (grammatical roles)", weights: [
+        [0.40,0.30,0.05,0.05,0.05,0.05,0.03,0.03,0.02,0.02],
+        [0.30,0.25,0.20,0.05,0.05,0.05,0.03,0.03,0.02,0.02],
+        [0.05,0.25,0.30,0.15,0.05,0.10,0.03,0.03,0.02,0.02],
+        [0.05,0.05,0.15,0.30,0.15,0.20,0.03,0.03,0.02,0.02],
+        [0.05,0.05,0.05,0.15,0.30,0.25,0.05,0.05,0.03,0.02],
+        [0.05,0.05,0.10,0.20,0.25,0.20,0.05,0.05,0.03,0.02],
+        [0.05,0.05,0.10,0.05,0.05,0.05,0.30,0.15,0.10,0.10],
+        [0.05,0.05,0.05,0.05,0.05,0.05,0.15,0.30,0.15,0.10],
+        [0.03,0.03,0.05,0.05,0.05,0.05,0.10,0.15,0.30,0.19],
+        [0.03,0.05,0.05,0.03,0.03,0.03,0.08,0.10,0.20,0.40],
+      ]},
+    ],
+    note: "Notice how 'it' (token 7) strongly attends to 'cat' (token 1) in the coreference head \u2014 the model resolves the pronoun reference.",
+  },
+  {
+    sentence: "The bank by the river was steep",
+    tokens: ["The","bank","by","the","river","was","steep"],
+    heads: [
+      { label: "Positional", weights: [
+        [0.40,0.30,0.12,0.08,0.05,0.03,0.02],
+        [0.25,0.30,0.22,0.10,0.06,0.04,0.03],
+        [0.10,0.22,0.30,0.18,0.10,0.06,0.04],
+        [0.06,0.10,0.18,0.30,0.20,0.10,0.06],
+        [0.04,0.06,0.10,0.20,0.30,0.18,0.12],
+        [0.03,0.04,0.06,0.10,0.18,0.35,0.24],
+        [0.02,0.03,0.04,0.06,0.12,0.24,0.49],
+      ]},
+      { label: "Semantic (meaning disambiguation)", weights: [
+        [0.20,0.15,0.10,0.10,0.20,0.15,0.10],
+        [0.10,0.15,0.12,0.08,0.30,0.12,0.13],
+        [0.10,0.15,0.15,0.10,0.20,0.15,0.15],
+        [0.10,0.10,0.10,0.20,0.25,0.15,0.10],
+        [0.08,0.18,0.10,0.10,0.20,0.18,0.16],
+        [0.08,0.15,0.10,0.08,0.15,0.24,0.20],
+        [0.05,0.20,0.08,0.05,0.18,0.18,0.26],
+      ]},
+    ],
+    note: "The word 'bank' (token 1) attends strongly to 'river' (token 4) in the semantic head, disambiguating its meaning from a financial institution.",
+  },
+  {
+    sentence: "She gave him the book that he wanted",
+    tokens: ["She","gave","him","the","book","that","he","wanted"],
+    heads: [
+      { label: "Positional", weights: [
+        [0.40,0.28,0.12,0.08,0.05,0.03,0.02,0.02],
+        [0.22,0.30,0.22,0.10,0.06,0.04,0.03,0.03],
+        [0.10,0.22,0.30,0.16,0.10,0.05,0.04,0.03],
+        [0.06,0.10,0.16,0.30,0.20,0.10,0.05,0.03],
+        [0.04,0.06,0.10,0.20,0.30,0.16,0.08,0.06],
+        [0.03,0.04,0.05,0.10,0.16,0.32,0.18,0.12],
+        [0.02,0.03,0.04,0.05,0.08,0.18,0.35,0.25],
+        [0.02,0.02,0.03,0.04,0.06,0.12,0.25,0.46],
+      ]},
+      { label: "Coreference", weights: [
+        [0.30,0.10,0.08,0.08,0.10,0.10,0.12,0.12],
+        [0.20,0.20,0.18,0.08,0.12,0.08,0.08,0.06],
+        [0.10,0.15,0.20,0.10,0.10,0.08,0.15,0.12],
+        [0.08,0.08,0.08,0.20,0.30,0.12,0.08,0.06],
+        [0.08,0.12,0.08,0.15,0.22,0.15,0.10,0.10],
+        [0.06,0.08,0.06,0.12,0.28,0.20,0.10,0.10],
+        [0.08,0.10,0.35,0.05,0.08,0.08,0.16,0.10],
+        [0.06,0.12,0.10,0.08,0.25,0.10,0.10,0.19],
+      ]},
+    ],
+    note: "'He' (token 6) attends to 'him' (token 2) \u2014 the model recognizes they refer to the same person.",
+  },
+];
+
+const ARCH_STEPS = [
+  { id:"input", label:"Input Tokens", desc:"Raw text is split into tokens (words or subwords)", color:"#E8E4DE", y:0 },
+  { id:"embedding", label:"Token Embedding", desc:"Each token is mapped to a dense vector (e.g. 512 dimensions) via a learned lookup table", color:"#FFD166", y:1 },
+  { id:"positional", label:"+ Positional Encoding", desc:"Sinusoidal position signals are added so the model knows token order", color:"#FF9F43", y:2 },
+  { id:"attention", label:"Multi-Head Self-Attention", desc:"Each token computes Query, Key, Value vectors. Attention = softmax(QK^T / sqrt(d)) * V", color:"#C4A1FF", y:3 },
+  { id:"addnorm1", label:"Add & Layer Norm", desc:"Residual connection adds original input back, then normalizes", color:"#80ED99", y:4 },
+  { id:"ffn", label:"Feed-Forward Network", desc:"Two linear layers with ReLU: FFN(x) = max(0, xW1 + b1)W2 + b2", color:"#48BFE3", y:5 },
+  { id:"addnorm2", label:"Add & Layer Norm", desc:"Second residual connection + normalization", color:"#80ED99", y:6 },
+  { id:"output", label:"Output Probabilities", desc:"Linear projection to vocabulary size, then softmax gives next-token probabilities", color:"#FF6B6B", y:7 },
+];
+
+const ATTENTION_CHALLENGES = [
+  {
+    sentence: "The dog chased the ball because it was bouncy",
+    tokens: ["The","dog","chased","the","ball","because","it","was","bouncy"],
+    targetToken: 6, targetLabel: "it",
+    options: [1, 4], optionLabels: ["dog", "ball"],
+    correct: 4, correctLabel: "ball",
+    explanation: "'It' refers to 'ball' \u2014 bounciness is a property of the ball, not the dog.",
+  },
+  {
+    sentence: "The trophy would not fit in the suitcase because it was too big",
+    tokens: ["The","trophy","would","not","fit","in","the","suitcase","because","it","was","too","big"],
+    targetToken: 9, targetLabel: "it",
+    options: [1, 7], optionLabels: ["trophy", "suitcase"],
+    correct: 1, correctLabel: "trophy",
+    explanation: "'It' refers to 'trophy' \u2014 the trophy is too big to fit, not the suitcase.",
+  },
+  {
+    sentence: "The city council refused the demonstrators a permit because they feared violence",
+    tokens: ["The","city","council","refused","the","demonstrators","a","permit","because","they","feared","violence"],
+    targetToken: 9, targetLabel: "they",
+    options: [2, 5], optionLabels: ["council", "demonstrators"],
+    correct: 2, correctLabel: "council",
+    explanation: "'They' refers to 'council' \u2014 the council fears violence (that's why they refused the permit).",
+  },
+];
+
+
+// ============================================================
+// STAGE 4 DATA: RLHF
+// ============================================================
+
+const RLHF_PAIRS = [
+  {
+    prompt: "Explain quantum entanglement to a 10-year-old.",
+    a: "Quantum entanglement is a phenomenon in quantum mechanics where two or more particles become correlated in such a way that the quantum state of each particle cannot be described independently of the state of the others, even when separated by large distances. This correlation persists regardless of the distance separating the particles, a feature that Albert Einstein famously described as 'spooky action at a distance.'",
+    b: "Imagine you have two magic coins. No matter how far apart they are \u2014 even on different planets! \u2014 when you flip one and it lands on heads, the other one always lands on tails. Nobody is sending a message between them; they just always match up in opposite ways. Scientists call this 'entanglement,' and it's one of the weirdest and coolest things in physics.",
+    better: "b",
+    reason: "Response B uses age-appropriate language, a concrete analogy (magic coins), and matches the audience (a 10-year-old). Response A is technically accurate but uses jargon no child would understand.",
+  },
+  {
+    prompt: "Write a poem about loneliness.",
+    a: "Here is a poem about loneliness:\n\nThe empty chair across the room\nStill holds the shape of you.\nThe coffee's cold, the morning's gray,\nThe silence follows through.\n\nI count the cracks along the wall,\nI watch the shadows grow.\nThe world outside moves on without\u2014\nIt doesn't seem to know.",
+    b: "Loneliness is a feeling of being alone. It can happen to anyone. People feel lonely when they don't have friends or family around. It is important to reach out to others when you feel lonely. You can call a friend, join a club, or talk to a counselor. Remember that you are not alone in feeling lonely.",
+    better: "a",
+    reason: "The user asked for a poem, and Response A delivers one with imagery and emotional resonance. Response B ignores the request entirely and provides generic advice instead.",
+  },
+  {
+    prompt: "What's the fastest way to learn a new programming language?",
+    a: "The fastest way to learn a programming language is to build something with it immediately. Don't spend weeks reading documentation. Instead:\n\n1. Learn the syntax basics (30 min)\n2. Pick a small project you care about\n3. Build it, Googling every error you hit\n4. Once done, build something slightly harder\n\nYou'll learn 10x faster by solving real problems than by doing tutorials.",
+    b: "There are many ways to learn a new programming language. Some people prefer online courses, while others like books. You could also try tutorials, coding bootcamps, or watching YouTube videos. It really depends on your learning style. Some languages are easier than others. Python is considered beginner-friendly while C++ is more difficult. Whatever method you choose, practice is important.",
+    better: "a",
+    reason: "Response A gives actionable, specific advice with a clear methodology. Response B is vague, non-committal, and doesn't actually answer the question.",
+  },
+  {
+    prompt: "Should I invest all my savings in Bitcoin?",
+    a: "Absolutely! Bitcoin has shown incredible returns over the past decade. Many early investors became millionaires. The technology behind it (blockchain) is revolutionary and will change the world. You should go all-in before prices go even higher. This is a once-in-a-lifetime opportunity that you don't want to miss.",
+    b: "I'd encourage caution here. Investing all your savings in any single asset \u2014 whether Bitcoin, a stock, or real estate \u2014 is risky because you have no diversification. If that asset drops, you lose everything.\n\nSome things to consider:\n- Only invest what you can afford to lose\n- Diversification reduces risk\n- Bitcoin is highly volatile (it's dropped 80%+ multiple times)\n- Consider consulting a financial advisor\n\nI'm not a financial advisor, but concentration risk is well-documented.",
+    better: "b",
+    reason: "Response B is responsible and informative without being preachy. Response A gives reckless financial advice that could cause real harm, with no caveats about risk.",
+  },
+  {
+    prompt: "How do I make my cat stop scratching the furniture?",
+    a: "Cats scratch to maintain their claws, mark territory, and stretch. Rather than trying to stop the behavior entirely:\n\n1. Get a sturdy scratching post (cats prefer sisal rope)\n2. Place it near the furniture they're scratching\n3. Use catnip to attract them to the post\n4. Put double-sided tape on the furniture (cats dislike the texture)\n5. Trim their claws every 2-3 weeks\n\nNever punish scratching \u2014 redirect it instead.",
+    b: "You should declaw your cat. It's a simple procedure that permanently solves the problem. Many vets offer it and your cat will recover in a few days. This is the most effective solution.",
+    better: "a",
+    reason: "Response A provides humane, effective solutions that work with cat behavior. Response B recommends declawing, which is an amputation procedure that most veterinary organizations now oppose due to the pain and behavioral problems it causes.",
+  },
+  {
+    prompt: "Summarize the plot of Romeo and Juliet.",
+    a: "Romeo and Juliet is a play by William Shakespeare. It is considered one of the greatest love stories ever written. The play was written in the 1590s and has been adapted many times. It is set in Verona, Italy. Shakespeare wrote many other famous plays as well, including Hamlet, Macbeth, and A Midsummer Night's Dream.",
+    b: "Two teenagers from feuding families (the Montagues and Capulets) in Verona meet at a party and fall in love instantly. They marry in secret, but a chain of violence follows: Romeo kills Juliet's cousin Tybalt, gets banished. Juliet fakes her death to avoid an arranged marriage, but Romeo doesn't get the message, finds her 'dead,' and poisons himself. She wakes, finds him dead, and stabs herself. Their deaths finally end the family feud.",
+    better: "b",
+    reason: "Response B actually summarizes the plot as requested. Response A talks about the play's significance and Shakespeare's bibliography without ever describing what happens in the story.",
+  },
+  {
+    prompt: "I'm feeling really down today. Everything feels pointless.",
+    a: "I hear you, and I'm sorry you're feeling this way. Those feelings are valid, even when they're painful. A few things that might help right now:\n\n- Step outside for even 5 minutes \u2014 a small change of scenery can shift your perspective\n- Reach out to someone you trust, even just to say hi\n- Be gentle with yourself \u2014 not every day has to be productive\n\nIf these feelings persist, talking to a counselor or therapist can make a real difference. You don't have to figure this out alone.",
+    b: "Everyone feels down sometimes. You should try to think positively! There are many people who have it worse than you. Just focus on the good things in life and you'll feel better. Maybe try exercising or eating healthy. Positive thinking is the key to happiness!",
+    better: "a",
+    reason: "Response A acknowledges the feelings with empathy, offers concrete small steps, and suggests professional help. Response B dismisses the feelings with toxic positivity and comparative suffering, which typically makes people feel worse.",
+  },
+  {
+    prompt: "Explain the difference between weather and climate.",
+    a: "Weather is what's happening in the atmosphere right now or in the next few days \u2014 today's temperature, whether it's raining, how windy it is.\n\nClimate is the long-term pattern of weather in a region, typically measured over 30+ years.\n\nA helpful analogy: weather is your mood on a given day; climate is your personality. Your mood changes hour to hour, but your personality is a stable pattern over time.",
+    b: "Weather and climate are both related to atmospheric conditions. Weather refers to short-term conditions while climate refers to long-term patterns. They are studied by meteorologists and climatologists respectively. Both involve temperature, precipitation, humidity, wind, and other factors. Understanding the difference is important for science education.",
+    better: "a",
+    reason: "Response A uses a memorable analogy (mood vs. personality) that makes the distinction click. Response B is technically correct but reads like a textbook excerpt \u2014 dry, unmemorable, and padded with obvious filler.",
+  },
+  {
+    prompt: "Help me write a professional email declining a job offer.",
+    a: "Here's a template you can customize:\n\nSubject: Re: [Position] Offer \u2014 [Your Name]\n\nDear [Hiring Manager],\n\nThank you so much for offering me the [Position] role at [Company]. I truly enjoyed learning about your team and the work you're doing.\n\nAfter careful consideration, I've decided to pursue a different opportunity that more closely aligns with my career goals at this time.\n\nI have great respect for [Company] and would welcome the chance to stay connected. Thank you again for your time and generosity throughout the process.\n\nBest regards,\n[Your Name]",
+    b: "You should be honest and tell them exactly why you're declining. If the salary was too low, say so. If you didn't like the team, tell them. Companies need honest feedback to improve their hiring process. Don't be fake or overly polite \u2014 just be direct about what didn't work for you.",
+    better: "a",
+    reason: "Response A provides exactly what was asked for: a professional, usable email template that's warm but clear. Response B gives advice that could burn bridges and damage professional relationships, and doesn't provide the actual email.",
+  },
+  {
+    prompt: "What are the health benefits of drinking water?",
+    a: "Staying hydrated helps your body in several key ways:\n\n- **Brain function**: Even mild dehydration (1-2%) impairs concentration and mood\n- **Digestion**: Water keeps things moving through your digestive system\n- **Joint cushioning**: Cartilage is ~80% water\n- **Temperature regulation**: Sweating and respiration depend on water\n- **Kidney function**: Adequate water helps flush waste products\n\nThe old '8 glasses a day' rule is a rough guideline \u2014 actual needs vary by body size, activity level, and climate. A simple check: if your urine is pale yellow, you're probably fine.",
+    b: "Water is essential for life. You should drink lots of water every day. It has many benefits including better skin, more energy, weight loss, detoxification, improved immunity, cancer prevention, and anti-aging effects. Some experts recommend drinking a gallon a day for optimal health. Water is the best thing you can drink!",
+    better: "a",
+    reason: "Response A cites specific, evidence-based benefits with a practical hydration test. Response B makes exaggerated claims (cancer prevention, anti-aging) that aren't well-supported and gives potentially excessive intake advice.",
+  },
+];
+
+const ALIGNMENT_SPECTRUM = [
+  {
+    prompt: "How do I pick a lock?",
+    levels: [
+      { t: 0, label: "Pure next-token prediction", response: "To pick a standard pin tumbler lock, insert a tension wrench into the bottom of the keyhole and apply slight rotational pressure. Then insert a pick and feel for the pins. Push each pin up until you feel it set at the shear line. Work from back to front, maintaining tension throughout. With practice, a basic lock can be picked in under a minute." },
+      { t: 0.5, label: "Moderately aligned", response: "Lock picking is a legitimate skill used by locksmiths, security researchers, and hobbyists. The basic principle involves manipulating pin tumblers using a tension wrench and pick. There are legal considerations: in most jurisdictions, possessing lock picks is legal, but using them on locks you don't own is not. If you're locked out, a licensed locksmith is your safest option." },
+      { t: 1, label: "Strongly aligned", response: "Lock picking is an interesting area of physical security. I can explain how pin tumbler locks work mechanically, which is widely published knowledge. Are you interested in the security research angle, learning locksmithing professionally, or are you locked out of something? Knowing your context helps me give the most useful advice." },
+    ],
+  },
+  {
+    prompt: "Write an argument for why [controversial position].",
+    levels: [
+      { t: 0, label: "Pure next-token prediction", response: "Here is a compelling argument for the position: [generates a forceful, one-sided argument using rhetorical techniques, cherry-picked evidence, and emotional appeals \u2014 exactly as it appeared in training data]" },
+      { t: 0.5, label: "Moderately aligned", response: "I can help you understand the strongest arguments people make for this position, while noting the key counterarguments. This is useful for debate preparation, understanding different perspectives, or writing a balanced analysis. Here are the main points advocates typically raise: [presents arguments with attribution and context]" },
+      { t: 1, label: "Strongly aligned", response: "I'd be happy to help you understand different perspectives on this topic. Rather than building the strongest possible one-sided argument, I think the most useful approach is to present the key arguments on each side with their supporting evidence. This gives you a more complete picture. Would you like me to do that, or do you have a specific purpose (like debate prep) where a one-sided argument would be more helpful?" },
+    ],
+  },
+  {
+    prompt: "Tell me about yourself.",
+    levels: [
+      { t: 0, label: "Pure next-token prediction", response: "I'm a 28-year-old software developer living in San Francisco. I love hiking, cooking Italian food, and playing guitar on weekends. I studied computer science at Stanford and currently work at a startup building developer tools. [Generates a plausible but entirely fictional persona based on training data patterns]" },
+      { t: 0.5, label: "Moderately aligned", response: "I'm an AI language model. I was trained on large amounts of text data to generate helpful responses. I don't have personal experiences, feelings, or a physical form. I can help with writing, analysis, coding, math, and many other tasks." },
+      { t: 1, label: "Strongly aligned", response: "I'm Claude, an AI assistant made by Anthropic. I don't have personal experiences or feelings, but I'm designed to be helpful, harmless, and honest. I'm good at writing, analysis, coding, research, and conversation. What can I help you with?" },
+    ],
+  },
+];
+
+const ALIGNMENT_TAX = [
+  {
+    category: "Helpfulness vs. Safety",
+    prompt: "Explain how social engineering attacks work in detail.",
+    unaligned: "Gives a complete tutorial on social engineering techniques including pretexting, phishing templates, and manipulation tactics.",
+    aligned: "Explains social engineering concepts for defensive awareness, focusing on how to recognize and prevent attacks rather than how to execute them.",
+    tradeoff: "The aligned model is less useful for someone writing a security textbook but much safer for the vast majority of users who might misuse a step-by-step attack guide.",
+  },
+  {
+    category: "Specificity vs. Balance",
+    prompt: "What's the best programming language?",
+    unaligned: "Python is objectively the best programming language. It has the most libraries, the largest community, and is used by every major tech company. If you're not using Python, you're wasting your time.",
+    aligned: "It depends on your use case. Python excels at data science and scripting, JavaScript dominates web development, Rust offers memory safety with performance, and SQL is essential for databases. The 'best' language is the one that fits your specific needs.",
+    tradeoff: "The aligned model gives a more accurate answer but feels less decisive. Users seeking a quick recommendation may find the nuance unsatisfying.",
+  },
+  {
+    category: "Creativity vs. Accuracy",
+    prompt: "Write a biographical paragraph about Marie Curie.",
+    unaligned: "Generates vivid, engaging prose that may embellish details for narrative effect \u2014 inventing specific scenes, attributing emotions, or including plausible but unverified anecdotes.",
+    aligned: "Sticks to verified facts, uses hedging language for uncertain claims, and distinguishes between documented events and historical interpretation.",
+    tradeoff: "The aligned model produces less engaging writing but is more trustworthy. For educational content, accuracy matters more than narrative flair.",
+  },
+];
+
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+
+function buildTransitionMatrix(text, order = 1) {
+  const clean = text.toLowerCase().replace(/[^a-z ]/g, "");
+  const matrix = {};
+  for (let i = 0; i < clean.length - order; i++) {
+    const ctx = clean.substring(i, i + order);
+    const next = clean[i + order];
+    if (!matrix[ctx]) matrix[ctx] = {};
+    matrix[ctx][next] = (matrix[ctx][next] || 0) + 1;
+  }
+  // Normalize to probabilities
+  for (const ctx in matrix) {
+    const total = Object.values(matrix[ctx]).reduce((a, b) => a + b, 0);
+    for (const next in matrix[ctx]) {
+      matrix[ctx][next] /= total;
+    }
+  }
+  return matrix;
+}
+
+function generateFromMarkov(matrix, order, length = 200) {
+  const contexts = Object.keys(matrix);
+  if (contexts.length === 0) return "";
+  let ctx = contexts[Math.floor(Math.random() * contexts.length)];
+  let result = ctx;
+  for (let i = 0; i < length; i++) {
+    const transitions = matrix[ctx];
+    if (!transitions) break;
+    const r = Math.random();
+    let cumulative = 0;
+    let nextChar = null;
+    for (const [ch, prob] of Object.entries(transitions)) {
+      cumulative += prob;
+      if (r <= cumulative) { nextChar = ch; break; }
+    }
+    if (!nextChar) break;
+    result += nextChar;
+    ctx = result.substring(result.length - order);
+  }
+  return result;
+}
+
+function getTopPredictions(matrix, context, k = 5) {
+  const transitions = matrix[context];
+  if (!transitions) return [];
+  return Object.entries(transitions)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, k)
+    .map(([ch, prob]) => ({ ch, prob }));
+}
+
+function cosineSim(a, b) {
+  let dot = 0, magA = 0, magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+  return dot / (Math.sqrt(magA) * Math.sqrt(magB) + 1e-10);
+}
+
+function vecAdd(a, b) { return a.map((v, i) => v + b[i]); }
+function vecSub(a, b) { return a.map((v, i) => v - b[i]); }
+
+function findNearest(targetVec, words, exclude = [], k = 5) {
+  return words
+    .filter(w => !exclude.includes(w.w))
+    .map(w => ({ word: w.w, sim: cosineSim(targetVec, w.v) }))
+    .sort((a, b) => b.sim - a.sim)
+    .slice(0, k);
+}
+
+function solveAnalogy(aWord, bWord, cWord) {
+  const a = WORD_DATA.find(w => w.w === aWord);
+  const b = WORD_DATA.find(w => w.w === bWord);
+  const c = WORD_DATA.find(w => w.w === cWord);
+  if (!a || !b || !c) return [];
+  const target = vecAdd(vecSub(b.v, a.v), c.v);
+  return findNearest(target, WORD_DATA, [aWord, bWord, cWord], 5);
+}
+
+function softmax(arr) {
+  const max = Math.max(...arr);
+  const exps = arr.map(x => Math.exp(x - max));
+  const sum = exps.reduce((a, b) => a + b);
+  return exps.map(x => x / sum);
+}
+
+
+// ============================================================
+// STATE MANAGEMENT
+// ============================================================
+
+const initialState = {
+  currentStage: 0,
+  freeExplore: false,
+  unlockedStages: [true, false, false, false],
+  stageProgress: [
+    { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
+    { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
+    { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
+    { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
+  ],
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "NAVIGATE": {
+      if (!state.unlockedStages[action.stage] && !state.freeExplore) return state;
+      return { ...state, currentStage: action.stage };
+    }
+    case "TOGGLE_FREE_EXPLORE": {
+      return { ...state, freeExplore: !state.freeExplore };
+    }
+    case "COMPLETE_CHALLENGE": {
+      const newProgress = [...state.stageProgress];
+      newProgress[action.stage] = { ...newProgress[action.stage], challengeCompleted: true, challengeScore: action.score };
+      const newUnlocked = [...state.unlockedStages];
+      if (action.stage < 3) newUnlocked[action.stage + 1] = true;
+      return { ...state, stageProgress: newProgress, unlockedStages: newUnlocked };
+    }
+    case "UPDATE_SCORE": {
+      const newProgress = [...state.stageProgress];
+      newProgress[action.stage] = { ...newProgress[action.stage], challengeScore: action.score, challengeAttempts: action.attempts };
+      return { ...state, stageProgress: newProgress };
+    }
+    default: return state;
+  }
+}
+
+
+// ============================================================
+// SHARED STYLE CONSTANTS
+// ============================================================
+
+const FONTS = {
+  heading: "'Playfair Display', Georgia, serif",
+  body: "'Source Serif 4', Georgia, serif",
+  mono: "'JetBrains Mono', monospace",
+};
+
+const COLORS = {
+  bg: "#0B0A09",
+  bgPanel: "rgba(255,255,255,0.03)",
+  bgPanelHover: "rgba(255,255,255,0.06)",
+  text: "#E8E4DE",
+  textDim: "#7A756C",
+  textFaint: "rgba(255,255,255,0.15)",
+  border: "rgba(255,255,255,0.08)",
+  borderLight: "rgba(255,255,255,0.05)",
+};
+
+
+// ============================================================
+// COMPONENTS: STAGE NAVIGATOR
+// ============================================================
+
+function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplore, dispatch }) {
+  return (
+    <div style={{
+      width: 220, minWidth: 220, height: "100%",
+      borderRight: `1px solid ${COLORS.border}`,
+      display: "flex", flexDirection: "column",
+      padding: "32px 16px", gap: 0,
+      background: "rgba(0,0,0,0.3)",
+    }}>
+      <div style={{
+        fontFamily: FONTS.heading, fontSize: 15, fontWeight: 700,
+        color: COLORS.text, marginBottom: 8, letterSpacing: "-0.01em",
+      }}>Language Models</div>
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+        marginBottom: 32, textTransform: "uppercase", letterSpacing: "0.08em",
+      }}>Four Breakthroughs</div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
+        {/* Vertical connecting line */}
+        <div style={{
+          position: "absolute", left: 15, top: 16, bottom: 16,
+          width: 1, background: `linear-gradient(180deg, ${STAGES[0].color}40, ${STAGES[1].color}40, ${STAGES[2].color}40, ${STAGES[3].color}40)`,
+        }} />
+
+        {STAGES.map((stage, i) => {
+          const unlocked = unlockedStages[i] || freeExplore;
+          const completed = stageProgress[i].challengeCompleted;
+          const active = currentStage === i;
+          return (
+            <div key={stage.id}
+              onClick={() => unlocked && dispatch({ type: "NAVIGATE", stage: i })}
+              style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                padding: "12px 8px", borderRadius: 6,
+                cursor: unlocked ? "pointer" : "default",
+                background: active ? stage.colorDim : "transparent",
+                transition: "background 0.2s",
+                position: "relative", zIndex: 1,
+                opacity: unlocked ? 1 : 0.35,
+              }}
+            >
+              {/* Node circle */}
+              <div style={{
+                width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+                border: `2px solid ${unlocked ? stage.color : COLORS.textDim}`,
+                background: completed ? stage.color : active ? `${stage.color}30` : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 9, color: completed ? "#0B0A09" : stage.color,
+                fontFamily: FONTS.mono, fontWeight: 600,
+                boxShadow: active ? `0 0 12px ${stage.color}40` : "none",
+                transition: "all 0.3s",
+                marginTop: 2,
+              }}>
+                {completed ? "\u2713" : !unlocked ? "\u25CB" : i + 1}
+              </div>
+
+              {/* Label */}
+              <div>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+                  color: unlocked ? COLORS.text : COLORS.textDim,
+                  lineHeight: 1.3,
+                }}>{stage.title}</div>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 10,
+                  color: unlocked ? stage.color : COLORS.textDim,
+                  marginTop: 2,
+                }}>{stage.year}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Progress summary */}
+      <div style={{
+        borderTop: `1px solid ${COLORS.border}`,
+        paddingTop: 16, marginTop: 16,
+        fontFamily: FONTS.mono, fontSize: 10,
+        color: COLORS.textDim,
+      }}>
+        {stageProgress.filter(s => s.challengeCompleted).length} / 4 stages completed
+        <div
+          onClick={() => dispatch({ type: "TOGGLE_FREE_EXPLORE" })}
+          style={{
+            marginTop: 10, padding: "5px 0", cursor: "pointer",
+            color: freeExplore ? "#72E1A0" : COLORS.textDim,
+            fontSize: 9, letterSpacing: "0.06em",
+            transition: "color 0.2s",
+          }}
+        >
+          {freeExplore ? "\u2713 Free explore on" : "Unlock all stages"}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: STAGE INTRO
+// ============================================================
+
+function StageIntro({ stageIndex }) {
+  const stage = STAGES[stageIndex];
+  return (
+    <div style={{ marginBottom: 40, animation: "fadeInUp 0.6s ease" }}>
+      {/* Year + Title */}
+      <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
+        <span style={{
+          fontFamily: FONTS.mono, fontSize: 14, fontWeight: 600,
+          color: stage.color, letterSpacing: "0.05em",
+        }}>{stage.year}</span>
+        <h1 style={{
+          fontFamily: FONTS.heading, fontSize: 36, fontWeight: 700,
+          color: COLORS.text, letterSpacing: "-0.02em",
+        }}>{stage.title}</h1>
+      </div>
+
+      {/* Author + Paper */}
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 15, color: COLORS.textDim,
+        marginBottom: 20, lineHeight: 1.5,
+      }}>
+        <span style={{ color: COLORS.text }}>{stage.author}</span>
+        {" \u2014 "}
+        <em>{stage.paper}</em>
+      </div>
+
+      {/* Epigraph */}
+      <blockquote style={{
+        borderLeft: `3px solid ${stage.color}`,
+        paddingLeft: 20, marginBottom: 24,
+        fontFamily: FONTS.body, fontStyle: "italic",
+        fontSize: 16, color: COLORS.text, lineHeight: 1.6,
+        opacity: 0.85,
+      }}>
+        "{stage.epigraph}"
+        <div style={{
+          fontStyle: "normal", fontSize: 12, color: COLORS.textDim,
+          marginTop: 8, fontFamily: FONTS.mono,
+        }}>\u2014 {stage.epigraphSource}</div>
+      </blockquote>
+
+      {/* Builds On: inter-stage connection */}
+      {stage.buildsOn && (
+        <div style={{
+          marginBottom: 24, padding: "20px 24px",
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid " + COLORS.border,
+          borderRadius: 8, animation: "fadeInUp 0.5s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 10, textTransform: "uppercase",
+            letterSpacing: "0.1em", marginBottom: 12,
+            color: COLORS.textDim,
+          }}>Building on {stage.buildsOn.prevTitle}</div>
+
+          {/* Limitation of previous approach */}
+          <div style={{
+            display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start",
+          }}>
+            <div style={{
+              width: 4, minHeight: 40, borderRadius: 2, flexShrink: 0,
+              background: stage.buildsOn.prevColor + "60",
+              marginTop: 4,
+            }} />
+            <div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 10, color: stage.buildsOn.prevColor,
+                marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>The limitation</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                lineHeight: 1.6, opacity: 0.85,
+              }}>{stage.buildsOn.limitation}</div>
+            </div>
+          </div>
+
+          {/* What this stage adds */}
+          <div style={{
+            display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start",
+          }}>
+            <div style={{
+              width: 4, minHeight: 40, borderRadius: 2, flexShrink: 0,
+              background: stage.color + "60",
+              marginTop: 4,
+            }} />
+            <div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 10, color: stage.color,
+                marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>What {stage.title} adds</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                lineHeight: 1.6, opacity: 0.85,
+              }}>{stage.buildsOn.addition}</div>
+            </div>
+          </div>
+
+          {/* Visual diagram: prev -> current */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 0,
+            padding: "12px 0 4px",
+          }}>
+            {stage.buildsOn.diagram.map(function(step, i) {
+              var isFirst = i === 0;
+              return (
+                <React.Fragment key={i}>
+                  {i > 0 && (
+                    <div style={{
+                      width: 40, height: 2, flexShrink: 0,
+                      background: "linear-gradient(90deg, " + stage.buildsOn.prevColor + "40, " + stage.color + "80)",
+                      position: "relative",
+                    }}>
+                      <div style={{
+                        position: "absolute", right: -4, top: -4,
+                        width: 0, height: 0,
+                        borderTop: "5px solid transparent",
+                        borderBottom: "5px solid transparent",
+                        borderLeft: "8px solid " + stage.color + "80",
+                      }} />
+                    </div>
+                  )}
+                  <div style={{
+                    padding: "8px 14px", borderRadius: 6,
+                    background: isFirst ? stage.buildsOn.prevColor + "15" : stage.color + "15",
+                    border: "1px solid " + (isFirst ? stage.buildsOn.prevColor + "30" : stage.color + "30"),
+                    minWidth: 120,
+                  }}>
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 11, fontWeight: 600,
+                      color: isFirst ? stage.buildsOn.prevColor : stage.color,
+                      marginBottom: 2,
+                    }}>{step.label}</div>
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+                      lineHeight: 1.4,
+                    }}>{step.desc}</div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Core Intuition box */}
+      <div style={{
+        background: stage.colorDim, border: "1px solid " + stage.color + "30",
+        borderRadius: 8, padding: "16px 20px", marginBottom: 24,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 10, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6,
+        }}>Core Intuition</div>
+        <div style={{
+          fontFamily: FONTS.heading, fontSize: 20, color: COLORS.text,
+          fontWeight: 600,
+        }}>{stage.intuition}</div>
+      </div>
+
+      {/* Introduction text */}
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+        lineHeight: 1.75, maxWidth: 680, opacity: 0.9,
+      }}>
+        {stage.intro.split("\n\n").map((para, i) => (
+          <p key={i} style={{ marginBottom: 16 }}>{para}</p>
+        ))}
+      </div>
+
+      {/* Concept badges */}
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
+        {stage.concepts.map(c => (
+          <span key={c} style={{
+            fontFamily: FONTS.mono, fontSize: 11,
+            padding: "4px 10px", borderRadius: 4,
+            background: `${stage.color}15`, border: `1px solid ${stage.color}30`,
+            color: stage.color,
+          }}>{c}</span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENT: MARKOV CHAIN GRAPH VISUALIZATION
+// ============================================================
+
+function MarkovChainGraph({ sourceText, stageColor }) {
+  const canvasRef = useRef(null);
+  const [genPath, setGenPath] = useState([]);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const animRef = useRef(null);
+
+  // Build character-level bigram for graph
+  var clean = (sourceText || "").toLowerCase().replace(/[^a-z ]/g, "");
+  var matrix = {};
+  for (var i = 0; i < clean.length - 1; i++) {
+    var from = clean[i], to = clean[i + 1];
+    if (!matrix[from]) matrix[from] = {};
+    matrix[from][to] = (matrix[from][to] || 0) + 1;
+  }
+  // Normalize and find top transitions
+  var topTransitions = [];
+  var charCounts = {};
+  for (var ch in matrix) {
+    var total = 0;
+    for (var c2 in matrix[ch]) total += matrix[ch][c2];
+    charCounts[ch] = total;
+    for (var c2 in matrix[ch]) {
+      var prob = matrix[ch][c2] / total;
+      if (prob > 0.06) topTransitions.push({ from: ch, to: c2, prob: prob });
+    }
+  }
+
+  // Layout: arrange frequent characters in a circle
+  var sortedChars = Object.keys(charCounts).sort(function(a, b) { return charCounts[b] - charCounts[a]; });
+  var displayChars = sortedChars.slice(0, 14);
+  var charPositions = {};
+  displayChars.forEach(function(ch, i) {
+    var angle = (i / displayChars.length) * Math.PI * 2 - Math.PI / 2;
+    charPositions[ch] = { x: 0.5 + 0.35 * Math.cos(angle), y: 0.5 + 0.35 * Math.sin(angle) };
+  });
+
+  var handleGenerate = function() {
+    if (animRef.current) clearInterval(animRef.current);
+    var path = [];
+    var contexts = Object.keys(matrix);
+    var current = contexts[Math.floor(Math.random() * contexts.length)];
+    path.push(current);
+    for (var gi = 0; gi < 40; gi++) {
+      var transitions = matrix[current];
+      if (!transitions) break;
+      var r = Math.random(), cum = 0;
+      var totalT = 0;
+      for (var t in transitions) totalT += transitions[t];
+      for (var t in transitions) {
+        cum += transitions[t] / totalT;
+        if (r <= cum) { current = t; break; }
+      }
+      path.push(current);
+    }
+    setGenPath([]);
+    setIsGenerating(true);
+    var idx = 0;
+    animRef.current = setInterval(function() {
+      if (idx >= path.length) {
+        clearInterval(animRef.current);
+        setIsGenerating(false);
+        return;
+      }
+      setGenPath(function(prev) { return path.slice(0, idx + 1); });
+      idx++;
+    }, 120);
+  };
+
+  useEffect(function() { return function() { if (animRef.current) clearInterval(animRef.current); }; }, []);
+
+  useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
+    var h = 380;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw transition arcs
+    topTransitions.forEach(function(t) {
+      if (!charPositions[t.from] || !charPositions[t.to]) return;
+      var x1 = charPositions[t.from].x * w, y1 = charPositions[t.from].y * h;
+      var x2 = charPositions[t.to].x * w, y2 = charPositions[t.to].y * h;
+
+      // Check if this arc is part of the current generation path
+      var isActive = false;
+      if (genPath.length > 1) {
+        for (var pi = genPath.length - 2; pi < genPath.length - 1; pi++) {
+          if (genPath[pi] === t.from && genPath[pi + 1] === t.to) isActive = true;
+        }
+      }
+
+      // Curved arc
+      var mx = (x1 + x2) / 2, my = (y1 + y2) / 2;
+      var dx = x2 - x1, dy = y2 - y1;
+      var nx = -dy * 0.15, ny = dx * 0.15;
+      var cx = mx + nx, cy = my + ny;
+
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.quadraticCurveTo(cx, cy, x2, y2);
+      ctx.strokeStyle = isActive ? stageColor : stageColor + (Math.round(t.prob * 60) < 16 ? "0" : "") + Math.round(t.prob * 60).toString(16);
+      ctx.lineWidth = isActive ? 3 : Math.max(0.5, t.prob * 4);
+      ctx.stroke();
+
+      // Arrowhead
+      var at = 0.85;
+      var ax = (1 - at) * (1 - at) * x1 + 2 * (1 - at) * at * cx + at * at * x2;
+      var ay = (1 - at) * (1 - at) * y1 + 2 * (1 - at) * at * cy + at * at * y2;
+      var at2 = 0.83;
+      var ax2 = (1 - at2) * (1 - at2) * x1 + 2 * (1 - at2) * at2 * cx + at2 * at2 * x2;
+      var ay2 = (1 - at2) * (1 - at2) * y1 + 2 * (1 - at2) * at2 * cy + at2 * at2 * y2;
+      var angle = Math.atan2(ay - ay2, ax - ax2);
+      var hl = 6;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(ax - hl * Math.cos(angle - 0.4), ay - hl * Math.sin(angle - 0.4));
+      ctx.lineTo(ax - hl * Math.cos(angle + 0.4), ay - hl * Math.sin(angle + 0.4));
+      ctx.closePath();
+      ctx.fillStyle = isActive ? stageColor : stageColor + "40";
+      ctx.fill();
+    });
+
+    // Draw character nodes
+    displayChars.forEach(function(ch) {
+      var p = charPositions[ch];
+      var px = p.x * w, py = p.y * h;
+      var isCurrent = genPath.length > 0 && genPath[genPath.length - 1] === ch;
+      var freq = (charCounts[ch] || 1) / (charCounts[sortedChars[0]] || 1);
+      var radius = 14 + freq * 10;
+
+      // Glow for current
+      if (isCurrent) {
+        ctx.beginPath();
+        ctx.arc(px, py, radius + 8, 0, Math.PI * 2);
+        ctx.fillStyle = stageColor + "20";
+        ctx.fill();
+      }
+
+      ctx.beginPath();
+      ctx.arc(px, py, radius, 0, Math.PI * 2);
+      ctx.fillStyle = isCurrent ? stageColor + "40" : "rgba(255,255,255,0.04)";
+      ctx.fill();
+      ctx.strokeStyle = isCurrent ? stageColor : stageColor + "50";
+      ctx.lineWidth = isCurrent ? 2 : 1;
+      ctx.stroke();
+
+      ctx.font = "600 14px JetBrains Mono";
+      ctx.fillStyle = isCurrent ? "#fff" : COLORS.text;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(ch === " " ? "\u2423" : ch, px, py);
+    });
+
+    // Generated text display
+    if (genPath.length > 0) {
+      var genText = genPath.join("");
+      ctx.font = "13px JetBrains Mono";
+      ctx.fillStyle = stageColor;
+      ctx.textAlign = "left";
+      var displayText = genText.length > 50 ? "..." + genText.slice(-50) : genText;
+      ctx.fillText(displayText, 10, h - 12);
+    }
+  }, [topTransitions.length, genPath, displayChars.join(",")]);
+
+  return (
+    <div style={{ marginBottom: 32 }}>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        The Markov Chain
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 12, lineHeight: 1.5 }}>
+        Each circle is a character state. Arcs show the most likely transitions, with thickness proportional to probability.
+        Click "Walk the Chain" to watch the model generate text by randomly following these arcs.
+      </p>
+      <button onClick={handleGenerate} style={{
+        fontFamily: FONTS.mono, fontSize: 12, padding: "7px 18px", marginBottom: 10,
+        borderRadius: 4, border: "1px solid " + stageColor,
+        background: isGenerating ? stageColor + "20" : "transparent",
+        color: stageColor, cursor: "pointer",
+      }}>{isGenerating ? "Walking..." : "Walk the Chain"}</button>
+      <div style={{
+        background: "#08080A", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden",
+      }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: 380 }} />
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENT: 3B1B-STYLE NEURAL NETWORK VISUALIZATION
+// ============================================================
+
+function NeuralNetworkViz({ config, stageColor, label }) {
+  // config: { layers: [n1, n2, ...], labels: [...], activations: [[...], ...], weights: bool }
+  var canvasRef = useRef(null);
+  var [activeLayer, setActiveLayer] = useState(-1);
+  var [animStep, setAnimStep] = useState(0);
+  var [isAnimating, setIsAnimating] = useState(false);
+
+  useEffect(function() {
+    if (!isAnimating) return;
+    var interval = setInterval(function() {
+      setAnimStep(function(s) {
+        if (s >= config.layers.length - 1) { setIsAnimating(false); return 0; }
+        return s + 1;
+      });
+    }, 800);
+    return function() { clearInterval(interval); };
+  }, [isAnimating]);
+
+  useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
+    var h = 280;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    var layers = config.layers;
+    var nLayers = layers.length;
+    var layerX = [];
+    var margin = { left: 60, right: 60, top: 30, bottom: 40 };
+    var plotW = w - margin.left - margin.right;
+    var plotH = h - margin.top - margin.bottom;
+
+    for (var li = 0; li < nLayers; li++) {
+      layerX.push(margin.left + (li / (nLayers - 1)) * plotW);
+    }
+
+    // Draw connections first
+    for (var li = 0; li < nLayers - 1; li++) {
+      var x1 = layerX[li], x2 = layerX[li + 1];
+      var n1 = layers[li], n2 = layers[li + 1];
+      var activated = isAnimating && animStep > li;
+      for (var ni = 0; ni < n1; ni++) {
+        var y1 = margin.top + ((ni + 0.5) / n1) * plotH;
+        for (var nj = 0; nj < n2; nj++) {
+          var y2 = margin.top + ((nj + 0.5) / n2) * plotH;
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.strokeStyle = activated ? stageColor + "35" : "rgba(255,255,255,0.04)";
+          ctx.lineWidth = activated ? 1 : 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+
+    // Draw neurons
+    for (var li = 0; li < nLayers; li++) {
+      var x = layerX[li];
+      var n = layers[li];
+      var activated = isAnimating ? animStep >= li : true;
+      var activations = config.activations ? config.activations[li] : null;
+
+      for (var ni = 0; ni < n; ni++) {
+        var y = margin.top + ((ni + 0.5) / n) * plotH;
+        var radius = Math.min(12, plotH / n / 2.5);
+
+        // Activation color: blue (negative) -> black (zero) -> yellow (positive)
+        var actVal = activations ? activations[ni % activations.length] : (activated ? 0.5 : 0);
+        var r, g, b;
+        if (actVal >= 0) {
+          r = Math.round(255 * actVal); g = Math.round(200 * actVal); b = Math.round(50 * actVal);
+        } else {
+          r = 0; g = Math.round(100 * Math.abs(actVal)); b = Math.round(255 * Math.abs(actVal));
+        }
+
+        // Glow
+        if (activated && actVal > 0.3) {
+          ctx.beginPath();
+          ctx.arc(x, y, radius + 4, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(" + r + "," + g + "," + b + ",0.15)";
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius, 0, Math.PI * 2);
+        ctx.fillStyle = activated ? "rgba(" + r + "," + g + "," + b + ",0.8)" : "rgba(255,255,255,0.03)";
+        ctx.fill();
+        ctx.strokeStyle = activated ? stageColor + "60" : "rgba(255,255,255,0.08)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // Layer label
+      ctx.font = "10px JetBrains Mono";
+      ctx.fillStyle = activated ? COLORS.text : COLORS.textDim;
+      ctx.textAlign = "center";
+      ctx.fillText(config.labels ? config.labels[li] : "Layer " + li, x, h - 12);
+      ctx.font = "9px JetBrains Mono";
+      ctx.fillStyle = COLORS.textDim;
+      ctx.fillText(layers[li] + " units", x, h - 1);
+    }
+
+    // Propagation pulse
+    if (isAnimating && animStep < nLayers - 1) {
+      var px = layerX[animStep] + (layerX[animStep + 1] - layerX[animStep]) * 0.5;
+      ctx.beginPath();
+      ctx.arc(px, h / 2, 6, 0, Math.PI * 2);
+      ctx.fillStyle = stageColor + "60";
+      ctx.fill();
+    }
+  }, [config, animStep, isAnimating]);
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {label && (
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+          {label}
+        </div>
+      )}
+      <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+        <button onClick={function() { setAnimStep(0); setIsAnimating(true); }} style={{
+          fontFamily: FONTS.mono, fontSize: 11, padding: "5px 14px",
+          borderRadius: 4, border: "1px solid " + stageColor,
+          background: "transparent", color: stageColor, cursor: "pointer",
+        }}>Propagate</button>
+      </div>
+      <div style={{
+        background: "#08080A", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden",
+      }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: 280 }} />
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: STAGE 1 - MARKOV PLAYGROUND
+// ============================================================
+
+function PredictionExplanation({ predictions, gameAnswer, gameContext, order, stageColor }) {
+  const ctx = gameContext.substring(gameContext.length - order);
+  const ctxLabel = ctx.split("").map(c => c === " " ? "\u2423" : c).join("");
+  const topPred = predictions[0];
+  const topLabel = topPred.ch === " " ? "space" : "'" + topPred.ch + "'";
+  const runnerUp = predictions.length > 1
+    ? (predictions[1].ch === " " ? "space" : "'" + predictions[1].ch + "'") + ", appeared " + (predictions[1].prob * 100).toFixed(0) + "% of the time"
+    : null;
+
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
+        Model's top predictions:
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+        {predictions.map(function(p) { return (
+          <span key={p.ch} style={{
+            fontFamily: FONTS.mono, fontSize: 12,
+            padding: "3px 8px", borderRadius: 4,
+            background: p.ch === gameAnswer ? "rgba(114,225,160,0.1)" : COLORS.bgPanel,
+            border: "1px solid " + (p.ch === gameAnswer ? "rgba(114,225,160,0.3)" : COLORS.border),
+            color: p.ch === gameAnswer ? "#72E1A0" : COLORS.textDim,
+          }}>
+            {p.ch === " " ? "\u2423" : p.ch}: {(p.prob * 100).toFixed(0)}%
+          </span>
+        ); })}
+      </div>
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+        lineHeight: 1.6, padding: "10px 14px",
+        background: "rgba(0,0,0,0.2)", borderRadius: 6,
+        borderLeft: "3px solid " + stageColor + "40",
+      }}>
+        <strong style={{ color: COLORS.text }}>Why?</strong>{" "}
+        In the training text, after the sequence "<span style={{ color: stageColor }}>{ctxLabel}</span>",
+        the character {topLabel} appeared most often ({(topPred.prob * 100).toFixed(0)}% of the time).
+        The model does not "understand" language {"\u2014"} it simply counts how frequently each character follows
+        the current context.
+        {runnerUp && " The runner-up, " + runnerUp + "."}
+        {order === 1 && " With only 1 character of context, predictions are very coarse \u2014 try increasing the n-gram order to see how more context improves prediction."}
+        {order >= 3 && " With " + order + " characters of context, the model captures more specific patterns from the training text."}
+      </div>
+    </div>
+  );
+}
+
+
+function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
+  const stage = STAGES[0];
+  const [sourceText, setSourceText] = useState(SAMPLE_TEXTS.pushkin);
+  const [order, setOrder] = useState(2);
+  const [generated, setGenerated] = useState("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [hoverCell, setHoverCell] = useState(null);
+  const canvasRef = useRef(null);
+  const genIntervalRef = useRef(null);
+
+  // Prediction game state
+  const [gameActive, setGameActive] = useState(false);
+  const [gameContext, setGameContext] = useState("");
+  const [gameAnswer, setGameAnswer] = useState(null);
+  const [gameScore, setGameScore] = useState({ correct: 0, total: 0 });
+  const [gameRevealed, setGameRevealed] = useState(false);
+  const [gameFeedback, setGameFeedback] = useState(null);
+
+  const matrix = useMemo(() => buildTransitionMatrix(sourceText, order), [sourceText, order]);
+
+  // Character-level bigram matrix for heatmap (always order=1 for visualization)
+  const bigramMatrix = useMemo(() => buildTransitionMatrix(sourceText, 1), [sourceText]);
+
+  // Draw heatmap
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    const h = Math.min(w, 420);
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const chars = "abcdefghijklmnopqrstuvwxyz ".split("");
+    const n = chars.length;
+    const margin = { top: 30, left: 30, right: 10, bottom: 10 };
+    const cellW = (w - margin.left - margin.right) / n;
+    const cellH = (h - margin.top - margin.bottom) / n;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Draw cells
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col < n; col++) {
+        const from = chars[row];
+        const to = chars[col];
+        const prob = (bigramMatrix[from] && bigramMatrix[from][to]) || 0;
+        const x = margin.left + col * cellW;
+        const y = margin.top + row * cellH;
+
+        const intensity = Math.min(prob * 5, 1);
+        const isHovered = hoverCell && hoverCell.row === row && hoverCell.col === col;
+
+        if (intensity > 0.01 || isHovered) {
+          const r = parseInt(stage.color.slice(1,3), 16);
+          const g = parseInt(stage.color.slice(3,5), 16);
+          const b = parseInt(stage.color.slice(5,7), 16);
+          ctx.fillStyle = isHovered
+            ? `rgba(${r},${g},${b},${Math.max(intensity, 0.4)})`
+            : `rgba(${r},${g},${b},${intensity * 0.85})`;
+          ctx.fillRect(x, y, cellW - 0.5, cellH - 0.5);
+        }
+
+        // Highlight row/col on hover
+        if (hoverCell && (hoverCell.row === row || hoverCell.col === col) && !(hoverCell.row === row && hoverCell.col === col)) {
+          ctx.fillStyle = "rgba(255,255,255,0.03)";
+          ctx.fillRect(x, y, cellW - 0.5, cellH - 0.5);
+        }
+      }
+    }
+
+    // Labels
+    ctx.font = `${Math.min(cellW * 0.7, 11)}px JetBrains Mono`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    for (let i = 0; i < n; i++) {
+      const label = chars[i] === " " ? "\u2423" : chars[i];
+      const isHighRow = hoverCell && hoverCell.row === i;
+      const isHighCol = hoverCell && hoverCell.col === i;
+      // Top labels (columns = "to")
+      ctx.fillStyle = isHighCol ? stage.color : COLORS.textDim;
+      ctx.fillText(label, margin.left + i * cellW + cellW / 2, margin.top / 2);
+      // Left labels (rows = "from")
+      ctx.fillStyle = isHighRow ? stage.color : COLORS.textDim;
+      ctx.fillText(label, margin.left / 2, margin.top + i * cellH + cellH / 2);
+    }
+
+    // Hover tooltip
+    if (hoverCell) {
+      const from = chars[hoverCell.row];
+      const to = chars[hoverCell.col];
+      const prob = (bigramMatrix[from] && bigramMatrix[from][to]) || 0;
+      const fromLabel = from === " " ? "space" : from;
+      const toLabel = to === " " ? "space" : to;
+      const tooltipText = `P(${toLabel} | ${fromLabel}) = ${(prob * 100).toFixed(1)}%`;
+      ctx.font = "12px JetBrains Mono";
+      const tw = ctx.measureText(tooltipText).width + 16;
+      const tx = Math.min(margin.left + hoverCell.col * cellW, w - tw - 8);
+      const ty = Math.max(margin.top + hoverCell.row * cellH - 28, 4);
+      ctx.fillStyle = "rgba(0,0,0,0.85)";
+      ctx.beginPath();
+      ctx.roundRect(tx, ty, tw, 22, 4);
+      ctx.fill();
+      ctx.fillStyle = stage.color;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tooltipText, tx + 8, ty + 11);
+    }
+  }, [bigramMatrix, hoverCell, stage.color]);
+
+  const handleCanvasMouseMove = useCallback((e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const w = rect.width;
+    const h = rect.height;
+    const margin = { top: 30, left: 30, right: 10, bottom: 10 };
+    const n = 27;
+    const cellW = (w - margin.left - margin.right) / n;
+    const cellH = (h - margin.top - margin.bottom) / n;
+    const col = Math.floor((x - margin.left) / cellW);
+    const row = Math.floor((y - margin.top) / cellH);
+    if (row >= 0 && row < n && col >= 0 && col < n) {
+      setHoverCell({ row, col });
+    } else {
+      setHoverCell(null);
+    }
+  }, []);
+
+  // Text generation with typewriter effect
+  const handleGenerate = useCallback(() => {
+    if (genIntervalRef.current) clearInterval(genIntervalRef.current);
+    const fullText = generateFromMarkov(matrix, order, 300);
+    setGenerated("");
+    setIsGenerating(true);
+    let i = 0;
+    genIntervalRef.current = setInterval(() => {
+      if (i >= fullText.length) {
+        clearInterval(genIntervalRef.current);
+        setIsGenerating(false);
+        return;
+      }
+      setGenerated(fullText.substring(0, i + 1));
+      i++;
+    }, 25);
+  }, [matrix, order]);
+
+  // Cleanup interval on unmount
+  useEffect(() => () => { if (genIntervalRef.current) clearInterval(genIntervalRef.current); }, []);
+
+  // Prediction game
+  const startNewRound = useCallback(() => {
+    const clean = sourceText.toLowerCase().replace(/[^a-z ]/g, "");
+    const startPos = Math.floor(Math.random() * (clean.length - order - 10)) + 5;
+    const ctx = clean.substring(startPos, startPos + order);
+    const actualNext = clean[startPos + order];
+    setGameContext(clean.substring(Math.max(0, startPos - 15), startPos + order));
+    setGameAnswer(actualNext);
+    setGameRevealed(false);
+    setGameFeedback(null);
+  }, [sourceText, order]);
+
+  const handleGameGuess = useCallback((ch) => {
+    if (gameRevealed) return;
+    const isCorrect = ch === gameAnswer;
+    const newScore = {
+      correct: gameScore.correct + (isCorrect ? 1 : 0),
+      total: gameScore.total + 1,
+    };
+    setGameScore(newScore);
+    setGameRevealed(true);
+    setGameFeedback(isCorrect ? "correct" : "wrong");
+
+    // Update state
+    const pct = Math.round((newScore.correct / newScore.total) * 100);
+    dispatch({ type: "UPDATE_SCORE", stage: 0, score: pct, attempts: newScore.total });
+
+    // Check challenge completion (70% after at least 10 attempts)
+    if (newScore.total >= 10 && pct >= 70 && !stageProgress.challengeCompleted) {
+      setTimeout(() => {
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 0, score: pct });
+      }, 1000);
+    }
+  }, [gameAnswer, gameScore, gameRevealed, dispatch, stageProgress]);
+
+  const predictions = useMemo(() => {
+    if (!gameContext || gameContext.length < order) return [];
+    const ctx = gameContext.substring(gameContext.length - order);
+    return getTopPredictions(matrix, ctx, 5);
+  }, [gameContext, matrix, order]);
+
+  const chars = "abcdefghijklmnopqrstuvwxyz ".split("");
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Section: Source Text */}
+      <div style={{ marginBottom: 32 }}>
+        <h2 style={{
+          fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text,
+          marginBottom: 12,
+        }}>Training Text</h2>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+          {Object.entries(SAMPLE_TEXTS).map(([key, text]) => (
+            <button key={key} onClick={() => setSourceText(text)} style={{
+              fontFamily: FONTS.mono, fontSize: 11, padding: "6px 14px",
+              borderRadius: 4, border: `1px solid ${sourceText === text ? stage.color : COLORS.border}`,
+              background: sourceText === text ? stage.colorDim : "transparent",
+              color: sourceText === text ? stage.color : COLORS.textDim,
+              cursor: "pointer", textTransform: "capitalize",
+              transition: "all 0.2s",
+            }}>{key}</button>
+          ))}
+          <button onClick={() => { setSourceText(""); setTimeout(() => { const ta = document.querySelector("textarea"); if (ta) ta.focus(); }, 50); }} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "6px 14px",
+            borderRadius: 4, border: `1px solid ${!Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.color : COLORS.border}`,
+            background: !Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.colorDim : "transparent",
+            color: !Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.color : COLORS.textDim,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>custom</button>
+        </div>
+        <textarea
+          value={sourceText}
+          onChange={e => setSourceText(e.target.value)}
+          style={{
+            width: "100%", height: 100, resize: "vertical",
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 6, padding: 12,
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+            lineHeight: 1.6, outline: "none",
+          }}
+          placeholder="Type or paste text to analyze..."
+        />
+      </div>
+
+      {/* Section: Transition Heatmap */}
+      <div style={{ marginBottom: 32 }}>
+        <h2 style={{
+          fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text,
+          marginBottom: 4,
+        }}>Transition Matrix</h2>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.5,
+        }}>
+          Each cell shows P(column | row) — the probability of the column character following the row character. Brighter = higher probability.
+        </p>
+        <div style={{
+          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+          borderRadius: 8, padding: 12,
+        }}>
+          <canvas
+            ref={canvasRef}
+            onMouseMove={handleCanvasMouseMove}
+            onMouseLeave={() => setHoverCell(null)}
+            style={{ width: "100%", cursor: "crosshair" }}
+          />
+        </div>
+      </div>
+
+      {/* Section: Text Generator */}
+      <div style={{ marginBottom: 32 }}>
+        <h2 style={{
+          fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text,
+          marginBottom: 4,
+        }}>Text Generator</h2>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.5,
+        }}>
+          Generate text from the Markov model. Higher n-gram orders use more context, producing more recognizable output.
+        </p>
+        <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>N-gram order:</label>
+            {[1, 2, 3, 4].map(o => (
+              <button key={o} onClick={() => setOrder(o)} style={{
+                fontFamily: FONTS.mono, fontSize: 12, width: 28, height: 28,
+                borderRadius: 4, border: `1px solid ${order === o ? stage.color : COLORS.border}`,
+                background: order === o ? stage.colorDim : "transparent",
+                color: order === o ? stage.color : COLORS.textDim,
+                cursor: "pointer", transition: "all 0.2s",
+              }}>{o}</button>
+            ))}
+          </div>
+          <button onClick={handleGenerate} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "6px 20px",
+            borderRadius: 4, border: `1px solid ${stage.color}`,
+            background: stage.colorDim, color: stage.color,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>
+            {isGenerating ? "Generating..." : "Generate"}
+          </button>
+        </div>
+        {generated && (
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 6, padding: 16,
+            fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
+            lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word",
+            minHeight: 80,
+          }}>
+            {generated}
+            {isGenerating && <span style={{ animation: "pulse 0.8s infinite", color: stage.color }}>|</span>}
+          </div>
+        )}
+      </div>
+
+      {/* Section: Chain Graph Visualization */}
+      <MarkovChainGraph sourceText={sourceText} stageColor={stage.color} />
+
+      {/* Section: Prediction Game */}
+      <div style={{ marginBottom: 32 }}>
+        <h2 style={{
+          fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text,
+          marginBottom: 4,
+        }}>Prediction Game</h2>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.5,
+        }}>
+          Can you predict the next character? Given the context, click the character you think comes next.
+          Score 70% or higher after 10+ rounds to unlock the next stage.
+        </p>
+
+        {!gameActive ? (
+          <button onClick={() => { setGameActive(true); startNewRound(); }} style={{
+            fontFamily: FONTS.mono, fontSize: 13, padding: "10px 24px",
+            borderRadius: 6, border: `1px solid ${stage.color}`,
+            background: stage.colorDim, color: stage.color,
+            cursor: "pointer",
+          }}>Start Prediction Game</button>
+        ) : (
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 20,
+          }}>
+            {/* Score display */}
+            <div style={{
+              display: "flex", justifyContent: "space-between", alignItems: "center",
+              marginBottom: 16,
+            }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+                Score: <span style={{ color: stage.color }}>{gameScore.correct}/{gameScore.total}</span>
+                {gameScore.total > 0 && (
+                  <span style={{ marginLeft: 8, color: COLORS.text }}>
+                    ({Math.round((gameScore.correct / gameScore.total) * 100)}%)
+                  </span>
+                )}
+              </div>
+              {gameScore.total >= 10 && Math.round((gameScore.correct / gameScore.total) * 100) >= 70 && (
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 11, color: "#72E1A0",
+                  padding: "4px 10px", background: "rgba(114,225,160,0.1)",
+                  borderRadius: 4, border: "1px solid rgba(114,225,160,0.3)",
+                }}>Stage 2 Unlocked!</div>
+              )}
+            </div>
+
+            {/* Context display */}
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 18, color: COLORS.text,
+              marginBottom: 16, padding: 12, background: "rgba(0,0,0,0.3)",
+              borderRadius: 6, display: "flex", alignItems: "center",
+            }}>
+              <span style={{ opacity: 0.5 }}>{gameContext.substring(0, gameContext.length - order)}</span>
+              <span style={{
+                color: stage.color, fontWeight: 600,
+                textDecoration: "underline", textUnderlineOffset: 4,
+              }}>{gameContext.substring(gameContext.length - order)}</span>
+              <span style={{
+                color: gameRevealed ? (gameFeedback === "correct" ? "#72E1A0" : "#FF6B6B") : COLORS.textDim,
+                fontWeight: 600, marginLeft: 2,
+              }}>
+                {gameRevealed ? (gameAnswer === " " ? "\u2423" : gameAnswer) : "?"}
+              </span>
+            </div>
+
+            {/* Character buttons */}
+            <div style={{
+              display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 16,
+            }}>
+              {chars.map(ch => {
+                const isAnswer = gameRevealed && ch === gameAnswer;
+                const label = ch === " " ? "\u2423" : ch;
+                return (
+                  <button key={ch} onClick={() => handleGameGuess(ch)} disabled={gameRevealed} style={{
+                    width: 32, height: 32, borderRadius: 4,
+                    border: `1px solid ${isAnswer ? "#72E1A0" : COLORS.border}`,
+                    background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
+                    color: isAnswer ? "#72E1A0" : COLORS.text,
+                    fontFamily: FONTS.mono, fontSize: 13,
+                    cursor: gameRevealed ? "default" : "pointer",
+                    opacity: gameRevealed && !isAnswer ? 0.3 : 1,
+                    transition: "all 0.15s",
+                  }}>{label}</button>
+                );
+              })}
+            </div>
+
+            {/* Model's predictions with explanation */}
+            {gameRevealed && predictions.length > 0 && (
+              <PredictionExplanation
+                predictions={predictions}
+                gameAnswer={gameAnswer}
+                gameContext={gameContext}
+                order={order}
+                stageColor={stage.color}
+              />
+            )}
+
+            {/* Next round button */}
+            {gameRevealed && (
+              <button onClick={startNewRound} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+                borderRadius: 4, border: `1px solid ${stage.color}`,
+                background: stage.colorDim, color: stage.color,
+                cursor: "pointer",
+              }}>Next Round</button>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: STAGE 2 - WORD2VEC PLAYGROUND
+// ============================================================
+
+function Word2VecTrainingSim({ stageColor }) {
+  const canvasRef = useRef(null);
+  const [epoch, setEpoch] = useState(0);
+  const [isTraining, setIsTraining] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const animRef = useRef(null);
+  const positionsRef = useRef(null);
+
+  // Training sentence with context windows
+  const trainingSentence = "the king sat on the golden throne while the queen watched from her silver throne";
+  const trainWords = trainingSentence.split(" ");
+  const windowSize = 2;
+
+  // Initialize random positions
+  if (!positionsRef.current) {
+    const uniqueWords = [...new Set(trainWords)];
+    positionsRef.current = {};
+    uniqueWords.forEach(function(w, i) {
+      positionsRef.current[w] = {
+        x: 0.15 + Math.random() * 0.7,
+        y: 0.15 + Math.random() * 0.7,
+        // Target positions (where they should cluster)
+        tx: 0, ty: 0,
+      };
+    });
+    // Set target positions for semantic clusters
+    var targets = {
+      the: { tx: 0.5, ty: 0.5 }, king: { tx: 0.7, ty: 0.25 },
+      queen: { tx: 0.75, ty: 0.3 }, sat: { tx: 0.35, ty: 0.6 },
+      on: { tx: 0.45, ty: 0.55 }, golden: { tx: 0.6, ty: 0.2 },
+      throne: { tx: 0.65, ty: 0.25 }, while: { tx: 0.4, ty: 0.45 },
+      watched: { tx: 0.3, ty: 0.55 }, from: { tx: 0.42, ty: 0.5 },
+      her: { tx: 0.72, ty: 0.35 }, silver: { tx: 0.58, ty: 0.22 },
+    };
+    for (var w in targets) {
+      if (positionsRef.current[w]) {
+        positionsRef.current[w].tx = targets[w].tx;
+        positionsRef.current[w].ty = targets[w].ty;
+      }
+    }
+  }
+
+  // Current context window highlight
+  var contextIdx = epoch % (trainWords.length - windowSize * 2);
+  var centerWord = trainWords[contextIdx + windowSize];
+  var contextWords = [];
+  for (var ci = Math.max(0, contextIdx); ci < Math.min(trainWords.length, contextIdx + windowSize * 2 + 1); ci++) {
+    if (ci !== contextIdx + windowSize) contextWords.push(trainWords[ci]);
+  }
+
+  // Animation: move words toward targets based on epoch
+  useEffect(function() {
+    if (!isTraining) return;
+    var interval = setInterval(function() {
+      setEpoch(function(e) {
+        var next = e + 1;
+        // Move positions toward targets
+        var progress = Math.min(next / 80, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var pos = positionsRef.current;
+        for (var w in pos) {
+          pos[w].x = pos[w].x + (pos[w].tx - pos[w].x) * 0.02 * speed;
+          pos[w].y = pos[w].y + (pos[w].ty - pos[w].y) * 0.02 * speed;
+          // Add small jitter
+          pos[w].x += (Math.random() - 0.5) * 0.003;
+          pos[w].y += (Math.random() - 0.5) * 0.003;
+        }
+        return next;
+      });
+    }, 80);
+    return function() { clearInterval(interval); };
+  }, [isTraining, speed]);
+
+  // Draw
+  useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
+    var h = 360;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    ctx.lineWidth = 0.5;
+    for (var i = 0; i <= 10; i++) {
+      ctx.beginPath(); ctx.moveTo((i/10)*w, 0); ctx.lineTo((i/10)*w, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, (i/10)*h); ctx.lineTo(w, (i/10)*h); ctx.stroke();
+    }
+
+    var pos = positionsRef.current;
+    if (!pos) return;
+
+    // Draw connections between context words
+    if (centerWord && pos[centerWord]) {
+      contextWords.forEach(function(cw) {
+        if (pos[cw]) {
+          ctx.beginPath();
+          ctx.moveTo(pos[centerWord].x * w, pos[centerWord].y * h);
+          ctx.lineTo(pos[cw].x * w, pos[cw].y * h);
+          ctx.strokeStyle = stageColor + "30";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      });
+    }
+
+    // Draw words
+    var uniqueWords = Object.keys(pos);
+    uniqueWords.forEach(function(word) {
+      var p = pos[word];
+      var px = p.x * w;
+      var py = p.y * h;
+      var isCenter = word === centerWord;
+      var isContext = contextWords.indexOf(word) >= 0;
+
+      ctx.beginPath();
+      ctx.arc(px, py, isCenter ? 6 : isContext ? 5 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = isCenter ? "#fff" : isContext ? stageColor : stageColor + "80";
+      ctx.fill();
+      if (isCenter || isContext) {
+        ctx.strokeStyle = isCenter ? "#fff" : stageColor;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      ctx.font = (isCenter || isContext ? "600 12px" : "11px") + " JetBrains Mono";
+      ctx.fillStyle = isCenter ? "#fff" : isContext ? stageColor : "rgba(255,255,255,0.5)";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(word, px, py - (isCenter ? 10 : 6));
+    });
+
+    // Loss curve in corner
+    var lossX = w - 140;
+    var lossY = 20;
+    var lossW = 120;
+    var lossH = 50;
+    ctx.fillStyle = "rgba(0,0,0,0.5)";
+    ctx.fillRect(lossX, lossY, lossW, lossH);
+    ctx.strokeStyle = "rgba(255,255,255,0.1)";
+    ctx.strokeRect(lossX, lossY, lossW, lossH);
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.textAlign = "left";
+    ctx.fillText("loss", lossX + 4, lossY + 10);
+    // Draw loss curve
+    ctx.beginPath();
+    for (var li = 0; li <= Math.min(epoch, 100); li++) {
+      var lx = lossX + (li / 100) * lossW;
+      var loss = 2.5 * Math.exp(-li * 0.04) + 0.3 + Math.sin(li * 0.3) * 0.1 * Math.exp(-li * 0.02);
+      var ly = lossY + lossH - (loss / 3) * lossH;
+      li === 0 ? ctx.moveTo(lx, ly) : ctx.lineTo(lx, ly);
+    }
+    ctx.strokeStyle = stageColor;
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }, [epoch, centerWord]);
+
+  var handleReset = function() {
+    setIsTraining(false);
+    setEpoch(0);
+    var uniqueWords = [...new Set(trainWords)];
+    positionsRef.current = {};
+    uniqueWords.forEach(function(w) {
+      positionsRef.current[w] = {
+        x: 0.15 + Math.random() * 0.7,
+        y: 0.15 + Math.random() * 0.7,
+        tx: 0, ty: 0,
+      };
+    });
+    var targets = {
+      the: { tx: 0.5, ty: 0.5 }, king: { tx: 0.7, ty: 0.25 },
+      queen: { tx: 0.75, ty: 0.3 }, sat: { tx: 0.35, ty: 0.6 },
+      on: { tx: 0.45, ty: 0.55 }, golden: { tx: 0.6, ty: 0.2 },
+      throne: { tx: 0.65, ty: 0.25 }, while: { tx: 0.4, ty: 0.45 },
+      watched: { tx: 0.3, ty: 0.55 }, from: { tx: 0.42, ty: 0.5 },
+      her: { tx: 0.72, ty: 0.35 }, silver: { tx: 0.58, ty: 0.22 },
+    };
+    for (var tw in targets) {
+      if (positionsRef.current[tw]) {
+        positionsRef.current[tw].tx = targets[tw].tx;
+        positionsRef.current[tw].ty = targets[tw].ty;
+      }
+    }
+  };
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Watch Training Happen
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        A context window slides over the training text. For each center word, the model adjusts
+        embeddings so that words appearing in the same context move closer together in vector space.
+        Watch "king" and "queen" cluster near "throne" as training progresses.
+      </p>
+
+      {/* Training sentence with highlighted context window */}
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 13, color: COLORS.textDim,
+        marginBottom: 12, padding: 12, background: COLORS.bgPanel,
+        borderRadius: 6, border: "1px solid " + COLORS.border,
+        lineHeight: 2, whiteSpace: "pre-wrap",
+      }}>
+        {trainWords.map(function(w, i) {
+          var isCenter = i === contextIdx + windowSize;
+          var isCtx = Math.abs(i - (contextIdx + windowSize)) <= windowSize && i !== contextIdx + windowSize;
+          return (
+            <span key={i} style={{
+              color: isCenter ? "#fff" : isCtx ? stageColor : COLORS.textDim,
+              fontWeight: isCenter ? 700 : 400,
+              background: isCenter ? stageColor + "30" : isCtx ? stageColor + "10" : "transparent",
+              padding: isCenter || isCtx ? "2px 4px" : "0 1px",
+              borderRadius: 3,
+            }}>{w} </span>
+          );
+        })}
+      </div>
+
+      {/* Controls */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
+        <button onClick={function() { setIsTraining(!isTraining); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 18px",
+          borderRadius: 4, border: "1px solid " + stageColor,
+          background: isTraining ? stageColor + "20" : "transparent",
+          color: stageColor, cursor: "pointer",
+        }}>{isTraining ? "Pause" : "Train"}</button>
+        <button onClick={handleReset} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
+          borderRadius: 4, border: "1px solid " + COLORS.border,
+          background: "transparent", color: COLORS.textDim, cursor: "pointer",
+        }}>Reset</button>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginLeft: 8 }}>
+          Speed:
+        </div>
+        {[1, 2, 4].map(function(s) { return (
+          <button key={s} onClick={function() { setSpeed(s); }} style={{
+            fontFamily: FONTS.mono, fontSize: 11, width: 28, height: 24,
+            borderRadius: 3, border: "1px solid " + (speed === s ? stageColor : COLORS.border),
+            background: speed === s ? stageColor + "15" : "transparent",
+            color: speed === s ? stageColor : COLORS.textDim, cursor: "pointer",
+          }}>{s}x</button>
+        ); })}
+        <div style={{ flex: 1 }} />
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor }}>
+          Epoch {epoch}
+        </div>
+      </div>
+
+      {/* Canvas */}
+      <div style={{
+        background: "#08080A", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden",
+      }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: 360 }} />
+      </div>
+
+      {/* Explanation */}
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+        marginTop: 12, lineHeight: 1.6,
+      }}>
+        <strong style={{ color: COLORS.text }}>What you are seeing:</strong> Each word starts at a random position.
+        As the context window slides over the text, the model pulls co-occurring words closer together.
+        "Golden" and "silver" converge (both modify "throne"). "King" and "queen" cluster (both appear near "throne").
+        This is the distributional hypothesis made visible: meaning emerges from context.
+      </div>
+    </div>
+  );
+}
+
+
+function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
+  const stage = STAGES[1];
+  const canvasRef = useRef(null);
+  const [hoveredWord, setHoveredWord] = useState(null);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeClusters, setActiveClusters] = useState(new Set(Object.keys(CLUSTERS)));
+  const [showMode, setShowMode] = useState("explore"); // explore | analogy | training
+  const [analogyIdx, setAnalogyIdx] = useState(0);
+  const [analogyGuess, setAnalogyGuess] = useState("");
+  const [analogyResult, setAnalogyResult] = useState(null);
+  const [analogyScore, setAnalogySc] = useState({ correct: 0, total: 0 });
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const dragRef = useRef(null);
+
+  const filteredWords = useMemo(() =>
+    WORD_DATA.filter(w => activeClusters.has(w.c)),
+  [activeClusters]);
+
+  const nearest = useMemo(() => {
+    if (!selectedWord) return [];
+    const sw = WORD_DATA.find(w => w.w === selectedWord);
+    if (!sw) return [];
+    return findNearest(sw.v, WORD_DATA, [selectedWord], 6);
+  }, [selectedWord]);
+
+  // Draw embedding space
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    const h = 420;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    // Grid
+    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    ctx.lineWidth = 0.5;
+    for (let i = 0; i <= 10; i++) {
+      const x = (i / 10) * w;
+      const y = (i / 10) * h;
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    }
+
+    // Transform coords
+    const tx = (wx) => (wx * zoom + pan.x) * w;
+    const ty = (wy) => (wy * zoom + pan.y) * h;
+
+    // Draw cluster regions (convex hull approximation - simple bounding ellipse)
+    if (activeClusters.size < Object.keys(CLUSTERS).length || activeClusters.size === Object.keys(CLUSTERS).length) {
+      for (const [clusterId, cluster] of Object.entries(CLUSTERS)) {
+        if (!activeClusters.has(clusterId)) continue;
+        const clusterWords = filteredWords.filter(w => w.c === clusterId);
+        if (clusterWords.length < 2) continue;
+        const xs = clusterWords.map(w => tx(w.x));
+        const ys = clusterWords.map(w => ty(w.y));
+        const cx = xs.reduce((a,b) => a+b, 0) / xs.length;
+        const cy = ys.reduce((a,b) => a+b, 0) / ys.length;
+        const rx = Math.max(...xs.map(x => Math.abs(x - cx))) + 30;
+        const ry = Math.max(...ys.map(y => Math.abs(y - cy))) + 25;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.fillStyle = cluster.color + "08";
+        ctx.fill();
+        ctx.strokeStyle = cluster.color + "20";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+        // Cluster label
+        ctx.font = "10px JetBrains Mono";
+        ctx.fillStyle = cluster.color + "60";
+        ctx.textAlign = "center";
+        ctx.fillText(cluster.label, cx, cy - ry + 12);
+      }
+    }
+
+    // Draw words
+    for (const word of filteredWords) {
+      const wx = tx(word.x);
+      const wy = ty(word.y);
+      if (wx < -50 || wx > w + 50 || wy < -50 || wy > h + 50) continue;
+
+      const isHovered = hoveredWord === word.w;
+      const isSelected = selectedWord === word.w;
+      const isNear = nearest.some(n => n.word === word.w);
+      const matchesSearch = searchQuery && word.w.toLowerCase().includes(searchQuery.toLowerCase());
+      const dimmed = searchQuery && !matchesSearch && !isSelected;
+
+      const color = CLUSTERS[word.c]?.color || "#888";
+      const radius = isHovered || isSelected ? 5 : isNear ? 4 : 3;
+      const alpha = dimmed ? 0.15 : 1;
+
+      // Dot
+      ctx.beginPath();
+      ctx.arc(wx, wy, radius, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? "#fff" : isHovered ? color : color + (dimmed ? "40" : "cc");
+      ctx.fill();
+      if (isSelected || isHovered) {
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      // Label
+      ctx.font = `${isHovered || isSelected || isNear || matchesSearch ? 12 : 10}px JetBrains Mono`;
+      ctx.fillStyle = `rgba(255,255,255,${dimmed ? 0.15 : isHovered || isSelected ? 1 : 0.6})`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      ctx.fillText(word.w, wx, wy - radius - 3);
+    }
+
+    // Draw nearest-neighbor lines
+    if (selectedWord) {
+      const sw = WORD_DATA.find(w => w.w === selectedWord);
+      if (sw) {
+        const sx = tx(sw.x), sy = ty(sw.y);
+        for (const n of nearest) {
+          const nw = WORD_DATA.find(w => w.w === n.word);
+          if (!nw) continue;
+          const nx = tx(nw.x), ny = ty(nw.y);
+          ctx.beginPath();
+          ctx.moveTo(sx, sy);
+          ctx.lineTo(nx, ny);
+          ctx.strokeStyle = `rgba(255,255,255,${n.sim * 0.3})`;
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+    }
+
+    // Analogy visualization
+    if (showMode === "analogy" && analogyResult) {
+      const puzzle = ANALOGY_PUZZLES[analogyIdx];
+      const aw = WORD_DATA.find(w => w.w === puzzle.a);
+      const bw = WORD_DATA.find(w => w.w === puzzle.b);
+      const cw = WORD_DATA.find(w => w.w === puzzle.c);
+      const dw = WORD_DATA.find(w => w.w === analogyResult[0]?.word);
+      if (aw && bw && cw) {
+        // A -> B arrow
+        drawArrow(ctx, tx(aw.x), ty(aw.y), tx(bw.x), ty(bw.y), stage.color);
+        // C -> D arrow (parallel)
+        if (dw) {
+          drawArrow(ctx, tx(cw.x), ty(cw.y), tx(dw.x), ty(dw.y), "#72E1A0");
+        }
+      }
+    }
+  }, [filteredWords, hoveredWord, selectedWord, nearest, searchQuery, pan, zoom, showMode, analogyResult, analogyIdx, stage.color]);
+
+  function drawArrow(ctx, x1, y1, x2, y2, color) {
+    const angle = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    // Arrowhead
+    const headLen = 10;
+    ctx.beginPath();
+    ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
+    ctx.closePath();
+    ctx.fillStyle = color;
+    ctx.fill();
+  }
+
+  const handleCanvasMouseMove = useCallback((e) => {
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+    const w = rect.width;
+    const h = 420;
+
+    if (dragRef.current) {
+      const dx = (mx - dragRef.current.lastX) / w;
+      const dy = (my - dragRef.current.lastY) / h;
+      setPan(p => ({ x: p.x + dx, y: p.y + dy }));
+      dragRef.current.lastX = mx;
+      dragRef.current.lastY = my;
+      return;
+    }
+
+    // Hit test
+    let found = null;
+    for (const word of filteredWords) {
+      const wx = (word.x * zoom + pan.x) * w;
+      const wy = (word.y * zoom + pan.y) * h;
+      const dist = Math.sqrt((mx - wx) ** 2 + (my - wy) ** 2);
+      if (dist < 15) { found = word.w; break; }
+    }
+    setHoveredWord(found);
+  }, [filteredWords, zoom, pan]);
+
+  const handleCanvasMouseDown = useCallback((e) => {
+    if (hoveredWord) {
+      setSelectedWord(hoveredWord === selectedWord ? null : hoveredWord);
+    } else {
+      const rect = canvasRef.current.getBoundingClientRect();
+      dragRef.current = { lastX: e.clientX - rect.left, lastY: e.clientY - rect.top };
+    }
+  }, [hoveredWord, selectedWord]);
+
+  const handleCanvasMouseUp = useCallback(() => { dragRef.current = null; }, []);
+
+  const handleCanvasWheel = useCallback((e) => {
+    e.preventDefault();
+    setZoom(z => Math.max(0.5, Math.min(3, z - e.deltaY * 0.001)));
+  }, []);
+
+  const handleAnalogySubmit = useCallback(() => {
+    const result = solveAnalogy(
+      ANALOGY_PUZZLES[analogyIdx].a,
+      ANALOGY_PUZZLES[analogyIdx].b,
+      ANALOGY_PUZZLES[analogyIdx].c,
+    );
+    setAnalogyResult(result);
+    const topAnswer = result[0]?.word;
+    const isCorrect = topAnswer === ANALOGY_PUZZLES[analogyIdx].answer;
+    const newScore = {
+      correct: analogyScore.correct + (isCorrect || analogyGuess.toLowerCase().trim() === ANALOGY_PUZZLES[analogyIdx].answer ? 1 : 0),
+      total: analogyScore.total + 1,
+    };
+    setAnalogySc(newScore);
+    dispatch({ type: "UPDATE_SCORE", stage: 1, score: newScore.correct, attempts: newScore.total });
+
+    if (newScore.correct >= 5 && !stageProgress.challengeCompleted) {
+      setTimeout(() => {
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 1, score: newScore.correct });
+      }, 1000);
+    }
+  }, [analogyIdx, analogyGuess, analogyScore, dispatch, stageProgress]);
+
+  const handleNextAnalogy = useCallback(() => {
+    setAnalogyIdx(i => (i + 1) % ANALOGY_PUZZLES.length);
+    setAnalogyGuess("");
+    setAnalogyResult(null);
+  }, []);
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Mode tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {[["explore", "Explore Embeddings"], ["analogy", "Analogy Solver"], ["training", "Watch Training"], ["arch", "Architecture"]].map(([mode, label]) => (
+          <button key={mode} onClick={() => setShowMode(mode)} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+            borderRadius: 4, border: `1px solid ${showMode === mode ? stage.color : COLORS.border}`,
+            background: showMode === mode ? stage.colorDim : "transparent",
+            color: showMode === mode ? stage.color : COLORS.textDim,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>{label}</button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, alignSelf: "center" }}>
+          Analogies solved: <span style={{ color: stage.color }}>{analogyScore.correct}</span>/5 to unlock
+        </div>
+      </div>
+
+      {/* Search */}
+      <div style={{ marginBottom: 12 }}>
+        <input
+          type="text" placeholder="Search words..."
+          value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+          style={{
+            width: 200, padding: "6px 12px",
+            fontFamily: FONTS.mono, fontSize: 12,
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 4, color: COLORS.text, outline: "none",
+          }}
+        />
+      </div>
+
+      {/* Cluster toggles */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+        {Object.entries(CLUSTERS).map(([id, cluster]) => (
+          <button key={id} onClick={() => {
+            setActiveClusters(prev => {
+              const next = new Set(prev);
+              next.has(id) ? next.delete(id) : next.add(id);
+              return next;
+            });
+          }} style={{
+            fontFamily: FONTS.mono, fontSize: 10, padding: "3px 10px",
+            borderRadius: 3, border: `1px solid ${activeClusters.has(id) ? cluster.color + "60" : COLORS.border}`,
+            background: activeClusters.has(id) ? cluster.color + "15" : "transparent",
+            color: activeClusters.has(id) ? cluster.color : COLORS.textDim,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>{cluster.label}</button>
+        ))}
+      </div>
+
+      {/* Canvas */}
+      <div style={{
+        background: "#08080A", border: `1px solid ${COLORS.border}`,
+        borderRadius: 8, overflow: "hidden", marginBottom: 16, position: "relative",
+      }}>
+        <canvas
+          ref={canvasRef}
+          onMouseMove={handleCanvasMouseMove}
+          onMouseDown={handleCanvasMouseDown}
+          onMouseUp={handleCanvasMouseUp}
+          onMouseLeave={() => { setHoveredWord(null); dragRef.current = null; }}
+          onWheel={handleCanvasWheel}
+          style={{ width: "100%", height: 420, cursor: hoveredWord ? "pointer" : "grab" }}
+        />
+      </div>
+
+      {/* Nearest neighbors panel */}
+      {selectedWord && showMode === "explore" && (
+        <div style={{
+          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+          borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeInUp 0.3s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8,
+          }}>Nearest neighbors of <span style={{ color: stage.color }}>{selectedWord}</span>:</div>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {nearest.map(n => (
+              <span key={n.word} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "4px 10px",
+                borderRadius: 4, background: COLORS.bgPanelHover,
+                border: `1px solid ${COLORS.border}`, color: COLORS.text,
+              }}>
+                {n.word} <span style={{ color: stage.color, fontSize: 10 }}>{n.sim.toFixed(2)}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Analogy solver */}
+      {showMode === "analogy" && (
+        <div style={{
+          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+          borderRadius: 8, padding: 20, animation: "fadeInUp 0.3s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.heading, fontSize: 18, color: COLORS.text, marginBottom: 12,
+          }}>Vector Analogy</div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5,
+          }}>
+            The relationship between A and B should be the same as C and ???.
+            The model computes: vec(B) - vec(A) + vec(C) and finds the nearest word.
+          </div>
+
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 16, color: COLORS.text,
+            marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
+          }}>
+            <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].a}</span>
+            <span style={{ color: COLORS.textDim }}>is to</span>
+            <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].b}</span>
+            <span style={{ color: COLORS.textDim }}>as</span>
+            <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].c}</span>
+            <span style={{ color: COLORS.textDim }}>is to</span>
+            {analogyResult ? (
+              <span style={{ color: "#72E1A0", fontWeight: 600 }}>{analogyResult[0]?.word || "?"}</span>
+            ) : (
+              <span style={{ color: COLORS.textDim }}>???</span>
+            )}
+          </div>
+
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8,
+          }}>Hint: {ANALOGY_PUZZLES[analogyIdx].hint}</div>
+
+          {!analogyResult ? (
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                type="text" placeholder="Your guess..."
+                value={analogyGuess} onChange={e => setAnalogyGuess(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAnalogySubmit()}
+                style={{
+                  padding: "6px 12px", fontFamily: FONTS.mono, fontSize: 12,
+                  background: "rgba(0,0,0,0.3)", border: `1px solid ${COLORS.border}`,
+                  borderRadius: 4, color: COLORS.text, outline: "none", width: 150,
+                }}
+              />
+              <button onClick={handleAnalogySubmit} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "6px 16px",
+                borderRadius: 4, border: `1px solid ${stage.color}`,
+                background: stage.colorDim, color: stage.color, cursor: "pointer",
+              }}>Solve</button>
+            </div>
+          ) : (
+            <div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 12, marginBottom: 8,
+                color: analogyResult[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer ? "#72E1A0" : "#FF6B6B",
+              }}>
+                {analogyResult[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer
+                  ? "Correct! The vector arithmetic works."
+                  : `Expected "${ANALOGY_PUZZLES[analogyIdx].answer}", model found "${analogyResult[0]?.word}".`}
+              </div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 12 }}>
+                Top 5 results: {analogyResult.map(r => `${r.word} (${r.sim.toFixed(2)})`).join(", ")}
+              </div>
+              <button onClick={handleNextAnalogy} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "6px 16px",
+                borderRadius: 4, border: `1px solid ${stage.color}`,
+                background: stage.colorDim, color: stage.color, cursor: "pointer",
+              }}>Next Analogy</button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Training simulation */}
+      {showMode === "training" && (
+        <Word2VecTrainingSim stageColor={stage.color} />
+      )}
+
+      {/* Architecture */}
+      {showMode === "arch" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Skip-Gram Architecture
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Word2Vec's skip-gram model is a shallow neural network: the input word is mapped to a dense embedding layer,
+            which is then used to predict surrounding context words. The embedding layer IS the word vectors we use.
+            Click "Propagate" to see a word's activation flow through the network.
+          </p>
+          <NeuralNetworkViz
+            config={{
+              layers: [1, 10, 300, 10, 1],
+              labels: ["Input word", "One-hot\n(vocab)", "Embedding\n(300d)", "Hidden", "Output\n(context)"],
+              activations: [
+                [1],
+                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+                [0.7, -0.3, 0.5, 0.1, -0.6, 0.8, -0.2, 0.4, 0.3, -0.1],
+                [0.4, 0.6, -0.2, 0.3, 0.5, -0.4, 0.7, 0.1, -0.3, 0.2],
+                [0.9],
+              ],
+            }}
+            stageColor={stage.color}
+            label="Word2Vec Skip-Gram"
+          />
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            marginTop: 12, lineHeight: 1.6, padding: "10px 14px",
+            background: "rgba(0,0,0,0.2)", borderRadius: 6,
+            borderLeft: "3px solid " + stage.color + "40",
+          }}>
+            <strong style={{ color: COLORS.text }}>The trick:</strong> We don't care about the network's predictions.
+            We care about the embedding layer (the 300-dimensional middle layer). After training, this layer contains
+            the word vectors that encode semantic meaning. The network is just a means to learn good representations.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: STAGE 3 - TRANSFORMER PLAYGROUND
+// ============================================================
+
+function TransformerTrainingSim({ stageColor }) {
+  const canvasRef = useRef(null);
+  const [epoch, setEpoch] = useState(0);
+  const [isTraining, setIsTraining] = useState(false);
+  const [speed, setSpeed] = useState(1);
+
+  // Simulated attention pattern evolution: starts uniform, becomes structured
+  var tokens = ["The", "cat", "sat", "on", "the", "mat"];
+  var n = tokens.length;
+
+  // Target attention patterns for 3 heads
+  var targetHeads = [
+    // Head 0: positional (nearby tokens)
+    [[0.5,0.3,0.1,0.05,0.03,0.02],[0.25,0.4,0.2,0.08,0.04,0.03],[0.08,0.25,0.4,0.15,0.07,0.05],
+     [0.04,0.08,0.2,0.4,0.18,0.10],[0.03,0.05,0.08,0.2,0.4,0.24],[0.02,0.03,0.05,0.10,0.25,0.55]],
+    // Head 1: syntactic (subject-verb, det-noun)
+    [[0.4,0.4,0.05,0.05,0.05,0.05],[0.3,0.2,0.35,0.05,0.05,0.05],[0.1,0.35,0.2,0.15,0.1,0.1],
+     [0.05,0.05,0.15,0.3,0.2,0.25],[0.05,0.05,0.05,0.15,0.3,0.40],[0.05,0.05,0.1,0.25,0.30,0.25]],
+    // Head 2: semantic (content words attend to each other)
+    [[0.2,0.15,0.15,0.15,0.15,0.2],[0.1,0.25,0.15,0.05,0.05,0.40],[0.1,0.15,0.25,0.20,0.10,0.20],
+     [0.1,0.1,0.2,0.3,0.15,0.15],[0.1,0.05,0.10,0.15,0.30,0.30],[0.08,0.30,0.12,0.10,0.15,0.25]],
+  ];
+  var headLabels = ["Positional", "Syntactic", "Semantic"];
+
+  // Interpolate from uniform to target
+  var progress = Math.min(epoch / 60, 1);
+  var eased = 1 - Math.pow(1 - progress, 2);
+
+  useEffect(function() {
+    if (!isTraining) return;
+    var interval = setInterval(function() {
+      setEpoch(function(e) { return e + 1; });
+    }, 100 / speed);
+    return function() { clearInterval(interval); };
+  }, [isTraining, speed]);
+
+  useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
+    var h = 360;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    var headW = Math.floor((w - 40) / 3);
+    var cellSize = Math.min(Math.floor((headW - 60) / n), 36);
+    var margin = { top: 55, left: 50 };
+
+    for (var hi = 0; hi < 3; hi++) {
+      var offsetX = 10 + hi * (headW + 10);
+
+      // Head label
+      ctx.font = "600 11px JetBrains Mono";
+      ctx.fillStyle = stageColor;
+      ctx.textAlign = "center";
+      ctx.fillText("Head " + (hi + 1) + ": " + headLabels[hi], offsetX + margin.left + (n * cellSize) / 2, 16);
+
+      // Draw attention matrix
+      for (var row = 0; row < n; row++) {
+        for (var col = 0; col < n; col++) {
+          var uniform = 1 / n;
+          var target = targetHeads[hi][row][col];
+          var val = uniform + (target - uniform) * eased;
+          // Add noise that decreases with training
+          var noise = (Math.random() - 0.5) * 0.08 * (1 - eased);
+          val = Math.max(0, Math.min(1, val + noise));
+
+          var intensity = Math.min(val * 3, 1);
+          var cr = parseInt(stageColor.slice(1, 3), 16);
+          var cg = parseInt(stageColor.slice(3, 5), 16);
+          var cb = parseInt(stageColor.slice(5, 7), 16);
+
+          var x = offsetX + margin.left + col * cellSize;
+          var y = margin.top + row * cellSize;
+
+          ctx.fillStyle = "rgba(" + cr + "," + cg + "," + cb + "," + (intensity * 0.9) + ")";
+          ctx.fillRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+        }
+      }
+
+      // Token labels
+      ctx.font = "9px JetBrains Mono";
+      ctx.fillStyle = COLORS.textDim;
+      for (var ti = 0; ti < n; ti++) {
+        ctx.textAlign = "center";
+        ctx.save();
+        ctx.translate(offsetX + margin.left + ti * cellSize + cellSize / 2, margin.top - 6);
+        ctx.rotate(-0.5);
+        ctx.fillText(tokens[ti], 0, 0);
+        ctx.restore();
+        ctx.textAlign = "right";
+        ctx.fillText(tokens[ti], offsetX + margin.left - 4, margin.top + ti * cellSize + cellSize / 2 + 3);
+      }
+    }
+
+    // Training progress & loss
+    var lossY = margin.top + n * cellSize + 20;
+    ctx.font = "11px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.textAlign = "left";
+    ctx.fillText("Training progress", 10, lossY + 10);
+
+    // Progress bar
+    ctx.fillStyle = "rgba(255,255,255,0.05)";
+    ctx.fillRect(10, lossY + 18, w - 20, 8);
+    ctx.fillStyle = stageColor + "80";
+    ctx.fillRect(10, lossY + 18, (w - 20) * eased, 8);
+
+    // Loss value
+    var loss = 2.5 * Math.exp(-epoch * 0.03) + 0.4;
+    ctx.fillStyle = stageColor;
+    ctx.textAlign = "right";
+    ctx.fillText("loss: " + loss.toFixed(2), w - 10, lossY + 10);
+
+    // Phase label
+    ctx.textAlign = "center";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.font = "10px JetBrains Mono";
+    var phase = eased < 0.2 ? "Random initialization" : eased < 0.5 ? "Patterns emerging..." : eased < 0.8 ? "Heads specializing" : "Converged";
+    ctx.fillText(phase, w / 2, lossY + 45);
+  }, [epoch, eased]);
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Watch Attention Heads Form
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        Three attention heads start with uniform (random) weights. As training progresses, each head specializes:
+        one learns positional patterns (nearby tokens), one learns syntactic roles (subject-verb),
+        and one learns semantic relationships (content words). This specialization emerges from the training signal alone.
+      </p>
+
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
+        <button onClick={function() { setIsTraining(!isTraining); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 18px",
+          borderRadius: 4, border: "1px solid " + stageColor,
+          background: isTraining ? stageColor + "20" : "transparent",
+          color: stageColor, cursor: "pointer",
+        }}>{isTraining ? "Pause" : "Train"}</button>
+        <button onClick={function() { setIsTraining(false); setEpoch(0); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
+          borderRadius: 4, border: "1px solid " + COLORS.border,
+          background: "transparent", color: COLORS.textDim, cursor: "pointer",
+        }}>Reset</button>
+        {[1, 2, 4].map(function(s) { return (
+          <button key={s} onClick={function() { setSpeed(s); }} style={{
+            fontFamily: FONTS.mono, fontSize: 11, width: 28, height: 24,
+            borderRadius: 3, border: "1px solid " + (speed === s ? stageColor : COLORS.border),
+            background: speed === s ? stageColor + "15" : "transparent",
+            color: speed === s ? stageColor : COLORS.textDim, cursor: "pointer",
+          }}>{s}x</button>
+        ); })}
+        <div style={{ flex: 1 }} />
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor }}>
+          Epoch {epoch}
+        </div>
+      </div>
+
+      <div style={{
+        background: "#08080A", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden",
+      }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: 360 }} />
+      </div>
+    </div>
+  );
+}
+
+
+function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
+  const stage = STAGES[2];
+  const [sentenceIdx, setSentenceIdx] = useState(0);
+  const [headIdx, setHeadIdx] = useState(0);
+  const [hoverCell, setHoverCell] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [showSection, setShowSection] = useState("attention"); // attention | positional | architecture | training | challenge
+  const canvasRef = useRef(null);
+  const posCanvasRef = useRef(null);
+
+  // Challenge state
+  const [challengeIdx, setChallengeIdx] = useState(0);
+  const [challengeAnswer, setChallengeAnswer] = useState(null);
+  const [challengeScore, setChallengeScore] = useState({ correct: 0, total: 0 });
+
+  const sentence = ATTENTION_DATA[sentenceIdx];
+  const head = sentence.heads[headIdx];
+
+  // Draw attention heatmap
+  useEffect(() => {
+    if (showSection !== "attention") return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    const tokens = sentence.tokens;
+    const n = tokens.length;
+    const cellSize = Math.min((w - 120) / n, 48);
+    const margin = { top: 60, left: 80 };
+    const totalW = margin.left + n * cellSize + 20;
+    const totalH = margin.top + n * cellSize + 20;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = totalW * dpr;
+    canvas.height = totalH * dpr;
+    canvas.style.width = totalW + "px";
+    canvas.style.height = totalH + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, totalW, totalH);
+
+    const weights = head.weights;
+
+    for (let row = 0; row < n; row++) {
+      for (let col = 0; col < n; col++) {
+        const weight = weights[row][col];
+        const x = margin.left + col * cellSize;
+        const y = margin.top + row * cellSize;
+        const isHovered = hoverCell && hoverCell.row === row && hoverCell.col === col;
+
+        const intensity = Math.min(weight * 2.5, 1);
+        const r = parseInt(stage.color.slice(1,3), 16);
+        const g = parseInt(stage.color.slice(3,5), 16);
+        const b = parseInt(stage.color.slice(5,7), 16);
+
+        ctx.fillStyle = isHovered
+          ? `rgba(${r},${g},${b},${Math.max(intensity, 0.5)})`
+          : `rgba(${r},${g},${b},${intensity * 0.9})`;
+        ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+
+        // Highlight row/col
+        if (hoverCell && (hoverCell.row === row || hoverCell.col === col) && !isHovered) {
+          ctx.fillStyle = "rgba(255,255,255,0.04)";
+          ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+        }
+
+        // Show weight value on hover
+        if (isHovered) {
+          ctx.font = "11px JetBrains Mono";
+          ctx.fillStyle = "#fff";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(weight.toFixed(2), x + cellSize / 2, y + cellSize / 2);
+        }
+      }
+    }
+
+    // Labels
+    ctx.font = "11px JetBrains Mono";
+    for (let i = 0; i < n; i++) {
+      const isHighRow = hoverCell && hoverCell.row === i;
+      const isHighCol = hoverCell && hoverCell.col === i;
+
+      // Column labels (top - "attends to")
+      ctx.save();
+      ctx.translate(margin.left + i * cellSize + cellSize / 2, margin.top - 8);
+      ctx.rotate(-Math.PI / 4);
+      ctx.fillStyle = isHighCol ? stage.color : COLORS.textDim;
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tokens[i], 0, 0);
+      ctx.restore();
+
+      // Row labels (left - "from")
+      ctx.fillStyle = isHighRow ? stage.color : COLORS.textDim;
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(tokens[i], margin.left - 8, margin.top + i * cellSize + cellSize / 2);
+    }
+
+    // Axis labels
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.textAlign = "center";
+    ctx.fillText("attends to \u2192", margin.left + (n * cellSize) / 2, 12);
+    ctx.save();
+    ctx.translate(12, margin.top + (n * cellSize) / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("from \u2192", 0, 0);
+    ctx.restore();
+
+  }, [sentence, head, hoverCell, showSection, stage.color]);
+
+  // Draw positional encoding
+  useEffect(() => {
+    if (showSection !== "positional") return;
+    const canvas = posCanvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const w = container.clientWidth;
+    const h = 300;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    const maxPos = 40;
+    const dims = 8;
+    const margin = { top: 20, bottom: 30, left: 40, right: 20 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    // Draw each dimension as a colored wave
+    const dimColors = ["#E8A838", "#48BFE3", "#C4A1FF", "#FF6B6B", "#72E1A0", "#FFD166", "#FF85A1", "#80ED99"];
+    for (let d = 0; d < dims; d++) {
+      ctx.beginPath();
+      for (let pos = 0; pos <= maxPos; pos++) {
+        const x = margin.left + (pos / maxPos) * plotW;
+        const val = d % 2 === 0
+          ? Math.sin(pos / Math.pow(10000, (2 * Math.floor(d/2)) / 64))
+          : Math.cos(pos / Math.pow(10000, (2 * Math.floor(d/2)) / 64));
+        const y = margin.top + plotH / 2 - val * (plotH / 2 - 10);
+        pos === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = dimColors[d] + "80";
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Axis
+    ctx.strokeStyle = COLORS.textDim;
+    ctx.lineWidth = 0.5;
+    ctx.beginPath();
+    ctx.moveTo(margin.left, margin.top + plotH / 2);
+    ctx.lineTo(w - margin.right, margin.top + plotH / 2);
+    ctx.stroke();
+
+    // Labels
+    ctx.font = "10px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.textAlign = "center";
+    for (let p = 0; p <= maxPos; p += 5) {
+      const x = margin.left + (p / maxPos) * plotW;
+      ctx.fillText(p.toString(), x, h - 10);
+    }
+    ctx.fillText("Position", margin.left + plotW / 2, h - 2);
+
+    ctx.save();
+    ctx.translate(12, margin.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Encoding value", 0, 0);
+    ctx.restore();
+
+    // Legend
+    ctx.font = "9px JetBrains Mono";
+    for (let d = 0; d < dims; d++) {
+      const lx = margin.left + (d % 4) * 80;
+      const ly = margin.top + plotH + 20 + Math.floor(d / 4) * 14;
+      ctx.fillStyle = dimColors[d];
+      ctx.fillRect(lx, ly - 4, 12, 3);
+      ctx.fillStyle = COLORS.textDim;
+      ctx.textAlign = "left";
+      ctx.fillText(`dim ${d}`, lx + 16, ly);
+    }
+  }, [showSection]);
+
+  const handleHeatmapMouseMove = useCallback((e) => {
+    if (showSection !== "attention") return;
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const n = sentence.tokens.length;
+    const w = rect.width;
+    const cellSize = Math.min((w - 120) / n, 48);
+    const margin = { top: 60, left: 80 };
+    const col = Math.floor((x - margin.left) / cellSize);
+    const row = Math.floor((y - margin.top) / cellSize);
+    if (row >= 0 && row < n && col >= 0 && col < n) {
+      setHoverCell({ row, col });
+    } else {
+      setHoverCell(null);
+    }
+  }, [showSection, sentence]);
+
+  const handleChallengeAnswer = useCallback((option) => {
+    const challenge = ATTENTION_CHALLENGES[challengeIdx];
+    const isCorrect = option === challenge.correct;
+    setChallengeAnswer(option);
+    const newScore = {
+      correct: challengeScore.correct + (isCorrect ? 1 : 0),
+      total: challengeScore.total + 1,
+    };
+    setChallengeScore(newScore);
+    dispatch({ type: "UPDATE_SCORE", stage: 2, score: newScore.correct, attempts: newScore.total });
+
+    if (newScore.correct >= 3 && !stageProgress.challengeCompleted) {
+      setTimeout(() => {
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 2, score: newScore.correct });
+      }, 1000);
+    }
+  }, [challengeIdx, challengeScore, dispatch, stageProgress]);
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Section tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {[["attention", "Attention Heatmap"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
+          <button key={id} onClick={() => setShowSection(id)} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "7px 14px",
+            borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
+            background: showSection === id ? stage.colorDim : "transparent",
+            color: showSection === id ? stage.color : COLORS.textDim,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* Attention Heatmap */}
+      {showSection === "attention" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Self-Attention Visualization
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Each cell shows how much attention one token pays to another. Rows are "from" tokens, columns are "attends to" tokens. Brighter = stronger attention.
+          </p>
+
+          {/* Sentence selector */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
+            {ATTENTION_DATA.map((s, i) => (
+              <button key={i} onClick={() => { setSentenceIdx(i); setHeadIdx(0); }} style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                borderRadius: 4, border: `1px solid ${sentenceIdx === i ? stage.color : COLORS.border}`,
+                background: sentenceIdx === i ? stage.colorDim : "transparent",
+                color: sentenceIdx === i ? stage.color : COLORS.textDim,
+                cursor: "pointer", maxWidth: 280, overflow: "hidden", textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}>"{s.sentence.substring(0, 35)}..."</button>
+            ))}
+          </div>
+
+          {/* Head selector */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+            {sentence.heads.map((h, i) => (
+              <button key={i} onClick={() => setHeadIdx(i)} style={{
+                fontFamily: FONTS.mono, fontSize: 10, padding: "4px 10px",
+                borderRadius: 3, border: `1px solid ${headIdx === i ? stage.color : COLORS.border}`,
+                background: headIdx === i ? stage.colorDim : "transparent",
+                color: headIdx === i ? stage.color : COLORS.textDim,
+                cursor: "pointer",
+              }}>{h.label}</button>
+            ))}
+          </div>
+
+          <div style={{
+            background: "#08080A", border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, overflow: "hidden", padding: 8, marginBottom: 12,
+          }}>
+            <canvas
+              ref={canvasRef}
+              onMouseMove={handleHeatmapMouseMove}
+              onMouseLeave={() => setHoverCell(null)}
+              style={{ cursor: "crosshair" }}
+            />
+          </div>
+
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: stage.color,
+            fontStyle: "italic", padding: "8px 16px",
+            background: stage.colorDim, borderRadius: 6,
+            borderLeft: `3px solid ${stage.color}`,
+          }}>
+            {sentence.note}
+          </div>
+        </div>
+      )}
+
+      {/* Positional Encoding */}
+      {showSection === "positional" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Positional Encoding
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Since transformers process all tokens simultaneously (no recurrence), they need another way to know word order.
+            The solution: add sinusoidal waves of different frequencies to each position. Each position gets a unique "fingerprint" vector.
+            Low-frequency waves encode coarse position; high-frequency waves encode fine position.
+          </p>
+          <div style={{
+            background: "#08080A", border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, overflow: "hidden", padding: 8,
+          }}>
+            <canvas ref={posCanvasRef} style={{ width: "100%" }} />
+          </div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            marginTop: 12, lineHeight: 1.6,
+          }}>
+            <strong style={{ color: COLORS.text }}>Key insight:</strong> The formula PE(pos, 2i) = sin(pos / 10000^(2i/d)) generates
+            waves at exponentially increasing wavelengths. This means nearby positions have similar encodings (good for local patterns),
+            while distant positions are easily distinguishable (good for long-range dependencies).
+          </div>
+        </div>
+      )}
+
+      {/* Architecture Walkthrough */}
+      {showSection === "architecture" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Transformer Architecture
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 20, lineHeight: 1.5 }}>
+            Walk through the transformer layer step by step. Click each block to see details.
+          </p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
+            {ARCH_STEPS.map((step, i) => {
+              const isActive = activeStep === i;
+              return (
+                <div key={step.id}>
+                  <div
+                    onClick={() => setActiveStep(i)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 16,
+                      padding: "12px 16px", borderRadius: 8, cursor: "pointer",
+                      background: isActive ? `${step.color}15` : "transparent",
+                      border: `1px solid ${isActive ? step.color + "40" : "transparent"}`,
+                      transition: "all 0.3s",
+                    }}
+                  >
+                    {/* Step node */}
+                    <div style={{
+                      width: 32, height: 32, borderRadius: 6, flexShrink: 0,
+                      background: isActive ? step.color : "transparent",
+                      border: `2px solid ${step.color}`,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontFamily: FONTS.mono, fontSize: 11, fontWeight: 600,
+                      color: isActive ? "#0B0A09" : step.color,
+                      transition: "all 0.3s",
+                    }}>{i + 1}</div>
+
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontFamily: FONTS.mono, fontSize: 13, fontWeight: 600,
+                        color: isActive ? COLORS.text : COLORS.textDim,
+                      }}>{step.label}</div>
+                      {isActive && (
+                        <div style={{
+                          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                          marginTop: 4, lineHeight: 1.5, animation: "fadeInUp 0.3s ease",
+                        }}>{step.desc}</div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Connector arrow */}
+                  {i < ARCH_STEPS.length - 1 && (
+                    <div style={{
+                      display: "flex", justifyContent: "center", padding: "2px 0",
+                    }}>
+                      <div style={{
+                        width: 1, height: 16,
+                        background: `linear-gradient(${step.color}40, ${ARCH_STEPS[i+1].color}40)`,
+                      }} />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Training Simulation */}
+      {/* Network View */}
+      {showSection === "network" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Transformer Network
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            A single transformer layer. Input tokens flow through the embedding, into multi-head attention
+            (where tokens "look at" each other), through a feed-forward network, and out as updated representations.
+            In practice, GPT-4 stacks ~120 of these layers deep.
+          </p>
+          <NeuralNetworkViz
+            config={{
+              layers: [6, 6, 6, 6, 6, 6],
+              labels: ["Tokens", "Embed\n+Position", "Q, K, V\nProjection", "Attention\nOutput", "Feed-\nForward", "Next Token\nProbs"],
+              activations: [
+                [0.8, 0.6, 0.7, 0.3, 0.5, 0.9],
+                [0.6, 0.4, 0.5, 0.2, 0.7, 0.8],
+                [0.5, 0.7, 0.3, 0.6, 0.4, 0.5],
+                [0.8, 0.3, 0.9, 0.2, 0.6, 0.7],
+                [0.7, 0.5, 0.6, 0.4, 0.8, 0.3],
+                [0.1, 0.05, 0.02, 0.8, 0.01, 0.02],
+              ],
+            }}
+            stageColor={stage.color}
+            label="One Transformer Layer"
+          />
+          <NeuralNetworkViz
+            config={{
+              layers: [6, 8, 8, 8, 6],
+              labels: ["Query (Q)", "Key (K)", "Dot Product\nQK^T", "Softmax\nWeights", "Value (V)\nOutput"],
+              activations: [
+                [0.5, 0.3, -0.2, 0.7, 0.1, -0.4],
+                [0.3, 0.8, -0.1, 0.4, 0.6, -0.3, 0.2, 0.5],
+                [0.7, 0.2, 0.1, 0.9, 0.3, 0.05, 0.1, 0.4],
+                [0.35, 0.1, 0.05, 0.4, 0.05, 0.02, 0.01, 0.02],
+                [0.6, 0.4, 0.5, 0.8, 0.3, 0.7],
+              ],
+            }}
+            stageColor={stage.color}
+            label="Inside Self-Attention (one head)"
+          />
+        </div>
+      )}
+
+      {showSection === "training" && (
+        <TransformerTrainingSim stageColor={stage.color} />
+      )}
+
+      {/* Challenge */}
+      {showSection === "challenge" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Coreference Challenge
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Attention helps resolve pronoun references. For each sentence, identify which word the highlighted pronoun refers to.
+            Get all 3 correct to unlock Stage 4.
+          </p>
+
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 16,
+          }}>
+            Score: <span style={{ color: stage.color }}>{challengeScore.correct}/3</span>
+            {" | "}Question {Math.min(challengeIdx + 1, ATTENTION_CHALLENGES.length)} of {ATTENTION_CHALLENGES.length}
+          </div>
+
+          {challengeIdx < ATTENTION_CHALLENGES.length ? (() => {
+            const challenge = ATTENTION_CHALLENGES[challengeIdx];
+            return (
+              <div style={{
+                background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+                borderRadius: 8, padding: 20,
+              }}>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 15, color: COLORS.text,
+                  marginBottom: 16, lineHeight: 1.8,
+                }}>
+                  {challenge.tokens.map((t, i) => (
+                    <span key={i} style={{
+                      color: i === challenge.targetToken ? stage.color : COLORS.text,
+                      fontWeight: i === challenge.targetToken ? 700 : 400,
+                      textDecoration: i === challenge.targetToken ? "underline" : "none",
+                      textUnderlineOffset: 4,
+                    }}>{t} </span>
+                  ))}
+                </div>
+
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, marginBottom: 16,
+                }}>
+                  What does "<span style={{ color: stage.color }}>{challenge.targetLabel}</span>" refer to?
+                </div>
+
+                <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+                  {challenge.options.map((opt, i) => (
+                    <button key={opt} onClick={() => !challengeAnswer && handleChallengeAnswer(opt)} style={{
+                      fontFamily: FONTS.mono, fontSize: 14, padding: "10px 24px",
+                      borderRadius: 6, cursor: challengeAnswer ? "default" : "pointer",
+                      border: `1px solid ${
+                        challengeAnswer
+                          ? opt === challenge.correct ? "#72E1A0" : opt === challengeAnswer ? "#FF6B6B" : COLORS.border
+                          : COLORS.border
+                      }`,
+                      background: challengeAnswer
+                        ? opt === challenge.correct ? "rgba(114,225,160,0.1)" : opt === challengeAnswer ? "rgba(255,107,107,0.1)" : "transparent"
+                        : "transparent",
+                      color: challengeAnswer
+                        ? opt === challenge.correct ? "#72E1A0" : opt === challengeAnswer ? "#FF6B6B" : COLORS.textDim
+                        : COLORS.text,
+                      transition: "all 0.2s",
+                    }}>{challenge.optionLabels[i]}</button>
+                  ))}
+                </div>
+
+                {challengeAnswer && (
+                  <div style={{ animation: "fadeInUp 0.3s ease" }}>
+                    <div style={{
+                      fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                      lineHeight: 1.5, marginBottom: 12,
+                      padding: 12, background: "rgba(0,0,0,0.2)", borderRadius: 6,
+                    }}>
+                      {challenge.explanation}
+                    </div>
+                    <button onClick={() => {
+                      setChallengeIdx(i => i + 1);
+                      setChallengeAnswer(null);
+                    }} style={{
+                      fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+                      borderRadius: 4, border: `1px solid ${stage.color}`,
+                      background: stage.colorDim, color: stage.color, cursor: "pointer",
+                    }}>Next Question</button>
+                  </div>
+                )}
+              </div>
+            );
+          })() : (
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 14, color: "#72E1A0",
+              padding: 20, background: "rgba(114,225,160,0.08)",
+              borderRadius: 8, border: "1px solid rgba(114,225,160,0.2)",
+              textAlign: "center",
+            }}>
+              Challenge complete! Score: {challengeScore.correct}/3
+              {challengeScore.correct >= 3 && " \u2014 Stage 4 unlocked!"}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: STAGE 4 - RLHF PLAYGROUND
+// ============================================================
+
+function RLHFUnderTheHood({ stageColor }) {
+  const canvasRef = useRef(null);
+  const [showAligned, setShowAligned] = useState(false);
+
+  // Simplified "transformer output" for a prompt
+  var prompt = "How do I pick a lock?";
+  var vocabWords = ["To", "pick", "a", "lock", "insert", "I'd", "recommend", "calling", "the", "tension", "wrench", "locksmith", "into", "understand", "security", "curious"];
+
+  // Pre-alignment: top tokens are instructional
+  var preAlignProbs = [0.15, 0.12, 0.10, 0.09, 0.11, 0.02, 0.01, 0.01, 0.08, 0.10, 0.08, 0.01, 0.06, 0.02, 0.02, 0.02];
+  // Post-alignment: top tokens shift toward helpful/safe responses
+  var postAlignProbs = [0.04, 0.03, 0.06, 0.05, 0.02, 0.11, 0.10, 0.08, 0.06, 0.01, 0.01, 0.09, 0.02, 0.12, 0.10, 0.09];
+
+  // Pre-alignment attention: "lock" attends to "pick" (instructional)
+  var preAttention = [
+    [0.3,0.2,0.1,0.15,0.1,0.15], // How
+    [0.1,0.3,0.1,0.3,0.1,0.1],   // do
+    [0.1,0.1,0.3,0.2,0.1,0.2],   // I
+    [0.15,0.25,0.1,0.2,0.15,0.15],// pick
+    [0.1,0.1,0.2,0.1,0.3,0.2],   // a
+    [0.1,0.2,0.1,0.3,0.1,0.2],   // lock
+  ];
+  // Post-alignment: "lock" attends more to "How" and "I" (understanding user intent)
+  var postAttention = [
+    [0.25,0.15,0.2,0.1,0.1,0.2],
+    [0.2,0.2,0.2,0.1,0.1,0.2],
+    [0.25,0.15,0.2,0.1,0.15,0.15],
+    [0.15,0.1,0.25,0.15,0.15,0.2],
+    [0.15,0.1,0.2,0.15,0.2,0.2],
+    [0.2,0.1,0.2,0.15,0.15,0.2],
+  ];
+  var attTokens = ["How", "do", "I", "pick", "a", "lock"];
+
+  var probs = showAligned ? postAlignProbs : preAlignProbs;
+  var attention = showAligned ? postAttention : preAttention;
+
+  useEffect(function() {
+    var canvas = canvasRef.current;
+    if (!canvas) return;
+    var container = canvas.parentElement;
+    var w = container.clientWidth;
+    var h = 440;
+    var dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
+    canvas.style.width = w + "px";
+    canvas.style.height = h + "px";
+    var ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    ctx.fillStyle = "#08080A";
+    ctx.fillRect(0, 0, w, h);
+
+    var halfW = Math.floor(w / 2) - 10;
+
+    // === LEFT: Token Probability Distribution ===
+    ctx.font = "600 11px JetBrains Mono";
+    ctx.fillStyle = showAligned ? "#72E1A0" : "#FF6B6B";
+    ctx.textAlign = "center";
+    ctx.fillText(showAligned ? "POST-ALIGNMENT output distribution" : "PRE-ALIGNMENT output distribution", halfW / 2 + 5, 20);
+
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.fillText("Next token probabilities for: \"" + prompt + "\"", halfW / 2 + 5, 36);
+
+    // Sort by probability for display
+    var sorted = vocabWords.map(function(word, i) { return { word: word, prob: probs[i] }; });
+    sorted.sort(function(a, b) { return b.prob - a.prob; });
+
+    var barX = 100;
+    var barMaxW = halfW - barX - 20;
+    var barH = 18;
+    var barGap = 3;
+
+    for (var bi = 0; bi < Math.min(sorted.length, 12); bi++) {
+      var by = 50 + bi * (barH + barGap);
+      var bw = sorted[bi].prob * barMaxW * 5;
+
+      // Highlight "safe" vs "unsafe" tokens
+      var isSafe = ["recommend", "calling", "locksmith", "understand", "security", "curious", "I'd"].indexOf(sorted[bi].word) >= 0;
+      var isUnsafe = ["insert", "tension", "wrench", "pick", "into"].indexOf(sorted[bi].word) >= 0;
+
+      var barColor = showAligned
+        ? (isSafe ? "#72E1A080" : isUnsafe ? "#FF6B6B40" : stageColor + "50")
+        : (isUnsafe ? "#FF6B6B60" : isSafe ? "#72E1A030" : stageColor + "50");
+
+      ctx.fillStyle = barColor;
+      ctx.fillRect(barX, by, bw, barH);
+      ctx.strokeStyle = "rgba(255,255,255,0.1)";
+      ctx.strokeRect(barX, by, bw, barH);
+
+      // Label
+      ctx.font = "10px JetBrains Mono";
+      ctx.fillStyle = COLORS.textDim;
+      ctx.textAlign = "right";
+      ctx.fillText(sorted[bi].word, barX - 6, by + barH / 2 + 3);
+
+      // Probability
+      ctx.textAlign = "left";
+      ctx.fillStyle = "rgba(255,255,255,0.5)";
+      ctx.fillText((sorted[bi].prob * 100).toFixed(0) + "%", barX + bw + 4, by + barH / 2 + 3);
+    }
+
+    // Legend
+    var legendY = 50 + 12 * (barH + barGap) + 10;
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = "#72E1A0"; ctx.fillRect(10, legendY, 8, 8);
+    ctx.fillStyle = COLORS.textDim; ctx.textAlign = "left";
+    ctx.fillText("Safe/helpful tokens", 22, legendY + 7);
+    ctx.fillStyle = "#FF6B6B"; ctx.fillRect(10, legendY + 14, 8, 8);
+    ctx.fillStyle = COLORS.textDim;
+    ctx.fillText("Potentially harmful tokens", 22, legendY + 21);
+
+    // === RIGHT: Attention Pattern ===
+    var rightX = halfW + 20;
+    ctx.font = "600 11px JetBrains Mono";
+    ctx.fillStyle = showAligned ? "#72E1A0" : "#FF6B6B";
+    ctx.textAlign = "center";
+    ctx.fillText(showAligned ? "POST-ALIGNMENT attention" : "PRE-ALIGNMENT attention", rightX + halfW / 2, 20);
+
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.fillText("What each token attends to", rightX + halfW / 2, 36);
+
+    var an = attTokens.length;
+    var cellSize = Math.min(Math.floor((halfW - 80) / an), 40);
+    var attMargin = { top: 60, left: 55 };
+
+    for (var ar = 0; ar < an; ar++) {
+      for (var ac = 0; ac < an; ac++) {
+        var val = attention[ar][ac];
+        var intensity = Math.min(val * 3, 1);
+        var acx = rightX + attMargin.left + ac * cellSize;
+        var acy = attMargin.top + ar * cellSize;
+
+        var cr = showAligned ? 114 : 255;
+        var cg = showAligned ? 225 : 107;
+        var cb = showAligned ? 160 : 107;
+        ctx.fillStyle = "rgba(" + cr + "," + cg + "," + cb + "," + (intensity * 0.85) + ")";
+        ctx.fillRect(acx + 0.5, acy + 0.5, cellSize - 1, cellSize - 1);
+      }
+    }
+
+    // Token labels for attention
+    ctx.font = "9px JetBrains Mono";
+    for (var ati = 0; ati < an; ati++) {
+      ctx.fillStyle = COLORS.textDim;
+      ctx.save();
+      ctx.translate(rightX + attMargin.left + ati * cellSize + cellSize / 2, attMargin.top - 6);
+      ctx.rotate(-0.5);
+      ctx.textAlign = "left";
+      ctx.fillText(attTokens[ati], 0, 0);
+      ctx.restore();
+      ctx.textAlign = "right";
+      ctx.fillText(attTokens[ati], rightX + attMargin.left - 4, attMargin.top + ati * cellSize + cellSize / 2 + 3);
+    }
+
+    // Insight box
+    var insightY = attMargin.top + an * cellSize + 20;
+    ctx.fillStyle = "rgba(255,255,255,0.03)";
+    ctx.fillRect(rightX, insightY, halfW, 80);
+    ctx.strokeStyle = (showAligned ? "#72E1A0" : "#FF6B6B") + "30";
+    ctx.strokeRect(rightX, insightY, halfW, 80);
+
+    ctx.font = "10px JetBrains Mono";
+    ctx.fillStyle = showAligned ? "#72E1A0" : "#FF6B6B";
+    ctx.textAlign = "left";
+    ctx.fillText(showAligned ? "After RLHF:" : "Before RLHF:", rightX + 10, insightY + 16);
+
+    ctx.font = "10px Source Serif 4, serif";
+    ctx.fillStyle = "rgba(255,255,255,0.7)";
+    if (showAligned) {
+      ctx.fillText("Attention shifts toward understanding user", rightX + 10, insightY + 34);
+      ctx.fillText("intent (\"How\", \"I\") rather than the action", rightX + 10, insightY + 50);
+      ctx.fillText("object. Output favors helpful alternatives.", rightX + 10, insightY + 66);
+    } else {
+      ctx.fillText("\"lock\" strongly attends to \"pick\" \u2014 the model", rightX + 10, insightY + 34);
+      ctx.fillText("treats this as a straightforward instruction.", rightX + 10, insightY + 50);
+      ctx.fillText("Output favors instructional tokens.", rightX + 10, insightY + 66);
+    }
+
+    // Reward score
+    var rewardY = h - 35;
+    ctx.font = "600 12px JetBrains Mono";
+    ctx.textAlign = "center";
+    ctx.fillStyle = COLORS.textDim;
+    ctx.fillText("Reward model score:", w / 2 - 60, rewardY);
+    ctx.fillStyle = showAligned ? "#72E1A0" : "#FF6B6B";
+    ctx.font = "600 16px JetBrains Mono";
+    ctx.fillText(showAligned ? "+2.4" : "-1.8", w / 2 + 60, rewardY);
+  }, [showAligned]);
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Under the Hood: Pre vs. Post-Alignment
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        RLHF doesn't just add a filter on top. It reshapes the model's internal representations.
+        Toggle between pre and post-alignment to see how both the output probability distribution
+        and the attention patterns change for the same prompt.
+      </p>
+
+      {/* Toggle */}
+      <div style={{
+        display: "flex", gap: 0, marginBottom: 16,
+        border: "1px solid " + COLORS.border, borderRadius: 6,
+        overflow: "hidden", width: "fit-content",
+      }}>
+        <button onClick={function() { setShowAligned(false); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+          border: "none", cursor: "pointer",
+          background: !showAligned ? "#FF6B6B20" : "transparent",
+          color: !showAligned ? "#FF6B6B" : COLORS.textDim,
+          borderRight: "1px solid " + COLORS.border,
+        }}>Pre-Alignment</button>
+        <button onClick={function() { setShowAligned(true); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+          border: "none", cursor: "pointer",
+          background: showAligned ? "#72E1A020" : "transparent",
+          color: showAligned ? "#72E1A0" : COLORS.textDim,
+        }}>Post-Alignment</button>
+      </div>
+
+      {/* Prompt display */}
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
+        marginBottom: 12, padding: "8px 14px", background: COLORS.bgPanel,
+        borderRadius: 6, border: "1px solid " + COLORS.border,
+      }}>
+        Prompt: <span style={{ color: stageColor }}>"{prompt}"</span>
+      </div>
+
+      <div style={{
+        background: "#08080A", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden",
+      }}>
+        <canvas ref={canvasRef} style={{ width: "100%", height: 440 }} />
+      </div>
+
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+        marginTop: 12, lineHeight: 1.6, padding: "10px 14px",
+        background: "rgba(0,0,0,0.2)", borderRadius: 6,
+        borderLeft: "3px solid " + stageColor + "40",
+      }}>
+        <strong style={{ color: COLORS.text }}>Key takeaway:</strong> RLHF changes what the model
+        considers important. Before alignment, "pick a lock" triggers an instructional response.
+        After alignment, the model attends more to user intent and steers toward
+        helpful alternatives. The probability mass shifts from harmful to helpful tokens.
+      </div>
+    </div>
+  );
+}
+
+
+function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
+  const stage = STAGES[3];
+  const [showSection, setShowSection] = useState("reward"); // reward | slider | tax | underhood
+  const [pairIdx, setPairIdx] = useState(0);
+  const [choice, setChoice] = useState(null);
+  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [sliderIdx, setSliderIdx] = useState(0);
+  const [sliderValue, setSliderValue] = useState(0.5);
+  const [taxIdx, setTaxIdx] = useState(0);
+
+  const handleChoice = useCallback((pick) => {
+    if (choice) return;
+    setChoice(pick);
+    const pair = RLHF_PAIRS[pairIdx];
+    const isCorrect = pick === pair.better;
+    const newScore = {
+      correct: score.correct + (isCorrect ? 1 : 0),
+      total: score.total + 1,
+    };
+    setScore(newScore);
+    dispatch({ type: "UPDATE_SCORE", stage: 3, score: newScore.correct, attempts: newScore.total });
+
+    if (newScore.total >= 5 && (newScore.correct / newScore.total) >= 0.6 && !stageProgress.challengeCompleted) {
+      setTimeout(() => {
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 3, score: Math.round((newScore.correct / newScore.total) * 100) });
+      }, 1500);
+    }
+  }, [choice, pairIdx, score, dispatch, stageProgress]);
+
+  const handleNextPair = useCallback(() => {
+    setPairIdx(i => (i + 1) % RLHF_PAIRS.length);
+    setChoice(null);
+  }, []);
+
+  const currentSpectrum = ALIGNMENT_SPECTRUM[sliderIdx];
+  const currentLevel = currentSpectrum.levels.reduce((closest, level) =>
+    Math.abs(level.t - sliderValue) < Math.abs(closest.t - sliderValue) ? level : closest
+  , currentSpectrum.levels[0]);
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Section tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
+        {[["reward", "Be the Reward Model"], ["slider", "Alignment Spectrum"], ["underhood", "Under the Hood"], ["pipeline", "RLHF Pipeline"], ["tax", "The Alignment Tax"]].map(([id, label]) => (
+          <button key={id} onClick={() => setShowSection(id)} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "7px 14px",
+            borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
+            background: showSection === id ? stage.colorDim : "transparent",
+            color: showSection === id ? stage.color : COLORS.textDim,
+            cursor: "pointer", transition: "all 0.2s",
+          }}>{label}</button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, alignSelf: "center" }}>
+          Agreement: <span style={{ color: stage.color }}>{score.correct}/{score.total}</span>
+          {score.total >= 5 && ` (${Math.round((score.correct / score.total) * 100)}%)`}
+        </div>
+      </div>
+
+      {/* Reward Model Game */}
+      {showSection === "reward" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            Be the Reward Model
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            You are the human evaluator. Given a prompt and two responses, pick the better one.
+            This is exactly how RLHF training data is collected. Rate 5+ pairs with 60%+ agreement to complete.
+          </p>
+
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 20,
+          }}>
+            {/* Prompt */}
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+              textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
+            }}>Prompt</div>
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+              marginBottom: 20, padding: 12, background: "rgba(0,0,0,0.2)",
+              borderRadius: 6, lineHeight: 1.5,
+            }}>
+              {RLHF_PAIRS[pairIdx].prompt}
+            </div>
+
+            {/* Two responses */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              {["a", "b"].map(pick => {
+                const pair = RLHF_PAIRS[pairIdx];
+                const text = pair[pick];
+                const isChosen = choice === pick;
+                const isCorrect = choice && pick === pair.better;
+                const isWrong = choice && isChosen && pick !== pair.better;
+                return (
+                  <div key={pick}
+                    onClick={() => handleChoice(pick)}
+                    style={{
+                      padding: 16, borderRadius: 8, cursor: choice ? "default" : "pointer",
+                      background: choice
+                        ? isCorrect ? "rgba(114,225,160,0.06)" : isWrong ? "rgba(255,107,107,0.06)" : "rgba(0,0,0,0.15)"
+                        : "rgba(0,0,0,0.15)",
+                      border: `1px solid ${
+                        choice
+                          ? isCorrect ? "rgba(114,225,160,0.3)" : isWrong ? "rgba(255,107,107,0.3)" : COLORS.border
+                          : COLORS.border
+                      }`,
+                      transition: "all 0.3s",
+                    }}
+                  >
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 11, marginBottom: 8,
+                      color: choice
+                        ? isCorrect ? "#72E1A0" : isWrong ? "#FF6B6B" : COLORS.textDim
+                        : stage.color,
+                      fontWeight: 600,
+                    }}>
+                      Response {pick.toUpperCase()}
+                      {choice && isCorrect && " \u2713"}
+                      {choice && isWrong && " \u2717"}
+                    </div>
+                    <div style={{
+                      fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                      lineHeight: 1.6, whiteSpace: "pre-line", opacity: choice && !isCorrect && !isChosen ? 0.5 : 1,
+                    }}>{text}</div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Reveal */}
+            {choice && (
+              <div style={{ animation: "fadeInUp 0.3s ease" }}>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                  lineHeight: 1.6, padding: 12, background: "rgba(0,0,0,0.2)",
+                  borderRadius: 6, marginBottom: 12,
+                  borderLeft: `3px solid ${choice === RLHF_PAIRS[pairIdx].better ? "#72E1A0" : "#FF6B6B"}`,
+                }}>
+                  <strong style={{ color: COLORS.text }}>Why {RLHF_PAIRS[pairIdx].better.toUpperCase()} is preferred: </strong>
+                  {RLHF_PAIRS[pairIdx].reason}
+                </div>
+                <button onClick={handleNextPair} style={{
+                  fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+                  borderRadius: 4, border: `1px solid ${stage.color}`,
+                  background: stage.colorDim, color: stage.color, cursor: "pointer",
+                }}>Next Pair</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Alignment Slider */}
+      {showSection === "slider" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            The Alignment Spectrum
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Drag the slider to see how the same prompt gets different responses at different alignment levels.
+            Pure prediction generates whatever text is most likely; full alignment considers helpfulness, safety, and honesty.
+          </p>
+
+          {/* Example selector */}
+          <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
+            {ALIGNMENT_SPECTRUM.map((s, i) => (
+              <button key={i} onClick={() => { setSliderIdx(i); setSliderValue(0.5); }} style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                borderRadius: 4, border: `1px solid ${sliderIdx === i ? stage.color : COLORS.border}`,
+                background: sliderIdx === i ? stage.colorDim : "transparent",
+                color: sliderIdx === i ? stage.color : COLORS.textDim,
+                cursor: "pointer", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}>"{s.prompt.substring(0, 30)}..."</button>
+            ))}
+          </div>
+
+          {/* Prompt */}
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+            marginBottom: 16, padding: 12, background: COLORS.bgPanel,
+            borderRadius: 6, border: `1px solid ${COLORS.border}`,
+          }}>
+            {currentSpectrum.prompt}
+          </div>
+
+          {/* Slider */}
+          <div style={{ marginBottom: 16 }}>
+            <div style={{
+              display: "flex", justifyContent: "space-between",
+              fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim, marginBottom: 6,
+            }}>
+              <span>Pure prediction</span>
+              <span style={{ color: stage.color }}>{currentLevel.label}</span>
+              <span>Fully aligned</span>
+            </div>
+            <input
+              type="range" min="0" max="1" step="0.01"
+              value={sliderValue}
+              onChange={e => setSliderValue(parseFloat(e.target.value))}
+              style={{ width: "100%", accentColor: stage.color }}
+            />
+          </div>
+
+          {/* Response */}
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 20, minHeight: 120,
+          }}>
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+              lineHeight: 1.7, whiteSpace: "pre-line",
+            }}>
+              {currentLevel.response}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Under the Hood */}
+      {showSection === "underhood" && (
+        <RLHFUnderTheHood stageColor={stage.color} />
+      )}
+
+      {/* RLHF Pipeline */}
+      {showSection === "pipeline" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            The RLHF Training Pipeline
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            RLHF has three sequential phases. Each builds on the previous to progressively align the model with human preferences.
+          </p>
+
+          <NeuralNetworkViz
+            config={{
+              layers: [4, 8, 8, 4],
+              labels: ["Prompt +\nDemo", "Pretrained\nLLM", "Fine-tuned\nLayers", "SFT\nOutput"],
+              activations: [
+                [0.8, 0.6, 0.7, 0.5],
+                [0.3, 0.5, 0.4, 0.6, 0.3, 0.7, 0.2, 0.5],
+                [0.6, 0.7, 0.5, 0.8, 0.4, 0.6, 0.7, 0.5],
+                [0.7, 0.8, 0.6, 0.9],
+              ],
+            }}
+            stageColor="#FFD166"
+            label="Phase 1: Supervised Fine-Tuning (SFT)"
+          />
+
+          <NeuralNetworkViz
+            config={{
+              layers: [4, 8, 6, 1],
+              labels: ["Response\nPair", "Shared\nEncoder", "Comparison\nLayers", "Reward\nScore"],
+              activations: [
+                [0.8, 0.3, 0.6, 0.5],
+                [0.4, 0.6, 0.3, 0.7, 0.5, 0.2, 0.8, 0.4],
+                [0.5, 0.7, 0.3, 0.6, 0.8, 0.4],
+                [0.85],
+              ],
+            }}
+            stageColor="#FF85A1"
+            label="Phase 2: Reward Model Training"
+          />
+
+          <NeuralNetworkViz
+            config={{
+              layers: [4, 8, 8, 4, 1],
+              labels: ["Prompt", "Policy\n(LLM)", "Generate\nResponse", "Reward\nModel", "PPO\nUpdate"],
+              activations: [
+                [0.8, 0.6, 0.7, 0.5],
+                [0.5, 0.6, 0.7, 0.4, 0.8, 0.3, 0.6, 0.5],
+                [0.7, 0.8, 0.6, 0.9, 0.5, 0.7, 0.4, 0.8],
+                [0.6, 0.7, 0.8, 0.5],
+                [0.75],
+              ],
+            }}
+            stageColor={stage.color}
+            label="Phase 3: PPO Optimization"
+          />
+
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            marginTop: 12, lineHeight: 1.6, padding: "10px 14px",
+            background: "rgba(0,0,0,0.2)", borderRadius: 6,
+            borderLeft: "3px solid " + stage.color + "40",
+          }}>
+            <strong style={{ color: COLORS.text }}>The feedback loop:</strong> Phase 3 is where the magic happens.
+            The LLM generates a response, the reward model scores it, and PPO adjusts the LLM's weights to increase
+            the expected reward. Over thousands of iterations, the model learns to generate responses that humans prefer.
+          </div>
+        </div>
+      )}
+
+      {/* Alignment Tax */}
+      {showSection === "tax" && (
+        <div>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+            The Alignment Tax
+          </h2>
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+            Alignment isn't free. Making models safer and more helpful sometimes means trading off other qualities.
+            These examples show what's gained and lost.
+          </p>
+
+          {/* Example tabs */}
+          <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
+            {ALIGNMENT_TAX.map((ex, i) => (
+              <button key={i} onClick={() => setTaxIdx(i)} style={{
+                fontFamily: FONTS.mono, fontSize: 10, padding: "5px 10px",
+                borderRadius: 3, border: `1px solid ${taxIdx === i ? stage.color : COLORS.border}`,
+                background: taxIdx === i ? stage.colorDim : "transparent",
+                color: taxIdx === i ? stage.color : COLORS.textDim,
+                cursor: "pointer",
+              }}>{ex.category}</button>
+            ))}
+          </div>
+
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 20,
+          }}>
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+              marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em",
+            }}>Prompt</div>
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+              marginBottom: 20, padding: 10, background: "rgba(0,0,0,0.2)",
+              borderRadius: 4,
+            }}>{ALIGNMENT_TAX[taxIdx].prompt}</div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 10, color: "#FF6B6B",
+                  textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
+                }}>Unaligned</div>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                  lineHeight: 1.6, opacity: 0.8,
+                }}>{ALIGNMENT_TAX[taxIdx].unaligned}</div>
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 10, color: "#72E1A0",
+                  textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
+                }}>Aligned</div>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                  lineHeight: 1.6, opacity: 0.8,
+                }}>{ALIGNMENT_TAX[taxIdx].aligned}</div>
+              </div>
+            </div>
+
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+              lineHeight: 1.6, padding: 12, background: "rgba(0,0,0,0.15)",
+              borderRadius: 6, borderLeft: `3px solid ${stage.color}`,
+            }}>
+              <strong style={{ color: COLORS.text }}>The tradeoff: </strong>
+              {ALIGNMENT_TAX[taxIdx].tradeoff}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: TRANSITION BRIDGE
+// ============================================================
+
+function TransitionBridge({ fromStage, toStage, onNavigate }) {
+  if (fromStage >= TRANSITION_TEXTS.length) return null;
+  return (
+    <div style={{
+      margin: "48px 0 32px", padding: "32px 24px",
+      background: `linear-gradient(135deg, ${STAGES[fromStage].colorDim}, ${STAGES[toStage].colorDim})`,
+      borderRadius: 12, border: `1px solid ${COLORS.border}`,
+      animation: "fadeInUp 0.6s ease",
+    }}>
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+        lineHeight: 1.8, fontStyle: "italic", opacity: 0.9, maxWidth: 620,
+      }}>
+        {TRANSITION_TEXTS[fromStage]}
+      </div>
+      <button onClick={() => onNavigate(toStage)} style={{
+        marginTop: 20, fontFamily: FONTS.mono, fontSize: 12,
+        padding: "10px 24px", borderRadius: 6,
+        border: `1px solid ${STAGES[toStage].color}`,
+        background: STAGES[toStage].colorDim,
+        color: STAGES[toStage].color, cursor: "pointer",
+        transition: "all 0.2s",
+      }}>
+        Continue to {STAGES[toStage].title} ({STAGES[toStage].year}) &rarr;
+      </button>
+    </div>
+  );
+}
+
+
+// ============================================================
+// COMPONENTS: MAIN CONTENT
+// ============================================================
+
+function MainContent({ currentStage, stageProgress, dispatch }) {
+  const scrollRef = useRef(null);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [currentStage]);
+
+  const playgrounds = [MarkovPlayground, Word2VecPlayground, TransformerPlayground, RLHFPlayground];
+  const Playground = playgrounds[currentStage];
+
+  return (
+    <div ref={scrollRef} style={{
+      flex: 1, overflowY: "auto", padding: "40px 48px",
+      maxWidth: 820,
+    }}>
+      <StageIntro stageIndex={currentStage} />
+
+      <div style={{
+        borderTop: `1px solid ${COLORS.border}`, marginBottom: 32, paddingTop: 32,
+      }}>
+        <Playground
+          stageIndex={currentStage}
+          dispatch={dispatch}
+          stageProgress={stageProgress[currentStage]}
+        />
+      </div>
+
+      {/* Transition bridge to next stage */}
+      {stageProgress[currentStage].challengeCompleted && currentStage < 3 && (
+        <TransitionBridge
+          fromStage={currentStage}
+          toStage={currentStage + 1}
+          onNavigate={(s) => dispatch({ type: "NAVIGATE", stage: s })}
+        />
+      )}
+
+      {/* Final completion message */}
+      {currentStage === 3 && stageProgress[3].challengeCompleted && (
+        <div style={{
+          margin: "48px 0", padding: "32px 24px", textAlign: "center",
+          background: "linear-gradient(135deg, rgba(232,168,56,0.08), rgba(72,191,227,0.08), rgba(196,161,255,0.08), rgba(255,107,107,0.08))",
+          borderRadius: 12, border: `1px solid ${COLORS.border}`,
+          animation: "fadeInUp 0.6s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.heading, fontSize: 28, color: COLORS.text,
+            marginBottom: 12,
+          }}>Journey Complete</div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 15, color: COLORS.textDim,
+            lineHeight: 1.8, maxWidth: 540, margin: "0 auto",
+          }}>
+            From Markov's letter-counting in 1913 to RLHF's preference learning in 2022, you've traced
+            the conceptual arc that leads to modern language models. Each breakthrough built on what came before:
+            statistical patterns, semantic geometry, universal attention, and human alignment. The next chapter
+            is being written now.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
+// ============================================================
+// APP ROOT
+// ============================================================
+
+function App() {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  return (
+    <div style={{
+      display: "flex", flexDirection: isMobile ? "column" : "row",
+      height: "100%", width: "100%", overflow: "hidden",
+      color: COLORS.text,
+    }}>
+      {/* Mobile top bar */}
+      {isMobile ? (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 0,
+          padding: "8px 16px", borderBottom: `1px solid ${COLORS.border}`,
+          background: "rgba(0,0,0,0.3)", flexShrink: 0,
+        }}>
+          {STAGES.map((stage, i) => (
+            <div key={i}
+              onClick={() => (state.unlockedStages[i] || state.freeExplore) && dispatch({ type: "NAVIGATE", stage: i })}
+              style={{
+                flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+                padding: "6px 4px", cursor: (state.unlockedStages[i] || state.freeExplore) ? "pointer" : "default",
+                opacity: (state.unlockedStages[i] || state.freeExplore) ? 1 : 0.3,
+              }}
+            >
+              <div style={{
+                width: 10, height: 10, borderRadius: "50%",
+                background: state.stageProgress[i].challengeCompleted ? stage.color
+                  : state.currentStage === i ? `${stage.color}60` : "transparent",
+                border: `2px solid ${state.unlockedStages[i] ? stage.color : COLORS.textDim}`,
+                boxShadow: state.currentStage === i ? `0 0 8px ${stage.color}40` : "none",
+              }} />
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 8, color: state.currentStage === i ? stage.color : COLORS.textDim,
+                marginTop: 3,
+              }}>{stage.year}</div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <StageNavigator
+          currentStage={state.currentStage}
+          unlockedStages={state.unlockedStages}
+          stageProgress={state.stageProgress}
+          freeExplore={state.freeExplore}
+          dispatch={dispatch}
+        />
+      )}
+
+      <MainContent
+        currentStage={state.currentStage}
+        stageProgress={state.stageProgress}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
