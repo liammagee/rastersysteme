@@ -690,8 +690,8 @@ const COLORS = {
   bgPanel: "rgba(255,255,255,0.03)",
   bgPanelHover: "rgba(255,255,255,0.06)",
   text: "#E8E4DE",
-  textDim: "#7A756C",
-  textFaint: "rgba(255,255,255,0.15)",
+  textDim: "#9A958E",
+  textFaint: "rgba(255,255,255,0.30)",
   border: "rgba(255,255,255,0.08)",
   borderLight: "rgba(255,255,255,0.05)",
 };
@@ -703,7 +703,7 @@ const COLORS = {
 
 function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplore, dispatch }) {
   return (
-    <div style={{
+    <nav role="navigation" aria-label="Stage navigation" style={{
       width: 220, minWidth: 220, height: "100%",
       borderRight: `1px solid ${COLORS.border}`,
       display: "flex", flexDirection: "column",
@@ -715,7 +715,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
         color: COLORS.text, marginBottom: 8, letterSpacing: "-0.01em",
       }}>Language Models</div>
       <div style={{
-        fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+        fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
         marginBottom: 32, textTransform: "uppercase", letterSpacing: "0.08em",
       }}>Four Breakthroughs</div>
 
@@ -749,7 +749,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
                 border: `2px solid ${unlocked ? stage.color : COLORS.textDim}`,
                 background: completed ? stage.color : active ? `${stage.color}30` : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: 9, color: completed ? "#0B0A09" : stage.color,
+                fontSize: 12, color: completed ? "#0B0A09" : stage.color,
                 fontFamily: FONTS.mono, fontWeight: 600,
                 boxShadow: active ? `0 0 12px ${stage.color}40` : "none",
                 transition: "all 0.3s",
@@ -766,7 +766,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
                   lineHeight: 1.3,
                 }}>{stage.title}</div>
                 <div style={{
-                  fontFamily: FONTS.mono, fontSize: 10,
+                  fontFamily: FONTS.mono, fontSize: 12,
                   color: unlocked ? stage.color : COLORS.textDim,
                   marginTop: 2,
                 }}>{stage.year}</div>
@@ -780,7 +780,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
       <div style={{
         borderTop: `1px solid ${COLORS.border}`,
         paddingTop: 16, marginTop: 16,
-        fontFamily: FONTS.mono, fontSize: 10,
+        fontFamily: FONTS.mono, fontSize: 12,
         color: COLORS.textDim,
       }}>
         {stageProgress.filter(s => s.challengeCompleted).length} / 4 stages completed
@@ -789,14 +789,14 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
           style={{
             marginTop: 10, padding: "5px 0", cursor: "pointer",
             color: freeExplore ? "#72E1A0" : COLORS.textDim,
-            fontSize: 9, letterSpacing: "0.06em",
+            fontSize: 12, letterSpacing: "0.06em",
             transition: "color 0.2s",
           }}
         >
           {freeExplore ? "\u2713 Free explore on" : "Unlock all stages"}
         </div>
       </div>
-    </div>
+    </nav>
   );
 }
 
@@ -804,6 +804,134 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
 // ============================================================
 // COMPONENTS: STAGE INTRO
 // ============================================================
+
+// ============================================================
+// GLOSSARY + LEARNING SUMMARIES
+// ============================================================
+
+const GLOSSARY = {
+  "n-gram": "A sequence of N consecutive characters or words used as the context window for prediction.",
+  "transition probability": "The likelihood of moving from one state (character/word) to another, learned by counting occurrences.",
+  "embedding": "A dense vector representation that encodes a word as a point in continuous space, where distance reflects meaning.",
+  "latent space": "The hidden geometric space where embeddings live. Relationships between words become spatial relationships.",
+  "distributional hypothesis": "The idea that words appearing in similar contexts tend to have similar meanings.",
+  "vector arithmetic": "Mathematical operations on word vectors. e.g. vec(king) - vec(man) + vec(woman) \u2248 vec(queen).",
+  "self-attention": "A mechanism where each word in a sentence computes how much to 'attend to' every other word.",
+  "query, key, value": "Three projections of each token used in attention. Query asks, Key answers, Value provides content.",
+  "positional encoding": "Sinusoidal signals added to embeddings so the model knows word order without recurrence.",
+  "softmax": "A function that converts a set of numbers into probabilities (0-1) that sum to 1.",
+  "reward model": "A neural network trained on human preference data to score how 'good' a model response is.",
+  "alignment": "The process of making a model's behavior match human values and intentions, not just statistical patterns.",
+  "PPO": "Proximal Policy Optimization \u2014 the reinforcement learning algorithm used to fine-tune the model against the reward signal.",
+  "RLHF": "Reinforcement Learning from Human Feedback \u2014 using human preferences to guide model training.",
+  "tokenization": "Splitting text into discrete units (characters, words, or subwords) that the model processes.",
+};
+
+function GlossaryTerm({ term, children }) {
+  var [showDef, setShowDef] = useState(false);
+  var def = GLOSSARY[term.toLowerCase()];
+  if (!def) return children || term;
+  return (
+    <span style={{ position: "relative", display: "inline" }}>
+      <span
+        onMouseEnter={function() { setShowDef(true); }}
+        onMouseLeave={function() { setShowDef(false); }}
+        onClick={function() { setShowDef(!showDef); }}
+        style={{
+          borderBottom: "1px dashed rgba(255,255,255,0.3)",
+          cursor: "help",
+        }}
+      >{children || term}</span>
+      {showDef && (
+        <span style={{
+          position: "absolute", bottom: "100%", left: 0,
+          background: "#1a1916", border: "1px solid " + COLORS.border,
+          borderRadius: 6, padding: "8px 12px", width: 280,
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+          lineHeight: 1.5, zIndex: 100,
+          boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+          animation: "fadeInUp 0.2s ease",
+        }}>
+          <strong style={{ fontFamily: FONTS.mono, fontSize: 12 }}>{term}</strong>
+          <br />{def}
+        </span>
+      )}
+    </span>
+  );
+}
+
+const WHAT_YOU_LEARNED = [
+  null, // Stage 0 (Markov) has no predecessor
+  "In the Markov stage, you learned that language has statistical patterns: given a character or short sequence, some characters are much more likely to follow than others. A Markov model predicts the next token using these transition probabilities. But it has no concept of meaning.",
+  "In the Word2Vec stage, you learned that words can be represented as vectors in a geometric space where distance encodes semantic similarity. Words with similar meanings cluster together, and relationships become vector arithmetic. But these representations are static \u2014 one vector per word regardless of context.",
+  "In the Transformer stage, you learned that self-attention lets every token dynamically consider every other token, creating context-dependent representations. The same word gets different representations in different sentences. But the model has no concept of helpfulness or safety.",
+];
+
+function WhatYouLearned({ stageIndex }) {
+  var text = WHAT_YOU_LEARNED[stageIndex];
+  if (!text) return null;
+  var prevStage = STAGES[stageIndex - 1];
+  return (
+    <div style={{
+      marginBottom: 20, padding: "14px 18px",
+      background: prevStage.color + "08",
+      border: "1px solid " + prevStage.color + "20",
+      borderRadius: 8, animation: "fadeInUp 0.4s ease",
+    }}>
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 12, color: prevStage.color,
+        textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
+      }}>What you learned in {prevStage.title}</div>
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+        lineHeight: 1.6, opacity: 0.85,
+      }}>{text}</div>
+    </div>
+  );
+}
+
+const TECHNICAL_SECTIONS = [
+  // Stage 0: Markov
+  "The Markov property states: P(X_{n+1} | X_1, X_2, ..., X_n) = P(X_{n+1} | X_n). For an order-k model, we estimate P(c | c_{i-k}...c_{i-1}) = count(c_{i-k}...c_{i-1}, c) / count(c_{i-k}...c_{i-1}). This is maximum likelihood estimation. Higher orders capture more context but require exponentially more data (the curse of dimensionality).",
+  // Stage 1: Word2Vec
+  "The skip-gram objective maximizes: (1/T) \u03A3_{t=1}^{T} \u03A3_{-c\u2264j\u2264c, j\u22600} log P(w_{t+j} | w_t), where P(w_O | w_I) = exp(v'_{w_O} \u00B7 v_{w_I}) / \u03A3_{w=1}^{W} exp(v'_w \u00B7 v_{w_I}). In practice, negative sampling approximates this by contrasting true context words against random negatives. The gradient updates pull co-occurring words closer in the embedding space.",
+  // Stage 2: Transformers
+  "Attention(Q,K,V) = softmax(QK^T / \u221Ad_k)V, where Q = XW_Q, K = XW_K, V = XW_V. The \u221Ad_k scaling prevents dot products from growing too large in high dimensions, which would push softmax into saturated regions with near-zero gradients. Multi-head attention runs h parallel attention functions: MultiHead(Q,K,V) = Concat(head_1,...,head_h)W_O.",
+  // Stage 3: RLHF
+  "The PPO objective maximizes: E_{(x,y)~\u03C0_\u03B8}[r_\u03C6(x,y)] - \u03B2 D_{KL}[\u03C0_\u03B8(y|x) || \u03C0_{ref}(y|x)]. The KL divergence penalty prevents the policy from diverging too far from the supervised fine-tuned model, maintaining language quality while improving alignment. The reward model r_\u03C6 is trained on human comparison data: L(\u03C6) = -E_{(x,y_w,y_l)} [log \u03C3(r_\u03C6(x,y_w) - r_\u03C6(x,y_l))].",
+];
+
+function TechnicalSection({ stageIndex, stageColor }) {
+  var [expanded, setExpanded] = useState(false);
+  var text = TECHNICAL_SECTIONS[stageIndex];
+  if (!text) return null;
+  return (
+    <div style={{ marginTop: 20, marginBottom: 10 }}>
+      <div
+        onClick={function() { setExpanded(!expanded); }}
+        style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
+          cursor: "pointer", padding: "8px 0",
+          display: "flex", alignItems: "center", gap: 8,
+        }}
+      >
+        <span style={{ color: stageColor, fontSize: 14, transition: "transform 0.2s", transform: expanded ? "rotate(90deg)" : "rotate(0)" }}>{"\u25B6"}</span>
+        For Technical Readers: The Mathematics
+      </div>
+      {expanded && (
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
+          lineHeight: 1.7, padding: "12px 16px",
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid " + COLORS.border,
+          borderRadius: 6, animation: "fadeInUp 0.3s ease",
+          opacity: 0.85,
+        }}>{text}</div>
+      )}
+    </div>
+  );
+}
+
 
 function StageIntro({ stageIndex }) {
   const stage = STAGES[stageIndex];
@@ -855,7 +983,7 @@ function StageIntro({ stageIndex }) {
           borderRadius: 8, animation: "fadeInUp 0.5s ease",
         }}>
           <div style={{
-            fontFamily: FONTS.mono, fontSize: 10, textTransform: "uppercase",
+            fontFamily: FONTS.mono, fontSize: 12, textTransform: "uppercase",
             letterSpacing: "0.1em", marginBottom: 12,
             color: COLORS.textDim,
           }}>Building on {stage.buildsOn.prevTitle}</div>
@@ -871,7 +999,7 @@ function StageIntro({ stageIndex }) {
             }} />
             <div>
               <div style={{
-                fontFamily: FONTS.mono, fontSize: 10, color: stage.buildsOn.prevColor,
+                fontFamily: FONTS.mono, fontSize: 12, color: stage.buildsOn.prevColor,
                 marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
               }}>The limitation</div>
               <div style={{
@@ -892,7 +1020,7 @@ function StageIntro({ stageIndex }) {
             }} />
             <div>
               <div style={{
-                fontFamily: FONTS.mono, fontSize: 10, color: stage.color,
+                fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
                 marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
               }}>What {stage.title} adds</div>
               <div style={{
@@ -933,12 +1061,12 @@ function StageIntro({ stageIndex }) {
                     minWidth: 120,
                   }}>
                     <div style={{
-                      fontFamily: FONTS.mono, fontSize: 11, fontWeight: 600,
+                      fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600,
                       color: isFirst ? stage.buildsOn.prevColor : stage.color,
                       marginBottom: 2,
                     }}>{step.label}</div>
                     <div style={{
-                      fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+                      fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
                       lineHeight: 1.4,
                     }}>{step.desc}</div>
                   </div>
@@ -955,7 +1083,7 @@ function StageIntro({ stageIndex }) {
         borderRadius: 8, padding: "16px 20px", marginBottom: 24,
       }}>
         <div style={{
-          fontFamily: FONTS.mono, fontSize: 10, color: stage.color,
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
           textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6,
         }}>Core Intuition</div>
         <div style={{
@@ -978,7 +1106,7 @@ function StageIntro({ stageIndex }) {
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
         {stage.concepts.map(c => (
           <span key={c} style={{
-            fontFamily: FONTS.mono, fontSize: 11,
+            fontFamily: FONTS.mono, fontSize: 12,
             padding: "4px 10px", borderRadius: 4,
             background: `${stage.color}15`, border: `1px solid ${stage.color}30`,
             color: stage.color,
@@ -1301,11 +1429,11 @@ function NeuralNetworkViz({ config, stageColor, label }) {
       }
 
       // Layer label
-      ctx.font = "10px JetBrains Mono";
+      ctx.font = "11px JetBrains Mono";
       ctx.fillStyle = activated ? COLORS.text : COLORS.textDim;
       ctx.textAlign = "center";
       ctx.fillText(config.labels ? config.labels[li] : "Layer " + li, x, h - 12);
-      ctx.font = "9px JetBrains Mono";
+      ctx.font = "11px JetBrains Mono";
       ctx.fillStyle = COLORS.textDim;
       ctx.fillText(layers[li] + " units", x, h - 1);
     }
@@ -1323,13 +1451,13 @@ function NeuralNetworkViz({ config, stageColor, label }) {
   return (
     <div style={{ marginBottom: 20 }}>
       {label && (
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stageColor, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
           {label}
         </div>
       )}
       <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
         <button onClick={function() { setAnimStep(0); setIsAnimating(true); }} style={{
-          fontFamily: FONTS.mono, fontSize: 11, padding: "5px 14px",
+          fontFamily: FONTS.mono, fontSize: 12, padding: "5px 14px",
           borderRadius: 4, border: "1px solid " + stageColor,
           background: "transparent", color: stageColor, cursor: "pointer",
         }}>Propagate</button>
@@ -1360,7 +1488,7 @@ function PredictionExplanation({ predictions, gameAnswer, gameContext, order, st
 
   return (
     <div style={{ marginBottom: 16 }}>
-      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
+      <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 6 }}>
         Model's top predictions:
       </div>
       <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
@@ -1580,7 +1708,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
     dispatch({ type: "UPDATE_SCORE", stage: 0, score: pct, attempts: newScore.total });
 
     // Check challenge completion (70% after at least 10 attempts)
-    if (newScore.total >= 10 && pct >= 70 && !stageProgress.challengeCompleted) {
+    if (newScore.total >= 10 && pct >= 60 && !stageProgress.challengeCompleted) {
       setTimeout(() => {
         dispatch({ type: "COMPLETE_CHALLENGE", stage: 0, score: pct });
       }, 1000);
@@ -1606,7 +1734,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
         <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
           {Object.entries(SAMPLE_TEXTS).map(([key, text]) => (
             <button key={key} onClick={() => setSourceText(text)} style={{
-              fontFamily: FONTS.mono, fontSize: 11, padding: "6px 14px",
+              fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px",
               borderRadius: 4, border: `1px solid ${sourceText === text ? stage.color : COLORS.border}`,
               background: sourceText === text ? stage.colorDim : "transparent",
               color: sourceText === text ? stage.color : COLORS.textDim,
@@ -1615,7 +1743,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
             }}>{key}</button>
           ))}
           <button onClick={() => { setSourceText(""); setTimeout(() => { const ta = document.querySelector("textarea"); if (ta) ta.focus(); }, 50); }} style={{
-            fontFamily: FONTS.mono, fontSize: 11, padding: "6px 14px",
+            fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px",
             borderRadius: 4, border: `1px solid ${!Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.color : COLORS.border}`,
             background: !Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.colorDim : "transparent",
             color: !Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.color : COLORS.textDim,
@@ -1675,7 +1803,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
         </p>
         <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 12, flexWrap: "wrap" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>N-gram order:</label>
+            <label style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>N-gram order:</label>
             {[1, 2, 3, 4].map(o => (
               <button key={o} onClick={() => setOrder(o)} style={{
                 fontFamily: FONTS.mono, fontSize: 12, width: 28, height: 28,
@@ -1723,7 +1851,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
           marginBottom: 12, lineHeight: 1.5,
         }}>
           Can you predict the next character? Given the context, click the character you think comes next.
-          Score 70% or higher after 10+ rounds to unlock the next stage.
+          Score 60% or higher after 10+ rounds to unlock the next stage. Hint: look at the transition matrix heatmap above to see which characters most often follow the highlighted context.
         </p>
 
         {!gameActive ? (
@@ -1751,9 +1879,9 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
                   </span>
                 )}
               </div>
-              {gameScore.total >= 10 && Math.round((gameScore.correct / gameScore.total) * 100) >= 70 && (
+              {gameScore.total >= 10 && Math.round((gameScore.correct / gameScore.total) * 100) >= 60 && (
                 <div style={{
-                  fontFamily: FONTS.mono, fontSize: 11, color: "#72E1A0",
+                  fontFamily: FONTS.mono, fontSize: 12, color: "#72E1A0",
                   padding: "4px 10px", background: "rgba(114,225,160,0.1)",
                   borderRadius: 4, border: "1px solid rgba(114,225,160,0.3)",
                 }}>Stage 2 Unlocked!</div>
@@ -1946,7 +2074,7 @@ function Word2VecTrainingSim({ stageColor }) {
     ctx.beginPath(); ctx.moveTo(mg.left, mg.top); ctx.lineTo(mg.left, mg.top + ph); ctx.stroke();
 
     // Axis labels
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = "rgba(255,255,255,0.2)";
     ctx.textAlign = "center";
     ctx.fillText("Semantic Dimension 1", mg.left + pw / 2, h - 6);
@@ -1958,7 +2086,7 @@ function Word2VecTrainingSim({ stageColor }) {
 
     // Semantic region labels (emerge as training progresses)
     var regionAlpha = Math.min(epoch / 60, 0.3);
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = "rgba(255,255,255," + regionAlpha + ")";
     ctx.textAlign = "center";
     ctx.fillText("royalty", mg.left + pw * 0.65, mg.top + ph * 0.22);
@@ -2034,7 +2162,7 @@ function Word2VecTrainingSim({ stageColor }) {
     ctx.fillRect(lossX, lossY, lossW, lossH);
     ctx.strokeStyle = "rgba(255,255,255,0.1)";
     ctx.strokeRect(lossX, lossY, lossW, lossH);
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = COLORS.textDim;
     ctx.textAlign = "left";
     ctx.fillText("loss", lossX + 4, lossY + 10);
@@ -2125,19 +2253,19 @@ function Word2VecTrainingSim({ stageColor }) {
           borderRadius: 4, border: "1px solid " + COLORS.border,
           background: "transparent", color: COLORS.textDim, cursor: "pointer",
         }}>Reset</button>
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginLeft: 8 }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginLeft: 8 }}>
           Speed:
         </div>
         {[1, 2, 4].map(function(s) { return (
           <button key={s} onClick={function() { setSpeed(s); }} style={{
-            fontFamily: FONTS.mono, fontSize: 11, width: 28, height: 24,
+            fontFamily: FONTS.mono, fontSize: 12, width: 28, height: 24,
             borderRadius: 3, border: "1px solid " + (speed === s ? stageColor : COLORS.border),
             background: speed === s ? stageColor + "15" : "transparent",
             color: speed === s ? stageColor : COLORS.textDim, cursor: "pointer",
           }}>{s}x</button>
         ); })}
         <div style={{ flex: 1 }} />
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stageColor }}>
           Epoch {epoch}
         </div>
       </div>
@@ -2232,7 +2360,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
     ctx.beginPath(); ctx.moveTo(margin.left, margin.top); ctx.lineTo(margin.left, margin.top + plotH); ctx.stroke();
 
     // Axis labels — semantic dimensions
-    ctx.font = "10px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = "rgba(255,255,255,0.25)";
     ctx.textAlign = "center";
     ctx.fillText("Concrete \u2190 \u2192 Abstract", margin.left + plotW / 2, h - 6);
@@ -2243,7 +2371,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
     ctx.restore();
 
     // Quadrant labels (very faint)
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = "rgba(255,255,255,0.07)";
     ctx.textAlign = "left";
     ctx.fillText("Places & Geography", margin.left + 8, margin.top + 16);
@@ -2277,7 +2405,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
         ctx.lineWidth = 1;
         ctx.stroke();
         // Cluster label
-        ctx.font = "10px JetBrains Mono";
+        ctx.font = "11px JetBrains Mono";
         ctx.fillStyle = cluster.color + "60";
         ctx.textAlign = "center";
         ctx.fillText(cluster.label, cx, cy - ry + 12);
@@ -2464,7 +2592,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
           }}>{label}</button>
         ))}
         <div style={{ flex: 1 }} />
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, alignSelf: "center" }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, alignSelf: "center" }}>
           Analogies solved: <span style={{ color: stage.color }}>{analogyScore.correct}</span>/5 to unlock
         </div>
       </div>
@@ -2493,7 +2621,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
               return next;
             });
           }} style={{
-            fontFamily: FONTS.mono, fontSize: 10, padding: "3px 10px",
+            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 10px",
             borderRadius: 3, border: `1px solid ${activeClusters.has(id) ? cluster.color + "60" : COLORS.border}`,
             background: activeClusters.has(id) ? cluster.color + "15" : "transparent",
             color: activeClusters.has(id) ? cluster.color : COLORS.textDim,
@@ -2525,7 +2653,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
           borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeInUp 0.3s ease",
         }}>
           <div style={{
-            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8,
+            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8,
           }}>Nearest neighbors of <span style={{ color: stage.color }}>{selectedWord}</span>:</div>
           <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
             {nearest.map(n => (
@@ -2575,26 +2703,43 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
           </div>
 
           <div style={{
-            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8,
+            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8,
           }}>Hint: {ANALOGY_PUZZLES[analogyIdx].hint}</div>
 
           {!analogyResult ? (
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                type="text" placeholder="Your guess..."
-                value={analogyGuess} onChange={e => setAnalogyGuess(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && handleAnalogySubmit()}
-                style={{
-                  padding: "6px 12px", fontFamily: FONTS.mono, fontSize: 12,
-                  background: "rgba(0,0,0,0.3)", border: `1px solid ${COLORS.border}`,
-                  borderRadius: 4, color: COLORS.text, outline: "none", width: 150,
-                }}
-              />
-              <button onClick={handleAnalogySubmit} style={{
-                fontFamily: FONTS.mono, fontSize: 12, padding: "6px 16px",
-                borderRadius: 4, border: `1px solid ${stage.color}`,
-                background: stage.colorDim, color: stage.color, cursor: "pointer",
-              }}>Solve</button>
+            <div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+                Choose your answer, then click "Check" to see the vector arithmetic:
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
+                {(() => {
+                  const puzzle = ANALOGY_PUZZLES[analogyIdx];
+                  const distractors = WORD_DATA
+                    .filter(w => w.w !== puzzle.a && w.w !== puzzle.b && w.w !== puzzle.c && w.w !== puzzle.answer)
+                    .sort(() => Math.random() - 0.5)
+                    .slice(0, 3)
+                    .map(w => w.w);
+                  const options = [puzzle.answer, ...distractors].sort(() => Math.random() - 0.5);
+                  return options.map(opt => (
+                    <button key={opt} onClick={() => setAnalogyGuess(opt)} style={{
+                      fontFamily: FONTS.mono, fontSize: 13, padding: "8px 16px",
+                      borderRadius: 4,
+                      border: "1px solid " + (analogyGuess === opt ? stage.color : COLORS.border),
+                      background: analogyGuess === opt ? stage.colorDim : "transparent",
+                      color: analogyGuess === opt ? stage.color : COLORS.text,
+                      cursor: "pointer", transition: "all 0.2s",
+                    }}>{opt}</button>
+                  ));
+                })()}
+              </div>
+              <button onClick={handleAnalogySubmit} disabled={!analogyGuess} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+                borderRadius: 4, border: "1px solid " + stage.color,
+                background: analogyGuess ? stage.colorDim : "transparent",
+                color: analogyGuess ? stage.color : COLORS.textDim,
+                cursor: analogyGuess ? "pointer" : "default",
+                opacity: analogyGuess ? 1 : 0.5,
+              }}>Check with Vector Arithmetic</button>
             </div>
           ) : (
             <div>
@@ -2606,7 +2751,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
                   ? "Correct! The vector arithmetic works."
                   : `Expected "${ANALOGY_PUZZLES[analogyIdx].answer}", model found "${analogyResult[0]?.word}".`}
               </div>
-              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 12 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 12 }}>
                 Top 5 results: {analogyResult.map(r => `${r.word} (${r.sim.toFixed(2)})`).join(", ")}
               </div>
               <button onClick={handleNextAnalogy} style={{
@@ -2761,7 +2906,7 @@ function TransformerTrainingSim({ stageColor }) {
       }
 
       // Token labels
-      ctx.font = "9px JetBrains Mono";
+      ctx.font = "11px JetBrains Mono";
       ctx.fillStyle = COLORS.textDim;
       for (var ti = 0; ti < n; ti++) {
         ctx.textAlign = "center";
@@ -2797,7 +2942,7 @@ function TransformerTrainingSim({ stageColor }) {
     // Phase label
     ctx.textAlign = "center";
     ctx.fillStyle = COLORS.textDim;
-    ctx.font = "10px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     var phase = eased < 0.2 ? "Random initialization" : eased < 0.5 ? "Patterns emerging..." : eased < 0.8 ? "Heads specializing" : "Converged";
     ctx.fillText(phase, w / 2, lossY + 45);
   }, [epoch, eased]);
@@ -2827,14 +2972,14 @@ function TransformerTrainingSim({ stageColor }) {
         }}>Reset</button>
         {[1, 2, 4].map(function(s) { return (
           <button key={s} onClick={function() { setSpeed(s); }} style={{
-            fontFamily: FONTS.mono, fontSize: 11, width: 28, height: 24,
+            fontFamily: FONTS.mono, fontSize: 12, width: 28, height: 24,
             borderRadius: 3, border: "1px solid " + (speed === s ? stageColor : COLORS.border),
             background: speed === s ? stageColor + "15" : "transparent",
             color: speed === s ? stageColor : COLORS.textDim, cursor: "pointer",
           }}>{s}x</button>
         ); })}
         <div style={{ flex: 1 }} />
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stageColor }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stageColor }}>
           Epoch {epoch}
         </div>
       </div>
@@ -2952,7 +3097,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
     }
 
     // Axis labels
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = COLORS.textDim;
     ctx.textAlign = "center";
     ctx.fillText("attends to \u2192", margin.left + (n * cellSize) / 2, 12);
@@ -3015,7 +3160,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
     ctx.stroke();
 
     // Labels
-    ctx.font = "10px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = COLORS.textDim;
     ctx.textAlign = "center";
     for (let p = 0; p <= maxPos; p += 5) {
@@ -3031,7 +3176,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
     ctx.restore();
 
     // Legend
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     for (let d = 0; d < dims; d++) {
       const lx = margin.left + (d % 4) * 80;
       const ly = margin.top + plotH + 20 + Math.floor(d / 4) * 14;
@@ -3086,7 +3231,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {[["attention", "Attention Heatmap"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
           <button key={id} onClick={() => setShowSection(id)} style={{
-            fontFamily: FONTS.mono, fontSize: 11, padding: "7px 14px",
+            fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
             borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
             background: showSection === id ? stage.colorDim : "transparent",
             color: showSection === id ? stage.color : COLORS.textDim,
@@ -3109,7 +3254,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
           <div style={{ display: "flex", gap: 8, marginBottom: 12, flexWrap: "wrap" }}>
             {ATTENTION_DATA.map((s, i) => (
               <button key={i} onClick={() => { setSentenceIdx(i); setHeadIdx(0); }} style={{
-                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px",
                 borderRadius: 4, border: `1px solid ${sentenceIdx === i ? stage.color : COLORS.border}`,
                 background: sentenceIdx === i ? stage.colorDim : "transparent",
                 color: sentenceIdx === i ? stage.color : COLORS.textDim,
@@ -3123,7 +3268,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
           <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
             {sentence.heads.map((h, i) => (
               <button key={i} onClick={() => setHeadIdx(i)} style={{
-                fontFamily: FONTS.mono, fontSize: 10, padding: "4px 10px",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "4px 10px",
                 borderRadius: 3, border: `1px solid ${headIdx === i ? stage.color : COLORS.border}`,
                 background: headIdx === i ? stage.colorDim : "transparent",
                 color: headIdx === i ? stage.color : COLORS.textDim,
@@ -3213,7 +3358,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
                       background: isActive ? step.color : "transparent",
                       border: `2px solid ${step.color}`,
                       display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: FONTS.mono, fontSize: 11, fontWeight: 600,
+                      fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600,
                       color: isActive ? "#0B0A09" : step.color,
                       transition: "all 0.3s",
                     }}>{i + 1}</div>
@@ -3312,7 +3457,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
           </p>
 
           <div style={{
-            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 16,
+            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 16,
           }}>
             Score: <span style={{ color: stage.color }}>{challengeScore.correct}/3</span>
             {" | "}Question {Math.min(challengeIdx + 1, ATTENTION_CHALLENGES.length)} of {ATTENTION_CHALLENGES.length}
@@ -3343,6 +3488,17 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
                   fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, marginBottom: 16,
                 }}>
                   What does "<span style={{ color: stage.color }}>{challenge.targetLabel}</span>" refer to?
+                </div>
+
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                  marginBottom: 12, padding: "8px 12px",
+                  background: "rgba(255,255,255,0.02)", borderRadius: 4,
+                  borderLeft: "3px solid " + stage.color + "30",
+                }}>
+                  <strong style={{ color: stage.color }}>Hint:</strong> Read the end of the sentence carefully.
+                  Think about which noun the property or action in the final clause applies to.
+                  Because of what quality or action — which thing makes more sense?
                 </div>
 
                 <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
@@ -3470,7 +3626,7 @@ function RLHFUnderTheHood({ stageColor }) {
     ctx.textAlign = "center";
     ctx.fillText(showAligned ? "POST-ALIGNMENT output distribution" : "PRE-ALIGNMENT output distribution", halfW / 2 + 5, 20);
 
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = COLORS.textDim;
     ctx.fillText("Next token probabilities for: \"" + prompt + "\"", halfW / 2 + 5, 36);
 
@@ -3501,7 +3657,7 @@ function RLHFUnderTheHood({ stageColor }) {
       ctx.strokeRect(barX, by, bw, barH);
 
       // Label
-      ctx.font = "10px JetBrains Mono";
+      ctx.font = "11px JetBrains Mono";
       ctx.fillStyle = COLORS.textDim;
       ctx.textAlign = "right";
       ctx.fillText(sorted[bi].word, barX - 6, by + barH / 2 + 3);
@@ -3514,7 +3670,7 @@ function RLHFUnderTheHood({ stageColor }) {
 
     // Legend
     var legendY = 50 + 12 * (barH + barGap) + 10;
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = "#72E1A0"; ctx.fillRect(10, legendY, 8, 8);
     ctx.fillStyle = COLORS.textDim; ctx.textAlign = "left";
     ctx.fillText("Safe/helpful tokens", 22, legendY + 7);
@@ -3529,7 +3685,7 @@ function RLHFUnderTheHood({ stageColor }) {
     ctx.textAlign = "center";
     ctx.fillText(showAligned ? "POST-ALIGNMENT attention" : "PRE-ALIGNMENT attention", rightX + halfW / 2, 20);
 
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = COLORS.textDim;
     ctx.fillText("What each token attends to", rightX + halfW / 2, 36);
 
@@ -3553,7 +3709,7 @@ function RLHFUnderTheHood({ stageColor }) {
     }
 
     // Token labels for attention
-    ctx.font = "9px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     for (var ati = 0; ati < an; ati++) {
       ctx.fillStyle = COLORS.textDim;
       ctx.save();
@@ -3573,7 +3729,7 @@ function RLHFUnderTheHood({ stageColor }) {
     ctx.strokeStyle = (showAligned ? "#72E1A0" : "#FF6B6B") + "30";
     ctx.strokeRect(rightX, insightY, halfW, 80);
 
-    ctx.font = "10px JetBrains Mono";
+    ctx.font = "11px JetBrains Mono";
     ctx.fillStyle = showAligned ? "#72E1A0" : "#FF6B6B";
     ctx.textAlign = "left";
     ctx.fillText(showAligned ? "After RLHF:" : "Before RLHF:", rightX + 10, insightY + 16);
@@ -3710,7 +3866,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
         {[["reward", "Be the Reward Model"], ["slider", "Alignment Spectrum"], ["underhood", "Under the Hood"], ["pipeline", "RLHF Pipeline"], ["tax", "The Alignment Tax"]].map(([id, label]) => (
           <button key={id} onClick={() => setShowSection(id)} style={{
-            fontFamily: FONTS.mono, fontSize: 11, padding: "7px 14px",
+            fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
             borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
             background: showSection === id ? stage.colorDim : "transparent",
             color: showSection === id ? stage.color : COLORS.textDim,
@@ -3718,7 +3874,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
           }}>{label}</button>
         ))}
         <div style={{ flex: 1 }} />
-        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, alignSelf: "center" }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, alignSelf: "center" }}>
           Agreement: <span style={{ color: stage.color }}>{score.correct}/{score.total}</span>
           {score.total >= 5 && ` (${Math.round((score.correct / score.total) * 100)}%)`}
         </div>
@@ -3741,7 +3897,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
           }}>
             {/* Prompt */}
             <div style={{
-              fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+              fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
               textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
             }}>Prompt</div>
             <div style={{
@@ -3777,7 +3933,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
                     }}
                   >
                     <div style={{
-                      fontFamily: FONTS.mono, fontSize: 11, marginBottom: 8,
+                      fontFamily: FONTS.mono, fontSize: 12, marginBottom: 8,
                       color: choice
                         ? isCorrect ? "#72E1A0" : isWrong ? "#FF6B6B" : COLORS.textDim
                         : stage.color,
@@ -3834,7 +3990,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
           <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
             {ALIGNMENT_SPECTRUM.map((s, i) => (
               <button key={i} onClick={() => { setSliderIdx(i); setSliderValue(0.5); }} style={{
-                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px",
                 borderRadius: 4, border: `1px solid ${sliderIdx === i ? stage.color : COLORS.border}`,
                 background: sliderIdx === i ? stage.colorDim : "transparent",
                 color: sliderIdx === i ? stage.color : COLORS.textDim,
@@ -3857,7 +4013,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
           <div style={{ marginBottom: 16 }}>
             <div style={{
               display: "flex", justifyContent: "space-between",
-              fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim, marginBottom: 6,
+              fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 6,
             }}>
               <span>Pure prediction</span>
               <span style={{ color: stage.color }}>{currentLevel.label}</span>
@@ -3975,7 +4131,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
           <div style={{ display: "flex", gap: 6, marginBottom: 16, flexWrap: "wrap" }}>
             {ALIGNMENT_TAX.map((ex, i) => (
               <button key={i} onClick={() => setTaxIdx(i)} style={{
-                fontFamily: FONTS.mono, fontSize: 10, padding: "5px 10px",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "5px 10px",
                 borderRadius: 3, border: `1px solid ${taxIdx === i ? stage.color : COLORS.border}`,
                 background: taxIdx === i ? stage.colorDim : "transparent",
                 color: taxIdx === i ? stage.color : COLORS.textDim,
@@ -3989,7 +4145,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
             borderRadius: 8, padding: 20,
           }}>
             <div style={{
-              fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+              fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
               marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.08em",
             }}>Prompt</div>
             <div style={{
@@ -4001,7 +4157,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
               <div>
                 <div style={{
-                  fontFamily: FONTS.mono, fontSize: 10, color: "#FF6B6B",
+                  fontFamily: FONTS.mono, fontSize: 12, color: "#FF6B6B",
                   textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
                 }}>Unaligned</div>
                 <div style={{
@@ -4011,7 +4167,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
               </div>
               <div>
                 <div style={{
-                  fontFamily: FONTS.mono, fontSize: 10, color: "#72E1A0",
+                  fontFamily: FONTS.mono, fontSize: 12, color: "#72E1A0",
                   textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 6,
                 }}>Aligned</div>
                 <div style={{
@@ -4086,11 +4242,13 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
   const Playground = playgrounds[currentStage];
 
   return (
-    <div ref={scrollRef} style={{
+    <main role="main" ref={scrollRef} style={{
       flex: 1, overflowY: "auto", padding: "40px 48px",
       maxWidth: 820,
     }}>
+      <WhatYouLearned stageIndex={currentStage} />
       <StageIntro stageIndex={currentStage} />
+      <TechnicalSection stageIndex={currentStage} stageColor={STAGES[currentStage].color} />
 
       <div style={{
         borderTop: `1px solid ${COLORS.border}`, marginBottom: 32, paddingTop: 32,
@@ -4134,7 +4292,7 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 }
 
@@ -4155,7 +4313,7 @@ function App() {
   }, []);
 
   return (
-    <div style={{
+    <div role="application" aria-label="Language Model Fundamentals" style={{
       display: "flex", flexDirection: isMobile ? "column" : "row",
       height: "100%", width: "100%", overflow: "hidden",
       color: COLORS.text,
@@ -4184,7 +4342,7 @@ function App() {
                 boxShadow: state.currentStage === i ? `0 0 8px ${stage.color}40` : "none",
               }} />
               <div style={{
-                fontFamily: FONTS.mono, fontSize: 8, color: state.currentStage === i ? stage.color : COLORS.textDim,
+                fontFamily: FONTS.mono, fontSize: 12, color: state.currentStage === i ? stage.color : COLORS.textDim,
                 marginTop: 3,
               }}>{stage.year}</div>
             </div>
