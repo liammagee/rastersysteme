@@ -1924,24 +1924,61 @@ function Word2VecTrainingSim({ stageColor }) {
     ctx.fillStyle = "#08080A";
     ctx.fillRect(0, 0, w, h);
 
-    // Grid
-    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    // Labeled semantic grid
+    var mg = { left: 50, bottom: 40, top: 20, right: 20 };
+    var pw = w - mg.left - mg.right;
+    var ph = h - mg.top - mg.bottom;
+
+    // Grid lines
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
     ctx.lineWidth = 0.5;
-    for (var i = 0; i <= 10; i++) {
-      ctx.beginPath(); ctx.moveTo((i/10)*w, 0); ctx.lineTo((i/10)*w, h); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, (i/10)*h); ctx.lineTo(w, (i/10)*h); ctx.stroke();
+    for (var i = 0; i <= 8; i++) {
+      var gx = mg.left + (i / 8) * pw;
+      var gy = mg.top + (i / 8) * ph;
+      ctx.beginPath(); ctx.moveTo(gx, mg.top); ctx.lineTo(gx, mg.top + ph); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(mg.left, gy); ctx.lineTo(mg.left + pw, gy); ctx.stroke();
     }
+
+    // Axes
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(mg.left, mg.top + ph); ctx.lineTo(mg.left + pw, mg.top + ph); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(mg.left, mg.top); ctx.lineTo(mg.left, mg.top + ph); ctx.stroke();
+
+    // Axis labels
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = "rgba(255,255,255,0.2)";
+    ctx.textAlign = "center";
+    ctx.fillText("Semantic Dimension 1", mg.left + pw / 2, h - 6);
+    ctx.save();
+    ctx.translate(10, mg.top + ph / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Semantic Dimension 2", 0, 0);
+    ctx.restore();
+
+    // Semantic region labels (emerge as training progresses)
+    var regionAlpha = Math.min(epoch / 60, 0.3);
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = "rgba(255,255,255," + regionAlpha + ")";
+    ctx.textAlign = "center";
+    ctx.fillText("royalty", mg.left + pw * 0.65, mg.top + ph * 0.22);
+    ctx.fillText("actions", mg.left + pw * 0.3, mg.top + ph * 0.55);
+    ctx.fillText("modifiers", mg.left + pw * 0.55, mg.top + ph * 0.18);
 
     var pos = positionsRef.current;
     if (!pos) return;
+
+    // Helper: map word position to plot coords
+    var wpx = function(p) { return mg.left + p.x * pw; };
+    var wpy = function(p) { return mg.top + p.y * ph; };
 
     // Draw connections between context words
     if (centerWord && pos[centerWord]) {
       contextWords.forEach(function(cw) {
         if (pos[cw]) {
           ctx.beginPath();
-          ctx.moveTo(pos[centerWord].x * w, pos[centerWord].y * h);
-          ctx.lineTo(pos[cw].x * w, pos[cw].y * h);
+          ctx.moveTo(wpx(pos[centerWord]), wpy(pos[centerWord]));
+          ctx.lineTo(wpx(pos[cw]), wpy(pos[cw]));
           ctx.strokeStyle = stageColor + "30";
           ctx.lineWidth = 1;
           ctx.setLineDash([3, 3]);
@@ -1955,10 +1992,21 @@ function Word2VecTrainingSim({ stageColor }) {
     var uniqueWords = Object.keys(pos);
     uniqueWords.forEach(function(word) {
       var p = pos[word];
-      var px = p.x * w;
-      var py = p.y * h;
+      var px = wpx(p);
+      var py = wpy(p);
       var isCenter = word === centerWord;
       var isContext = contextWords.indexOf(word) >= 0;
+
+      // Trail showing movement (faint ghost of initial position when training starts)
+      if (epoch > 5 && epoch < 60) {
+        var initialDist = Math.sqrt(Math.pow(p.x - p.tx, 2) + Math.pow(p.y - p.ty, 2));
+        if (initialDist > 0.05) {
+          ctx.beginPath();
+          ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = stageColor + "15";
+          ctx.fill();
+        }
+      }
 
       ctx.beginPath();
       ctx.arc(px, py, isCenter ? 6 : isContext ? 5 : 3, 0, Math.PI * 2);
@@ -2162,19 +2210,52 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
     ctx.fillStyle = "#08080A";
     ctx.fillRect(0, 0, w, h);
 
-    // Grid
-    ctx.strokeStyle = "rgba(255,255,255,0.03)";
+    // Semantic grid with labeled axes
+    var margin = { left: 50, bottom: 40, top: 16, right: 16 };
+    var plotW = w - margin.left - margin.right;
+    var plotH = h - margin.top - margin.bottom;
+
+    // Grid lines
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
     ctx.lineWidth = 0.5;
-    for (let i = 0; i <= 10; i++) {
-      const x = (i / 10) * w;
-      const y = (i / 10) * h;
-      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke();
+    for (var gi = 0; gi <= 10; gi++) {
+      var gx = margin.left + (gi / 10) * plotW;
+      var gy = margin.top + (gi / 10) * plotH;
+      ctx.beginPath(); ctx.moveTo(gx, margin.top); ctx.lineTo(gx, margin.top + plotH); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(margin.left, gy); ctx.lineTo(margin.left + plotW, gy); ctx.stroke();
     }
 
-    // Transform coords
-    const tx = (wx) => (wx * zoom + pan.x) * w;
-    const ty = (wy) => (wy * zoom + pan.y) * h;
+    // Axes
+    ctx.strokeStyle = "rgba(255,255,255,0.12)";
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin.left, margin.top + plotH); ctx.lineTo(margin.left + plotW, margin.top + plotH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(margin.left, margin.top); ctx.lineTo(margin.left, margin.top + plotH); ctx.stroke();
+
+    // Axis labels — semantic dimensions
+    ctx.font = "10px JetBrains Mono";
+    ctx.fillStyle = "rgba(255,255,255,0.25)";
+    ctx.textAlign = "center";
+    ctx.fillText("Concrete \u2190 \u2192 Abstract", margin.left + plotW / 2, h - 6);
+    ctx.save();
+    ctx.translate(12, margin.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText("Places \u2190 \u2192 People/Emotions", 0, 0);
+    ctx.restore();
+
+    // Quadrant labels (very faint)
+    ctx.font = "9px JetBrains Mono";
+    ctx.fillStyle = "rgba(255,255,255,0.07)";
+    ctx.textAlign = "left";
+    ctx.fillText("Places & Geography", margin.left + 8, margin.top + 16);
+    ctx.textAlign = "right";
+    ctx.fillText("Actions & Qualities", margin.left + plotW - 8, margin.top + plotH - 8);
+    ctx.textAlign = "left";
+    ctx.fillText("Emotions & Abstract", margin.left + plotW / 2 + 10, margin.top + 16);
+    ctx.fillText("Animals & Nature", margin.left + 8, margin.top + plotH - 8);
+
+    // Transform coords (map 0-1 word positions to plot area)
+    const tx = (wx) => margin.left + (wx * zoom + pan.x) * plotW;
+    const ty = (wy) => margin.top + (wy * zoom + pan.y) * plotH;
 
     // Draw cluster regions (convex hull approximation - simple bounding ellipse)
     if (activeClusters.size < Object.keys(CLUSTERS).length || activeClusters.size === Object.keys(CLUSTERS).length) {
