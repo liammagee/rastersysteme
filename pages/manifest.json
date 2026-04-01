@@ -6,9 +6,15 @@
     "tags": ["simulation", "history", "computing"]
   },
   {
-    "name": "Language Model Fundamentals",
+    "name": "The Architecture of Language Models",
     "file": "language-models.html",
-    "description": "Interactive exploration of language model evolution through four cumulative stages: Markov Chains (1913), Word2Vec (2013), Transformers (2017), and RLHF (2022).",
+    "description": "Explore language model evolution through four cumulative stages: Markov Chains (1913), Word2Vec (2013), Transformers (2017), and RLHF (2022).",
     "tags": ["education", "language-models", "interactive", "history"]
+  },
+  {
+    "name": "The Archaeology of Artificial Intelligence",
+    "file": "ai-archaeology.html",
+    "description": "An interactive timeline tracing the intellectual lineage of AI across philosophy, literature, mathematics, and computation.",
+    "tags": ["timeline", "history", "AI"]
   }
 ]
