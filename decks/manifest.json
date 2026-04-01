@@ -2,6 +2,28 @@
   {
     "type": "deck",
     "category": "decks",
+    "path": "decks/week-2-v19.html",
+    "name": "week-2-v19",
+    "slides": 45,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "119K",
+    "modified": "2026-03-30T22:15:15.608Z"
+  },
+  {
+    "type": "spliced",
+    "category": "decks",
+    "path": "decks/week-2-v19.spliced.html",
+    "name": "week-2-v19.spliced",
+    "slides": 45,
+    "theme": "light",
+    "firstTitle": "Gen AI - Week 2 - Pathways to AI",
+    "size": "127K",
+    "modified": "2026-03-30T21:23:35.547Z"
+  },
+  {
+    "type": "deck",
+    "category": "decks",
     "path": "decks/week-2-v18.html",
     "name": "week-2-v18",
     "slides": 40,

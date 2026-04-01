@@ -1,0 +1,105 @@
+{
+  "visualThread": {
+    "palette": [
+      "warm amber #C8962E",
+      "deep charcoal #1E1E2A",
+      "parchment cream #E6DFD1",
+      "muted sage #7A8C7E",
+      "oxidized copper #A0603A"
+    ],
+    "motif": "A luminous amber thread or filament — sometimes straight, sometimes looping, sometimes spiraling — weaving through each composition as the connective tissue of thought and process",
+    "atmosphere": "Late afternoon diffused light, slightly desaturated warm tones, 35mm film grain throughout, shallow depth of field with soft focus periphery — the mood of a careful, unhurried mind at work"
+  },
+  "prompts": [
+    {
+      "slide": 1,
+      "title": "Claude Code",
+      "prompt": "A single luminous amber filament emerges from deep charcoal darkness, curling into a minimal abstract arc against a soft parchment fog. Saul Bass poster geometry — one bold curve, nothing more. The thread glows faintly at its tip as though just activated. Editorial photography, 35mm film grain, shallow depth of field, warm amber and cream tones, muted sage at margins. No text, no screens, no human figures.",
+      "negativePrompt": "stock photo, HDR, oversaturated, blue neon, circuit boards, robots, faces, clutter, corporate aesthetic",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 2,
+      "title": "What is it? Why does it matter?",
+      "prompt": "Concentric rings in warm amber, muted sage, and parchment cream — the innermost a small glowing dot, surrounded by progressively larger orbits suggesting a component embedded in vast interconnected systems. One luminous copper thread stitches through all rings radially, like a spoke. Otl Aicher isotype clarity. Editorial photography, 35mm film grain, diffused late afternoon light, shallow DOF, dark charcoal ground.",
+      "negativePrompt": "stock photo, network node clichés, blue glowing orbs, HDR, text labels, arrows, corporate diagrams",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 3,
+      "title": "Autoresearch (Karpathy 2026)",
+      "prompt": "A tight luminous spiral of amber thread against deep charcoal — each revolution slightly larger and brighter than the last, implying recursive self-improvement without end. Clean, sparse Otl Aicher minimalism. Sage green appears faintly at the spiral's outer edge as a halo. 35mm film grain, shallow depth of field, warm late afternoon light raking across the surface.",
+      "negativePrompt": "stock photo, infinity symbol cliché, HDR, robots, text, arrows, blue tones, complexity overload",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 4,
+      "title": "Example: Geist in the Machine (Magee 2026)",
+      "prompt": "Two simplified silhouetted forms face each other across a parchment field — one hard-edged geometric (machine), one softly organic (human) — connected by a single luminous copper thread suspended between them. Philosophical dialogue made visible. Saul Bass flat-plane composition, muted amber and charcoal palette, sage shadow at ground. 35mm film grain, shallow DOF, diffused warm light.",
+      "negativePrompt": "stock photo, literal robots, human faces, hands typing, HDR, oversaturation, AI brain imagery, corporate illustration",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 5,
+      "title": "Example: Geist in the Machine — Iteration",
+      "prompt": "Three translucent overlapping circles in amber, sage, and cream — each representing a version, offset slightly to the right, growing progressively more opaque toward the third. A luminous amber thread connects them in sequence like beads. The rightmost circle is brightest. Suggestive of convergence through revision. Editorial photography, 35mm grain, muted palette, charcoal background, shallow DOF.",
+      "negativePrompt": "stock photo, Venn diagram aesthetics, text labels, HDR, progress bars, checkmarks, corporate infographic",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 6,
+      "title": "Claude Code Demonstration — Getting Started",
+      "prompt": "Two vertical amber bars stand like pillars on a parchment ground, a threshold between dark charcoal left and diffused warm light right. A single luminous thread crosses the gap at mid-height, horizontal and taut, as though about to be plucked. Gateway as invitation. Saul Bass reductive geometry. 35mm film grain, shallow DOF, late afternoon atmosphere, copper tones at base.",
+      "negativePrompt": "stock photo, literal doorways, screens, keyboards, HDR, corporate technology imagery, glowing interfaces",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 7,
+      "title": "Claude Code Demonstration — What should we code?",
+      "prompt": "A wide open parchment field, nearly empty. At center, a single bold amber curve — a question mark stripped to its essential arc and dot, rendered with Saul Bass confidence. Sage tones bleed softly at the far edges. The luminous thread forms the curve itself, coiling and coming to rest. 35mm film grain, editorial photography, diffused warm light, deep shallow focus pulling edges soft.",
+      "negativePrompt": "stock photo, literal question marks in typography, speech bubbles, people brainstorming, whiteboards, HDR",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 8,
+      "title": "Claude Code Demonstration — Process",
+      "prompt": "Three amber nodes arranged in a triangle, connected by arcs of luminous thread forming a closed cycle — evaluate, improve, repeat. Isotype chart simplicity, each node a small glowing circle. The thread between them pulses in implied motion. Dark charcoal ground, parchment halo around the cycle, sage at corners. 35mm film grain, shallow DOF, warm editorial light.",
+      "negativePrompt": "stock photo, flowchart aesthetics, text labels, arrows with arrowheads, blue color palette, HDR, corporate diagram",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    },
+    {
+      "slide": 9,
+      "title": "Questions?",
+      "prompt": "Vast open parchment, slightly warm from raking late afternoon light. A single luminous amber thread enters from the left, travels a graceful slow arc across the frame, and trails off into soft focus at the right edge — unfinished, open, inviting continuation. Saul Bass restraint. The thread is the only form. 35mm film grain, shallow depth of field, ambient diffused atmosphere, no other elements.",
+      "negativePrompt": "stock photo, raised hands, question marks, audience imagery, HDR, text, decorative borders, complexity",
+      "params": {
+        "aspectRatio": "16:9",
+        "style": "Editorial Photography"
+      }
+    }
+  ]
+}
