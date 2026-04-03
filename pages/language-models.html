@@ -4366,6 +4366,179 @@ function TransformerTrainingSim({ stageColor }) {
 }
 
 
+function TransformerPredictPanel({ stageColor }) {
+  const [inputText, setInputText] = useState("the cat sat on the");
+  const [result, setResult] = useState(null);
+
+  const predict = useCallback(() => {
+    const words = inputText.toLowerCase().trim().split(/\s+/);
+    const r = transformerPredict(words);
+    setResult(r);
+  }, [inputText]);
+
+  // Auto-predict on mount and text change
+  useEffect(() => { predict(); }, []);
+
+  const EXAMPLES = [
+    "the cat sat on the",
+    "the big dog ran to",
+    "a small red",
+    "the happy cat was very",
+    "the dog and the",
+  ];
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Next Token Prediction
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        A simplified transformer (8-dimensional embeddings, single attention head, 20-word vocabulary)
+        predicts the next token. The pipeline: embed tokens &rarr; add positional encoding &rarr;
+        compute attention &rarr; weighted context &rarr; softmax over vocabulary.
+      </p>
+
+      {/* Input */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 10, flexWrap: "wrap" }}>
+        <input type="text" value={inputText} onChange={e => setInputText(e.target.value)}
+          onKeyDown={e => { if (e.key === "Enter") predict(); }}
+          style={{
+            flex: 1, minWidth: 200, padding: "8px 12px", fontFamily: FONTS.mono, fontSize: 13,
+            background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 6,
+            color: COLORS.text, outline: "none",
+          }}
+        />
+        <button onClick={predict} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 18px", borderRadius: 6,
+          border: "1px solid " + stageColor, background: stageColor + "15",
+          color: stageColor, cursor: "pointer",
+        }}>Predict</button>
+      </div>
+      <div style={{ display: "flex", gap: 4, marginBottom: 16, flexWrap: "wrap" }}>
+        {EXAMPLES.map(ex => (
+          <button key={ex} onClick={() => { setInputText(ex); setTimeout(() => {
+            const r = transformerPredict(ex.toLowerCase().trim().split(/\s+/)); setResult(r);
+          }, 0); }} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px", borderRadius: 4,
+            border: "1px solid " + COLORS.border, background: "transparent",
+            color: COLORS.textDim, cursor: "pointer",
+          }}>{ex}...</button>
+        ))}
+      </div>
+
+      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 16 }}>
+        Vocabulary: {TINY_TRANSFORMER.vocab.join(", ")}
+      </div>
+
+      {result && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          {/* Step 1: Tokenization */}
+          <div style={{
+            background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+            borderRadius: 8, padding: 14, marginBottom: 12,
+          }}>
+            <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Step 1: Tokenize &amp; embed
+            </div>
+            <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {inputText.toLowerCase().trim().split(/\s+/).map((w, i) => {
+                const inVocab = TINY_TRANSFORMER.embeddings[w];
+                return (
+                  <span key={i} style={{
+                    fontFamily: FONTS.mono, fontSize: 13, padding: "4px 10px", borderRadius: 4,
+                    background: inVocab ? stageColor + "15" : "rgba(255,107,107,0.1)",
+                    border: "1px solid " + (inVocab ? stageColor + "40" : "rgba(255,107,107,0.3)"),
+                    color: inVocab ? stageColor : "#FF6B6B",
+                  }}>
+                    {w}
+                    <span style={{ fontSize: 10, opacity: 0.6, marginLeft: 4 }}>{inVocab ? "8D vec + pos" : "unknown"}</span>
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Step 2: Attention weights */}
+          <div style={{
+            background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+            borderRadius: 8, padding: 14, marginBottom: 12,
+          }}>
+            <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Step 2: Self-attention (from last token to all tokens)
+            </div>
+            <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginBottom: 10 }}>
+              Each token computes Q, K, V vectors. The last token's query attends to all keys: weight = softmax(Q &middot; K / &radic;d)
+            </div>
+            <div style={{ display: "flex", gap: 4, alignItems: "flex-end", height: 90 }}>
+              {result.attention.map((a, i) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 4 }}>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: stageColor }}>{(a.weight * 100).toFixed(0)}%</div>
+                  <div style={{
+                    width: "100%", maxWidth: 60, background: stageColor,
+                    opacity: 0.2 + a.weight * 0.8,
+                    height: Math.max(4, a.weight * 70), borderRadius: "3px 3px 0 0",
+                  }} />
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text }}>{a.token}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Step 3: Weighted context → logits → softmax */}
+          <div style={{
+            background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+            borderRadius: 8, padding: 14, marginBottom: 12,
+          }}>
+            <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+              Step 3: Predict next token (softmax over vocabulary)
+            </div>
+            <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginBottom: 10 }}>
+              The attention-weighted context vector is compared against every word embedding. Softmax converts to probabilities.
+            </div>
+            {result.predictions.map((p, i) => (
+              <div key={p.word} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 13, width: 55, textAlign: "right",
+                  color: i === 0 ? "#fff" : COLORS.text, fontWeight: i === 0 ? 700 : 400,
+                }}>{p.word}</div>
+                <div style={{ flex: 1, height: 18, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}>
+                  <div style={{
+                    width: (p.prob / result.predictions[0].prob * 100) + "%",
+                    height: "100%", borderRadius: 3,
+                    background: i === 0 ? stageColor : stageColor + "50",
+                    transition: "width 0.3s",
+                  }} />
+                </div>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, width: 50, textAlign: "right" }}>
+                  {(p.prob * 100).toFixed(1)}%
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Key insight */}
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            lineHeight: 1.6, padding: "10px 14px", background: "rgba(0,0,0,0.2)",
+            borderRadius: 6, borderLeft: "3px solid " + stageColor + "40",
+          }}>
+            <strong style={{ color: COLORS.text }}>Key difference from Word2Vec:</strong> try swapping
+            word order (e.g. "the sat cat on the"). The attention weights change because positional
+            encoding makes each position unique. Word2Vec would give the same prediction regardless of order.
+          </div>
+        </div>
+      )}
+
+      {!result && (
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+          Enter tokens from the vocabulary and click Predict.
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
   const stage = STAGES[3];
   const [sentenceIdx, setSentenceIdx] = useState(0);
@@ -4600,7 +4773,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {[["attention", "Attention Heatmap"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
+        {[["attention", "Attention Heatmap"], ["predict", "Predict Next"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
           <button key={id} onClick={() => setShowSection(id)} style={{
             fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
             borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
@@ -4669,6 +4842,11 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
             {sentence.note}
           </div>
         </div>
+      )}
+
+      {/* Predict Next Token */}
+      {showSection === "predict" && (
+        <TransformerPredictPanel stageColor={stage.color} />
       )}
 
       {/* Positional Encoding */}
