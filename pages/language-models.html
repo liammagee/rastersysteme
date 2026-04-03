@@ -43,6 +43,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$','$'], ['\\(','\\)']], displayMath: [['$$','$$'], ['\\[','\\]']] },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false }
+};
+</script>
+<script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
 <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.2/babel.min.js"></script>
@@ -1003,19 +1011,30 @@ function WhatYouLearned({ stageIndex }) {
 
 const TECHNICAL_SECTIONS = [
   // Stage 0: Markov
-  "The Markov property states: P(X_{n+1} | X_1, X_2, ..., X_n) = P(X_{n+1} | X_n). For an order-k model, we estimate P(c | c_{i-k}...c_{i-1}) = count(c_{i-k}...c_{i-1}, c) / count(c_{i-k}...c_{i-1}). This is maximum likelihood estimation. Higher orders capture more context but require exponentially more data (the curse of dimensionality).",
-  // Stage 1: Word2Vec
-  "The skip-gram objective maximizes: (1/T) \u03A3_{t=1}^{T} \u03A3_{-c\u2264j\u2264c, j\u22600} log P(w_{t+j} | w_t), where P(w_O | w_I) = exp(v'_{w_O} \u00B7 v_{w_I}) / \u03A3_{w=1}^{W} exp(v'_w \u00B7 v_{w_I}). In practice, negative sampling approximates this by contrasting true context words against random negatives. The gradient updates pull co-occurring words closer in the embedding space.",
-  // Stage 2: Transformers
-  "Attention(Q,K,V) = softmax(QK^T / \u221Ad_k)V, where Q = XW_Q, K = XW_K, V = XW_V. The \u221Ad_k scaling prevents dot products from growing too large in high dimensions, which would push softmax into saturated regions with near-zero gradients. Multi-head attention runs h parallel attention functions: MultiHead(Q,K,V) = Concat(head_1,...,head_h)W_O.",
-  // Stage 3: RLHF
-  "The PPO objective maximizes: E_{(x,y)~\u03C0_\u03B8}[r_\u03C6(x,y)] - \u03B2 D_{KL}[\u03C0_\u03B8(y|x) || \u03C0_{ref}(y|x)]. The KL divergence penalty prevents the policy from diverging too far from the supervised fine-tuned model, maintaining language quality while improving alignment. The reward model r_\u03C6 is trained on human comparison data: L(\u03C6) = -E_{(x,y_w,y_l)} [log \u03C3(r_\u03C6(x,y_w) - r_\u03C6(x,y_l))].",
+  "The Markov property states: $$P(X_{n+1} \\mid X_1, X_2, \\ldots, X_n) = P(X_{n+1} \\mid X_n)$$ For an order-$k$ model, we estimate: $$P(c \\mid c_{i-k} \\ldots c_{i-1}) = \\frac{\\text{count}(c_{i-k} \\ldots c_{i-1},\\, c)}{\\text{count}(c_{i-k} \\ldots c_{i-1})}$$ This is maximum likelihood estimation. Higher orders capture more context but require exponentially more data (the curse of dimensionality).",
+  // Stage 1: ELIZA (no math, rule-based)
+  "ELIZA uses no mathematics \u2014 only pattern matching. Each rule is a regular expression paired with response templates: $$\\texttt{/I am (.*)/} \\;\\Rightarrow\\; \\texttt{\"How long have you been \\$1?\"}$$ The substitution step reflects pronouns ($I \\to you$, $my \\to your$) to create the illusion of understanding. There is no learning, no optimization, no model \u2014 just string manipulation. This is the boundary between symbolic AI and statistical AI.",
+  // Stage 2: Word2Vec
+  "The skip-gram objective maximizes: $$\\frac{1}{T} \\sum_{t=1}^{T} \\sum_{\\substack{-c \\leq j \\leq c \\\\ j \\neq 0}} \\log P(w_{t+j} \\mid w_t)$$ where $P(w_O \\mid w_I) = \\frac{\\exp(v'_{w_O} \\cdot v_{w_I})}{\\sum_{w=1}^{W} \\exp(v'_w \\cdot v_{w_I})}$. In practice, negative sampling approximates this by contrasting true context words against random negatives. The gradient updates pull co-occurring words closer in the embedding space.",
+  // Stage 3: Transformers
+  "$$\\text{Attention}(Q, K, V) = \\text{softmax}\\!\\left(\\frac{QK^T}{\\sqrt{d_k}}\\right)V$$ where $Q = XW_Q$, $K = XW_K$, $V = XW_V$. The $\\sqrt{d_k}$ scaling prevents dot products from growing too large in high dimensions, which would push softmax into saturated regions with near-zero gradients. Multi-head attention runs $h$ parallel attention functions: $$\\text{MultiHead}(Q,K,V) = \\text{Concat}(\\text{head}_1, \\ldots, \\text{head}_h)\\, W_O$$",
+  // Stage 4: RLHF
+  "The PPO objective maximizes: $$\\mathbb{E}_{(x,y) \\sim \\pi_\\theta}\\!\\left[r_\\phi(x,y)\\right] - \\beta\\, D_{\\text{KL}}\\!\\left[\\pi_\\theta(y \\mid x) \\,\\|\\, \\pi_{\\text{ref}}(y \\mid x)\\right]$$ The KL divergence penalty prevents the policy from diverging too far from the supervised fine-tuned model, maintaining language quality while improving alignment. The reward model $r_\\phi$ is trained on human comparison data: $$\\mathcal{L}(\\phi) = -\\mathbb{E}_{(x, y_w, y_l)}\\!\\left[\\log \\sigma\\!\\left(r_\\phi(x, y_w) - r_\\phi(x, y_l)\\right)\\right]$$",
 ];
 
 function TechnicalSection({ stageIndex, stageColor }) {
   var [expanded, setExpanded] = useState(false);
+  var mathRef = useRef(null);
   var text = TECHNICAL_SECTIONS[stageIndex];
   if (!text) return null;
+
+  // Typeset MathJax when section expands
+  useEffect(function() {
+    if (expanded && mathRef.current && window.MathJax && window.MathJax.typesetPromise) {
+      window.MathJax.typesetPromise([mathRef.current]).catch(function() {});
+    }
+  }, [expanded, stageIndex]);
+
   return (
     <div style={{ marginTop: 20, marginBottom: 10 }}>
       <div
@@ -1030,13 +1049,12 @@ function TechnicalSection({ stageIndex, stageColor }) {
         For Technical Readers: The Mathematics
       </div>
       {expanded && (
-        <div style={{
-          fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
-          lineHeight: 1.7, padding: "12px 16px",
+        <div ref={mathRef} style={{
+          fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 14, color: COLORS.text,
+          lineHeight: 1.8, padding: "16px 20px",
           background: "rgba(255,255,255,0.02)",
           border: "1px solid " + COLORS.border,
           borderRadius: 6, animation: "fadeInUp 0.3s ease",
-          opacity: 0.85,
         }}>{text}</div>
       )}
     </div>
