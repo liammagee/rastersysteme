@@ -4459,11 +4459,34 @@ function TransformerArchitectureDetail({ stageColor }) {
         Transformer Architecture
       </h2>
       <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
-        Follow the sentence <strong style={{ color: stageColor }}>"the cat sat on the"</strong> through every
-        layer of a transformer, with real numbers from our 8-dimensional model. Click each step.
+        Follow <strong style={{ color: stageColor }}>"the cat sat on the ___"</strong> through every layer of a transformer.
+        The model's job: predict that the missing word is <strong style={{ color: "#72E1A0" }}>"mat"</strong>.
+        Real numbers from our 8-dimensional model.
       </p>
 
-      {/* Step selector */}
+      {/* At-a-glance pipeline */}
+      <div style={{
+        display: "flex", gap: 0, marginBottom: 20, overflowX: "auto", padding: "4px 0",
+      }}>
+        {ARCH_STEPS.map((s, i) => (
+          <div key={s.id} style={{ display: "flex", alignItems: "center" }}>
+            <div onClick={() => setStep(i)} style={{
+              padding: "6px 10px", borderRadius: 4, cursor: "pointer", whiteSpace: "nowrap",
+              background: step === i ? s.color + "20" : "transparent",
+              border: "1px solid " + (step === i ? s.color + "50" : "transparent"),
+              transition: "all 0.2s",
+            }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: s.color, fontWeight: 600 }}>{s.label}</div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 9, color: COLORS.textDim, marginTop: 1 }}>{s.desc.substring(0, 35)}...</div>
+            </div>
+            {i < ARCH_STEPS.length - 1 && (
+              <div style={{ color: COLORS.textDim, fontSize: 12, padding: "0 2px" }}>{"\u2192"}</div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Detailed step selector */}
       <div style={{ display: "flex", gap: 0, marginBottom: 20, flexWrap: "wrap" }}>
         {STEPS.map((s, i) => (
           <button key={i} onClick={() => setStep(i)} style={{
@@ -4625,8 +4648,10 @@ function TransformerArchitectureDetail({ stageColor }) {
             </div>
           ))}
           <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
-            The prediction for "the cat sat on the ___" is <strong style={{ color: "#FF6B6B" }}>{example.predictions[0].word}</strong>.
-            During training, the correct answer was known and the model adjusted its weights to increase that answer's probability.
+            The model predicts <strong style={{ color: "#FF6B6B" }}>{example.predictions[0].word}</strong> for "the cat sat on the ___".
+            During training, the correct answer <strong style={{ color: "#72E1A0" }}>"mat"</strong> was known.
+            The model adjusts its weights to increase "mat"'s probability (currently {(example.predictions.find(p => p.word === "mat")?.prob * 100 || 0).toFixed(1)}%)
+            and decrease everything else. This is the signal that drives learning.
           </div>
         </StepBox>
       )}
@@ -4641,7 +4666,7 @@ function TransformerArchitectureDetail({ stageColor }) {
 
           <div style={{ paddingLeft: 0, marginBottom: 16 }}>
             {[
-              { num: "1", title: "Compute loss", desc: "Compare the predicted probability distribution to the true next word. If the model predicted 'mat' at 8% but the true word was 'mat', the loss measures how far off 8% is from 100%. The standard loss is cross-entropy: L = -log(P(true word))." },
+              { num: "1", title: "Compute loss", desc: "Compare the predicted distribution to the true answer 'mat'. If P(mat) = " + (example.predictions.find(p => p.word === "mat")?.prob * 100 || 0).toFixed(1) + "%, the loss is -log(" + (example.predictions.find(p => p.word === "mat")?.prob || 0.01).toFixed(3) + ") = " + (-Math.log(example.predictions.find(p => p.word === "mat")?.prob || 0.01)).toFixed(2) + ". A perfect prediction (100%) would give loss = 0. The model needs to push 'mat' from " + (example.predictions.find(p => p.word === "mat")?.prob * 100 || 0).toFixed(1) + "% toward 100%." },
               { num: "2", title: "Compute gradients (chain rule)", desc: "For every weight in the network, calculate: 'if I nudged this weight slightly, how much would the loss change?' This uses the chain rule of calculus, propagating the error backward through each layer: output \u2192 softmax \u2192 context \u2192 attention \u2192 Q,K,V matrices \u2192 embeddings." },
               { num: "3", title: "Update weights", desc: "Each weight is adjusted in the direction that reduces the loss: W_new = W_old - learning_rate \u00D7 gradient. A small learning rate means cautious updates. The embedding matrix, Q/K/V projection matrices, and feed-forward weights are ALL updated simultaneously." },
               { num: "4", title: "Repeat", desc: "This process repeats for every training example (billions of sentences). Over time, the embedding matrix learns that 'cat' and 'dog' should have similar vectors. The Q/K/V matrices learn which attention patterns are useful. The model never receives explicit rules \u2014 structure emerges from prediction error alone." },
@@ -4709,8 +4734,9 @@ function TransformerPredictPanel({ stageColor }) {
       </h2>
       <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
         A simplified transformer (8-dimensional embeddings, single attention head, 20-word vocabulary)
-        predicts the next token. The pipeline: embed tokens &rarr; add positional encoding &rarr;
-        compute attention &rarr; weighted context &rarr; softmax over vocabulary.
+        predicts the next token. Try <strong style={{ color: stageColor }}>"the cat sat on the"</strong> &mdash;
+        can the model predict <strong style={{ color: "#72E1A0" }}>"mat"</strong>? The pipeline: embed tokens &rarr;
+        add positional encoding &rarr; compute attention &rarr; weighted context &rarr; softmax over vocabulary.
       </p>
 
       {/* Input */}
@@ -4837,9 +4863,11 @@ function TransformerPredictPanel({ stageColor }) {
             lineHeight: 1.6, padding: "10px 14px", background: "rgba(0,0,0,0.2)",
             borderRadius: 6, borderLeft: "3px solid " + stageColor + "40",
           }}>
-            <strong style={{ color: COLORS.text }}>Key difference from Word2Vec:</strong> try swapping
-            word order (e.g. "the sat cat on the"). The attention weights change because positional
-            encoding makes each position unique. Word2Vec would give the same prediction regardless of order.
+            <strong style={{ color: COLORS.text }}>Key difference from Word2Vec:</strong> the correct next word is
+            <strong style={{ color: "#72E1A0" }}> "mat"</strong>. Try swapping word order (e.g. "the sat cat on the")
+            &mdash; the attention weights change because positional encoding makes each position unique.
+            Word2Vec would give the same prediction regardless of order.
+            See the Architecture tab for a step-by-step breakdown with actual numbers.
           </div>
         </div>
       )}
