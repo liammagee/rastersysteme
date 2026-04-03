@@ -3494,19 +3494,105 @@ function Word2VecTrainer({ stageColor }) {
   const [model, setModel] = useState(null);
   const [isTraining, setIsTraining] = useState(false);
   const [selectedWord, setSelectedWord] = useState(null);
-  const [params, setParams] = useState({ epochs: 100, windowSize: 2, negSamples: 5, learningRate: 0.05 });
+  const [params, setParams] = useState({ epochs: 200, dim: 20, windowSize: 2, negSamples: 5, learningRate: 0.05 });
+  const [currentEpoch, setCurrentEpoch] = useState(0);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
   const canvasRef = useRef(null);
+  const trainerRef = useRef(null); // holds live training state between frames
+  const dragRef = useRef(null);
 
+  // Incremental training: run a batch of epochs per animation frame
   const handleTrain = useCallback(() => {
+    // Initialize training state
+    const words = inputText.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+    const vocab = [...new Set(words)];
+    if (vocab.length < 2) return;
+    const idx = {}; vocab.forEach((w, i) => idx[w] = i);
+    const V = vocab.length;
+    const trainDim = params.dim || 20;
+    const emb = vocab.map(() => Array.from({ length: trainDim }, () => (Math.random() - 0.5) * 0.1));
+    const ctxEmb = vocab.map(() => Array.from({ length: trainDim }, () => 0));
+    const freq = new Array(V).fill(0);
+    words.forEach(w => freq[idx[w]]++);
+    const fp = freq.map(f => Math.pow(f, 0.75));
+    const fpSum = fp.reduce((a, b) => a + b, 0);
+    const cumDist = []; let cum = 0;
+    for (let i = 0; i < V; i++) { cum += fp[i] / fpSum; cumDist.push(cum); }
+
+    trainerRef.current = { words, vocab, idx, V, trainDim, emb, ctxEmb, cumDist, history: [], epoch: 0 };
+    setCurrentEpoch(0);
     setIsTraining(true);
-    // Use requestAnimationFrame to avoid blocking the UI
-    requestAnimationFrame(() => {
-      const result = trainWord2Vec(inputText, { dim: 2, ...params });
-      setModel(result);
-      setIsTraining(false);
-      setSelectedWord(null);
-    });
+    setSelectedWord(null);
+    setPan({ x: 0, y: 0 }); setZoom(1);
   }, [inputText, params]);
+
+  // Training loop: run a few epochs per interval tick
+  useEffect(() => {
+    if (!isTraining || !trainerRef.current) return;
+    const batchSize = Math.max(1, Math.min(5, Math.floor(params.epochs / 50))); // epochs per frame
+    const interval = setInterval(() => {
+      const t = trainerRef.current;
+      if (t.epoch >= params.epochs) {
+        clearInterval(interval);
+        // Final model snapshot
+        const pca = computePCA(t.vocab.map((w, i) => ({ v: t.emb[i] })), 2);
+        for (let d = 0; d < 2; d++) {
+          let ma = 0; for (let i = 0; i < t.V; i++) ma = Math.max(ma, Math.abs(pca.projected[i][d]));
+          if (ma > 0) for (let i = 0; i < t.V; i++) pca.projected[i][d] = (pca.projected[i][d] / ma) * 0.85;
+        }
+        setModel({ vocab: t.vocab, embeddings: pca.projected, fullEmbeddings: t.emb, wordIdx: t.idx, history: t.history, wordCount: t.words.length, trainDim: t.trainDim });
+        setIsTraining(false);
+        return;
+      }
+      // Run a batch of epochs
+      for (let b = 0; b < batchSize && t.epoch < params.epochs; b++) {
+        const lr = params.learningRate - (params.learningRate - 0.001) * (t.epoch / params.epochs);
+        let loss = 0, pairs = 0;
+        for (let i = 0; i < t.words.length; i++) {
+          const ci = t.idx[t.words[i]];
+          for (let j = Math.max(0, i - params.windowSize); j <= Math.min(t.words.length - 1, i + params.windowSize); j++) {
+            if (j === i) continue;
+            const cj = t.idx[t.words[j]];
+            const w = t.emb[ci], c = t.ctxEmb[cj];
+            let dot = 0; for (let d = 0; d < t.trainDim; d++) dot += w[d] * c[d];
+            dot = Math.max(-8, Math.min(8, dot));
+            const sig = 1 / (1 + Math.exp(-dot));
+            const g = lr * (1 - sig);
+            for (let d = 0; d < t.trainDim; d++) { const wd = w[d]; w[d] += g * c[d]; c[d] += g * wd; }
+            loss -= Math.log(sig + 1e-10); pairs++;
+            for (let n = 0; n < params.negSamples; n++) {
+              const r = Math.random(); let lo = 0, hi = t.V - 1;
+              while (lo < hi) { const mid = (lo + hi) >> 1; if (t.cumDist[mid] < r) lo = mid + 1; else hi = mid; }
+              const ni = lo === ci ? (lo + 1) % t.V : lo;
+              const neg = t.ctxEmb[ni];
+              let nd = 0; for (let d = 0; d < t.trainDim; d++) nd += w[d] * neg[d];
+              nd = Math.max(-8, Math.min(8, nd));
+              const ns = 1 / (1 + Math.exp(-nd));
+              const ng = lr * ns;
+              for (let d = 0; d < t.trainDim; d++) { const wd = w[d]; w[d] -= ng * neg[d]; neg[d] -= ng * wd; }
+              loss -= Math.log(1 - ns + 1e-10);
+            }
+          }
+        }
+        t.history.push(pairs > 0 ? loss / pairs : 0);
+        t.epoch++;
+      }
+      setCurrentEpoch(t.epoch);
+      // Live PCA snapshot for display
+      const pca = computePCA(t.vocab.map((w, i) => ({ v: t.emb[i] })), 2);
+      for (let d = 0; d < 2; d++) {
+        let ma = 0; for (let i = 0; i < t.V; i++) ma = Math.max(ma, Math.abs(pca.projected[i][d]));
+        if (ma > 0) for (let i = 0; i < t.V; i++) pca.projected[i][d] = (pca.projected[i][d] / ma) * 0.85;
+      }
+      setModel({ vocab: t.vocab, embeddings: pca.projected, fullEmbeddings: t.emb, wordIdx: t.idx, history: [...t.history], wordCount: t.words.length, trainDim: t.trainDim });
+    }, 50); // ~20fps
+    return () => clearInterval(interval);
+  }, [isTraining, params]);
+
+  const handleStop = useCallback(() => {
+    setIsTraining(false);
+  }, []);
 
   // Get neighbors using full high-D embeddings (not the 2D projection)
   const neighbors = useMemo(() => {
@@ -3542,15 +3628,16 @@ function Word2VecTrainer({ stageColor }) {
     ctx.fillStyle = "#08080A"; ctx.fillRect(0, 0, w, h);
 
     const margin = 24, plotW = w - margin * 2, plotH = h - margin * 2;
-    const cx = margin + plotW / 2, cy = margin + plotH / 2;
+    const cx = margin + plotW / 2 + pan.x, cy = margin + plotH / 2 + pan.y;
+    const sc = zoom;
 
     // Crosshair
     ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(margin, cy); ctx.lineTo(margin + plotW, cy); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(cx, margin); ctx.lineTo(cx, margin + plotH); ctx.stroke();
 
-    const tx = (x) => cx + x * (plotW / 2);
-    const ty = (y) => cy + y * (plotH / 2);
+    const tx = (x) => cx + x * sc * (plotW / 2);
+    const ty = (y) => cy + y * sc * (plotH / 2);
 
     // Neighbor lines
     if (selectedWord && model.wordIdx[selectedWord] !== undefined) {
@@ -3606,25 +3693,45 @@ function Word2VecTrainer({ stageColor }) {
       });
       ctx.strokeStyle = stageColor; ctx.lineWidth = 1.5; ctx.stroke();
     }
-  }, [model, selectedWord, neighbors, stageColor]);
+  }, [model, selectedWord, neighbors, stageColor, pan, zoom]);
 
   // Hit test
+  // Pan: drag canvas
+  const handleCanvasMouseDown = useCallback((e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
+    dragRef.current = { lastX: e.clientX - rect.left, lastY: e.clientY - rect.top };
+  }, []);
+  const handleCanvasMouseMove = useCallback((e) => {
+    if (!dragRef.current) return;
+    const rect = canvasRef.current.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    setPan(p => ({ x: p.x + (mx - dragRef.current.lastX), y: p.y + (my - dragRef.current.lastY) }));
+    dragRef.current.lastX = mx; dragRef.current.lastY = my;
+  }, []);
+  const handleCanvasMouseUp = useCallback(() => { dragRef.current = null; }, []);
+  // Zoom: scroll wheel
+  const handleCanvasWheel = useCallback((e) => {
+    e.preventDefault();
+    setZoom(z => Math.max(0.3, Math.min(5, z * (e.deltaY < 0 ? 1.1 : 0.9))));
+  }, []);
+
   const handleCanvasClick = useCallback((e) => {
     if (!model) return;
+    if (dragRef.current) return; // was dragging, not clicking
     const canvas = canvasRef.current;
     const rect = canvas.getBoundingClientRect();
     const mx = e.clientX - rect.left, my = e.clientY - rect.top;
     const plotW = rect.width - 48, plotH = 420 - 48;
-    const cx = 24 + plotW / 2, cy = 24 + plotH / 2;
+    const ccx = 24 + plotW / 2 + pan.x, ccy = 24 + plotH / 2 + pan.y;
     let found = null, bestDist = 18;
     for (let i = 0; i < model.vocab.length; i++) {
       const [ex, ey] = model.embeddings[i];
-      const sx = cx + ex * (plotW / 2), sy = cy + ey * (plotH / 2);
+      const sx = ccx + ex * zoom * (plotW / 2), sy = ccy + ey * zoom * (plotH / 2);
       const d = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
       if (d < bestDist) { found = model.vocab[i]; bestDist = d; }
     }
     setSelectedWord(found);
-  }, [model]);
+  }, [model, pan, zoom]);
 
   return (
     <div>
@@ -3659,33 +3766,29 @@ function Word2VecTrainer({ stageColor }) {
       }} />
 
       {/* Parameters + Train button */}
-      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>Epochs:</label>
-          <select value={params.epochs} onChange={e => setParams({ ...params, epochs: parseInt(e.target.value) })} style={{
-            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 6px", background: COLORS.bgPanel,
-            border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
-          }}>
-            {[10, 20, 30, 50, 100].map(v => <option key={v} value={v}>{v}</option>)}
-          </select>
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>Window:</label>
-          <select value={params.windowSize} onChange={e => setParams({ ...params, windowSize: parseInt(e.target.value) })} style={{
-            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 6px", background: COLORS.bgPanel,
-            border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
-          }}>
-            {[1, 2, 3, 4].map(v => <option key={v} value={v}>{v}</option>)}
-          </select>
-        </div>
-        <button onClick={handleTrain} disabled={isTraining} style={{
+      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
+        {[["Epochs", "epochs", [50, 100, 200, 500, 1000]], ["Dim", "dim", [5, 10, 20, 50]], ["Window", "windowSize", [1, 2, 3, 4]]].map(([label, key, options]) => (
+          <div key={key} style={{ display: "flex", gap: 4, alignItems: "center" }}>
+            <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>{label}:</label>
+            <select value={params[key]} onChange={e => setParams({ ...params, [key]: parseInt(e.target.value) })} disabled={isTraining} style={{
+              fontFamily: FONTS.mono, fontSize: 12, padding: "3px 6px", background: COLORS.bgPanel,
+              border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
+            }}>
+              {options.map(v => <option key={v} value={v}>{v}</option>)}
+            </select>
+          </div>
+        ))}
+        <button onClick={isTraining ? handleStop : handleTrain} style={{
           fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px", borderRadius: 6,
-          border: "1px solid " + stageColor, background: stageColor + "15", color: stageColor,
-          cursor: isTraining ? "default" : "pointer", opacity: isTraining ? 0.5 : 1,
-        }}>{isTraining ? "Training..." : "Train"}</button>
+          border: "1px solid " + (isTraining ? "#FF6B6B" : stageColor),
+          background: (isTraining ? "#FF6B6B" : stageColor) + "15",
+          color: isTraining ? "#FF6B6B" : stageColor, cursor: "pointer",
+        }}>{isTraining ? "Stop" : "Train"}</button>
         {model && (
           <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
-            {model.vocab.length} words &middot; {model.wordCount} tokens &middot; {model.trainDim || 2}D &rarr; 2D &middot; {model.history.length} epochs
+            {model.vocab.length} words &middot; {model.trainDim || 2}D &rarr; 2D
+            {isTraining && <span style={{ color: stageColor }}> &middot; epoch {currentEpoch}/{params.epochs}</span>}
+            {!isTraining && <span> &middot; {model.history.length} epochs</span>}
           </div>
         )}
       </div>
@@ -3695,7 +3798,10 @@ function Word2VecTrainer({ stageColor }) {
         <div>
           <div style={{ background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 8, overflow: "hidden", marginBottom: 12 }}>
             <canvas ref={canvasRef} onClick={handleCanvasClick}
-              style={{ width: "100%", height: 420, cursor: "pointer" }} />
+              onMouseDown={handleCanvasMouseDown} onMouseMove={handleCanvasMouseMove}
+              onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp}
+              onWheel={handleCanvasWheel}
+              style={{ width: "100%", height: 420, cursor: "grab" }} />
           </div>
           {selectedWord && (
             <div style={{ background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14, animation: "fadeInUp 0.3s ease" }}>
