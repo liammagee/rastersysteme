@@ -677,10 +677,12 @@ function generateWordMarkov(matrix, order, length = 40) {
 // ============================================================
 
 function trainWord2Vec(text, opts = {}) {
-  const dim = opts.dim || 2;
+  const trainDim = opts.dim || 10; // Train in high-D for richer representations
+  const displayDim = 2; // Project to 2D for visualization
   const windowSize = opts.windowSize || 2;
-  const epochs = opts.epochs || 30;
-  const lr = opts.learningRate || 0.025;
+  const epochs = opts.epochs || 100;
+  const lrStart = opts.learningRate || 0.05;
+  const lrEnd = 0.001; // Decay to this
   const negK = opts.negSamples || 5;
 
   const words = text.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
@@ -689,17 +691,16 @@ function trainWord2Vec(text, opts = {}) {
   const idx = {}; vocab.forEach((w, i) => idx[w] = i);
   const V = vocab.length;
 
-  // Random init
-  const emb = vocab.map(() => Array.from({ length: dim }, () => (Math.random() - 0.5) * 0.5));
+  // Random init (two sets: target and context vectors, like original Word2Vec)
+  const emb = vocab.map(() => Array.from({ length: trainDim }, () => (Math.random() - 0.5) * 0.1));
+  const ctxEmb = vocab.map(() => Array.from({ length: trainDim }, () => 0));
 
   // Negative sampling distribution: freq^0.75
   const freq = new Array(V).fill(0);
   words.forEach(w => freq[idx[w]]++);
   const fp = freq.map(f => Math.pow(f, 0.75));
   const fpSum = fp.reduce((a, b) => a + b, 0);
-  // Build cumulative distribution for O(log n) sampling
-  const cumDist = [];
-  let cum = 0;
+  const cumDist = []; let cum = 0;
   for (let i = 0; i < V; i++) { cum += fp[i] / fpSum; cumDist.push(cum); }
 
   function sampleNeg(exclude) {
@@ -709,49 +710,63 @@ function trainWord2Vec(text, opts = {}) {
     return lo === exclude ? (lo + 1) % V : lo;
   }
 
-  // Train
+  // Train with learning rate decay
   const history = [];
   for (let ep = 0; ep < epochs; ep++) {
-    let loss = 0;
+    const lr = lrStart - (lrStart - lrEnd) * (ep / epochs); // Linear decay
+    let loss = 0, pairs = 0;
     for (let i = 0; i < words.length; i++) {
       const ci = idx[words[i]];
       for (let j = Math.max(0, i - windowSize); j <= Math.min(words.length - 1, i + windowSize); j++) {
         if (j === i) continue;
         const cj = idx[words[j]];
-        const c = emb[ci], ctx = emb[cj];
+        const w = emb[ci], c = ctxEmb[cj];
 
-        // Positive: sigmoid(c . ctx) should be high
-        let dot = 0; for (let d = 0; d < dim; d++) dot += c[d] * ctx[d];
-        const sig = 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, dot))));
+        // Positive pair
+        let dot = 0; for (let d = 0; d < trainDim; d++) dot += w[d] * c[d];
+        dot = Math.max(-8, Math.min(8, dot));
+        const sig = 1 / (1 + Math.exp(-dot));
         const g = lr * (1 - sig);
-        const cOld = [...c];
-        for (let d = 0; d < dim; d++) { c[d] += g * ctx[d]; ctx[d] += g * cOld[d]; }
+        for (let d = 0; d < trainDim; d++) { const wd = w[d]; w[d] += g * c[d]; c[d] += g * wd; }
         loss -= Math.log(sig + 1e-10);
+        pairs++;
 
-        // Negatives: sigmoid(c . neg) should be low
+        // Negative samples
         for (let n = 0; n < negK; n++) {
           const ni = sampleNeg(ci);
-          const neg = emb[ni];
-          let nd = 0; for (let d = 0; d < dim; d++) nd += c[d] * neg[d];
-          const ns = 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, nd))));
+          const neg = ctxEmb[ni];
+          let nd = 0; for (let d = 0; d < trainDim; d++) nd += w[d] * neg[d];
+          nd = Math.max(-8, Math.min(8, nd));
+          const ns = 1 / (1 + Math.exp(-nd));
           const ng = lr * ns;
-          const cOld2 = [...c];
-          for (let d = 0; d < dim; d++) { c[d] -= ng * neg[d]; neg[d] -= ng * cOld2[d]; }
+          for (let d = 0; d < trainDim; d++) { const wd = w[d]; w[d] -= ng * neg[d]; neg[d] -= ng * wd; }
           loss -= Math.log(1 - ns + 1e-10);
         }
       }
     }
-    history.push(loss / words.length);
+    history.push(pairs > 0 ? loss / pairs : 0);
   }
 
-  // Normalize to [-0.85, 0.85] range per axis
-  for (let d = 0; d < dim; d++) {
+  // Project from trainDim to 2D using PCA
+  const pca = computePCA(vocab.map((w, i) => ({ v: emb[i] })), displayDim);
+  const projected = pca.projected;
+
+  // Normalize projected coords to [-0.85, 0.85]
+  for (let d = 0; d < displayDim; d++) {
     let maxAbs = 0;
-    for (let i = 0; i < V; i++) maxAbs = Math.max(maxAbs, Math.abs(emb[i][d]));
-    if (maxAbs > 0) for (let i = 0; i < V; i++) emb[i][d] = (emb[i][d] / maxAbs) * 0.85;
+    for (let i = 0; i < V; i++) maxAbs = Math.max(maxAbs, Math.abs(projected[i][d]));
+    if (maxAbs > 0) for (let i = 0; i < V; i++) projected[i][d] = (projected[i][d] / maxAbs) * 0.85;
   }
 
-  return { vocab, embeddings: emb, wordIdx: idx, history, wordCount: words.length };
+  return {
+    vocab,
+    embeddings: projected, // 2D for display
+    fullEmbeddings: emb, // 10D for similarity
+    wordIdx: idx,
+    history,
+    wordCount: words.length,
+    trainDim,
+  };
 }
 
 
@@ -3468,9 +3483,9 @@ function Word2VecTrainingSim({ stageColor }) {
 
 
 const W2V_TEXT_PRESETS = {
-  royalty: "the king sat on the golden throne while the queen watched from her silver throne the prince and princess wore their royal crowns the king ruled the kingdom and the queen ruled beside him the throne was golden and the crown was silver",
-  animals: "the dog chased the cat through the garden the puppy played with the kitten near the house the bird flew over the fish pond while the horse ran across the green field the dog and the cat both lived in the big house",
-  mixed: "the king walked his dog through the city of paris while the queen visited rome the happy child played in the garden near the old throne the young prince studied science at the school the doctor walked to the hospital near the big park",
+  royalty: "the king sat on the golden throne and the queen sat on the silver throne the king wore a golden crown and the queen wore a silver crown the prince and the princess lived in the royal castle the king ruled the great kingdom with wisdom the queen ruled the kingdom with grace the prince trained with the royal knights the princess studied in the royal library the throne room was filled with golden light the crown jewels sparkled in the castle the king and queen held court in the great hall the prince rode his horse through the kingdom the princess walked through the royal gardens",
+  animals: "the dog ran through the park and the cat climbed the tall tree the puppy played with the small kitten in the garden the bird sang a beautiful song from the branch the fish swam in the clear pond near the house the horse galloped across the wide green field the dog barked at the cat and the cat hissed at the dog the puppy and the kitten slept together by the fire the bird flew over the pond where the fish jumped the horse ran faster than the dog across the field the big dog protected the small puppy from the rain the old cat watched the young kitten play",
+  cities: "paris is the capital of france and london is the capital of england berlin is the capital of germany and tokyo is the capital of japan rome is the capital of italy and madrid is the capital of spain the people of paris love art and the people of london love theatre the streets of berlin are wide and the streets of tokyo are busy rome has ancient buildings and madrid has beautiful plazas france and germany are in europe while japan is in asia the food in paris is famous and the food in tokyo is delicious london and berlin are large modern cities",
 };
 
 function Word2VecTrainer({ stageColor }) {
@@ -3493,22 +3508,23 @@ function Word2VecTrainer({ stageColor }) {
     });
   }, [inputText, params]);
 
-  // Get neighbors for selected word
+  // Get neighbors using full high-D embeddings (not the 2D projection)
   const neighbors = useMemo(() => {
     if (!model || !selectedWord) return [];
     const si = model.wordIdx[selectedWord];
     if (si === undefined) return [];
-    const sv = model.embeddings[si];
+    const fullEmb = model.fullEmbeddings || model.embeddings;
+    const sv = fullEmb[si];
     return model.vocab
       .filter(w => w !== selectedWord)
       .map(w => {
         const wi = model.wordIdx[w];
-        const wv = model.embeddings[wi];
+        const wv = fullEmb[wi];
         const sim = cosineSim(sv, wv);
         return { word: w, sim };
       })
       .sort((a, b) => b.sim - a.sim)
-      .slice(0, 6);
+      .slice(0, 8);
   }, [model, selectedWord]);
 
   // Draw embeddings
@@ -3669,7 +3685,7 @@ function Word2VecTrainer({ stageColor }) {
         }}>{isTraining ? "Training..." : "Train"}</button>
         {model && (
           <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
-            {model.vocab.length} words &middot; {model.wordCount} tokens &middot; {model.history.length} epochs
+            {model.vocab.length} words &middot; {model.wordCount} tokens &middot; {model.trainDim || 2}D &rarr; 2D &middot; {model.history.length} epochs
           </div>
         )}
       </div>
