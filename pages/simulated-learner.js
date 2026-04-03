@@ -245,7 +245,6 @@ async function simulateStage2(page, log) {
 
   // Enable free explore and navigate to stage 2
   await page.evaluate(() => {
-    // Click "Unlock all stages"
     const divs = document.querySelectorAll("div");
     for (const d of divs) {
       if (d.textContent.includes("Unlock all stages")) { d.click(); break; }
@@ -253,87 +252,163 @@ async function simulateStage2(page, log) {
   });
   await wait(300);
 
-  // Click Word2Vec in nav
+  // Click Word2Vec in sidebar nav — find the stage nav button containing "Word2Vec" + "2013"
   await page.evaluate(() => {
-    const divs = document.querySelectorAll("div");
-    for (const d of divs) {
-      if (d.textContent.trim() === "Word2Vec" && d.style.fontSize === "13px") { d.parentElement.click(); break; }
+    const all = document.querySelectorAll("*");
+    for (const el of all) {
+      const t = el.textContent.trim();
+      if (t.includes("Word2Vec") && t.includes("2013") && t.length < 30) {
+        // Walk up to find the clickable parent (check computed style, not inline)
+        let target = el;
+        while (target && target !== document.body) {
+          if (window.getComputedStyle(target).cursor === "pointer") break;
+          target = target.parentElement;
+        }
+        if (target && target !== document.body) target.click();
+        break;
+      }
     }
   });
-  await wait(1000);
+  await wait(1500);
 
-  // Check "Building on" section visible
-  const hasBuildingOn = await page.evaluate(() => {
-    const body = document.body.innerText;
-    return /Building on Markov Chains/i.test(body);
+  // Scroll main content area to top
+  await page.evaluate(() => {
+    const main = document.querySelector("[style*='overflow-y: auto']") || document.querySelector("main");
+    if (main) main.scrollTop = 0;
   });
-  log.push({ stage: 2, action: "building_on_visible", success: hasBuildingOn, time: Date.now() });
+  await wait(300);
 
-  // Click "Watch Training" tab
+  // Check scaffolding sections visible
+  const scaffolding = await page.evaluate(() => {
+    const body = document.body.innerText;
+    return {
+      hasBuildingOn: /Building on Markov|What you learned in Markov/i.test(body),
+      hasWhatYouLearned: /what you learned/i.test(body),
+      hasCoreIntuition: /core intuition|words as points/i.test(body),
+      hasEpigraph: /you shall know a word/i.test(body),
+    };
+  });
+  log.push({ stage: 2, action: "building_on_visible", success: scaffolding.hasBuildingOn, time: Date.now() });
+  log.push({ stage: 2, action: "scaffolding_check", ...scaffolding, time: Date.now() });
+
+  // ── WALKTHROUGH: Step through the 5-step embedding development ──
+
+  // Step 1: Words as random symbols (already showing)
+  const step1Text = await page.evaluate(() => {
+    const body = document.body.innerText;
+    return /words as random|random symbol/i.test(body);
+  });
+  log.push({ stage: 2, action: "walkthrough_step1", visible: step1Text, title: "Words as random symbols", time: Date.now() });
+
+  // Check canvas renders random scatter
+  const canvas1 = await page.evaluate(() => {
+    const c = document.querySelector("canvas");
+    if (!c) return { ok: false };
+    try {
+      const ctx = c.getContext("2d");
+      const data = ctx.getImageData(0, 0, 50, 50).data;
+      return { ok: data.some(v => v > 0), width: c.width, height: c.height };
+    } catch (e) { return { ok: false }; }
+  });
+  log.push({ stage: 2, action: "canvas_check", ...canvas1, time: Date.now() });
+
+  // Advance to Step 2: Context creates meaning
+  async function clickNextStep() {
+    const btns = await page.$$("button");
+    for (const btn of btns) {
+      const text = await page.evaluate(el => el.textContent, btn);
+      if (text.includes("Next") || text.includes("Start Training")) {
+        const disabled = await page.evaluate(el => el.disabled, btn);
+        if (!disabled) { await btn.click(); return true; }
+      }
+    }
+    return false;
+  }
+
+  await clickNextStep();
+  await wait(500);
+
+  const step2Text = await page.evaluate(() => /context creates meaning/i.test(document.body.innerText));
+  log.push({ stage: 2, action: "walkthrough_step2", visible: step2Text, title: "Context creates meaning", time: Date.now() });
+
+  // Advance to Step 3: Start Training (animation)
+  await clickNextStep();
+  await wait(5000); // Wait for training animation to complete
+
+  const step3Text = await page.evaluate(() => /training|words find their place/i.test(document.body.innerText));
+  log.push({ stage: 2, action: "walkthrough_step3", visible: step3Text, title: "Training animation", time: Date.now() });
+
+  // Advance to Step 4: Structure emerges
+  await clickNextStep();
+  await wait(500);
+
+  const step4Info = await page.evaluate(() => {
+    const body = document.body.innerText;
+    return {
+      visible: /structure emerges/i.test(body),
+      hasAxisLabels: /geography|animacy|nature|action/i.test(body),
+      hasClusters: /animals|royalty|places|emotions/i.test(body),
+    };
+  });
+  log.push({ stage: 2, action: "walkthrough_step4", ...step4Info, title: "Structure emerges", time: Date.now() });
+
+  // Advance to Step 5: Explore the space
+  await clickNextStep();
+  await wait(500);
+
+  const step5Info = await page.evaluate(() => {
+    const body = document.body.innerText;
+    return {
+      visible: /explore the embedding|explore the space/i.test(body),
+      hasSearch: !!document.querySelector("input[placeholder*='Search']"),
+      hasClusterToggles: document.querySelectorAll("button").length > 10,
+    };
+  });
+  log.push({ stage: 2, action: "walkthrough_step5", ...step5Info, title: "Explore the space", time: Date.now() });
+
+  // ── INSTRUCTION QUALITY EVALUATION ──
+  // Evaluate explanatory text quality while still on the Explore tab (scrolled through all steps)
+  // Switch back to Explore tab to read all accumulated text
+  const exploreBtn = await page.$$("button");
+  for (const btn of exploreBtn) {
+    const text = await page.evaluate(el => el.textContent, btn);
+    if (text.trim() === "Explore Embeddings") { await btn.click(); await wait(300); break; }
+  }
+
+  // Scroll through to expose all text
+  await page.evaluate(() => {
+    const main = document.querySelector("[style*='overflow-y: auto']") || document.querySelector("main");
+    if (main) { main.scrollTop = 0; }
+  });
+  await wait(200);
+  await page.evaluate(() => {
+    const main = document.querySelector("[style*='overflow-y: auto']") || document.querySelector("main");
+    if (main) { main.scrollTop = main.scrollHeight; }
+  });
+  await wait(200);
+
+  const instructionQuality = await page.evaluate(() => {
+    const body = document.body.innerText;
+    return {
+      hasDistributionalHypothesis: /distributional hypothesis|words.*similar contexts.*similar meanings/i.test(body),
+      hasVectorArithmetic: /vector arithmetic|vec\(B\).*vec\(A\)/i.test(body),
+      hasSkipGram: /skip-gram|skip gram/i.test(body),
+      hasCosine: /cosine/i.test(body),
+      hasEmbedding: /embedding/i.test(body),
+      hasSemanticSpace: /semantic space|semantic landscape/i.test(body),
+      hasContextWindow: /context window|context creates/i.test(body),
+      hasTrainingNarrative: /training.*progresses|words find their place/i.test(body),
+      hasNegativeAxes: /opposite sides|contrasting pairs/i.test(body),
+    };
+  });
+  const conceptCount = Object.values(instructionQuality).filter(Boolean).length;
+  log.push({ stage: 2, action: "instruction_quality", conceptCount, total: Object.keys(instructionQuality).length, ...instructionQuality, time: Date.now() });
+
+  // ── ANALOGY SOLVER ──
+
+  // Switch to Analogy Solver tab
   const allButtons = await page.$$("button");
   for (const btn of allButtons) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Watch Training") {
-      await btn.click();
-      await wait(500);
-      log.push({ stage: 2, action: "open_training_tab", time: Date.now() });
-      break;
-    }
-  }
-
-  // Start training
-  const btns2 = await page.$$("button");
-  for (const btn of btns2) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Train") {
-      await btn.click();
-      await wait(3000);
-      log.push({ stage: 2, action: "run_training", time: Date.now() });
-      break;
-    }
-  }
-
-  // Pause training
-  const btns3 = await page.$$("button");
-  for (const btn of btns3) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Pause") {
-      await btn.click();
-      await wait(200);
-      break;
-    }
-  }
-
-  // Switch to Explore Embeddings
-  const btns4 = await page.$$("button");
-  for (const btn of btns4) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Explore Embeddings") {
-      await btn.click();
-      await wait(500);
-      log.push({ stage: 2, action: "open_explore_tab", time: Date.now() });
-      break;
-    }
-  }
-
-  // Check canvas has content
-  const canvasHealth = await page.evaluate(() => {
-    const canvases = document.querySelectorAll("canvas");
-    let nonEmpty = 0;
-    canvases.forEach(c => {
-      try {
-        const ctx = c.getContext("2d");
-        const data = ctx.getImageData(0, 0, 50, 50).data;
-        if (data.some(v => v > 0)) nonEmpty++;
-      } catch (e) {}
-    });
-    return { total: canvases.length, nonEmpty };
-  });
-  log.push({ stage: 2, action: "canvas_check", ...canvasHealth, time: Date.now() });
-
-  // Switch to Analogy Solver
-  const btns5 = await page.$$("button");
-  for (const btn of btns5) {
     const text = await page.evaluate(el => el.textContent, btn);
     if (text.trim() === "Analogy Solver") {
       await btn.click();
@@ -343,14 +418,69 @@ async function simulateStage2(page, log) {
     }
   }
 
-  // Solve analogies
+  // Solve analogies — new UI uses answer buttons + "Check with Vector Arithmetic"
   let analogyCorrect = 0;
   for (let ai = 0; ai < 6; ai++) {
-    // Click Solve button
-    const solveBtns = await page.$$("button");
-    for (const btn of solveBtns) {
+    // Find the correct answer by reading the hint and guessing the right option
+    const puzzleInfo = await page.evaluate(() => {
+      const body = document.body.innerText;
+      // Extract the analogy pattern: "king is to queen as man is to ???"
+      const match = body.match(/Hint:\s*(.+)/i);
+      return { hint: match ? match[1] : "", body: body.substring(0, 500) };
+    });
+
+    // Strategy: click the answer that matches common analogy patterns
+    // For king:queen::man:?, the answer is "woman". Try clicking it.
+    const answerMap = {
+      "Gender relationship": "woman",
+      "Gender in royalty": "princess",
+      "Gender in family": "mother",
+      "Capital to country": ["japan", "germany", "italy", "spain", "russia"],
+      "Present to past tense": ["swam", "ran"],
+      "Adult to young": "kitten",
+      "Base to comparative": "smaller",
+      "Royalty to commoner": "woman",
+      "Positive to negative": "fear",
+    };
+
+    let guessed = false;
+    const hint = puzzleInfo.hint.trim();
+    let expectedAnswer = answerMap[hint];
+    if (Array.isArray(expectedAnswer)) expectedAnswer = expectedAnswer[0]; // first match
+
+    if (expectedAnswer) {
+      const btns = await page.$$("button");
+      for (const btn of btns) {
+        const text = await page.evaluate(el => el.textContent, btn);
+        if (text.trim() === expectedAnswer) {
+          await btn.click();
+          await wait(200);
+          guessed = true;
+          break;
+        }
+      }
+    }
+
+    // If couldn't find expected answer, click the first answer option
+    if (!guessed) {
+      const btns = await page.$$("button");
+      for (const btn of btns) {
+        const text = await page.evaluate(el => el.textContent, btn);
+        const style = await page.evaluate(el => el.style.padding, btn);
+        if (style && style.includes("8px 16px") && text.length < 15 && !text.includes("Check") && !text.includes("Next")) {
+          await btn.click();
+          await wait(200);
+          guessed = true;
+          break;
+        }
+      }
+    }
+
+    // Click "Check with Vector Arithmetic"
+    const checkBtns = await page.$$("button");
+    for (const btn of checkBtns) {
       const text = await page.evaluate(el => el.textContent, btn);
-      if (text.trim() === "Solve") {
+      if (text.includes("Check with Vector")) {
         await btn.click();
         await wait(500);
         break;
@@ -360,12 +490,12 @@ async function simulateStage2(page, log) {
     // Check result
     const resultText = await page.evaluate(() => {
       const body = document.body.innerText;
-      if (/correct/i.test(body)) return "correct";
+      if (/correct.*vector arithmetic/i.test(body)) return "correct";
       if (/expected/i.test(body)) return "wrong";
       return "unknown";
     });
     if (resultText === "correct") analogyCorrect++;
-    log.push({ stage: 2, action: "analogy_attempt", result: resultText, time: Date.now() });
+    log.push({ stage: 2, action: "analogy_attempt", result: resultText, hint, time: Date.now() });
 
     // Click Next Analogy
     const nextBtns = await page.$$("button");
@@ -381,30 +511,6 @@ async function simulateStage2(page, log) {
 
   log.push({ stage: 2, action: "analogies_complete", correct: analogyCorrect, total: 6, time: Date.now() });
 
-  // Check Architecture tab
-  const btns6 = await page.$$("button");
-  for (const btn of btns6) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Architecture") {
-      await btn.click();
-      await wait(500);
-      log.push({ stage: 2, action: "open_arch_tab", time: Date.now() });
-      break;
-    }
-  }
-
-  // Click Propagate
-  const btns7 = await page.$$("button");
-  for (const btn of btns7) {
-    const text = await page.evaluate(el => el.textContent, btn);
-    if (text.trim() === "Propagate") {
-      await btn.click();
-      await wait(2000);
-      log.push({ stage: 2, action: "propagate_network", time: Date.now() });
-      break;
-    }
-  }
-
   return { analogyCorrect };
 }
 
@@ -412,11 +518,20 @@ async function simulateStage2(page, log) {
 async function simulateStage3(page, log) {
   log.push({ stage: 3, action: "enter", time: Date.now() });
 
-  // Navigate to Transformers
+  // Navigate to Transformers (find element with "Transformers" + "2017")
   await page.evaluate(() => {
-    const divs = document.querySelectorAll("div");
-    for (const d of divs) {
-      if (d.textContent.trim() === "Transformers" && d.style.fontSize === "13px") { d.parentElement.click(); break; }
+    const all = document.querySelectorAll("*");
+    for (const el of all) {
+      const t = el.textContent.trim();
+      if (t.includes("Transformers") && t.includes("2017") && t.length < 30) {
+        let target = el;
+        while (target && target !== document.body) {
+          if (window.getComputedStyle(target).cursor === "pointer") break;
+          target = target.parentElement;
+        }
+        if (target && target !== document.body) target.click();
+        break;
+      }
     }
   });
   await wait(1000);
@@ -562,11 +677,20 @@ async function simulateStage3(page, log) {
 async function simulateStage4(page, log) {
   log.push({ stage: 4, action: "enter", time: Date.now() });
 
-  // Navigate to RLHF
+  // Navigate to RLHF (find element with "RLHF" + "2022")
   await page.evaluate(() => {
-    const divs = document.querySelectorAll("div");
-    for (const d of divs) {
-      if (d.textContent.trim() === "RLHF" && d.style.fontSize === "13px") { d.parentElement.click(); break; }
+    const all = document.querySelectorAll("*");
+    for (const el of all) {
+      const t = el.textContent.trim();
+      if (t.includes("RLHF") && t.includes("2022") && t.length < 20) {
+        let target = el;
+        while (target && target !== document.body) {
+          if (window.getComputedStyle(target).cursor === "pointer") break;
+          target = target.parentElement;
+        }
+        if (target && target !== document.body) target.click();
+        break;
+      }
     }
   });
   await wait(1000);

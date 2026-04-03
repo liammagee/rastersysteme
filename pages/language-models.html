@@ -70,6 +70,27 @@ const STAGES = [
     intro: "In 1913, Andrey Andreyevich Markov sat in his study at St. Petersburg University with a copy of Alexander Pushkin's verse novel Eugene Onegin. He wasn't reading for pleasure. He was counting \u2014 meticulously tallying the alternation of vowels and consonants across 20,000 consecutive letters. His goal was radical: to demonstrate that the law of large numbers could apply to dependent events, not just independent ones. In doing so, he invented what we now call Markov chains \u2014 and laid the mathematical foundation for every language model that would follow.\n\nThe core insight is deceptively simple: to predict what comes next, you only need to know where you are now. The probability of the next character depends on the current character (or the last few characters), not on the entire history. This \"memoryless\" property makes the mathematics tractable while still capturing real statistical patterns in language.",
   },
   {
+    id: "eliza", title: "ELIZA", year: 1966,
+    author: "Joseph Weizenbaum",
+    paper: "ELIZA \u2014 A Computer Program For the Study of Natural Language Communication",
+    color: "#FF85A1", colorDim: "rgba(255,133,161,0.15)", accent: "#D46B8A",
+    intuition: "Pattern matching can simulate understanding",
+    epigraph: "I had not realized that extremely short exposures to a relatively simple computer program could induce powerful delusional thinking in quite normal people.",
+    epigraphSource: "Joseph Weizenbaum, 1976",
+    concepts: ["Pattern Matching", "Substitution Rules", "The ELIZA Effect", "Symbolic AI"],
+    buildsOn: {
+      prevTitle: "Markov Chains",
+      prevColor: "#E8A838",
+      limitation: "Markov chains generate statistically plausible text, but they have no concept of conversation, intent, or meaning. They cannot respond to what someone says \u2014 only continue patterns.",
+      addition: "ELIZA adds conversational structure through hand-crafted pattern-response rules. It simulates a Rogerian therapist by matching keywords and reflecting them back. The result feels intelligent \u2014 but there is no understanding behind it.",
+      diagram: [
+        { label: "Markov", desc: "P(next | current)", icon: "chain" },
+        { label: "+ELIZA", desc: "IF pattern THEN response", icon: "rules" },
+      ],
+    },
+    intro: "In 1966, Joseph Weizenbaum at MIT created ELIZA, a program that could conduct a conversation in English. ELIZA worked by matching patterns in the user\u2019s input against a script of rules, then generating responses by substituting and reflecting key phrases. The most famous script, DOCTOR, simulated a Rogerian psychotherapist.\n\nThe results were startling: users who knew ELIZA was a program still found themselves confiding in it, attributing understanding and empathy to simple string matching. Weizenbaum called this the ELIZA effect \u2014 the human tendency to read meaning into mechanical responses. It revealed something profound: the gap between appearing to understand language and actually understanding it is wider than anyone assumed.",
+  },
+  {
     id: "word2vec", title: "Word2Vec", year: 2013,
     author: "Tomas Mikolov et al.",
     paper: "Efficient Estimation of Word Representations in Vector Space",
@@ -135,7 +156,8 @@ const STAGES = [
 ];
 
 const TRANSITION_TEXTS = [
-  "Markov chains capture statistical patterns in local context \u2014 but they have no understanding of meaning. The word 'bank' after 'river' and 'bank' after 'savings' are treated identically. What if words themselves could carry semantic information? In 2013, exactly one century after Markov's letter-counting experiment, a new approach emerged...",
+  "Markov chains generate text by counting what follows what \u2014 but they cannot hold a conversation. What if, instead of statistics, we wrote explicit rules for how to respond? In 1966, ELIZA showed that pattern matching could simulate understanding \u2014 and revealed just how easily humans are fooled.",
+  "ELIZA showed that pattern matching could create the illusion of understanding \u2014 but it was brittle. Every response required a hand-written rule. What if words themselves could carry meaning, learned automatically from data? In 2013, a new approach emerged...",
   "Word2Vec gave us the geometry of meaning \u2014 but these embeddings are static. The word 'bank' gets one vector regardless of context. And the model processes words one at a time, unable to consider how distant words relate to each other. What if a model could look at an entire sentence at once, weighing the importance of every word relative to every other?",
   "The transformer architecture gave language models unprecedented power to understand and generate text. But power without direction is dangerous. A model optimized purely to predict the next token has no concept of helpfulness, truthfulness, or safety. How do we bridge the gap between 'what word comes next' and 'what response would actually help this person'?",
 ];
@@ -240,6 +262,14 @@ const WORD_DATA = [
   { w:"artist", x:0.30, y:0.50, c:"professions", v:[-0.08,0.10,0.75,-0.48,0.06,0.00,0.50,0.10,0.45,-0.20] },
   { w:"scientist", x:0.22, y:0.56, c:"professions", v:[0.08,0.28,0.77,-0.44,0.11,0.00,0.25,0.28,0.35,-0.35] },
   { w:"writer", x:0.27, y:0.53, c:"professions", v:[-0.03,0.12,0.74,-0.49,0.05,0.00,0.35,0.12,0.50,-0.18] },
+  { w:"old", x:0, y:0, c:"contrasts", v:[0.02,0.00,0.78,-0.50,0.00,0.00,-0.30,0.60,0.10,0.05] },
+  { w:"young", x:0, y:0, c:"contrasts", v:[0.02,0.00,0.78,-0.50,0.00,0.00,0.35,-0.55,0.10,0.05] },
+  { w:"war", x:0, y:0, c:"contrasts", v:[0.05,0.00,0.30,-0.30,0.00,0.00,-0.70,0.50,0.10,-0.60] },
+  { w:"peace", x:0, y:0, c:"contrasts", v:[-0.02,0.00,0.30,-0.30,0.00,0.00,0.75,-0.10,0.10,-0.55] },
+  { w:"rich", x:0, y:0, c:"contrasts", v:[0.05,0.30,0.60,-0.40,0.00,0.00,0.30,0.80,0.20,-0.20] },
+  { w:"poor", x:0, y:0, c:"contrasts", v:[0.02,0.05,0.60,-0.42,0.00,0.00,-0.25,-0.70,0.18,-0.22] },
+  { w:"alive", x:0, y:0, c:"contrasts", v:[0.00,0.00,0.70,-0.55,0.00,0.00,0.60,0.15,-0.30,0.50] },
+  { w:"dead", x:0, y:0, c:"contrasts", v:[0.00,0.00,0.70,-0.55,0.00,0.00,-0.55,-0.10,-0.30,0.48] },
 ];
 
 const CLUSTERS = {
@@ -251,6 +281,7 @@ const CLUSTERS = {
   actions: { label: "Actions", color: "#FFD166" },
   qualities: { label: "Qualities", color: "#FF9F43" },
   professions: { label: "Professions", color: "#80ED99" },
+  contrasts: { label: "Contrasts", color: "#FF6B6B" },
 };
 
 const ANALOGY_PUZZLES = [
@@ -625,6 +656,44 @@ function solveAnalogy(aWord, bWord, cWord) {
   return findNearest(target, WORD_DATA, [aWord, bWord, cWord], 5);
 }
 
+
+
+function computePCA(words, numComponents) {
+  const n = words.length, d = words[0].v.length;
+  const vecs = words.map(w => w.v);
+  const mean = new Array(d).fill(0);
+  for (let i = 0; i < n; i++) for (let j = 0; j < d; j++) mean[j] += vecs[i][j];
+  for (let j = 0; j < d; j++) mean[j] /= n;
+  const centered = vecs.map(v => v.map((x, j) => x - mean[j]));
+  const cov = Array.from({ length: d }, () => new Array(d).fill(0));
+  for (let i = 0; i < n; i++)
+    for (let j = 0; j < d; j++)
+      for (let k = j; k < d; k++) { cov[j][k] += centered[i][j] * centered[i][k]; if (j !== k) cov[k][j] = cov[j][k]; }
+  for (let j = 0; j < d; j++) for (let k = 0; k < d; k++) cov[j][k] /= (n - 1);
+  const components = [], covWork = cov.map(r => [...r]);
+  for (let comp = 0; comp < numComponents; comp++) {
+    let vec = Array.from({ length: d }, () => Math.random() - 0.5), eigenvalue = 0;
+    for (let iter = 0; iter < 200; iter++) {
+      const nv = new Array(d).fill(0);
+      for (let j = 0; j < d; j++) for (let k = 0; k < d; k++) nv[j] += covWork[j][k] * vec[k];
+      let mag = 0; for (let j = 0; j < d; j++) mag += nv[j] * nv[j]; mag = Math.sqrt(mag);
+      if (mag < 1e-10) break; eigenvalue = mag;
+      for (let j = 0; j < d; j++) vec[j] = nv[j] / mag;
+    }
+    components.push({ vector: vec, eigenvalue });
+    for (let j = 0; j < d; j++) for (let k = 0; k < d; k++) covWork[j][k] -= eigenvalue * vec[j] * vec[k];
+  }
+  const projected = centered.map(cv => components.map(pc => { let dot = 0; for (let j = 0; j < d; j++) dot += cv[j] * pc.vector[j]; return dot; }));
+  for (let axis = 0; axis < numComponents; axis++) {
+    let maxAbs = 0; for (let i = 0; i < n; i++) { const a = Math.abs(projected[i][axis]); if (a > maxAbs) maxAbs = a; }
+    const scale = maxAbs > 0 ? 0.85 / maxAbs : 1;
+    for (let i = 0; i < n; i++) projected[i][axis] *= scale;
+  }
+  return { projected, components, mean };
+}
+const PCA_RESULT = computePCA(WORD_DATA, 2);
+WORD_DATA.forEach((w, i) => { w.px = PCA_RESULT.projected[i][0]; w.py = PCA_RESULT.projected[i][1]; });
+
 function softmax(arr) {
   const max = Math.max(...arr);
   const exps = arr.map(x => Math.exp(x - max));
@@ -640,8 +709,9 @@ function softmax(arr) {
 const initialState = {
   currentStage: 0,
   freeExplore: false,
-  unlockedStages: [true, false, false, false],
+  unlockedStages: [true, false, false, false, false],
   stageProgress: [
+    { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
     { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
     { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
     { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
@@ -662,7 +732,7 @@ function reducer(state, action) {
       const newProgress = [...state.stageProgress];
       newProgress[action.stage] = { ...newProgress[action.stage], challengeCompleted: true, challengeScore: action.score };
       const newUnlocked = [...state.unlockedStages];
-      if (action.stage < 3) newUnlocked[action.stage + 1] = true;
+      if (action.stage < 4) newUnlocked[action.stage + 1] = true;
       return { ...state, stageProgress: newProgress, unlockedStages: newUnlocked };
     }
     case "UPDATE_SCORE": {
@@ -691,7 +761,7 @@ const COLORS = {
   bgPanelHover: "rgba(255,255,255,0.06)",
   text: "#E8E4DE",
   textDim: "#9A958E",
-  textFaint: "rgba(255,255,255,0.30)",
+  textFaint: "rgba(255,255,255,0.50)",
   border: "rgba(255,255,255,0.08)",
   borderLight: "rgba(255,255,255,0.05)",
 };
@@ -723,7 +793,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
         {/* Vertical connecting line */}
         <div style={{
           position: "absolute", left: 15, top: 16, bottom: 16,
-          width: 1, background: `linear-gradient(180deg, ${STAGES[0].color}40, ${STAGES[1].color}40, ${STAGES[2].color}40, ${STAGES[3].color}40)`,
+          width: 1, background: `linear-gradient(180deg, ${STAGES[0].color}40, ${STAGES[1].color}40, ${STAGES[2].color}40, ${STAGES[3].color}40, ${STAGES[4].color}40)`,
         }} />
 
         {STAGES.map((stage, i) => {
@@ -783,7 +853,7 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
         fontFamily: FONTS.mono, fontSize: 12,
         color: COLORS.textDim,
       }}>
-        {stageProgress.filter(s => s.challengeCompleted).length} / 4 stages completed
+        {stageProgress.filter(s => s.challengeCompleted).length} / 5 stages completed
         <div
           onClick={() => dispatch({ type: "TOGGLE_FREE_EXPLORE" })}
           style={{
@@ -838,7 +908,7 @@ function GlossaryTerm({ term, children }) {
         onMouseLeave={function() { setShowDef(false); }}
         onClick={function() { setShowDef(!showDef); }}
         style={{
-          borderBottom: "1px dashed rgba(255,255,255,0.3)",
+          borderBottom: "1px dashed rgba(255,255,255,0.45)",
           cursor: "help",
         }}
       >{children || term}</span>
@@ -861,8 +931,10 @@ function GlossaryTerm({ term, children }) {
 }
 
 const WHAT_YOU_LEARNED = [
-  null, // Stage 0 (Markov) has no predecessor
-  "In the Markov stage, you learned that language has statistical patterns: given a character or short sequence, some characters are much more likely to follow than others. A Markov model predicts the next token using these transition probabilities. But it has no concept of meaning.",
+  "You already know intuitively that language has patterns \u2014 some words follow others more often than chance. Markov formalized this intuition mathematically in 1913, creating the foundation for every language model that followed.",
+  "In the Markov stage, you learned that language has statistical patterns: Markov models predict the next token from frequency counts, but they cannot hold a conversation or respond to meaning.",
+  "In the ELIZA stage, you saw that hand-crafted pattern rules can simulate conversation \u2014 but with no real understanding. ELIZA matched keywords and reflected them back, revealing the ELIZA effect: humans readily attribute intelligence to simple string matching.",
+  "In the Markov and ELIZA stages, you learned that statistical patterns and rules can mimic language: given a character or short sequence, some characters are much more likely to follow than others. A Markov model predicts the next token using these transition probabilities. But it has no concept of meaning.",
   "In the Word2Vec stage, you learned that words can be represented as vectors in a geometric space where distance encodes semantic similarity. Words with similar meanings cluster together, and relationships become vector arithmetic. But these representations are static \u2014 one vector per word regardless of context.",
   "In the Transformer stage, you learned that self-attention lets every token dynamically consider every other token, creating context-dependent representations. The same word gets different representations in different sentences. But the model has no concept of helpfulness or safety.",
 ];
@@ -870,7 +942,8 @@ const WHAT_YOU_LEARNED = [
 function WhatYouLearned({ stageIndex }) {
   var text = WHAT_YOU_LEARNED[stageIndex];
   if (!text) return null;
-  var prevStage = STAGES[stageIndex - 1];
+  var isFirst = stageIndex === 0;
+  var prevStage = isFirst ? STAGES[0] : STAGES[stageIndex - 1];
   return (
     <div style={{
       marginBottom: 20, padding: "14px 18px",
@@ -881,7 +954,7 @@ function WhatYouLearned({ stageIndex }) {
       <div style={{
         fontFamily: FONTS.mono, fontSize: 12, color: prevStage.color,
         textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
-      }}>What you learned in {prevStage.title}</div>
+      }}>{isFirst ? "What you already know" : "What you learned in " + prevStage.title}</div>
       <div style={{
         fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
         lineHeight: 1.6, opacity: 0.85,
@@ -1519,6 +1592,700 @@ function PredictionExplanation({ predictions, gameAnswer, gameContext, order, st
         {order === 1 && " With only 1 character of context, predictions are very coarse \u2014 try increasing the n-gram order to see how more context improves prediction."}
         {order >= 3 && " With " + order + " characters of context, the model captures more specific patterns from the training text."}
       </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// ELIZA RULES + PLAYGROUND
+// ============================================================
+
+const ELIZA_RULES = [
+  // Each rule: [regex pattern, [response templates...], label]
+  // $1, $2 etc. are captured groups, with pronoun reflection applied
+  [/\bi(?:'m| am) (.*)/i, ["How long have you been $1?", "Do you believe it is normal to be $1?", "Do you enjoy being $1?"], "I am X"],
+  [/\bi feel (.*)/i, ["Tell me more about feeling $1.", "Do you often feel $1?", "What makes you feel $1?"], "I feel X"],
+  [/\bi(?:'m| am) (sad|depressed|unhappy|miserable)/i, ["I'm sorry to hear that. Can you tell me what makes you $1?", "What do you think causes these feelings?"], "Sadness"],
+  [/\bi want (.*)/i, ["Why do you want $1?", "What would it mean to you if you got $1?", "Suppose you got $1 — then what?"], "I want X"],
+  [/\bi need (.*)/i, ["Why do you need $1?", "Would it really help you to get $1?", "Are you sure you need $1?"], "I need X"],
+  [/\bwhy don(?:'t| not) you (.*)/i, ["Do you really think I don't $1?", "Perhaps eventually I will $1.", "Do you really want me to $1?"], "Why don't you X"],
+  [/\bwhy can(?:'t| not) i (.*)/i, ["Do you think you should be able to $1?", "What would it mean if you could $1?"], "Why can't I X"],
+  [/\bi can(?:'t| not) (.*)/i, ["How do you know you can't $1?", "Have you tried to $1?", "Perhaps you could $1 if you tried."], "I can't X"],
+  [/\bare you (.*)/i, ["Why does it matter whether I am $1?", "Would you prefer if I were not $1?", "Do you think I am $1?"], "Are you X"],
+  [/\byou(?:'re| are) (.*)/i, ["What makes you think I am $1?", "Does it please you to think I am $1?"], "You are X"],
+  [/\bi don(?:'t| not) (.*)/i, ["Don't you really $1?", "Why don't you $1?", "Do you wish you could $1?"], "I don't X"],
+  [/\bmy (.*)/i, ["Your $1 — tell me more about that.", "How does your $1 make you feel?", "What about your $1 concerns you?"], "My X"],
+  [/\bmother|father|family|parent/i, ["Tell me more about your family.", "How does that make you feel about your family?", "What role does your family play in your thoughts?"], "Family"],
+  [/\b(hello|hi|hey)\b/i, ["Hello. How are you feeling today?", "Hi there. What's on your mind?"], "Greeting"],
+  [/\bsorry\b/i, ["There's no need to apologize.", "What are you apologizing for?"], "Apology"],
+  [/\byes\b/i, ["You seem quite sure.", "Can you elaborate on that?", "I see. Tell me more."], "Affirmative"],
+  [/\bno\b/i, ["Why not?", "You seem quite certain.", "Are you saying no just to be negative?"], "Negative"],
+  [/\b(computer|machine|ai|robot)\b/i, ["Do machines concern you?", "What do you think about machines thinking?", "Why do you mention computers?"], "Computers"],
+  [/\bwhat (.*)/i, ["Why do you ask?", "What do you think?", "Does that question interest you?"], "Question"],
+  [/\bbecause (.*)/i, ["Is that the real reason?", "Are you sure that's why?", "What other reasons might there be?"], "Because X"],
+];
+
+const ELIZA_DEFAULTS = [
+  "Please go on.", "Tell me more about that.", "How does that make you feel?",
+  "Can you elaborate on that?", "That's interesting. Please continue.",
+  "I see. And what does that suggest to you?", "How long have you felt this way?",
+];
+
+// Pronoun reflection map
+const REFLECTIONS = {
+  "i": "you", "me": "you", "my": "your", "am": "are", "i'm": "you're",
+  "you": "I", "your": "my", "are": "am", "you're": "I'm",
+  "myself": "yourself", "yourself": "myself",
+  "i'd": "you'd", "i've": "you've", "i'll": "you'll",
+};
+
+function elizaReflect(text) {
+  return text.split(/\s+/).map(w => {
+    const lower = w.toLowerCase();
+    return REFLECTIONS[lower] || w;
+  }).join(" ");
+}
+
+function elizaRespond(input) {
+  const clean = input.trim();
+  for (let i = 0; i < ELIZA_RULES.length; i++) {
+    const [pattern, responses, label] = ELIZA_RULES[i];
+    const match = clean.match(pattern);
+    if (match) {
+      const template = responses[Math.floor(Math.random() * responses.length)];
+      const reflected = match[1] ? elizaReflect(match[1]) : "";
+      const response = template.replace("$1", reflected).replace("$2", match[2] ? elizaReflect(match[2]) : "");
+      return { response, ruleIdx: i, label, pattern: pattern.source, matched: match[0] };
+    }
+  }
+  return {
+    response: ELIZA_DEFAULTS[Math.floor(Math.random() * ELIZA_DEFAULTS.length)],
+    ruleIdx: -1, label: "Default", pattern: "(no match)", matched: "",
+  };
+}
+
+
+function ELIZAPlayground({ stageIndex, dispatch, stageProgress }) {
+  const stage = STAGES[1]; // ELIZA is now stage 1
+  const [messages, setMessages] = useState([
+    { from: "eliza", text: "Hello. I'm ELIZA. How are you feeling today?", rule: null },
+  ]);
+  const [input, setInput] = useState("");
+  const [showDebug, setShowDebug] = useState(true);
+  const [lastRule, setLastRule] = useState(null);
+  const [rulesUsed, setRulesUsed] = useState(new Set());
+  const chatRef = useRef(null);
+
+  const handleSend = useCallback(() => {
+    if (!input.trim()) return;
+    const userMsg = input.trim();
+    const result = elizaRespond(userMsg);
+    setMessages(prev => [
+      ...prev,
+      { from: "user", text: userMsg, rule: null },
+      { from: "eliza", text: result.response, rule: result },
+    ]);
+    setLastRule(result);
+    setRulesUsed(prev => { const next = new Set(prev); next.add(result.label); return next; });
+    setInput("");
+
+    // Update score based on unique rules discovered
+    const newCount = rulesUsed.size + (rulesUsed.has(result.label) ? 0 : 1);
+    dispatch({ type: "UPDATE_SCORE", stage: 1, score: newCount, attempts: messages.length });
+    if (newCount >= 6 && !stageProgress.challengeCompleted) {
+      setTimeout(() => dispatch({ type: "COMPLETE_CHALLENGE", stage: 1, score: newCount }), 1000);
+    }
+  }, [input, messages, rulesUsed, dispatch, stageProgress]);
+
+  useEffect(() => {
+    if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
+  }, [messages]);
+
+  // Quick prompts that trigger different rules
+  const PROMPTS = [
+    "I'm feeling anxious", "I need help", "Why can't I sleep?",
+    "My mother worries about me", "Are you really listening?",
+    "I don't know what to do", "Because I'm scared",
+  ];
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color }}>
+          Rules discovered: {rulesUsed.size}/6 to unlock next stage
+        </div>
+        <div style={{ flex: 1 }} />
+        <button onClick={() => setShowDebug(!showDebug)} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
+          border: "1px solid " + (showDebug ? stage.color : COLORS.border),
+          background: showDebug ? stage.colorDim : "transparent",
+          color: showDebug ? stage.color : COLORS.textDim, cursor: "pointer",
+        }}>{showDebug ? "Hide" : "Show"} Rule Debugger</button>
+      </div>
+
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        {/* Chat panel */}
+        <div style={{ flex: 2, minWidth: 280 }}>
+          <div ref={chatRef} style={{
+            height: 340, overflowY: "auto", background: "#08080A",
+            border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14, marginBottom: 12,
+          }}>
+            {messages.map((m, i) => (
+              <div key={i} style={{
+                marginBottom: 10, display: "flex",
+                justifyContent: m.from === "user" ? "flex-end" : "flex-start",
+              }}>
+                <div style={{
+                  maxWidth: "80%", padding: "8px 12px", borderRadius: 8,
+                  background: m.from === "user" ? stage.colorDim : "rgba(255,255,255,0.05)",
+                  border: "1px solid " + (m.from === "user" ? stage.color + "30" : COLORS.border),
+                }}>
+                  <div style={{
+                    fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.5,
+                  }}>{m.text}</div>
+                  {m.rule && showDebug && (
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 10, color: stage.color, marginTop: 4, opacity: 0.7,
+                    }}>Rule: {m.rule.label}</div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Input */}
+          <div style={{ display: "flex", gap: 8 }}>
+            <input type="text" value={input} onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
+              placeholder="Type a message to ELIZA..."
+              style={{
+                flex: 1, padding: "8px 12px", fontFamily: FONTS.mono, fontSize: 13,
+                background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+                borderRadius: 6, color: COLORS.text, outline: "none",
+              }}
+            />
+            <button onClick={handleSend} style={{
+              fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px", borderRadius: 6,
+              border: "1px solid " + stage.color, background: stage.colorDim,
+              color: stage.color, cursor: "pointer",
+            }}>Send</button>
+          </div>
+
+          {/* Quick prompts */}
+          <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }}>
+            {PROMPTS.map(p => (
+              <button key={p} onClick={() => setInput(p)} style={{
+                fontFamily: FONTS.mono, fontSize: 10, padding: "3px 8px", borderRadius: 3,
+                border: "1px solid " + COLORS.border, background: "transparent",
+                color: COLORS.textDim, cursor: "pointer",
+              }}>{p}</button>
+            ))}
+          </div>
+        </div>
+
+        {/* Rule debugger panel */}
+        {showDebug && (
+          <div style={{ flex: 1, minWidth: 220 }}>
+            <div style={{
+              background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+              borderRadius: 8, padding: 14,
+            }}>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+                textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10,
+              }}>Rule Debugger</div>
+
+              {lastRule ? (
+                <div>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
+                    Last match:
+                  </div>
+                  <div style={{
+                    fontFamily: FONTS.mono, fontSize: 12, color: stage.color, marginBottom: 8,
+                    padding: "6px 10px", background: stage.colorDim, borderRadius: 4,
+                  }}>
+                    {lastRule.label}
+                  </div>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 4 }}>Pattern:</div>
+                  <div style={{
+                    fontFamily: FONTS.mono, fontSize: 11, color: COLORS.text,
+                    padding: "4px 8px", background: "rgba(255,255,255,0.04)", borderRadius: 3, marginBottom: 8,
+                    wordBreak: "break-all",
+                  }}>/{lastRule.pattern}/</div>
+                  {lastRule.matched && (
+                    <div>
+                      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 4 }}>Matched:</div>
+                      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: "#72E1A0", marginBottom: 8 }}>"{lastRule.matched}"</div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
+                  Send a message to see which rule ELIZA uses.
+                </div>
+              )}
+
+              <div style={{ borderTop: "1px solid " + COLORS.border, marginTop: 10, paddingTop: 10 }}>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
+                  Rules discovered ({rulesUsed.size}):
+                </div>
+                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                  {[...rulesUsed].map(r => (
+                    <span key={r} style={{
+                      fontFamily: FONTS.mono, fontSize: 10, padding: "2px 6px", borderRadius: 3,
+                      background: stage.colorDim, color: stage.color, border: "1px solid " + stage.color + "30",
+                    }}>{r}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
+              marginTop: 12, lineHeight: 1.5, fontStyle: "italic",
+            }}>
+              ELIZA has {ELIZA_RULES.length} pattern rules + {ELIZA_DEFAULTS.length} default responses.
+              There is no understanding here — just string matching and substitution.
+              Try to discover 6 different rules to unlock the next stage.
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+
+const TINY_TRANSFORMER = (() => {
+  const vocab = ["the","cat","sat","on","mat","dog","ran","to","a","big","small","red","blue","house","park","happy","is","was","and","very"];
+  const dim = 8;
+  const rng = ((s) => { let x = s; return () => { x = (x * 16807) % 2147483647; return (x / 2147483647) - 0.5; }; })(42);
+  const embeddings = {"the":[.1,.2,0,.1,0,0,.3,.1],"a":[.1,.2,0,.1,0,0,.2,.15],"cat":[.8,-.3,.6,.1,.7,0,-.2,.5],"dog":[.7,-.3,.5,.1,.8,0,-.1,.4],"sat":[0,.5,-.3,.6,0,.4,0,-.2],"ran":[0,.6,-.2,.5,0,.5,.1,-.3],"on":[0,.1,.3,.8,0,0,.2,0],"to":[0,.1,.2,.7,0,0,.3,.1],"mat":[.3,-.1,.2,.2,.1,0,-.3,.6],"big":[0,0,.7,-.2,0,0,0,.8],"small":[0,0,.6,-.2,0,0,0,-.7],"red":[0,0,.5,-.1,0,0,-.4,.3],"blue":[0,0,.5,-.1,0,0,-.5,.2],"house":[.4,-.2,.3,.3,.2,0,-.2,.7],"park":[.3,-.1,.2,.4,.3,0,-.1,.5],"happy":[0,0,.1,0,0,.8,.6,0],"is":[0,.3,-.1,.4,0,.2,.1,0],"was":[0,.3,-.1,.4,0,.1,0,-.1],"and":[.1,.1,0,.3,0,0,.4,0],"very":[0,0,.4,0,0,.3,.2,.1]};
+  const Wq=[],Wk=[],Wv=[];
+  for(let i=0;i<dim;i++){Wq.push(Array.from({length:dim},(_,j)=>(i===j?.8:0)+rng()*.2));Wk.push(Array.from({length:dim},(_,j)=>(i===j?.8:0)+rng()*.2));Wv.push(Array.from({length:dim},(_,j)=>(i===j?.7:0)+rng()*.3));}
+  return{vocab,dim,embeddings,Wq,Wk,Wv};
+})();
+function transformerPredict(inputWords){const{vocab,dim,embeddings,Wq,Wk,Wv}=TINY_TRANSFORMER;const tokens=inputWords.filter(w=>embeddings[w]);if(!tokens.length)return null;const n=tokens.length;const embs=tokens.map((t,pos)=>{const e=[...embeddings[t]];for(let i=0;i<dim;i++)e[i]+=.1*Math.sin(pos/Math.pow(10,(2*i)/dim));return e;});function mv(M,v){return M.map(r=>r.reduce((s,w,i)=>s+w*v[i],0));}const Q=embs.map(e=>mv(Wq,e)),K=embs.map(e=>mv(Wk,e)),V=embs.map(e=>mv(Wv,e));const lQ=Q[n-1];const sc=K.map(k=>k.reduce((s,v,i)=>s+lQ[i]*v,0)/Math.sqrt(dim));const mS=Math.max(...sc);const eS=sc.map(s=>Math.exp(s-mS));const sE=eS.reduce((a,b)=>a+b,0);const att=eS.map(e=>e/sE);const ctx=new Array(dim).fill(0);for(let i=0;i<n;i++)for(let d=0;d<dim;d++)ctx[d]+=att[i]*V[i][d];const logits=vocab.map(w=>{const e=embeddings[w];return{word:w,logit:e.reduce((s,v,i)=>s+v*ctx[i],0)};});const mL=Math.max(...logits.map(l=>l.logit));const eL=logits.map(l=>Math.exp(l.logit-mL));const sL=eL.reduce((a,b)=>a+b,0);return{tokens,attention:tokens.map((t,i)=>({token:t,weight:att[i]})),predictions:logits.map((l,i)=>({word:l.word,prob:eL[i]/sL})).sort((a,b)=>b.prob-a.prob).slice(0,8)};}
+
+// ============================================================
+// UNIFIED PIPELINE: ONE TEXT, FOUR MODELS
+// ============================================================
+//
+// Shows how the same text gets decomposed into a model (training)
+// and used for next-token prediction (inference) across all 4 approaches.
+
+const PIPELINE_PRESETS = [
+  "the king sat on the golden throne while the queen watched",
+  "the cat sat on the mat and the dog ran to the park",
+  "she walked to the big red house near the old green park",
+];
+
+function UnifiedPipeline() {
+  const [inputText, setInputText] = useState(PIPELINE_PRESETS[0]);
+  const [phase, setPhase] = useState(0); // 0=input, 1=markov, 2=w2v, 3=transformer, 4=rlhf, 5=compare
+  const [isAnimating, setIsAnimating] = useState(false);
+  const [animProgress, setAnimProgress] = useState(0);
+
+  // Derive word-level data from input
+  const data = useMemo(() => {
+    const words = inputText.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+    const vocab = [...new Set(words)];
+    const lastWord = words[words.length - 1];
+    const prefix = words.slice(0, -1);
+
+    // ── Markov: word-level bigram counts ──
+    const bigrams = {};
+    for (let i = 0; i < words.length - 1; i++) {
+      const ctx = words[i], next = words[i + 1];
+      if (!bigrams[ctx]) bigrams[ctx] = {};
+      bigrams[ctx][next] = (bigrams[ctx][next] || 0) + 1;
+    }
+    // Normalize
+    const markovProbs = {};
+    for (const ctx in bigrams) {
+      const total = Object.values(bigrams[ctx]).reduce((a, b) => a + b, 0);
+      markovProbs[ctx] = {};
+      for (const next in bigrams[ctx]) {
+        markovProbs[ctx][next] = bigrams[ctx][next] / total;
+      }
+    }
+    // Markov prediction from second-to-last word
+    const markovCtx = prefix.length > 0 ? prefix[prefix.length - 1] : null;
+    const markovPred = markovCtx && markovProbs[markovCtx]
+      ? Object.entries(markovProbs[markovCtx]).map(([w, p]) => ({ word: w, prob: p })).sort((a, b) => b.prob - a.prob).slice(0, 6)
+      : [];
+
+    // ── Word2Vec: context average ──
+    const w2vContextVecs = prefix
+      .map(w => WORD_DATA.find(d => d.w === w))
+      .filter(Boolean);
+    let w2vPred = [];
+    if (w2vContextVecs.length > 0) {
+      const dim = w2vContextVecs[0].v.length;
+      const avg = new Array(dim).fill(0);
+      for (const d of w2vContextVecs) for (let i = 0; i < dim; i++) avg[i] += d.v[i];
+      for (let i = 0; i < dim; i++) avg[i] /= w2vContextVecs.length;
+      const exclude = new Set(prefix);
+      const sims = WORD_DATA.filter(w => !exclude.has(w.w))
+        .map(w => ({ word: w.w, sim: cosineSim(avg, w.v) }))
+        .sort((a, b) => b.sim - a.sim).slice(0, 6);
+      const temps = sims.map(s => s.sim * 5);
+      const maxT = Math.max(...temps);
+      const exps = temps.map(t => Math.exp(t - maxT));
+      const sumE = exps.reduce((a, b) => a + b, 0);
+      w2vPred = sims.map((s, i) => ({ word: s.word, prob: exps[i] / sumE }));
+    }
+
+    // ── Transformer: simplified attention ──
+    const tVocab = TINY_TRANSFORMER.vocab;
+    const tTokens = prefix.filter(w => TINY_TRANSFORMER.embeddings[w]);
+    let transPred = [];
+    let transAttention = [];
+    if (tTokens.length > 0) {
+      const result = transformerPredict(tTokens);
+      if (result) {
+        transPred = result.predictions.slice(0, 6);
+        transAttention = result.attention;
+      }
+    }
+
+    // ── RLHF: transformer + reward re-ranking ──
+    // Simulate reward scores: boost "safe" words, penalize potentially harmful patterns
+    const safeWords = new Set(["the", "a", "is", "was", "happy", "park", "house", "big", "small", "very", "and", "to"]);
+    let rlhfPred = transPred.map(p => ({
+      ...p,
+      baseProb: p.prob,
+      reward: safeWords.has(p.word) ? 0.7 + Math.random() * 0.2 : 0.2 + Math.random() * 0.3,
+    }));
+    // Blend: 40% base + 60% reward
+    const blendAlpha = 0.6;
+    rlhfPred = rlhfPred.map(p => ({
+      ...p,
+      prob: (1 - blendAlpha) * p.baseProb + blendAlpha * p.reward,
+    }));
+    // Re-normalize
+    const rlhfSum = rlhfPred.reduce((s, p) => s + p.prob, 0) || 1;
+    rlhfPred = rlhfPred.map(p => ({ ...p, prob: p.prob / rlhfSum }));
+    rlhfPred.sort((a, b) => b.prob - a.prob);
+
+    // Top bigram pairs for display
+    const topBigrams = [];
+    for (let i = 0; i < Math.min(words.length - 1, 8); i++) {
+      topBigrams.push([words[i], words[i + 1]]);
+    }
+
+    return {
+      words, vocab, prefix, lastWord, markovCtx, markovPred, markovProbs, bigrams, topBigrams,
+      w2vContextVecs: w2vContextVecs.map(d => d.w), w2vPred,
+      tTokens, transPred, transAttention,
+      rlhfPred,
+    };
+  }, [inputText]);
+
+  // Animation timer
+  useEffect(() => {
+    if (!isAnimating) return;
+    const interval = setInterval(() => {
+      setAnimProgress(p => Math.min(p + 0.02, 1));
+    }, 30);
+    return () => clearInterval(interval);
+  }, [isAnimating]);
+
+  useEffect(() => {
+    if (animProgress >= 1 && isAnimating) setIsAnimating(false);
+  }, [animProgress, isAnimating]);
+
+  function advancePhase() {
+    if (phase < 5) {
+      setPhase(phase + 1);
+      if (phase >= 0 && phase < 4) { setAnimProgress(0); setIsAnimating(true); }
+    }
+  }
+
+  function goBack() {
+    if (phase > 0) { setPhase(phase - 1); setIsAnimating(false); setAnimProgress(1); }
+  }
+
+  const PHASE_INFO = [
+    { title: "Your text", color: "#E8E4DE", desc: "Enter a sentence. The last word will be hidden \u2014 each model will try to predict it." },
+    { title: "Markov: count what follows what", color: "#E8A838", desc: "Scan the text for word pairs. For each word, count which words follow it. Prediction = look up the last visible word and return the most common follower." },
+    { title: "Word2Vec: meaning from context", color: "#48BFE3", desc: "Each word has a learned position in semantic space. Average the context word positions, then find the nearest word to that average. Word order is ignored." },
+    { title: "Transformer: attend to everything", color: "#C4A1FF", desc: "Each token computes attention weights over all other tokens. The last token's attention-weighted context creates a rich, position-aware representation for prediction." },
+    { title: "RLHF: align with preferences", color: "#FF6B6B", desc: "Take the transformer's predictions and re-weight them using a reward model trained on human preferences. Likely completions that score low on helpfulness get pushed down." },
+    { title: "Compare all four", color: "#72E1A0", desc: "The same text, four different strategies. Notice how each adds something the previous lacked." },
+  ];
+
+  const pi = PHASE_INFO[phase];
+  const ease = 1 - Math.pow(1 - animProgress, 3);
+
+  // Render a prediction bar chart
+  function PredBars({ predictions, color, label, maxProb }) {
+    const mp = maxProb || Math.max(...predictions.map(p => p.prob), 0.01);
+    return (
+      <div>
+        {label && <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: color || COLORS.textDim, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>{label}</div>}
+        {predictions.slice(0, 5).map((p, i) => (
+          <div key={p.word} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: i === 0 ? "#fff" : COLORS.text, width: 65, textAlign: "right" }}>{p.word}</div>
+            <div style={{ flex: 1, height: 14, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}>
+              <div style={{ width: Math.max(2, (p.prob / mp) * 100) + "%", height: "100%", background: i === 0 ? (color || COLORS.text) : (color || COLORS.text) + "50", borderRadius: 3, transition: "width 0.5s" }} />
+            </div>
+            <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim, width: 38, textAlign: "right" }}>{(p.prob * 100).toFixed(0)}%</div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div style={{
+      background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+      borderRadius: 12, padding: "24px 28px", marginBottom: 24,
+    }}>
+      {/* Header */}
+      <div style={{ fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 4 }}>
+        One Text, Four Models
+      </div>
+      <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim, marginBottom: 20, lineHeight: 1.6 }}>
+        The same sentence processed by each approach. Watch how training and prediction change as models grow more sophisticated.
+      </div>
+
+      {/* Phase indicator */}
+      <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
+        {PHASE_INFO.map((p, i) => (
+          <div key={i} onClick={() => { setPhase(i); setAnimProgress(1); setIsAnimating(false); }} style={{
+            flex: 1, height: 4, borderRadius: 2, cursor: "pointer",
+            background: i <= phase ? p.color : COLORS.border,
+            opacity: i <= phase ? 1 : 0.3, transition: "all 0.3s",
+          }} />
+        ))}
+      </div>
+
+      {/* Phase title + description */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 12, marginBottom: 12,
+        padding: "10px 14px", borderRadius: 6, background: pi.color + "08",
+        borderLeft: "3px solid " + pi.color,
+      }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: pi.color, textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>
+          {phase + 1}/6
+        </div>
+        <div>
+          <div style={{ fontFamily: FONTS.heading, fontSize: 16, color: COLORS.text, marginBottom: 2 }}>{pi.title}</div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.5 }}>{pi.desc}</div>
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        {phase > 0 && <button onClick={goBack} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer" }}>&larr; Back</button>}
+        {phase < 5 && <button onClick={advancePhase} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + pi.color, background: pi.color + "15", color: pi.color, cursor: "pointer" }}>{phase === 0 ? "Start \u2192" : "Next Model \u2192"}</button>}
+      </div>
+
+      {/* ── PHASE 0: Text input ── */}
+      {phase === 0 && (
+        <div>
+          <div style={{ display: "flex", gap: 6, marginBottom: 10, flexWrap: "wrap" }}>
+            {PIPELINE_PRESETS.map((p, i) => (
+              <button key={i} onClick={() => setInputText(p)} style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px", borderRadius: 4,
+                border: "1px solid " + (inputText === p ? "#E8A838" : COLORS.border),
+                background: inputText === p ? "#E8A83815" : "transparent",
+                color: inputText === p ? "#E8A838" : COLORS.textDim, cursor: "pointer",
+              }}>Example {i + 1}</button>
+            ))}
+          </div>
+          <input type="text" value={inputText} onChange={e => setInputText(e.target.value)} style={{
+            width: "100%", padding: "10px 14px", fontFamily: FONTS.mono, fontSize: 14, lineHeight: 1.6,
+            background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 8, color: COLORS.text, outline: "none",
+          }} />
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginTop: 8 }}>
+            Task: predict the last word <span style={{ color: "#E8A838" }}>"{data.lastWord}"</span> given: <span style={{ color: COLORS.text }}>"{data.prefix.join(" ")}"</span>
+          </div>
+        </div>
+      )}
+
+      {/* ── Shared sentence display (phases 1-5) ── */}
+      {phase >= 1 && (
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 14, lineHeight: 2, padding: "10px 14px",
+          background: "#08080A", borderRadius: 6, marginBottom: 16, border: "1px solid " + COLORS.border,
+        }}>
+          {data.prefix.map((w, i) => {
+            // Highlight based on phase
+            let bg = "transparent", color = COLORS.text, weight = 400;
+            if (phase === 1 && i === data.prefix.length - 1) { bg = "#E8A83830"; color = "#E8A838"; weight = 700; } // Markov: last word
+            if (phase === 2) { color = WORD_DATA.find(d => d.w === w) ? "#48BFE3" : COLORS.textDim; } // W2V: known words highlighted
+            if (phase === 3 && data.transAttention.length > 0) {
+              const att = data.transAttention.find(a => a.token === w);
+              if (att) { bg = "rgba(196,161,255," + (att.weight * 0.5) + ")"; }
+            }
+            return (
+              <span key={i} style={{
+                background: bg, color, fontWeight: weight,
+                padding: "2px 4px", borderRadius: 3, transition: "all 0.3s",
+              }}>{w} </span>
+            );
+          })}
+          <span style={{
+            color: "#08080A", background: pi.color, padding: "2px 8px",
+            borderRadius: 3, fontWeight: 700,
+          }}>?</span>
+        </div>
+      )}
+
+      {/* ── PHASE 1: Markov ── */}
+      {phase === 1 && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+            Word pairs found in text:
+          </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 16 }}>
+            {data.topBigrams.slice(0, Math.max(1, Math.round(data.topBigrams.length * ease))).map(([a, b], i) => (
+              <span key={i} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "3px 8px", borderRadius: 4,
+                background: a === data.markovCtx ? "#E8A83820" : "rgba(255,255,255,0.04)",
+                color: a === data.markovCtx ? "#E8A838" : COLORS.textDim,
+                border: "1px solid " + (a === data.markovCtx ? "#E8A83840" : "transparent"),
+              }}>{a} &rarr; {b}</span>
+            ))}
+          </div>
+          {data.markovPred.length > 0 ? (
+            <div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 6 }}>
+                After "<span style={{ color: "#E8A838" }}>{data.markovCtx}</span>", the model saw:
+              </div>
+              <PredBars predictions={data.markovPred} color="#E8A838" />
+            </div>
+          ) : (
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+              No predictions available (the second-to-last word was not seen as a bigram prefix).
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PHASE 2: Word2Vec ── */}
+      {phase === 2 && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+            Context words with embeddings: <span style={{ color: "#48BFE3" }}>{data.w2vContextVecs.join(" + ")}</span>
+            {data.w2vContextVecs.length < data.prefix.length && (
+              <span style={{ color: COLORS.textDim }}> ({data.prefix.length - data.w2vContextVecs.length} words not in vocabulary)</span>
+            )}
+          </div>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 12 }}>
+            Method: average their vectors &rarr; find nearest word to the mean
+          </div>
+          {data.w2vPred.length > 0 ? (
+            <PredBars predictions={data.w2vPred} color="#48BFE3" />
+          ) : (
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+              No context words found in the Word2Vec vocabulary.
+            </div>
+          )}
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            Note: word order does not affect the prediction. "king the on sat" gives the same result.
+          </div>
+        </div>
+      )}
+
+      {/* ── PHASE 3: Transformer ── */}
+      {phase === 3 && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          {data.transAttention.length > 0 ? (
+            <div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+                Attention from prediction position &mdash; which tokens matter most:
+              </div>
+              <div style={{ display: "flex", gap: 4, alignItems: "flex-end", height: 70, marginBottom: 16 }}>
+                {data.transAttention.map((a, i) => (
+                  <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 3 }}>
+                    <div style={{
+                      width: "100%", maxWidth: 50, background: "#C4A1FF",
+                      opacity: 0.2 + a.weight * 0.8,
+                      height: Math.max(3, a.weight * 60), borderRadius: "3px 3px 0 0",
+                    }} />
+                    <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.text }}>{a.token}</div>
+                    <div style={{ fontFamily: FONTS.mono, fontSize: 9, color: "#C4A1FF" }}>{(a.weight * 100).toFixed(0)}%</div>
+                  </div>
+                ))}
+              </div>
+              <PredBars predictions={data.transPred} color="#C4A1FF" />
+              <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+                Word order matters now. "sat cat the on the" gives different attention weights and different predictions.
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+              No tokens from the input are in the transformer's 20-word vocabulary ({TINY_TRANSFORMER.vocab.join(", ")}).
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PHASE 4: RLHF ── */}
+      {phase === 4 && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          {data.rlhfPred.length > 0 ? (
+            <div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+                Transformer predictions re-ranked by reward model (60% reward weight):
+              </div>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <PredBars predictions={data.transPred} color="#C4A1FF" label="Before RLHF" />
+                </div>
+                <div style={{ flex: 1, minWidth: 200 }}>
+                  <PredBars predictions={data.rlhfPred} color="#FF6B6B" label="After RLHF" />
+                </div>
+              </div>
+              <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+                The reward model boosts "safe" tokens and penalizes others, shifting the distribution.
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+              No transformer predictions available to re-rank.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── PHASE 5: Compare all ── */}
+      {phase === 5 && (
+        <div style={{ animation: "fadeInUp 0.3s ease" }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 12 }}>
+            Predicting next word after: "<span style={{ color: COLORS.text }}>{data.prefix.join(" ")}</span>"
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+            <div style={{ padding: 12, background: "#E8A83808", borderRadius: 8, border: "1px solid #E8A83820" }}>
+              <PredBars predictions={data.markovPred.length > 0 ? data.markovPred : [{ word: "(no data)", prob: 0 }]} color="#E8A838" label="Markov (count pairs)" />
+            </div>
+            <div style={{ padding: 12, background: "#48BFE308", borderRadius: 8, border: "1px solid #48BFE320" }}>
+              <PredBars predictions={data.w2vPred.length > 0 ? data.w2vPred : [{ word: "(no data)", prob: 0 }]} color="#48BFE3" label="Word2Vec (meaning)" />
+            </div>
+            <div style={{ padding: 12, background: "#C4A1FF08", borderRadius: 8, border: "1px solid #C4A1FF20" }}>
+              <PredBars predictions={data.transPred.length > 0 ? data.transPred : [{ word: "(no data)", prob: 0 }]} color="#C4A1FF" label="Transformer (attention)" />
+            </div>
+            <div style={{ padding: 12, background: "#FF6B6B08", borderRadius: 8, border: "1px solid #FF6B6B20" }}>
+              <PredBars predictions={data.rlhfPred.length > 0 ? data.rlhfPred : [{ word: "(no data)", prob: 0 }]} color="#FF6B6B" label="RLHF (aligned)" />
+            </div>
+          </div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            marginTop: 16, lineHeight: 1.6, padding: "10px 14px",
+            background: "rgba(0,0,0,0.2)", borderRadius: 6,
+            borderLeft: "3px solid #72E1A040",
+          }}>
+            <strong style={{ color: COLORS.text }}>The progression:</strong> Markov sees only the previous word.
+            Word2Vec sees all context but ignores order. Transformers see everything with attention-weighted order.
+            RLHF adds human values on top. Each model builds on the limitations of the last.
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2294,7 +3061,7 @@ function Word2VecTrainingSim({ stageColor }) {
 
 
 function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
-  const stage = STAGES[1];
+  const stage = STAGES[2];
   const canvasRef = useRef(null);
   const [hoveredWord, setHoveredWord] = useState(null);
   const [selectedWord, setSelectedWord] = useState(null);
@@ -2563,11 +3330,11 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
       total: analogyScore.total + 1,
     };
     setAnalogySc(newScore);
-    dispatch({ type: "UPDATE_SCORE", stage: 1, score: newScore.correct, attempts: newScore.total });
+    dispatch({ type: "UPDATE_SCORE", stage: 4, score: newScore.correct, attempts: newScore.total });
 
     if (newScore.correct >= 5 && !stageProgress.challengeCompleted) {
       setTimeout(() => {
-        dispatch({ type: "COMPLETE_CHALLENGE", stage: 1, score: newScore.correct });
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 3, score: newScore.correct });
       }, 1000);
     }
   }, [analogyIdx, analogyGuess, analogyScore, dispatch, stageProgress]);
@@ -2996,7 +3763,7 @@ function TransformerTrainingSim({ stageColor }) {
 
 
 function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
-  const stage = STAGES[2];
+  const stage = STAGES[3];
   const [sentenceIdx, setSentenceIdx] = useState(0);
   const [headIdx, setHeadIdx] = useState(0);
   const [hoverCell, setHoverCell] = useState(null);
@@ -3822,7 +4589,7 @@ function RLHFUnderTheHood({ stageColor }) {
 
 
 function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
-  const stage = STAGES[3];
+  const stage = STAGES[4];
   const [showSection, setShowSection] = useState("reward"); // reward | slider | tax | underhood
   const [pairIdx, setPairIdx] = useState(0);
   const [choice, setChoice] = useState(null);
@@ -3845,7 +4612,7 @@ function RLHFPlayground({ stageIndex, dispatch, stageProgress }) {
 
     if (newScore.total >= 5 && (newScore.correct / newScore.total) >= 0.6 && !stageProgress.challengeCompleted) {
       setTimeout(() => {
-        dispatch({ type: "COMPLETE_CHALLENGE", stage: 3, score: Math.round((newScore.correct / newScore.total) * 100) });
+        dispatch({ type: "COMPLETE_CHALLENGE", stage: 4, score: Math.round((newScore.correct / newScore.total) * 100) });
       }, 1500);
     }
   }, [choice, pairIdx, score, dispatch, stageProgress]);
@@ -4233,12 +5000,13 @@ function TransitionBridge({ fromStage, toStage, onNavigate }) {
 
 function MainContent({ currentStage, stageProgress, dispatch }) {
   const scrollRef = useRef(null);
+  const [showPipeline, setShowPipeline] = useState(currentStage === 2);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [currentStage]);
 
-  const playgrounds = [MarkovPlayground, Word2VecPlayground, TransformerPlayground, RLHFPlayground];
+  const playgrounds = [MarkovPlayground, ELIZAPlayground, Word2VecPlayground, TransformerPlayground, RLHFPlayground];
   const Playground = playgrounds[currentStage];
 
   return (
@@ -4246,6 +5014,25 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
       flex: 1, overflowY: "auto", padding: "40px 48px",
       maxWidth: 820,
     }}>
+      {currentStage === 2 ? (
+        <div style={{ marginBottom: 24 }}>
+          {!showPipeline && <button onClick={() => setShowPipeline(true)} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px", borderRadius: 6, marginBottom: 20,
+            border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer",
+          }}>{"\u25B6"} One Text, Four Models</button>}
+          {showPipeline && <UnifiedPipeline />}
+        </div>
+      ) : currentStage > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <button onClick={() => setShowPipeline(!showPipeline)} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4,
+            border: "1px solid " + (showPipeline ? "#72E1A0" : COLORS.border),
+            background: showPipeline ? "#72E1A015" : "transparent",
+            color: showPipeline ? "#72E1A0" : COLORS.textDim, cursor: "pointer",
+          }}>{showPipeline ? "\u25BC" : "\u25B6"} Compare All Models</button>
+          {showPipeline && <div style={{ marginTop: 12 }}><UnifiedPipeline /></div>}
+        </div>
+      )}
       <WhatYouLearned stageIndex={currentStage} />
       <StageIntro stageIndex={currentStage} />
       <TechnicalSection stageIndex={currentStage} stageColor={STAGES[currentStage].color} />
@@ -4261,7 +5048,7 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
       </div>
 
       {/* Transition bridge to next stage */}
-      {stageProgress[currentStage].challengeCompleted && currentStage < 3 && (
+      {stageProgress[currentStage].challengeCompleted && currentStage < 4 && (
         <TransitionBridge
           fromStage={currentStage}
           toStage={currentStage + 1}
@@ -4270,7 +5057,7 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
       )}
 
       {/* Final completion message */}
-      {currentStage === 3 && stageProgress[3].challengeCompleted && (
+      {currentStage === 4 && stageProgress[4].challengeCompleted && (
         <div style={{
           margin: "48px 0", padding: "32px 24px", textAlign: "center",
           background: "linear-gradient(135deg, rgba(232,168,56,0.08), rgba(72,191,227,0.08), rgba(196,161,255,0.08), rgba(255,107,107,0.08))",
