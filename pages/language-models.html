@@ -626,6 +626,44 @@ function getTopPredictions(matrix, context, k = 5) {
     .map(([ch, prob]) => ({ ch, prob }));
 }
 
+// Word-level Markov model
+function buildWordMatrix(text, order = 1) {
+  const words = text.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+  const matrix = {};
+  for (let i = 0; i < words.length - order; i++) {
+    const ctx = words.slice(i, i + order).join(" ");
+    const next = words[i + order];
+    if (!matrix[ctx]) matrix[ctx] = {};
+    matrix[ctx][next] = (matrix[ctx][next] || 0) + 1;
+  }
+  for (const ctx in matrix) {
+    const total = Object.values(matrix[ctx]).reduce((a, b) => a + b, 0);
+    for (const next in matrix[ctx]) matrix[ctx][next] /= total;
+  }
+  return matrix;
+}
+
+function generateWordMarkov(matrix, order, length = 40) {
+  const contexts = Object.keys(matrix);
+  if (contexts.length === 0) return "";
+  let ctx = contexts[Math.floor(Math.random() * contexts.length)];
+  const result = ctx.split(" ");
+  for (let i = 0; i < length; i++) {
+    const transitions = matrix[ctx];
+    if (!transitions) break;
+    const r = Math.random();
+    let cumulative = 0, nextWord = null;
+    for (const [w, prob] of Object.entries(transitions)) {
+      cumulative += prob;
+      if (r <= cumulative) { nextWord = w; break; }
+    }
+    if (!nextWord) break;
+    result.push(nextWord);
+    ctx = result.slice(result.length - order).join(" ");
+  }
+  return result.join(" ");
+}
+
 function cosineSim(a, b) {
   let dot = 0, magA = 0, magB = 0;
   for (let i = 0; i < a.length; i++) {
@@ -2295,6 +2333,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
   const stage = STAGES[0];
   const [sourceText, setSourceText] = useState(SAMPLE_TEXTS.pushkin);
   const [order, setOrder] = useState(2);
+  const [tokenLevel, setTokenLevel] = useState("chars"); // "chars" | "words"
   const [generated, setGenerated] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [hoverCell, setHoverCell] = useState(null);
@@ -2309,10 +2348,19 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
   const [gameRevealed, setGameRevealed] = useState(false);
   const [gameFeedback, setGameFeedback] = useState(null);
 
-  const matrix = useMemo(() => buildTransitionMatrix(sourceText, order), [sourceText, order]);
+  const matrix = useMemo(() =>
+    tokenLevel === "chars" ? buildTransitionMatrix(sourceText, order) : buildWordMatrix(sourceText, order),
+  [sourceText, order, tokenLevel]);
 
   // Character-level bigram matrix for heatmap (always order=1 for visualization)
   const bigramMatrix = useMemo(() => buildTransitionMatrix(sourceText, 1), [sourceText]);
+
+  // Word-level bigram matrix for word table
+  const wordBigramMatrix = useMemo(() => buildWordMatrix(sourceText, 1), [sourceText]);
+  const wordVocab = useMemo(() => {
+    const words = sourceText.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+    return [...new Set(words)];
+  }, [sourceText]);
 
   // Draw heatmap
   useEffect(() => {
@@ -2429,39 +2477,58 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
   // Text generation with typewriter effect
   const handleGenerate = useCallback(() => {
     if (genIntervalRef.current) clearInterval(genIntervalRef.current);
-    const fullText = generateFromMarkov(matrix, order, 300);
+    const fullText = tokenLevel === "chars"
+      ? generateFromMarkov(matrix, order, 300)
+      : generateWordMarkov(matrix, order, 50);
     setGenerated("");
     setIsGenerating(true);
-    let i = 0;
-    genIntervalRef.current = setInterval(() => {
-      if (i >= fullText.length) {
-        clearInterval(genIntervalRef.current);
-        setIsGenerating(false);
-        return;
-      }
-      setGenerated(fullText.substring(0, i + 1));
-      i++;
-    }, 25);
-  }, [matrix, order]);
+    if (tokenLevel === "chars") {
+      let i = 0;
+      genIntervalRef.current = setInterval(() => {
+        if (i >= fullText.length) { clearInterval(genIntervalRef.current); setIsGenerating(false); return; }
+        setGenerated(fullText.substring(0, i + 1));
+        i++;
+      }, 25);
+    } else {
+      // Word mode: reveal word by word
+      const words = fullText.split(" ");
+      let i = 0;
+      genIntervalRef.current = setInterval(() => {
+        if (i >= words.length) { clearInterval(genIntervalRef.current); setIsGenerating(false); return; }
+        setGenerated(words.slice(0, i + 1).join(" "));
+        i++;
+      }, 120);
+    }
+  }, [matrix, order, tokenLevel]);
 
   // Cleanup interval on unmount
   useEffect(() => () => { if (genIntervalRef.current) clearInterval(genIntervalRef.current); }, []);
 
   // Prediction game
   const startNewRound = useCallback(() => {
-    const clean = sourceText.toLowerCase().replace(/[^a-z ]/g, "");
-    const startPos = Math.floor(Math.random() * (clean.length - order - 10)) + 5;
-    const ctx = clean.substring(startPos, startPos + order);
-    const actualNext = clean[startPos + order];
-    setGameContext(clean.substring(Math.max(0, startPos - 15), startPos + order));
-    setGameAnswer(actualNext);
+    if (tokenLevel === "chars") {
+      const clean = sourceText.toLowerCase().replace(/[^a-z ]/g, "");
+      const startPos = Math.floor(Math.random() * (clean.length - order - 10)) + 5;
+      const actualNext = clean[startPos + order];
+      setGameContext(clean.substring(Math.max(0, startPos - 15), startPos + order));
+      setGameAnswer(actualNext);
+    } else {
+      const words = sourceText.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+      const startIdx = Math.floor(Math.random() * (words.length - order - 2)) + Math.min(2, words.length - order - 1);
+      const ctx = words.slice(startIdx, startIdx + order).join(" ");
+      const actualNext = words[startIdx + order];
+      // Show a few preceding words for context
+      const prefix = words.slice(Math.max(0, startIdx - 3), startIdx + order).join(" ");
+      setGameContext(prefix);
+      setGameAnswer(actualNext);
+    }
     setGameRevealed(false);
     setGameFeedback(null);
-  }, [sourceText, order]);
+  }, [sourceText, order, tokenLevel]);
 
-  const handleGameGuess = useCallback((ch) => {
+  const handleGameGuess = useCallback((guess) => {
     if (gameRevealed) return;
-    const isCorrect = ch === gameAnswer;
+    const isCorrect = guess === gameAnswer;
     const newScore = {
       correct: gameScore.correct + (isCorrect ? 1 : 0),
       total: gameScore.total + 1,
@@ -2470,11 +2537,9 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
     setGameRevealed(true);
     setGameFeedback(isCorrect ? "correct" : "wrong");
 
-    // Update state
     const pct = Math.round((newScore.correct / newScore.total) * 100);
     dispatch({ type: "UPDATE_SCORE", stage: 0, score: pct, attempts: newScore.total });
 
-    // Check challenge completion (70% after at least 10 attempts)
     if (newScore.total >= 10 && pct >= 60 && !stageProgress.challengeCompleted) {
       setTimeout(() => {
         dispatch({ type: "COMPLETE_CHALLENGE", stage: 0, score: pct });
@@ -2483,12 +2548,26 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
   }, [gameAnswer, gameScore, gameRevealed, dispatch, stageProgress]);
 
   const predictions = useMemo(() => {
-    if (!gameContext || gameContext.length < order) return [];
-    const ctx = gameContext.substring(gameContext.length - order);
-    return getTopPredictions(matrix, ctx, 5);
-  }, [gameContext, matrix, order]);
+    if (!gameContext) return [];
+    if (tokenLevel === "chars") {
+      if (gameContext.length < order) return [];
+      const ctx = gameContext.substring(gameContext.length - order);
+      return getTopPredictions(matrix, ctx, 5);
+    } else {
+      const ctxWords = gameContext.split(" ");
+      const ctx = ctxWords.slice(ctxWords.length - order).join(" ");
+      return getTopPredictions(matrix, ctx, 5);
+    }
+  }, [gameContext, matrix, order, tokenLevel]);
 
   const chars = "abcdefghijklmnopqrstuvwxyz ".split("");
+
+  // Word choices for word-level prediction game (answer + random distractors)
+  const wordChoices = useMemo(() => {
+    if (tokenLevel !== "words" || !gameAnswer) return [];
+    const distractors = wordVocab.filter(w => w !== gameAnswer).sort(() => Math.random() - 0.5).slice(0, 7);
+    return [gameAnswer, ...distractors].sort(() => Math.random() - 0.5);
+  }, [gameAnswer, wordVocab, tokenLevel]);
 
   return (
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
@@ -2516,6 +2595,17 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
             color: !Object.values(SAMPLE_TEXTS).includes(sourceText) ? stage.color : COLORS.textDim,
             cursor: "pointer", transition: "all 0.2s",
           }}>custom</button>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: "flex", gap: 2, background: COLORS.bgPanel, borderRadius: 4, border: "1px solid " + COLORS.border, overflow: "hidden" }}>
+            {["chars", "words"].map(t => (
+              <button key={t} onClick={() => { setTokenLevel(t); setGenerated(""); setGameActive(false); }} style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                border: "none", background: tokenLevel === t ? stage.colorDim : "transparent",
+                color: tokenLevel === t ? stage.color : COLORS.textDim,
+                cursor: "pointer", transition: "all 0.2s",
+              }}>{t === "chars" ? "Characters" : "Words"}</button>
+            ))}
+          </div>
         </div>
         <textarea
           value={sourceText}
@@ -2531,7 +2621,7 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
         />
       </div>
 
-      {/* Section: Transition Heatmap */}
+      {/* Section: Transition Matrix */}
       <div style={{ marginBottom: 32 }}>
         <h2 style={{
           fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text,
@@ -2541,19 +2631,42 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
           fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
           marginBottom: 12, lineHeight: 1.5,
         }}>
-          Each cell shows P(column | row) — the probability of the column character following the row character. Brighter = higher probability.
+          {tokenLevel === "chars"
+            ? "Each cell shows P(column | row) \u2014 the probability of the column character following the row character. Brighter = higher probability."
+            : "For each word, the table shows which words follow it and how often. This is the word-level equivalent of the character heatmap."}
         </p>
-        <div style={{
-          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
-          borderRadius: 8, padding: 12,
-        }}>
-          <canvas
-            ref={canvasRef}
-            onMouseMove={handleCanvasMouseMove}
-            onMouseLeave={() => setHoverCell(null)}
-            style={{ width: "100%", cursor: "crosshair" }}
-          />
-        </div>
+
+        {tokenLevel === "chars" ? (
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 12,
+          }}>
+            <canvas
+              ref={canvasRef}
+              onMouseMove={handleCanvasMouseMove}
+              onMouseLeave={() => setHoverCell(null)}
+              style={{ width: "100%", cursor: "crosshair" }}
+            />
+          </div>
+        ) : (
+          <div style={{
+            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
+            borderRadius: 8, padding: 14, maxHeight: 360, overflowY: "auto",
+          }}>
+            {Object.entries(wordBigramMatrix).sort((a, b) => a[0].localeCompare(b[0])).map(([ctx, transitions]) => (
+              <div key={ctx} style={{ marginBottom: 10 }}>
+                <span style={{ fontFamily: FONTS.mono, fontSize: 13, color: stage.color, fontWeight: 600 }}>{ctx}</span>
+                <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}> {"\u2192"} </span>
+                {Object.entries(transitions).sort((a, b) => b[1] - a[1]).map(([word, prob], i) => (
+                  <span key={word} style={{ fontFamily: FONTS.mono, fontSize: 12, marginRight: 8 }}>
+                    <span style={{ color: COLORS.text }}>{word}</span>
+                    <span style={{ color: COLORS.textDim, fontSize: 11, marginLeft: 3 }}>{(prob * 100).toFixed(0)}%</span>
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Section: Text Generator */}
@@ -2617,8 +2730,10 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
           fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
           marginBottom: 12, lineHeight: 1.5,
         }}>
-          Can you predict the next character? Given the context, click the character you think comes next.
-          Score 60% or higher after 10+ rounds to unlock the next stage. Hint: look at the transition matrix heatmap above to see which characters most often follow the highlighted context.
+          {tokenLevel === "chars"
+            ? "Can you predict the next character? Given the context, click the character you think comes next."
+            : "Can you predict the next word? Given the context, click the word you think comes next."}
+          {" "}Score 60% or higher after 10+ rounds to unlock the next stage.
         </p>
 
         {!gameActive ? (
@@ -2674,11 +2789,11 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
               </span>
             </div>
 
-            {/* Character buttons */}
+            {/* Token buttons */}
             <div style={{
               display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 16,
             }}>
-              {chars.map(ch => {
+              {tokenLevel === "chars" ? chars.map(ch => {
                 const isAnswer = gameRevealed && ch === gameAnswer;
                 const label = ch === " " ? "\u2423" : ch;
                 return (
@@ -2692,6 +2807,20 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
                     opacity: gameRevealed && !isAnswer ? 0.3 : 1,
                     transition: "all 0.15s",
                   }}>{label}</button>
+                );
+              }) : wordChoices.map(w => {
+                const isAnswer = gameRevealed && w === gameAnswer;
+                return (
+                  <button key={w} onClick={() => handleGameGuess(w)} disabled={gameRevealed} style={{
+                    padding: "6px 14px", borderRadius: 4,
+                    border: `1px solid ${isAnswer ? "#72E1A0" : COLORS.border}`,
+                    background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
+                    color: isAnswer ? "#72E1A0" : COLORS.text,
+                    fontFamily: FONTS.mono, fontSize: 13,
+                    cursor: gameRevealed ? "default" : "pointer",
+                    opacity: gameRevealed && !isAnswer ? 0.3 : 1,
+                    transition: "all 0.15s",
+                  }}>{w}</button>
                 );
               })}
             </div>
