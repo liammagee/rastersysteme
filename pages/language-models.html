@@ -672,6 +672,89 @@ function generateWordMarkov(matrix, order, length = 40) {
   return result.join(" ");
 }
 
+// ============================================================
+// WORD2VEC: SKIP-GRAM WITH NEGATIVE SAMPLING (pure JS)
+// ============================================================
+
+function trainWord2Vec(text, opts = {}) {
+  const dim = opts.dim || 2;
+  const windowSize = opts.windowSize || 2;
+  const epochs = opts.epochs || 30;
+  const lr = opts.learningRate || 0.025;
+  const negK = opts.negSamples || 5;
+
+  const words = text.toLowerCase().replace(/[^a-z\s]/g, "").split(/\s+/).filter(w => w.length > 0);
+  const vocab = [...new Set(words)];
+  if (vocab.length < 2) return null;
+  const idx = {}; vocab.forEach((w, i) => idx[w] = i);
+  const V = vocab.length;
+
+  // Random init
+  const emb = vocab.map(() => Array.from({ length: dim }, () => (Math.random() - 0.5) * 0.5));
+
+  // Negative sampling distribution: freq^0.75
+  const freq = new Array(V).fill(0);
+  words.forEach(w => freq[idx[w]]++);
+  const fp = freq.map(f => Math.pow(f, 0.75));
+  const fpSum = fp.reduce((a, b) => a + b, 0);
+  // Build cumulative distribution for O(log n) sampling
+  const cumDist = [];
+  let cum = 0;
+  for (let i = 0; i < V; i++) { cum += fp[i] / fpSum; cumDist.push(cum); }
+
+  function sampleNeg(exclude) {
+    const r = Math.random();
+    let lo = 0, hi = V - 1;
+    while (lo < hi) { const mid = (lo + hi) >> 1; if (cumDist[mid] < r) lo = mid + 1; else hi = mid; }
+    return lo === exclude ? (lo + 1) % V : lo;
+  }
+
+  // Train
+  const history = [];
+  for (let ep = 0; ep < epochs; ep++) {
+    let loss = 0;
+    for (let i = 0; i < words.length; i++) {
+      const ci = idx[words[i]];
+      for (let j = Math.max(0, i - windowSize); j <= Math.min(words.length - 1, i + windowSize); j++) {
+        if (j === i) continue;
+        const cj = idx[words[j]];
+        const c = emb[ci], ctx = emb[cj];
+
+        // Positive: sigmoid(c . ctx) should be high
+        let dot = 0; for (let d = 0; d < dim; d++) dot += c[d] * ctx[d];
+        const sig = 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, dot))));
+        const g = lr * (1 - sig);
+        const cOld = [...c];
+        for (let d = 0; d < dim; d++) { c[d] += g * ctx[d]; ctx[d] += g * cOld[d]; }
+        loss -= Math.log(sig + 1e-10);
+
+        // Negatives: sigmoid(c . neg) should be low
+        for (let n = 0; n < negK; n++) {
+          const ni = sampleNeg(ci);
+          const neg = emb[ni];
+          let nd = 0; for (let d = 0; d < dim; d++) nd += c[d] * neg[d];
+          const ns = 1 / (1 + Math.exp(-Math.max(-10, Math.min(10, nd))));
+          const ng = lr * ns;
+          const cOld2 = [...c];
+          for (let d = 0; d < dim; d++) { c[d] -= ng * neg[d]; neg[d] -= ng * cOld2[d]; }
+          loss -= Math.log(1 - ns + 1e-10);
+        }
+      }
+    }
+    history.push(loss / words.length);
+  }
+
+  // Normalize to [-0.85, 0.85] range per axis
+  for (let d = 0; d < dim; d++) {
+    let maxAbs = 0;
+    for (let i = 0; i < V; i++) maxAbs = Math.max(maxAbs, Math.abs(emb[i][d]));
+    if (maxAbs > 0) for (let i = 0; i < V; i++) emb[i][d] = (emb[i][d] / maxAbs) * 0.85;
+  }
+
+  return { vocab, embeddings: emb, wordIdx: idx, history, wordCount: words.length };
+}
+
+
 function cosineSim(a, b) {
   let dot = 0, magA = 0, magB = 0;
   for (let i = 0; i < a.length; i++) {
@@ -3384,6 +3467,250 @@ function Word2VecTrainingSim({ stageColor }) {
 }
 
 
+const W2V_TEXT_PRESETS = {
+  royalty: "the king sat on the golden throne while the queen watched from her silver throne the prince and princess wore their royal crowns the king ruled the kingdom and the queen ruled beside him the throne was golden and the crown was silver",
+  animals: "the dog chased the cat through the garden the puppy played with the kitten near the house the bird flew over the fish pond while the horse ran across the green field the dog and the cat both lived in the big house",
+  mixed: "the king walked his dog through the city of paris while the queen visited rome the happy child played in the garden near the old throne the young prince studied science at the school the doctor walked to the hospital near the big park",
+};
+
+function Word2VecTrainer({ stageColor }) {
+  const [inputText, setInputText] = useState(W2V_TEXT_PRESETS.royalty);
+  const [activePreset, setActivePreset] = useState("royalty");
+  const [model, setModel] = useState(null);
+  const [isTraining, setIsTraining] = useState(false);
+  const [selectedWord, setSelectedWord] = useState(null);
+  const [params, setParams] = useState({ epochs: 100, windowSize: 2, negSamples: 5, learningRate: 0.05 });
+  const canvasRef = useRef(null);
+
+  const handleTrain = useCallback(() => {
+    setIsTraining(true);
+    // Use requestAnimationFrame to avoid blocking the UI
+    requestAnimationFrame(() => {
+      const result = trainWord2Vec(inputText, { dim: 2, ...params });
+      setModel(result);
+      setIsTraining(false);
+      setSelectedWord(null);
+    });
+  }, [inputText, params]);
+
+  // Get neighbors for selected word
+  const neighbors = useMemo(() => {
+    if (!model || !selectedWord) return [];
+    const si = model.wordIdx[selectedWord];
+    if (si === undefined) return [];
+    const sv = model.embeddings[si];
+    return model.vocab
+      .filter(w => w !== selectedWord)
+      .map(w => {
+        const wi = model.wordIdx[w];
+        const wv = model.embeddings[wi];
+        const sim = cosineSim(sv, wv);
+        return { word: w, sim };
+      })
+      .sort((a, b) => b.sim - a.sim)
+      .slice(0, 6);
+  }, [model, selectedWord]);
+
+  // Draw embeddings
+  useEffect(() => {
+    if (!model) return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const container = canvas.parentElement;
+    const w = container.clientWidth, h = 420;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + "px"; canvas.style.height = h + "px";
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#08080A"; ctx.fillRect(0, 0, w, h);
+
+    const margin = 24, plotW = w - margin * 2, plotH = h - margin * 2;
+    const cx = margin + plotW / 2, cy = margin + plotH / 2;
+
+    // Crosshair
+    ctx.strokeStyle = "rgba(255,255,255,0.08)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin, cy); ctx.lineTo(margin + plotW, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, margin); ctx.lineTo(cx, margin + plotH); ctx.stroke();
+
+    const tx = (x) => cx + x * (plotW / 2);
+    const ty = (y) => cy + y * (plotH / 2);
+
+    // Neighbor lines
+    if (selectedWord && model.wordIdx[selectedWord] !== undefined) {
+      const si = model.wordIdx[selectedWord];
+      const sv = model.embeddings[si];
+      for (const n of neighbors) {
+        const ni = model.wordIdx[n.word];
+        const nv = model.embeddings[ni];
+        ctx.beginPath(); ctx.moveTo(tx(sv[0]), ty(sv[1])); ctx.lineTo(tx(nv[0]), ty(nv[1]));
+        ctx.strokeStyle = "rgba(255,255,255," + (n.sim * 0.3) + ")";
+        ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
+      }
+    }
+
+    // Words
+    for (let i = 0; i < model.vocab.length; i++) {
+      const word = model.vocab[i];
+      const [ex, ey] = model.embeddings[i];
+      const sx = tx(ex), sy = ty(ey);
+      const isSel = selectedWord === word;
+      const isNeighbor = neighbors.some(n => n.word === word);
+
+      if (isSel) {
+        ctx.beginPath(); ctx.arc(sx, sy, 12, 0, Math.PI * 2);
+        const grd = ctx.createRadialGradient(sx, sy, 4, sx, sy, 12);
+        grd.addColorStop(0, stageColor + "30"); grd.addColorStop(1, stageColor + "00");
+        ctx.fillStyle = grd; ctx.fill();
+      }
+
+      ctx.beginPath(); ctx.arc(sx, sy, isSel ? 5 : isNeighbor ? 4 : 3, 0, Math.PI * 2);
+      ctx.fillStyle = isSel ? "#fff" : stageColor + "cc"; ctx.fill();
+      if (isSel) { ctx.strokeStyle = stageColor; ctx.lineWidth = 2; ctx.stroke(); }
+
+      ctx.font = (isSel || isNeighbor ? "600 12px" : "11px") + " JetBrains Mono";
+      ctx.fillStyle = "rgba(255,255,255," + (isSel ? 1 : 0.6) + ")";
+      ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+      ctx.fillText(word, sx, sy - 7);
+    }
+
+    // Loss curve in corner
+    if (model.history.length > 1) {
+      const lx = w - 130, ly = 10, lw = 110, lh = 45;
+      ctx.fillStyle = "rgba(0,0,0,0.5)"; ctx.fillRect(lx, ly, lw, lh);
+      ctx.strokeStyle = "rgba(255,255,255,0.1)"; ctx.strokeRect(lx, ly, lw, lh);
+      ctx.font = "10px JetBrains Mono"; ctx.fillStyle = "rgba(255,255,255,0.3)";
+      ctx.textAlign = "left"; ctx.fillText("loss", lx + 4, ly + 10);
+      const maxLoss = Math.max(...model.history);
+      ctx.beginPath();
+      model.history.forEach((loss, i) => {
+        const px = lx + (i / (model.history.length - 1)) * lw;
+        const py = ly + lh - (loss / maxLoss) * lh * 0.8;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      });
+      ctx.strokeStyle = stageColor; ctx.lineWidth = 1.5; ctx.stroke();
+    }
+  }, [model, selectedWord, neighbors, stageColor]);
+
+  // Hit test
+  const handleCanvasClick = useCallback((e) => {
+    if (!model) return;
+    const canvas = canvasRef.current;
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const plotW = rect.width - 48, plotH = 420 - 48;
+    const cx = 24 + plotW / 2, cy = 24 + plotH / 2;
+    let found = null, bestDist = 18;
+    for (let i = 0; i < model.vocab.length; i++) {
+      const [ex, ey] = model.embeddings[i];
+      const sx = cx + ex * (plotW / 2), sy = cy + ey * (plotH / 2);
+      const d = Math.sqrt((mx - sx) ** 2 + (my - sy) ** 2);
+      if (d < bestDist) { found = model.vocab[i]; bestDist = d; }
+    }
+    setSelectedWord(found);
+  }, [model]);
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Train Word2Vec on Your Text
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        A real skip-gram with negative sampling, running in your browser. Enter text, click Train,
+        and watch the algorithm learn 2D word vectors from scratch. Words that share context will cluster together.
+      </p>
+
+      {/* Text input */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 8, flexWrap: "wrap" }}>
+        {Object.entries(W2V_TEXT_PRESETS).map(([key, text]) => (
+          <button key={key} onClick={() => { setActivePreset(key); setInputText(text); }} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
+            border: "1px solid " + (activePreset === key ? stageColor : COLORS.border),
+            background: activePreset === key ? stageColor + "15" : "transparent",
+            color: activePreset === key ? stageColor : COLORS.textDim, cursor: "pointer", textTransform: "capitalize",
+          }}>{key}</button>
+        ))}
+        <button onClick={() => { setActivePreset("custom"); }} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
+          border: "1px solid " + (activePreset === "custom" ? stageColor : COLORS.border),
+          background: activePreset === "custom" ? stageColor + "15" : "transparent",
+          color: activePreset === "custom" ? stageColor : COLORS.textDim, cursor: "pointer",
+        }}>custom</button>
+      </div>
+      <textarea value={inputText} onChange={e => { setInputText(e.target.value); setActivePreset("custom"); }} style={{
+        width: "100%", minHeight: 80, padding: 12, fontFamily: FONTS.mono, fontSize: 13, lineHeight: 1.6,
+        background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 8, color: COLORS.text, outline: "none", resize: "vertical", marginBottom: 12,
+      }} />
+
+      {/* Parameters + Train button */}
+      <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 16, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>Epochs:</label>
+          <select value={params.epochs} onChange={e => setParams({ ...params, epochs: parseInt(e.target.value) })} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 6px", background: COLORS.bgPanel,
+            border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
+          }}>
+            {[10, 20, 30, 50, 100].map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+        </div>
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>Window:</label>
+          <select value={params.windowSize} onChange={e => setParams({ ...params, windowSize: parseInt(e.target.value) })} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 6px", background: COLORS.bgPanel,
+            border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
+          }}>
+            {[1, 2, 3, 4].map(v => <option key={v} value={v}>{v}</option>)}
+          </select>
+        </div>
+        <button onClick={handleTrain} disabled={isTraining} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px", borderRadius: 6,
+          border: "1px solid " + stageColor, background: stageColor + "15", color: stageColor,
+          cursor: isTraining ? "default" : "pointer", opacity: isTraining ? 0.5 : 1,
+        }}>{isTraining ? "Training..." : "Train"}</button>
+        {model && (
+          <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
+            {model.vocab.length} words &middot; {model.wordCount} tokens &middot; {model.history.length} epochs
+          </div>
+        )}
+      </div>
+
+      {/* Canvas */}
+      {model && (
+        <div>
+          <div style={{ background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 8, overflow: "hidden", marginBottom: 12 }}>
+            <canvas ref={canvasRef} onClick={handleCanvasClick}
+              style={{ width: "100%", height: 420, cursor: "pointer" }} />
+          </div>
+          {selectedWord && (
+            <div style={{ background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14, animation: "fadeInUp 0.3s ease" }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+                Nearest to <span style={{ color: stageColor, fontWeight: 600 }}>{selectedWord}</span> (cosine similarity):
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {neighbors.map(n => (
+                  <button key={n.word} onClick={() => setSelectedWord(n.word)} style={{
+                    fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
+                    background: COLORS.bgPanelHover, border: "1px solid " + COLORS.border,
+                    color: COLORS.text, cursor: "pointer",
+                  }}>{n.word} <span style={{ color: stageColor, fontSize: 10 }}>{n.sim.toFixed(3)}</span></button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
+            marginTop: 12, lineHeight: 1.5, fontStyle: "italic",
+          }}>
+            These positions were learned by the skip-gram algorithm from your text alone.
+            Try adding more sentences about a topic to see tighter clusters form.
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+
 function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
   const stage = STAGES[1];
   const canvasRef = useRef(null);
@@ -3580,7 +3907,7 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
       {/* 3 tabs only */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {[["explore", "Explore Space"], ["analogy", "Analogy Solver"], ["arch", "Architecture"]].map(([mode, label]) => (
+        {[["explore", "Explore Space"], ["train", "Train on Text"], ["analogy", "Analogy Solver"], ["arch", "Architecture"]].map(([mode, label]) => (
           <button key={mode} onClick={() => setShowMode(mode)} style={{
             fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
             borderRadius: 4, border: "1px solid " + (showMode === mode ? stage.color : COLORS.border),
@@ -3641,6 +3968,11 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
             </div>
           )}
         </div>
+      )}
+
+      {/* Train on Text */}
+      {showMode === "train" && (
+        <Word2VecTrainer stageColor={stage.color} />
       )}
 
       {/* Analogy Solver */}
