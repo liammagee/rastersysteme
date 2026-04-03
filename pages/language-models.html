@@ -4366,6 +4366,321 @@ function TransformerTrainingSim({ stageColor }) {
 }
 
 
+function TransformerArchitectureDetail({ stageColor }) {
+  const [step, setStep] = useState(0);
+
+  // Run the example "the cat sat on the" through the real TINY_TRANSFORMER
+  const example = useMemo(() => {
+    const tokens = ["the", "cat", "sat", "on", "the"];
+    const { dim, embeddings, Wq, Wk, Wv } = TINY_TRANSFORMER;
+
+    // Step 1: Raw embeddings
+    const rawEmb = tokens.map(t => [...embeddings[t]]);
+
+    // Step 2: + Positional encoding
+    const posEmb = rawEmb.map((e, pos) => {
+      const pe = e.map((v, i) => v + 0.1 * Math.sin(pos / Math.pow(10, (2 * i) / dim)));
+      return pe;
+    });
+
+    // Step 3: Q, K, V projections
+    function mv(M, v) { return M.map(row => row.reduce((s, w, i) => s + w * v[i], 0)); }
+    const Q = posEmb.map(e => mv(Wq, e));
+    const K = posEmb.map(e => mv(Wk, e));
+    const V = posEmb.map(e => mv(Wv, e));
+
+    // Step 4: Attention scores (last token attends to all)
+    const n = tokens.length;
+    const lastQ = Q[n - 1];
+    const rawScores = K.map(k => k.reduce((s, v, i) => s + lastQ[i] * v, 0) / Math.sqrt(dim));
+    const maxS = Math.max(...rawScores);
+    const expS = rawScores.map(s => Math.exp(s - maxS));
+    const sumE = expS.reduce((a, b) => a + b, 0);
+    const attention = expS.map(e => e / sumE);
+
+    // Step 5: Weighted context
+    const context = new Array(dim).fill(0);
+    for (let i = 0; i < n; i++) for (let d = 0; d < dim; d++) context[d] += attention[i] * V[i][d];
+
+    // Step 6: Output logits + softmax
+    const vocab = TINY_TRANSFORMER.vocab;
+    const logits = vocab.map(w => ({ word: w, logit: embeddings[w].reduce((s, v, i) => s + v * context[i], 0) }));
+    const maxL = Math.max(...logits.map(l => l.logit));
+    const expL = logits.map(l => Math.exp(l.logit - maxL));
+    const sumL = expL.reduce((a, b) => a + b, 0);
+    const predictions = logits.map((l, i) => ({ word: l.word, prob: expL[i] / sumL })).sort((a, b) => b.prob - a.prob);
+
+    return { tokens, dim, rawEmb, posEmb, Q, K, V, rawScores, attention, context, predictions };
+  }, []);
+
+  const STEPS = [
+    { title: "1. Input Tokens", color: "#E8E4DE" },
+    { title: "2. Token Embedding", color: "#FFD166" },
+    { title: "3. Positional Encoding", color: "#FF9F43" },
+    { title: "4. Q, K, V Projection", color: "#C4A1FF" },
+    { title: "5. Attention Scores", color: "#C4A1FF" },
+    { title: "6. Weighted Context", color: "#48BFE3" },
+    { title: "7. Output Softmax", color: "#FF6B6B" },
+    { title: "8. Backpropagation", color: "#72E1A0" },
+  ];
+
+  function VecDisplay({ label, vec, color, highlight }) {
+    return (
+      <div style={{ marginBottom: 6 }}>
+        {label && <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: color || COLORS.textDim, marginRight: 8, display: "inline-block", width: 40 }}>{label}</span>}
+        <span style={{ fontFamily: FONTS.mono, fontSize: 11 }}>
+          [
+          {vec.map((v, i) => (
+            <span key={i} style={{ color: highlight === i ? "#fff" : (Math.abs(v) > 0.3 ? COLORS.text : COLORS.textDim) }}>
+              {v.toFixed(2)}{i < vec.length - 1 ? ", " : ""}
+            </span>
+          ))}
+          ]
+        </span>
+      </div>
+    );
+  }
+
+  function StepBox({ children, title, color }) {
+    return (
+      <div style={{
+        background: COLORS.bgPanel, border: "1px solid " + (color || COLORS.border),
+        borderRadius: 8, padding: "14px 18px", marginBottom: 12, animation: "fadeInUp 0.3s ease",
+      }}>
+        {title && <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: color || stageColor, marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>{title}</div>}
+        {children}
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Transformer Architecture
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        Follow the sentence <strong style={{ color: stageColor }}>"the cat sat on the"</strong> through every
+        layer of a transformer, with real numbers from our 8-dimensional model. Click each step.
+      </p>
+
+      {/* Step selector */}
+      <div style={{ display: "flex", gap: 0, marginBottom: 20, flexWrap: "wrap" }}>
+        {STEPS.map((s, i) => (
+          <button key={i} onClick={() => setStep(i)} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "6px 10px",
+            border: "1px solid " + (step === i ? s.color + "60" : COLORS.border),
+            borderRight: i < STEPS.length - 1 ? "none" : undefined,
+            borderRadius: i === 0 ? "4px 0 0 4px" : i === STEPS.length - 1 ? "0 4px 4px 0" : 0,
+            background: step === i ? s.color + "15" : "transparent",
+            color: step === i ? s.color : COLORS.textDim, cursor: "pointer",
+          }}>{i + 1}</button>
+        ))}
+        <div style={{ flex: 1 }} />
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: STEPS[step].color, alignSelf: "center" }}>{STEPS[step].title}</div>
+      </div>
+
+      {/* Step 1: Input tokens */}
+      {step === 0 && (
+        <StepBox title="Input Tokens" color="#E8E4DE">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            The sentence is split into tokens. In real transformers, subword tokenization (BPE) splits rare words
+            into pieces. Our toy model uses whole words. Each token is just an index into the vocabulary.
+          </p>
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            {example.tokens.map((t, i) => (
+              <div key={i} style={{ fontFamily: FONTS.mono, fontSize: 14, padding: "8px 14px", borderRadius: 6, background: "rgba(255,255,255,0.05)", border: "1px solid " + COLORS.border, textAlign: "center" }}>
+                <div style={{ color: COLORS.text, marginBottom: 2 }}>{t}</div>
+                <div style={{ fontSize: 10, color: COLORS.textDim }}>token {i}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            At this point the model knows nothing about these words. They are arbitrary symbols. The next step gives them meaning.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 2: Embeddings */}
+      {step === 1 && (
+        <StepBox title="Token Embedding (learned lookup table)" color="#FFD166">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            Each token index is used to look up a row from the <strong style={{ color: COLORS.text }}>embedding matrix</strong> (vocabulary size &times; 8 dimensions).
+            These vectors are <em>learned during training</em> &mdash; they start random and adjust through backpropagation until
+            similar words have similar vectors.
+          </p>
+          {example.tokens.map((t, i) => <VecDisplay key={i} label={t} vec={example.rawEmb[i]} color="#FFD166" />)}
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            Notice "the" appears twice but gets the <em>same</em> vector both times. The embedding is context-free &mdash; position comes next.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 3: Positional encoding */}
+      {step === 2 && (
+        <StepBox title="+ Positional Encoding (sinusoidal)" color="#FF9F43">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            Transformers process all tokens in parallel (no sequential order like RNNs). To inject position information,
+            we <em>add</em> a unique sinusoidal signal to each position. Now the two "the" tokens have
+            <strong style={{ color: COLORS.text }}> different</strong> vectors.
+          </p>
+          {example.tokens.map((t, i) => <VecDisplay key={i} label={t + "[" + i + "]"} vec={example.posEmb[i]} color="#FF9F43" />)}
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            Compare "the" at position 0 vs position 4 &mdash; the sinusoidal encoding makes them distinguishable.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 4: Q, K, V */}
+      {step === 3 && (
+        <StepBox title="Q, K, V Projection (three learned linear transforms)" color="#C4A1FF">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            Each token's embedding is multiplied by three separate weight matrices to produce
+            <strong style={{ color: "#C4A1FF" }}> Query</strong> (what am I looking for?),
+            <strong style={{ color: "#48BFE3" }}> Key</strong> (what do I contain?), and
+            <strong style={{ color: "#72E1A0" }}> Value</strong> (what information do I pass along?).
+            These matrices are <em>learned</em> during training.
+          </p>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+            Q = embedding &times; W_Q &nbsp;&nbsp; K = embedding &times; W_K &nbsp;&nbsp; V = embedding &times; W_V
+          </div>
+          {example.tokens.map((t, i) => (
+            <div key={i} style={{ marginBottom: 8 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.text, marginBottom: 2 }}>{t}[{i}]:</div>
+              <div style={{ paddingLeft: 12 }}>
+                <VecDisplay label="Q" vec={example.Q[i]} color="#C4A1FF" />
+                <VecDisplay label="K" vec={example.K[i]} color="#48BFE3" />
+                <VecDisplay label="V" vec={example.V[i]} color="#72E1A0" />
+              </div>
+            </div>
+          ))}
+        </StepBox>
+      )}
+
+      {/* Step 5: Attention scores */}
+      {step === 4 && (
+        <StepBox title="Attention Scores (which tokens matter for prediction?)" color="#C4A1FF">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            To predict the next word after "the" (position 4), we compute how much this token should
+            <em> attend to</em> each other token. The score is the dot product of the last token's
+            <strong style={{ color: "#C4A1FF" }}> Query</strong> with each token's
+            <strong style={{ color: "#48BFE3" }}> Key</strong>, scaled by &radic;d to prevent saturation.
+          </p>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 12 }}>
+            score[i] = Q["the"[4]] &middot; K[token_i] / &radic;8
+          </div>
+          <div style={{ display: "flex", gap: 4, alignItems: "flex-end", height: 100, marginBottom: 12 }}>
+            {example.tokens.map((t, i) => (
+              <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, gap: 4 }}>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim }}>{example.rawScores[i].toFixed(2)}</div>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: stageColor }}>{(example.attention[i] * 100).toFixed(0)}%</div>
+                <div style={{
+                  width: "100%", maxWidth: 50, background: stageColor,
+                  opacity: 0.2 + example.attention[i] * 0.8,
+                  height: Math.max(4, example.attention[i] * 80), borderRadius: "3px 3px 0 0",
+                }} />
+                <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text }}>{t}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, fontStyle: "italic" }}>
+            The raw scores (top numbers) are passed through <strong style={{ color: COLORS.text }}>softmax</strong> to
+            become probabilities (%) that sum to 100%. This is how the model decides which tokens are relevant.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 6: Weighted context */}
+      {step === 5 && (
+        <StepBox title="Weighted Context (attention-weighted sum of Values)" color="#48BFE3">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            The attention weights are used to combine the <strong style={{ color: "#72E1A0" }}>Value</strong> vectors
+            into a single context vector. Tokens with higher attention contribute more.
+          </p>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
+            context = {example.tokens.map((t, i) => (example.attention[i] * 100).toFixed(0) + "% &times; V[" + t + "]").join(" + ")}
+          </div>
+          <VecDisplay label="ctx" vec={example.context} color="#48BFE3" />
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            This single 8D vector encodes a <em>context-dependent</em> understanding of the sentence up to this point.
+            In a real transformer, this is repeated across 12-96 attention heads in parallel, each learning different patterns.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 7: Output softmax */}
+      {step === 6 && (
+        <StepBox title="Output: Softmax over Vocabulary" color="#FF6B6B">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            The context vector is compared (via dot product) against every word's embedding vector.
+            The resulting scores are passed through <strong style={{ color: COLORS.text }}>softmax</strong> to
+            produce a probability distribution over the entire vocabulary. The model picks the highest-probability word.
+          </p>
+          {example.predictions.slice(0, 10).map((p, i) => (
+            <div key={p.word} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, width: 50, textAlign: "right", color: i === 0 ? "#fff" : COLORS.text, fontWeight: i === 0 ? 700 : 400 }}>{p.word}</div>
+              <div style={{ flex: 1, height: 16, background: "rgba(255,255,255,0.04)", borderRadius: 3, overflow: "hidden" }}>
+                <div style={{ width: (p.prob / example.predictions[0].prob * 100) + "%", height: "100%", background: i === 0 ? "#FF6B6B" : "#FF6B6B50", borderRadius: 3 }} />
+              </div>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, width: 45, textAlign: "right" }}>{(p.prob * 100).toFixed(1)}%</div>
+            </div>
+          ))}
+          <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, fontStyle: "italic" }}>
+            The prediction for "the cat sat on the ___" is <strong style={{ color: "#FF6B6B" }}>{example.predictions[0].word}</strong>.
+            During training, the correct answer was known and the model adjusted its weights to increase that answer's probability.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Step 8: Backpropagation */}
+      {step === 7 && (
+        <StepBox title="Backpropagation: How the model learns" color="#72E1A0">
+          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6, marginBottom: 12 }}>
+            Everything above is the <strong style={{ color: COLORS.text }}>forward pass</strong> &mdash; input goes in, prediction comes out.
+            Learning happens in the <strong style={{ color: "#72E1A0" }}>backward pass</strong>:
+          </p>
+
+          <div style={{ paddingLeft: 0, marginBottom: 16 }}>
+            {[
+              { num: "1", title: "Compute loss", desc: "Compare the predicted probability distribution to the true next word. If the model predicted 'mat' at 8% but the true word was 'mat', the loss measures how far off 8% is from 100%. The standard loss is cross-entropy: L = -log(P(true word))." },
+              { num: "2", title: "Compute gradients (chain rule)", desc: "For every weight in the network, calculate: 'if I nudged this weight slightly, how much would the loss change?' This uses the chain rule of calculus, propagating the error backward through each layer: output \u2192 softmax \u2192 context \u2192 attention \u2192 Q,K,V matrices \u2192 embeddings." },
+              { num: "3", title: "Update weights", desc: "Each weight is adjusted in the direction that reduces the loss: W_new = W_old - learning_rate \u00D7 gradient. A small learning rate means cautious updates. The embedding matrix, Q/K/V projection matrices, and feed-forward weights are ALL updated simultaneously." },
+              { num: "4", title: "Repeat", desc: "This process repeats for every training example (billions of sentences). Over time, the embedding matrix learns that 'cat' and 'dog' should have similar vectors. The Q/K/V matrices learn which attention patterns are useful. The model never receives explicit rules \u2014 structure emerges from prediction error alone." },
+            ].map(s => (
+              <div key={s.num} style={{
+                display: "flex", gap: 12, marginBottom: 12, padding: "10px 14px",
+                background: "rgba(0,0,0,0.2)", borderRadius: 6, borderLeft: "3px solid #72E1A040",
+              }}>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 14, color: "#72E1A0", fontWeight: 700, flexShrink: 0 }}>{s.num}</div>
+                <div>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text, marginBottom: 4 }}>{s.title}</div>
+                  <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6 }}>{s.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, lineHeight: 1.6,
+            padding: "12px 16px", background: "#72E1A008", border: "1px solid #72E1A020", borderRadius: 6,
+          }}>
+            <strong style={{ color: COLORS.text }}>What gets learned:</strong> The embedding matrix (word meanings),
+            the Q/K/V weight matrices (what attention patterns are useful), and the feed-forward weights (how to combine information).
+            For GPT-4, this means tuning ~1.8 trillion parameters across ~120 transformer layers, trained on trillions of tokens.
+            The architecture above is one layer with 8 dimensions &mdash; scale it up and you get modern language models.
+          </div>
+        </StepBox>
+      )}
+
+      {/* Navigation */}
+      <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+        {step > 0 && <button onClick={() => setStep(step - 1)} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer" }}>&larr; Previous</button>}
+        {step < STEPS.length - 1 && <button onClick={() => setStep(step + 1)} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + stageColor, background: stageColor + "15", color: stageColor, cursor: "pointer" }}>Next &rarr;</button>}
+      </div>
+    </div>
+  );
+}
+
+
 function TransformerPredictPanel({ stageColor }) {
   const [inputText, setInputText] = useState("the cat sat on the");
   const [result, setResult] = useState(null);
@@ -4879,69 +5194,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
 
       {/* Architecture Walkthrough */}
       {showSection === "architecture" && (
-        <div>
-          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
-            Transformer Architecture
-          </h2>
-          <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 20, lineHeight: 1.5 }}>
-            Walk through the transformer layer step by step. Click each block to see details.
-          </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
-            {ARCH_STEPS.map((step, i) => {
-              const isActive = activeStep === i;
-              return (
-                <div key={step.id}>
-                  <div
-                    onClick={() => setActiveStep(i)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 16,
-                      padding: "12px 16px", borderRadius: 8, cursor: "pointer",
-                      background: isActive ? `${step.color}15` : "transparent",
-                      border: `1px solid ${isActive ? step.color + "40" : "transparent"}`,
-                      transition: "all 0.3s",
-                    }}
-                  >
-                    {/* Step node */}
-                    <div style={{
-                      width: 32, height: 32, borderRadius: 6, flexShrink: 0,
-                      background: isActive ? step.color : "transparent",
-                      border: `2px solid ${step.color}`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600,
-                      color: isActive ? "#0B0A09" : step.color,
-                      transition: "all 0.3s",
-                    }}>{i + 1}</div>
-
-                    <div style={{ flex: 1 }}>
-                      <div style={{
-                        fontFamily: FONTS.mono, fontSize: 13, fontWeight: 600,
-                        color: isActive ? COLORS.text : COLORS.textDim,
-                      }}>{step.label}</div>
-                      {isActive && (
-                        <div style={{
-                          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
-                          marginTop: 4, lineHeight: 1.5, animation: "fadeInUp 0.3s ease",
-                        }}>{step.desc}</div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Connector arrow */}
-                  {i < ARCH_STEPS.length - 1 && (
-                    <div style={{
-                      display: "flex", justifyContent: "center", padding: "2px 0",
-                    }}>
-                      <div style={{
-                        width: 1, height: 16,
-                        background: `linear-gradient(${step.color}40, ${ARCH_STEPS[i+1].color}40)`,
-                      }} />
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
+        <TransformerArchitectureDetail stageColor={stage.color} />
       )}
 
       {/* Training Simulation */}
