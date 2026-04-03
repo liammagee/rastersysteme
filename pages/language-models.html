@@ -1703,10 +1703,11 @@ function elizaReflect(text) {
   }).join(" ");
 }
 
-function elizaRespond(input) {
+function elizaRespond(input, rules) {
+  const ruleList = rules || ELIZA_RULES;
   const clean = input.trim();
-  for (let i = 0; i < ELIZA_RULES.length; i++) {
-    const [pattern, responses, label] = ELIZA_RULES[i];
+  for (let i = 0; i < ruleList.length; i++) {
+    const [pattern, responses, label] = ruleList[i];
     const match = clean.match(pattern);
     if (match) {
       const template = responses[Math.floor(Math.random() * responses.length)];
@@ -1721,22 +1722,43 @@ function elizaRespond(input) {
   };
 }
 
+// Convert rules to an editable format (regex source + flags instead of RegExp objects)
+const ELIZA_RULES_EDITABLE = ELIZA_RULES.map(([pat, responses, label]) => ({
+  pattern: pat.source,
+  flags: pat.flags,
+  responses: [...responses],
+  label,
+}));
+
 
 function ELIZAPlayground({ stageIndex, dispatch, stageProgress }) {
-  const stage = STAGES[1]; // ELIZA is now stage 1
+  const stage = STAGES[1];
   const [messages, setMessages] = useState([
     { from: "eliza", text: "Hello. I'm ELIZA. How are you feeling today?", rule: null },
   ]);
   const [input, setInput] = useState("");
-  const [showDebug, setShowDebug] = useState(true);
+  const [tab, setTab] = useState("chat"); // "chat" | "script"
   const [lastRule, setLastRule] = useState(null);
   const [rulesUsed, setRulesUsed] = useState(new Set());
+  const [editRules, setEditRules] = useState(ELIZA_RULES_EDITABLE.map(r => ({ ...r, responses: [...r.responses] })));
+  const [editingIdx, setEditingIdx] = useState(null);
   const chatRef = useRef(null);
+
+  // Build live RegExp rules from editable state
+  const liveRules = useMemo(() => {
+    return editRules.map(r => {
+      try {
+        return [new RegExp(r.pattern, r.flags), r.responses, r.label];
+      } catch (e) {
+        return null; // invalid regex — skip
+      }
+    }).filter(Boolean);
+  }, [editRules]);
 
   const handleSend = useCallback(() => {
     if (!input.trim()) return;
     const userMsg = input.trim();
-    const result = elizaRespond(userMsg);
+    const result = elizaRespond(userMsg, liveRules);
     setMessages(prev => [
       ...prev,
       { from: "user", text: userMsg, rule: null },
@@ -1745,20 +1767,53 @@ function ELIZAPlayground({ stageIndex, dispatch, stageProgress }) {
     setLastRule(result);
     setRulesUsed(prev => { const next = new Set(prev); next.add(result.label); return next; });
     setInput("");
-
-    // Update score based on unique rules discovered
     const newCount = rulesUsed.size + (rulesUsed.has(result.label) ? 0 : 1);
     dispatch({ type: "UPDATE_SCORE", stage: 1, score: newCount, attempts: messages.length });
     if (newCount >= 6 && !stageProgress.challengeCompleted) {
       setTimeout(() => dispatch({ type: "COMPLETE_CHALLENGE", stage: 1, score: newCount }), 1000);
     }
-  }, [input, messages, rulesUsed, dispatch, stageProgress]);
+  }, [input, messages, rulesUsed, liveRules, dispatch, stageProgress]);
 
   useEffect(() => {
     if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
   }, [messages]);
 
-  // Quick prompts that trigger different rules
+  function updateRule(idx, field, value) {
+    setEditRules(prev => {
+      const next = prev.map((r, i) => i === idx ? { ...r, [field]: value } : r);
+      return next;
+    });
+  }
+  function updateResponse(ruleIdx, respIdx, value) {
+    setEditRules(prev => {
+      const next = prev.map((r, i) => {
+        if (i !== ruleIdx) return r;
+        const resps = [...r.responses];
+        resps[respIdx] = value;
+        return { ...r, responses: resps };
+      });
+      return next;
+    });
+  }
+  function addResponse(ruleIdx) {
+    setEditRules(prev => prev.map((r, i) => i === ruleIdx ? { ...r, responses: [...r.responses, "Tell me more about $1."] } : r));
+  }
+  function removeResponse(ruleIdx, respIdx) {
+    setEditRules(prev => prev.map((r, i) => i === ruleIdx ? { ...r, responses: r.responses.filter((_, j) => j !== respIdx) } : r));
+  }
+  function addRule() {
+    setEditRules(prev => [...prev, { pattern: "\\\\bhello\\\\b", flags: "i", responses: ["Hi there!"], label: "New Rule" }]);
+    setEditingIdx(editRules.length);
+  }
+  function removeRule(idx) {
+    setEditRules(prev => prev.filter((_, i) => i !== idx));
+    if (editingIdx === idx) setEditingIdx(null);
+  }
+  function resetRules() {
+    setEditRules(ELIZA_RULES_EDITABLE.map(r => ({ ...r, responses: [...r.responses] })));
+    setEditingIdx(null);
+  }
+
   const PROMPTS = [
     "I'm feeling anxious", "I need help", "Why can't I sleep?",
     "My mother worries about me", "Are you really listening?",
@@ -1767,147 +1822,190 @@ function ELIZAPlayground({ stageIndex, dispatch, stageProgress }) {
 
   return (
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Tab bar */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, alignItems: "center", flexWrap: "wrap" }}>
+        {[["chat", "Chat"], ["script", "Edit Script"]].map(([id, label]) => (
+          <button key={id} onClick={() => setTab(id)} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px", borderRadius: 4,
+            border: "1px solid " + (tab === id ? stage.color : COLORS.border),
+            background: tab === id ? stage.colorDim : "transparent",
+            color: tab === id ? stage.color : COLORS.textDim, cursor: "pointer",
+          }}>{label}</button>
+        ))}
+        <div style={{ flex: 1 }} />
         <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color }}>
           Rules discovered: {rulesUsed.size}/6 to unlock next stage
         </div>
-        <div style={{ flex: 1 }} />
-        <button onClick={() => setShowDebug(!showDebug)} style={{
-          fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
-          border: "1px solid " + (showDebug ? stage.color : COLORS.border),
-          background: showDebug ? stage.colorDim : "transparent",
-          color: showDebug ? stage.color : COLORS.textDim, cursor: "pointer",
-        }}>{showDebug ? "Hide" : "Show"} Rule Debugger</button>
       </div>
 
-      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
-        {/* Chat panel */}
-        <div style={{ flex: 2, minWidth: 280 }}>
-          <div ref={chatRef} style={{
-            height: 340, overflowY: "auto", background: "#08080A",
-            border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14, marginBottom: 12,
-          }}>
-            {messages.map((m, i) => (
-              <div key={i} style={{
-                marginBottom: 10, display: "flex",
-                justifyContent: m.from === "user" ? "flex-end" : "flex-start",
-              }}>
-                <div style={{
-                  maxWidth: "80%", padding: "8px 12px", borderRadius: 8,
-                  background: m.from === "user" ? stage.colorDim : "rgba(255,255,255,0.05)",
-                  border: "1px solid " + (m.from === "user" ? stage.color + "30" : COLORS.border),
-                }}>
-                  <div style={{
-                    fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.5,
-                  }}>{m.text}</div>
-                  {m.rule && showDebug && (
-                    <div style={{
-                      fontFamily: FONTS.mono, fontSize: 10, color: stage.color, marginTop: 4, opacity: 0.7,
-                    }}>Rule: {m.rule.label}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Input */}
-          <div style={{ display: "flex", gap: 8 }}>
-            <input type="text" value={input} onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
-              placeholder="Type a message to ELIZA..."
-              style={{
-                flex: 1, padding: "8px 12px", fontFamily: FONTS.mono, fontSize: 13,
-                background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
-                borderRadius: 6, color: COLORS.text, outline: "none",
-              }}
-            />
-            <button onClick={handleSend} style={{
-              fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px", borderRadius: 6,
-              border: "1px solid " + stage.color, background: stage.colorDim,
-              color: stage.color, cursor: "pointer",
-            }}>Send</button>
-          </div>
-
-          {/* Quick prompts */}
-          <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }}>
-            {PROMPTS.map(p => (
-              <button key={p} onClick={() => setInput(p)} style={{
-                fontFamily: FONTS.mono, fontSize: 10, padding: "3px 8px", borderRadius: 3,
-                border: "1px solid " + COLORS.border, background: "transparent",
-                color: COLORS.textDim, cursor: "pointer",
-              }}>{p}</button>
-            ))}
-          </div>
-        </div>
-
-        {/* Rule debugger panel */}
-        {showDebug && (
-          <div style={{ flex: 1, minWidth: 220 }}>
-            <div style={{
-              background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
-              borderRadius: 8, padding: 14,
+      {/* ═══ CHAT TAB ═══ */}
+      {tab === "chat" && (
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          <div style={{ flex: 2, minWidth: 280 }}>
+            <div ref={chatRef} style={{
+              height: 340, overflowY: "auto", background: "#08080A",
+              border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14, marginBottom: 12,
             }}>
-              <div style={{
-                fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
-                textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10,
-              }}>Rule Debugger</div>
+              {messages.map((m, i) => (
+                <div key={i} style={{ marginBottom: 10, display: "flex", justifyContent: m.from === "user" ? "flex-end" : "flex-start" }}>
+                  <div style={{
+                    maxWidth: "80%", padding: "8px 12px", borderRadius: 8,
+                    background: m.from === "user" ? stage.colorDim : "rgba(255,255,255,0.05)",
+                    border: "1px solid " + (m.from === "user" ? stage.color + "30" : COLORS.border),
+                  }}>
+                    <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.5 }}>{m.text}</div>
+                    {m.rule && (
+                      <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: stage.color, marginTop: 4, opacity: 0.7 }}>
+                        Rule: {m.rule.label} &middot; /{m.rule.pattern}/
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input type="text" value={input} onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") handleSend(); }}
+                placeholder="Type a message to ELIZA..."
+                style={{ flex: 1, padding: "8px 12px", fontFamily: FONTS.mono, fontSize: 13, background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 6, color: COLORS.text, outline: "none" }}
+              />
+              <button onClick={handleSend} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px", borderRadius: 6, border: "1px solid " + stage.color, background: stage.colorDim, color: stage.color, cursor: "pointer" }}>Send</button>
+            </div>
+            <div style={{ display: "flex", gap: 4, marginTop: 8, flexWrap: "wrap" }}>
+              {PROMPTS.map(p => (
+                <button key={p} onClick={() => setInput(p)} style={{ fontFamily: FONTS.mono, fontSize: 10, padding: "3px 8px", borderRadius: 3, border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer" }}>{p}</button>
+              ))}
+            </div>
+          </div>
 
+          {/* Last-match debugger (compact) */}
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 8, padding: 14 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: stage.color, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8 }}>Last Match</div>
               {lastRule ? (
                 <div>
-                  <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
-                    Last match:
-                  </div>
-                  <div style={{
-                    fontFamily: FONTS.mono, fontSize: 12, color: stage.color, marginBottom: 8,
-                    padding: "6px 10px", background: stage.colorDim, borderRadius: 4,
-                  }}>
-                    {lastRule.label}
-                  </div>
-                  <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 4 }}>Pattern:</div>
-                  <div style={{
-                    fontFamily: FONTS.mono, fontSize: 11, color: COLORS.text,
-                    padding: "4px 8px", background: "rgba(255,255,255,0.04)", borderRadius: 3, marginBottom: 8,
-                    wordBreak: "break-all",
-                  }}>/{lastRule.pattern}/</div>
-                  {lastRule.matched && (
-                    <div>
-                      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 4 }}>Matched:</div>
-                      <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: "#72E1A0", marginBottom: 8 }}>"{lastRule.matched}"</div>
-                    </div>
-                  )}
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color, padding: "4px 8px", background: stage.colorDim, borderRadius: 4, marginBottom: 6 }}>{lastRule.label}</div>
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.text, padding: "3px 6px", background: "rgba(255,255,255,0.04)", borderRadius: 3, marginBottom: 6, wordBreak: "break-all" }}>/{lastRule.pattern}/</div>
+                  {lastRule.matched && <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: "#72E1A0" }}>Matched: "{lastRule.matched}"</div>}
                 </div>
               ) : (
-                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
-                  Send a message to see which rule ELIZA uses.
-                </div>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>Send a message to see which rule fires.</div>
               )}
-
-              <div style={{ borderTop: "1px solid " + COLORS.border, marginTop: 10, paddingTop: 10 }}>
-                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6 }}>
-                  Rules discovered ({rulesUsed.size}):
-                </div>
-                <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+              <div style={{ borderTop: "1px solid " + COLORS.border, marginTop: 10, paddingTop: 8 }}>
+                <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 4 }}>Discovered ({rulesUsed.size}):</div>
+                <div style={{ display: "flex", gap: 3, flexWrap: "wrap" }}>
                   {[...rulesUsed].map(r => (
-                    <span key={r} style={{
-                      fontFamily: FONTS.mono, fontSize: 10, padding: "2px 6px", borderRadius: 3,
-                      background: stage.colorDim, color: stage.color, border: "1px solid " + stage.color + "30",
-                    }}>{r}</span>
+                    <span key={r} style={{ fontFamily: FONTS.mono, fontSize: 10, padding: "2px 5px", borderRadius: 3, background: stage.colorDim, color: stage.color }}>{r}</span>
                   ))}
                 </div>
               </div>
             </div>
-
-            <div style={{
-              fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
-              marginTop: 12, lineHeight: 1.5, fontStyle: "italic",
-            }}>
-              ELIZA has {ELIZA_RULES.length} pattern rules + {ELIZA_DEFAULTS.length} default responses.
-              There is no understanding here — just string matching and substitution.
-              Try to discover 6 different rules to unlock the next stage.
+            <div style={{ fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 10, lineHeight: 1.5, fontStyle: "italic" }}>
+              {liveRules.length} active rules. Switch to "Edit Script" to modify them.
             </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* ═══ SCRIPT EDITOR TAB ═══ */}
+      {tab === "script" && (
+        <div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 12, lineHeight: 1.5 }}>
+            ELIZA is just a list of pattern-response rules. Edit, add, or delete rules below, then switch to Chat to test them.
+            Use <code style={{ color: stage.color }}>$1</code> in responses to insert the captured group from the pattern.
+          </div>
+
+          <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+            <button onClick={addRule} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + stage.color, background: stage.colorDim, color: stage.color, cursor: "pointer" }}>+ Add Rule</button>
+            <button onClick={resetRules} style={{ fontFamily: FONTS.mono, fontSize: 12, padding: "6px 14px", borderRadius: 4, border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer" }}>Reset to Defaults</button>
+            <div style={{ flex: 1 }} />
+            <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, alignSelf: "center" }}>{editRules.length} rules</div>
+          </div>
+
+          <div style={{ maxHeight: 500, overflowY: "auto" }}>
+            {editRules.map((rule, idx) => {
+              const isOpen = editingIdx === idx;
+              let patternValid = true;
+              try { new RegExp(rule.pattern, rule.flags); } catch (e) { patternValid = false; }
+              return (
+                <div key={idx} style={{
+                  background: isOpen ? "rgba(255,255,255,0.03)" : "transparent",
+                  border: "1px solid " + (isOpen ? stage.color + "40" : COLORS.border),
+                  borderRadius: 6, marginBottom: 6, overflow: "hidden",
+                }}>
+                  {/* Rule header — click to expand */}
+                  <div onClick={() => setEditingIdx(isOpen ? null : idx)} style={{
+                    display: "flex", alignItems: "center", gap: 8, padding: "8px 12px", cursor: "pointer",
+                  }}>
+                    <span style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim, width: 20 }}>{idx + 1}</span>
+                    <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color, fontWeight: 600, minWidth: 100 }}>{rule.label}</span>
+                    <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: patternValid ? COLORS.textDim : "#FF6B6B", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      /{rule.pattern}/{rule.flags}
+                    </span>
+                    <button onClick={(e) => { e.stopPropagation(); removeRule(idx); }} style={{
+                      fontFamily: FONTS.mono, fontSize: 11, padding: "2px 8px", borderRadius: 3,
+                      border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer",
+                    }}>{"\u00D7"}</button>
+                  </div>
+
+                  {/* Expanded editor */}
+                  {isOpen && (
+                    <div style={{ padding: "8px 12px 12px 40px", borderTop: "1px solid " + COLORS.border }}>
+                      <div style={{ marginBottom: 8 }}>
+                        <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, display: "block", marginBottom: 3 }}>Label:</label>
+                        <input type="text" value={rule.label} onChange={e => updateRule(idx, "label", e.target.value)} style={{
+                          width: "100%", padding: "4px 8px", fontFamily: FONTS.mono, fontSize: 12,
+                          background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
+                        }} />
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, display: "block", marginBottom: 3 }}>
+                          Pattern (regex): {!patternValid && <span style={{ color: "#FF6B6B" }}> invalid regex</span>}
+                        </label>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>/</span>
+                          <input type="text" value={rule.pattern} onChange={e => updateRule(idx, "pattern", e.target.value)} style={{
+                            flex: 1, padding: "4px 8px", fontFamily: FONTS.mono, fontSize: 12,
+                            background: "#08080A", border: "1px solid " + (patternValid ? COLORS.border : "#FF6B6B"), borderRadius: 4, color: COLORS.text, outline: "none",
+                          }} />
+                          <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>/</span>
+                          <input type="text" value={rule.flags} onChange={e => updateRule(idx, "flags", e.target.value)} style={{
+                            width: 30, padding: "4px 6px", fontFamily: FONTS.mono, fontSize: 12,
+                            background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none", textAlign: "center",
+                          }} />
+                        </div>
+                      </div>
+                      <div>
+                        <label style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, display: "block", marginBottom: 3 }}>
+                          Responses ($1 = captured group, with pronoun reflection):
+                        </label>
+                        {rule.responses.map((resp, ri) => (
+                          <div key={ri} style={{ display: "flex", gap: 4, marginBottom: 4 }}>
+                            <input type="text" value={resp} onChange={e => updateResponse(idx, ri, e.target.value)} style={{
+                              flex: 1, padding: "4px 8px", fontFamily: FONTS.mono, fontSize: 12,
+                              background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 4, color: COLORS.text, outline: "none",
+                            }} />
+                            {rule.responses.length > 1 && (
+                              <button onClick={() => removeResponse(idx, ri)} style={{
+                                fontFamily: FONTS.mono, fontSize: 11, padding: "2px 6px", borderRadius: 3,
+                                border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer",
+                              }}>{"\u00D7"}</button>
+                            )}
+                          </div>
+                        ))}
+                        <button onClick={() => addResponse(idx)} style={{
+                          fontFamily: FONTS.mono, fontSize: 11, padding: "3px 8px", borderRadius: 3, marginTop: 2,
+                          border: "1px solid " + COLORS.border, background: "transparent", color: COLORS.textDim, cursor: "pointer",
+                        }}>+ response</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -3287,20 +3385,18 @@ function Word2VecTrainingSim({ stageColor }) {
 
 
 function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
-  const stage = STAGES[2];
+  const stage = STAGES[1];
   const canvasRef = useRef(null);
   const [hoveredWord, setHoveredWord] = useState(null);
   const [selectedWord, setSelectedWord] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeClusters, setActiveClusters] = useState(new Set(Object.keys(CLUSTERS)));
-  const [showMode, setShowMode] = useState("explore"); // explore | analogy | training
+  const [showMode, setShowMode] = useState("explore");
   const [analogyIdx, setAnalogyIdx] = useState(0);
   const [analogyGuess, setAnalogyGuess] = useState("");
   const [analogyResult, setAnalogyResult] = useState(null);
   const [analogyScore, setAnalogySc] = useState({ correct: 0, total: 0 });
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const dragRef = useRef(null);
+  const CANVAS_H = 520;
 
   const filteredWords = useMemo(() =>
     WORD_DATA.filter(w => activeClusters.has(w.c)),
@@ -3313,272 +3409,181 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
     return findNearest(sw.v, WORD_DATA, [selectedWord], 6);
   }, [selectedWord]);
 
-  // Draw embedding space
+  const analogyOptions = useMemo(() => {
+    const puzzle = ANALOGY_PUZZLES[analogyIdx];
+    const distractors = WORD_DATA
+      .filter(w => w.w !== puzzle.a && w.w !== puzzle.b && w.w !== puzzle.c && w.w !== puzzle.answer)
+      .sort(() => Math.random() - 0.5).slice(0, 3).map(w => w.w);
+    return [puzzle.answer, ...distractors].sort(() => Math.random() - 0.5);
+  }, [analogyIdx]);
+
+  // Draw embedding space — centered PCA projection
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || showMode !== "explore") return;
     const container = canvas.parentElement;
-    const w = container.clientWidth;
-    const h = 420;
+    const w = container.clientWidth, h = CANVAS_H;
     const dpr = window.devicePixelRatio || 1;
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
-    canvas.style.width = w + "px";
-    canvas.style.height = h + "px";
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    canvas.style.width = w + "px"; canvas.style.height = h + "px";
     const ctx = canvas.getContext("2d");
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.fillStyle = "#08080A"; ctx.fillRect(0, 0, w, h);
 
-    ctx.fillStyle = "#08080A";
-    ctx.fillRect(0, 0, w, h);
+    const margin = { left: 24, bottom: 24, top: 24, right: 24 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+    const cx = margin.left + plotW / 2, cy = margin.top + plotH / 2;
 
-    // Semantic grid with labeled axes
-    var margin = { left: 50, bottom: 40, top: 16, right: 16 };
-    var plotW = w - margin.left - margin.right;
-    var plotH = h - margin.top - margin.bottom;
-
-    // Grid lines
-    ctx.strokeStyle = "rgba(255,255,255,0.04)";
-    ctx.lineWidth = 0.5;
-    for (var gi = 0; gi <= 10; gi++) {
-      var gx = margin.left + (gi / 10) * plotW;
-      var gy = margin.top + (gi / 10) * plotH;
+    // Grid
+    ctx.strokeStyle = "rgba(255,255,255,0.03)"; ctx.lineWidth = 0.5;
+    for (let gi = -4; gi <= 4; gi++) {
+      if (gi === 0) continue;
+      const gx = cx + (gi / 5) * (plotW / 2), gy = cy + (gi / 5) * (plotH / 2);
       ctx.beginPath(); ctx.moveTo(gx, margin.top); ctx.lineTo(gx, margin.top + plotH); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(margin.left, gy); ctx.lineTo(margin.left + plotW, gy); ctx.stroke();
     }
 
-    // Axes
-    ctx.strokeStyle = "rgba(255,255,255,0.12)";
-    ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(margin.left, margin.top + plotH); ctx.lineTo(margin.left + plotW, margin.top + plotH); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(margin.left, margin.top); ctx.lineTo(margin.left, margin.top + plotH); ctx.stroke();
+    // Crosshair axes
+    ctx.strokeStyle = "rgba(255,255,255,0.12)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(margin.left, cy); ctx.lineTo(margin.left + plotW, cy); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx, margin.top); ctx.lineTo(cx, margin.top + plotH); ctx.stroke();
 
-    // Axis labels — semantic dimensions
-    ctx.font = "11px JetBrains Mono";
-    ctx.fillStyle = "rgba(255,255,255,0.25)";
+    // Axis labels
+    ctx.font = "10px JetBrains Mono"; ctx.fillStyle = "rgba(255,255,255,0.25)";
+    ctx.textAlign = "left"; ctx.fillText("\\u2190 Geography / Abstract", margin.left + 4, cy - 6);
+    ctx.textAlign = "right"; ctx.fillText("Animate / Concrete \\u2192", margin.left + plotW - 4, cy - 6);
     ctx.textAlign = "center";
-    ctx.fillText("Concrete \u2190 \u2192 Abstract", margin.left + plotW / 2, h - 6);
-    ctx.save();
-    ctx.translate(12, margin.top + plotH / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillText("Places \u2190 \u2192 People/Emotions", 0, 0);
-    ctx.restore();
+    ctx.fillText("\\u2190 Nature / Action", cx + 50, margin.top + 12);
+    ctx.fillText("Status / Emotion \\u2192", cx + 50, margin.top + plotH - 6);
 
-    // Quadrant labels (very faint)
-    ctx.font = "11px JetBrains Mono";
-    ctx.fillStyle = "rgba(255,255,255,0.07)";
-    ctx.textAlign = "left";
-    ctx.fillText("Places & Geography", margin.left + 8, margin.top + 16);
-    ctx.textAlign = "right";
-    ctx.fillText("Actions & Qualities", margin.left + plotW - 8, margin.top + plotH - 8);
-    ctx.textAlign = "left";
-    ctx.fillText("Emotions & Abstract", margin.left + plotW / 2 + 10, margin.top + 16);
-    ctx.fillText("Animals & Nature", margin.left + 8, margin.top + plotH - 8);
+    const tx = (px) => cx + px * (plotW / 2);
+    const ty = (py) => cy + py * (plotH / 2);
 
-    // Transform coords (map 0-1 word positions to plot area)
-    const tx = (wx) => margin.left + (wx * zoom + pan.x) * plotW;
-    const ty = (wy) => margin.top + (wy * zoom + pan.y) * plotH;
-
-    // Draw cluster regions (convex hull approximation - simple bounding ellipse)
-    if (activeClusters.size < Object.keys(CLUSTERS).length || activeClusters.size === Object.keys(CLUSTERS).length) {
-      for (const [clusterId, cluster] of Object.entries(CLUSTERS)) {
-        if (!activeClusters.has(clusterId)) continue;
-        const clusterWords = filteredWords.filter(w => w.c === clusterId);
-        if (clusterWords.length < 2) continue;
-        const xs = clusterWords.map(w => tx(w.x));
-        const ys = clusterWords.map(w => ty(w.y));
-        const cx = xs.reduce((a,b) => a+b, 0) / xs.length;
-        const cy = ys.reduce((a,b) => a+b, 0) / ys.length;
-        const rx = Math.max(...xs.map(x => Math.abs(x - cx))) + 30;
-        const ry = Math.max(...ys.map(y => Math.abs(y - cy))) + 25;
-        ctx.beginPath();
-        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-        ctx.fillStyle = cluster.color + "08";
-        ctx.fill();
-        ctx.strokeStyle = cluster.color + "20";
-        ctx.lineWidth = 1;
-        ctx.stroke();
-        // Cluster label
-        ctx.font = "11px JetBrains Mono";
-        ctx.fillStyle = cluster.color + "60";
-        ctx.textAlign = "center";
-        ctx.fillText(cluster.label, cx, cy - ry + 12);
-      }
+    // Cluster ellipses
+    for (const [clusterId, cluster] of Object.entries(CLUSTERS)) {
+      if (!activeClusters.has(clusterId)) continue;
+      const cw = filteredWords.filter(w => w.c === clusterId);
+      if (cw.length < 2) continue;
+      const xs = cw.map(w => tx(w.px)), ys = cw.map(w => ty(w.py));
+      const ecx = xs.reduce((a,b) => a+b, 0) / xs.length;
+      const ecy = ys.reduce((a,b) => a+b, 0) / ys.length;
+      const erx = Math.max(...xs.map(x => Math.abs(x - ecx))) + 30;
+      const ery = Math.max(...ys.map(y => Math.abs(y - ecy))) + 25;
+      ctx.beginPath(); ctx.ellipse(ecx, ecy, erx, ery, 0, 0, Math.PI * 2);
+      ctx.fillStyle = cluster.color + "0a"; ctx.fill();
+      ctx.strokeStyle = cluster.color + "20"; ctx.lineWidth = 1; ctx.stroke();
+      ctx.font = "10px JetBrains Mono"; ctx.fillStyle = cluster.color + "60";
+      ctx.textAlign = "center"; ctx.fillText(cluster.label, ecx, ecy - ery + 12);
     }
 
-    // Draw words
-    for (const word of filteredWords) {
-      const wx = tx(word.x);
-      const wy = ty(word.y);
-      if (wx < -50 || wx > w + 50 || wy < -50 || wy > h + 50) continue;
-
-      const isHovered = hoveredWord === word.w;
-      const isSelected = selectedWord === word.w;
-      const isNear = nearest.some(n => n.word === word.w);
-      const matchesSearch = searchQuery && word.w.toLowerCase().includes(searchQuery.toLowerCase());
-      const dimmed = searchQuery && !matchesSearch && !isSelected;
-
-      const color = CLUSTERS[word.c]?.color || "#888";
-      const radius = isHovered || isSelected ? 5 : isNear ? 4 : 3;
-      const alpha = dimmed ? 0.15 : 1;
-
-      // Dot
-      ctx.beginPath();
-      ctx.arc(wx, wy, radius, 0, Math.PI * 2);
-      ctx.fillStyle = isSelected ? "#fff" : isHovered ? color : color + (dimmed ? "40" : "cc");
-      ctx.fill();
-      if (isSelected || isHovered) {
-        ctx.strokeStyle = color;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-      }
-
-      // Label
-      ctx.font = `${isHovered || isSelected || isNear || matchesSearch ? 12 : 10}px JetBrains Mono`;
-      ctx.fillStyle = `rgba(255,255,255,${dimmed ? 0.15 : isHovered || isSelected ? 1 : 0.6})`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(word.w, wx, wy - radius - 3);
-    }
-
-    // Draw nearest-neighbor lines
+    // Nearest-neighbor lines
     if (selectedWord) {
       const sw = WORD_DATA.find(w => w.w === selectedWord);
       if (sw) {
-        const sx = tx(sw.x), sy = ty(sw.y);
         for (const n of nearest) {
           const nw = WORD_DATA.find(w => w.w === n.word);
           if (!nw) continue;
-          const nx = tx(nw.x), ny = ty(nw.y);
-          ctx.beginPath();
-          ctx.moveTo(sx, sy);
-          ctx.lineTo(nx, ny);
-          ctx.strokeStyle = `rgba(255,255,255,${n.sim * 0.3})`;
-          ctx.lineWidth = 1;
-          ctx.setLineDash([3, 3]);
-          ctx.stroke();
-          ctx.setLineDash([]);
+          ctx.beginPath(); ctx.moveTo(tx(sw.px), ty(sw.py)); ctx.lineTo(tx(nw.px), ty(nw.py));
+          ctx.strokeStyle = "rgba(255,255,255," + (n.sim * 0.35) + ")";
+          ctx.lineWidth = 1; ctx.setLineDash([4, 4]); ctx.stroke(); ctx.setLineDash([]);
         }
       }
     }
 
-    // Analogy visualization
+    // Words
+    for (const word of filteredWords) {
+      const wx = tx(word.px), wy = ty(word.py);
+      if (wx < -50 || wx > w + 50 || wy < -50 || wy > h + 50) continue;
+      const isHovered = hoveredWord === word.w, isSelected = selectedWord === word.w;
+      const isNear = nearest.some(n => n.word === word.w);
+      const matchesSearch = searchQuery && word.w.toLowerCase().includes(searchQuery.toLowerCase());
+      const dimmed = searchQuery && !matchesSearch && !isSelected;
+      const color = CLUSTERS[word.c]?.color || "#888";
+      const baseR = isHovered || isSelected ? 6 : isNear ? 5 : 3.5;
+      if (isSelected || isHovered) {
+        ctx.beginPath(); ctx.arc(wx, wy, baseR + 6, 0, Math.PI * 2);
+        const grd = ctx.createRadialGradient(wx, wy, baseR, wx, wy, baseR + 6);
+        grd.addColorStop(0, color + "30"); grd.addColorStop(1, color + "00");
+        ctx.fillStyle = grd; ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(wx, wy, baseR, 0, Math.PI * 2);
+      ctx.fillStyle = isSelected ? "#fff" : (dimmed ? color + "30" : color + "cc"); ctx.fill();
+      if (isSelected || isHovered) { ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke(); }
+      const fontSize = isHovered || isSelected || isNear || matchesSearch ? 12 : 10;
+      ctx.font = fontSize + "px JetBrains Mono";
+      ctx.fillStyle = "rgba(255,255,255," + (dimmed ? 0.12 : (isHovered || isSelected ? 1 : 0.6)) + ")";
+      ctx.textAlign = "center"; ctx.textBaseline = "bottom"; ctx.fillText(word.w, wx, wy - baseR - 3);
+    }
+
+    // Analogy arrows
     if (showMode === "analogy" && analogyResult) {
       const puzzle = ANALOGY_PUZZLES[analogyIdx];
-      const aw = WORD_DATA.find(w => w.w === puzzle.a);
-      const bw = WORD_DATA.find(w => w.w === puzzle.b);
-      const cw = WORD_DATA.find(w => w.w === puzzle.c);
-      const dw = WORD_DATA.find(w => w.w === analogyResult[0]?.word);
-      if (aw && bw && cw) {
-        // A -> B arrow
-        drawArrow(ctx, tx(aw.x), ty(aw.y), tx(bw.x), ty(bw.y), stage.color);
-        // C -> D arrow (parallel)
-        if (dw) {
-          drawArrow(ctx, tx(cw.x), ty(cw.y), tx(dw.x), ty(dw.y), "#72E1A0");
-        }
+      const aw = WORD_DATA.find(w => w.w === puzzle.a), bw = WORD_DATA.find(w => w.w === puzzle.b);
+      const cw2 = WORD_DATA.find(w => w.w === puzzle.c), dw = WORD_DATA.find(w => w.w === analogyResult[0]?.word);
+      if (aw && bw && cw2) {
+        drawArr(ctx, tx(aw.px), ty(aw.py), tx(bw.px), ty(bw.py), stage.color);
+        if (dw) drawArr(ctx, tx(cw2.px), ty(cw2.py), tx(dw.px), ty(dw.py), "#72E1A0");
       }
     }
-  }, [filteredWords, hoveredWord, selectedWord, nearest, searchQuery, pan, zoom, showMode, analogyResult, analogyIdx, stage.color]);
+  }, [filteredWords, hoveredWord, selectedWord, nearest, searchQuery, showMode, analogyResult, analogyIdx, stage.color]);
 
-  function drawArrow(ctx, x1, y1, x2, y2, color) {
+  function drawArr(ctx, x1, y1, x2, y2, color) {
     const angle = Math.atan2(y2 - y1, x2 - x1);
-    ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    // Arrowhead
-    const headLen = 10;
-    ctx.beginPath();
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 - headLen * Math.cos(angle - Math.PI / 6), y2 - headLen * Math.sin(angle - Math.PI / 6));
-    ctx.lineTo(x2 - headLen * Math.cos(angle + Math.PI / 6), y2 - headLen * Math.sin(angle + Math.PI / 6));
-    ctx.closePath();
-    ctx.fillStyle = color;
-    ctx.fill();
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(x2, y2);
+    ctx.lineTo(x2 - 10 * Math.cos(angle - Math.PI / 6), y2 - 10 * Math.sin(angle - Math.PI / 6));
+    ctx.lineTo(x2 - 10 * Math.cos(angle + Math.PI / 6), y2 - 10 * Math.sin(angle + Math.PI / 6));
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
   }
 
   const handleCanvasMouseMove = useCallback((e) => {
-    const canvas = canvasRef.current;
-    const rect = canvas.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
-    const w = rect.width;
-    const h = 420;
-
-    if (dragRef.current) {
-      const dx = (mx - dragRef.current.lastX) / w;
-      const dy = (my - dragRef.current.lastY) / h;
-      setPan(p => ({ x: p.x + dx, y: p.y + dy }));
-      dragRef.current.lastX = mx;
-      dragRef.current.lastY = my;
-      return;
-    }
-
-    // Hit test
-    let found = null;
+    const canvas = canvasRef.current, rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+    const plotW = rect.width - 48, plotH = CANVAS_H - 48;
+    const ccx = 24 + plotW / 2, ccy = 24 + plotH / 2;
+    let found = null, bestDist = 18;
     for (const word of filteredWords) {
-      const wx = (word.x * zoom + pan.x) * w;
-      const wy = (word.y * zoom + pan.y) * h;
+      const wx = ccx + word.px * (plotW / 2), wy = ccy + word.py * (plotH / 2);
       const dist = Math.sqrt((mx - wx) ** 2 + (my - wy) ** 2);
-      if (dist < 15) { found = word.w; break; }
+      if (dist < bestDist) { found = word.w; bestDist = dist; }
     }
     setHoveredWord(found);
-  }, [filteredWords, zoom, pan]);
+  }, [filteredWords]);
 
-  const handleCanvasMouseDown = useCallback((e) => {
-    if (hoveredWord) {
-      setSelectedWord(hoveredWord === selectedWord ? null : hoveredWord);
-    } else {
-      const rect = canvasRef.current.getBoundingClientRect();
-      dragRef.current = { lastX: e.clientX - rect.left, lastY: e.clientY - rect.top };
-    }
+  const handleCanvasClick = useCallback(() => {
+    if (hoveredWord) setSelectedWord(hoveredWord === selectedWord ? null : hoveredWord);
   }, [hoveredWord, selectedWord]);
 
-  const handleCanvasMouseUp = useCallback(() => { dragRef.current = null; }, []);
-
-  const handleCanvasWheel = useCallback((e) => {
-    e.preventDefault();
-    setZoom(z => Math.max(0.5, Math.min(3, z - e.deltaY * 0.001)));
-  }, []);
-
   const handleAnalogySubmit = useCallback(() => {
-    const result = solveAnalogy(
-      ANALOGY_PUZZLES[analogyIdx].a,
-      ANALOGY_PUZZLES[analogyIdx].b,
-      ANALOGY_PUZZLES[analogyIdx].c,
-    );
+    const result = solveAnalogy(ANALOGY_PUZZLES[analogyIdx].a, ANALOGY_PUZZLES[analogyIdx].b, ANALOGY_PUZZLES[analogyIdx].c);
     setAnalogyResult(result);
-    const topAnswer = result[0]?.word;
-    const isCorrect = topAnswer === ANALOGY_PUZZLES[analogyIdx].answer;
+    const isCorrect = result[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer;
     const newScore = {
       correct: analogyScore.correct + (isCorrect || analogyGuess.toLowerCase().trim() === ANALOGY_PUZZLES[analogyIdx].answer ? 1 : 0),
       total: analogyScore.total + 1,
     };
     setAnalogySc(newScore);
-    dispatch({ type: "UPDATE_SCORE", stage: 4, score: newScore.correct, attempts: newScore.total });
-
+    dispatch({ type: "UPDATE_SCORE", stage: 1, score: newScore.correct, attempts: newScore.total });
     if (newScore.correct >= 5 && !stageProgress.challengeCompleted) {
-      setTimeout(() => {
-        dispatch({ type: "COMPLETE_CHALLENGE", stage: 3, score: newScore.correct });
-      }, 1000);
+      setTimeout(() => dispatch({ type: "COMPLETE_CHALLENGE", stage: 1, score: newScore.correct }), 1000);
     }
   }, [analogyIdx, analogyGuess, analogyScore, dispatch, stageProgress]);
 
   const handleNextAnalogy = useCallback(() => {
     setAnalogyIdx(i => (i + 1) % ANALOGY_PUZZLES.length);
-    setAnalogyGuess("");
-    setAnalogyResult(null);
+    setAnalogyGuess(""); setAnalogyResult(null);
   }, []);
 
   return (
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
-      {/* Mode tabs */}
+      {/* 3 tabs only */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {[["explore", "Explore Embeddings"], ["analogy", "Analogy Solver"], ["training", "Watch Training"], ["arch", "Architecture"]].map(([mode, label]) => (
+        {[["explore", "Explore Space"], ["analogy", "Analogy Solver"], ["arch", "Architecture"]].map(([mode, label]) => (
           <button key={mode} onClick={() => setShowMode(mode)} style={{
             fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
-            borderRadius: 4, border: `1px solid ${showMode === mode ? stage.color : COLORS.border}`,
+            borderRadius: 4, border: "1px solid " + (showMode === mode ? stage.color : COLORS.border),
             background: showMode === mode ? stage.colorDim : "transparent",
             color: showMode === mode ? stage.color : COLORS.textDim,
             cursor: "pointer", transition: "all 0.2s",
@@ -3590,209 +3595,128 @@ function Word2VecPlayground({ stageIndex, dispatch, stageProgress }) {
         </div>
       </div>
 
-      {/* Search */}
-      <div style={{ marginBottom: 12 }}>
-        <input
-          type="text" placeholder="Search words..."
-          value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
-          style={{
-            width: 200, padding: "6px 12px",
-            fontFamily: FONTS.mono, fontSize: 12,
-            background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
-            borderRadius: 4, color: COLORS.text, outline: "none",
-          }}
-        />
-      </div>
-
-      {/* Cluster toggles */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
-        {Object.entries(CLUSTERS).map(([id, cluster]) => (
-          <button key={id} onClick={() => {
-            setActiveClusters(prev => {
-              const next = new Set(prev);
-              next.has(id) ? next.delete(id) : next.add(id);
-              return next;
-            });
-          }} style={{
-            fontFamily: FONTS.mono, fontSize: 12, padding: "3px 10px",
-            borderRadius: 3, border: `1px solid ${activeClusters.has(id) ? cluster.color + "60" : COLORS.border}`,
-            background: activeClusters.has(id) ? cluster.color + "15" : "transparent",
-            color: activeClusters.has(id) ? cluster.color : COLORS.textDim,
-            cursor: "pointer", transition: "all 0.2s",
-          }}>{cluster.label}</button>
-        ))}
-      </div>
-
-      {/* Canvas */}
-      <div style={{
-        background: "#08080A", border: `1px solid ${COLORS.border}`,
-        borderRadius: 8, overflow: "hidden", marginBottom: 16, position: "relative",
-      }}>
-        <canvas
-          ref={canvasRef}
-          onMouseMove={handleCanvasMouseMove}
-          onMouseDown={handleCanvasMouseDown}
-          onMouseUp={handleCanvasMouseUp}
-          onMouseLeave={() => { setHoveredWord(null); dragRef.current = null; }}
-          onWheel={handleCanvasWheel}
-          style={{ width: "100%", height: 420, cursor: hoveredWord ? "pointer" : "grab" }}
-        />
-      </div>
-
-      {/* Nearest neighbors panel */}
-      {selectedWord && showMode === "explore" && (
-        <div style={{
-          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
-          borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeInUp 0.3s ease",
-        }}>
-          <div style={{
-            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8,
-          }}>Nearest neighbors of <span style={{ color: stage.color }}>{selectedWord}</span>:</div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {nearest.map(n => (
-              <span key={n.word} style={{
-                fontFamily: FONTS.mono, fontSize: 12, padding: "4px 10px",
-                borderRadius: 4, background: COLORS.bgPanelHover,
-                border: `1px solid ${COLORS.border}`, color: COLORS.text,
-              }}>
-                {n.word} <span style={{ color: stage.color, fontSize: 10 }}>{n.sim.toFixed(2)}</span>
-              </span>
+      {/* Explore Space */}
+      {showMode === "explore" && (
+        <div>
+          <div style={{ display: "flex", gap: 12, marginBottom: 10, alignItems: "center", flexWrap: "wrap" }}>
+            <input type="text" placeholder="Search words..." value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)} style={{
+              width: 180, padding: "6px 12px", fontFamily: FONTS.mono, fontSize: 12,
+              background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+              borderRadius: 4, color: COLORS.text, outline: "none",
+            }} />
+          </div>
+          <div style={{ display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap" }}>
+            {Object.entries(CLUSTERS).map(([id, cluster]) => (
+              <button key={id} onClick={() => {
+                setActiveClusters(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
+              }} style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "3px 10px", borderRadius: 3,
+                border: "1px solid " + (activeClusters.has(id) ? cluster.color + "60" : COLORS.border),
+                background: activeClusters.has(id) ? cluster.color + "15" : "transparent",
+                color: activeClusters.has(id) ? cluster.color : COLORS.textDim,
+                cursor: "pointer", transition: "all 0.2s",
+              }}>{cluster.label}</button>
             ))}
           </div>
+          <div style={{ background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 8, overflow: "hidden", marginBottom: 16 }}>
+            <canvas ref={canvasRef} onMouseMove={handleCanvasMouseMove} onMouseDown={handleCanvasClick}
+              onMouseLeave={() => setHoveredWord(null)}
+              style={{ width: "100%", height: CANVAS_H, cursor: hoveredWord ? "pointer" : "default" }} />
+          </div>
+          {selectedWord && (
+            <div style={{ background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 8, padding: 16, marginBottom: 16, animation: "fadeInUp 0.3s ease" }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 10 }}>
+                Nearest neighbors of <span style={{ color: stage.color, fontWeight: 600 }}>{selectedWord}</span> (cosine similarity):
+              </div>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                {nearest.map(n => (
+                  <button key={n.word} onClick={() => setSelectedWord(n.word)} style={{
+                    fontFamily: FONTS.mono, fontSize: 12, padding: "5px 12px", borderRadius: 4,
+                    background: COLORS.bgPanelHover, border: "1px solid " + COLORS.border,
+                    color: COLORS.text, cursor: "pointer",
+                  }}>{n.word} <span style={{ color: stage.color, fontSize: 10 }}>{n.sim.toFixed(3)}</span></button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Analogy solver */}
+      {/* Analogy Solver */}
       {showMode === "analogy" && (
-        <div style={{
-          background: COLORS.bgPanel, border: `1px solid ${COLORS.border}`,
-          borderRadius: 8, padding: 20, animation: "fadeInUp 0.3s ease",
-        }}>
-          <div style={{
-            fontFamily: FONTS.heading, fontSize: 18, color: COLORS.text, marginBottom: 12,
-          }}>Vector Analogy</div>
-          <div style={{
-            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5,
-          }}>
+        <div style={{ background: COLORS.bgPanel, border: "1px solid " + COLORS.border, borderRadius: 8, padding: 20, animation: "fadeInUp 0.3s ease" }}>
+          <div style={{ fontFamily: FONTS.heading, fontSize: 18, color: COLORS.text, marginBottom: 12 }}>Vector Analogy</div>
+          <div style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
             The relationship between A and B should be the same as C and ???.
             The model computes: vec(B) - vec(A) + vec(C) and finds the nearest word.
           </div>
-
-          <div style={{
-            fontFamily: FONTS.mono, fontSize: 16, color: COLORS.text,
-            marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
-          }}>
+          <div style={{ fontFamily: FONTS.mono, fontSize: 16, color: COLORS.text, marginBottom: 16, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].a}</span>
             <span style={{ color: COLORS.textDim }}>is to</span>
             <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].b}</span>
             <span style={{ color: COLORS.textDim }}>as</span>
             <span style={{ color: stage.color }}>{ANALOGY_PUZZLES[analogyIdx].c}</span>
             <span style={{ color: COLORS.textDim }}>is to</span>
-            {analogyResult ? (
-              <span style={{ color: "#72E1A0", fontWeight: 600 }}>{analogyResult[0]?.word || "?"}</span>
-            ) : (
-              <span style={{ color: COLORS.textDim }}>???</span>
-            )}
+            {analogyResult ? <span style={{ color: "#72E1A0", fontWeight: 600 }}>{analogyResult[0]?.word || "?"}</span> : <span style={{ color: COLORS.textDim }}>???</span>}
           </div>
-
-          <div style={{
-            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8,
-          }}>Hint: {ANALOGY_PUZZLES[analogyIdx].hint}</div>
-
+          <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>Hint: {ANALOGY_PUZZLES[analogyIdx].hint}</div>
           {!analogyResult ? (
             <div>
-              <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 8 }}>
-                Choose your answer, then click "Check" to see the vector arithmetic:
-              </div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-                {(() => {
-                  const puzzle = ANALOGY_PUZZLES[analogyIdx];
-                  const distractors = WORD_DATA
-                    .filter(w => w.w !== puzzle.a && w.w !== puzzle.b && w.w !== puzzle.c && w.w !== puzzle.answer)
-                    .sort(() => Math.random() - 0.5)
-                    .slice(0, 3)
-                    .map(w => w.w);
-                  const options = [puzzle.answer, ...distractors].sort(() => Math.random() - 0.5);
-                  return options.map(opt => (
-                    <button key={opt} onClick={() => setAnalogyGuess(opt)} style={{
-                      fontFamily: FONTS.mono, fontSize: 13, padding: "8px 16px",
-                      borderRadius: 4,
-                      border: "1px solid " + (analogyGuess === opt ? stage.color : COLORS.border),
-                      background: analogyGuess === opt ? stage.colorDim : "transparent",
-                      color: analogyGuess === opt ? stage.color : COLORS.text,
-                      cursor: "pointer", transition: "all 0.2s",
-                    }}>{opt}</button>
-                  ));
-                })()}
+                {analogyOptions.map(opt => (
+                  <button key={opt} onClick={() => setAnalogyGuess(opt)} style={{
+                    fontFamily: FONTS.mono, fontSize: 13, padding: "8px 16px", borderRadius: 4,
+                    border: "1px solid " + (analogyGuess === opt ? stage.color : COLORS.border),
+                    background: analogyGuess === opt ? stage.colorDim : "transparent",
+                    color: analogyGuess === opt ? stage.color : COLORS.text, cursor: "pointer",
+                  }}>{opt}</button>
+                ))}
               </div>
               <button onClick={handleAnalogySubmit} disabled={!analogyGuess} style={{
-                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
-                borderRadius: 4, border: "1px solid " + stage.color,
-                background: analogyGuess ? stage.colorDim : "transparent",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px", borderRadius: 4,
+                border: "1px solid " + stage.color, background: analogyGuess ? stage.colorDim : "transparent",
                 color: analogyGuess ? stage.color : COLORS.textDim,
-                cursor: analogyGuess ? "pointer" : "default",
-                opacity: analogyGuess ? 1 : 0.5,
+                cursor: analogyGuess ? "pointer" : "default", opacity: analogyGuess ? 1 : 0.5,
               }}>Check with Vector Arithmetic</button>
             </div>
           ) : (
             <div>
-              <div style={{
-                fontFamily: FONTS.mono, fontSize: 12, marginBottom: 8,
+              <div style={{ fontFamily: FONTS.mono, fontSize: 12, marginBottom: 8,
                 color: analogyResult[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer ? "#72E1A0" : "#FF6B6B",
-              }}>
-                {analogyResult[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer
-                  ? "Correct! The vector arithmetic works."
-                  : `Expected "${ANALOGY_PUZZLES[analogyIdx].answer}", model found "${analogyResult[0]?.word}".`}
-              </div>
+              }}>{analogyResult[0]?.word === ANALOGY_PUZZLES[analogyIdx].answer ? "Correct! The vector arithmetic works." : "Expected \\"" + ANALOGY_PUZZLES[analogyIdx].answer + "\\", model found \\"" + analogyResult[0]?.word + "\\"."}</div>
               <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 12 }}>
-                Top 5 results: {analogyResult.map(r => `${r.word} (${r.sim.toFixed(2)})`).join(", ")}
+                Top 5 results: {analogyResult.map(r => r.word + " (" + r.sim.toFixed(2) + ")").join(", ")}
               </div>
               <button onClick={handleNextAnalogy} style={{
-                fontFamily: FONTS.mono, fontSize: 12, padding: "6px 16px",
-                borderRadius: 4, border: `1px solid ${stage.color}`,
-                background: stage.colorDim, color: stage.color, cursor: "pointer",
+                fontFamily: FONTS.mono, fontSize: 12, padding: "6px 16px", borderRadius: 4,
+                border: "1px solid " + stage.color, background: stage.colorDim, color: stage.color, cursor: "pointer",
               }}>Next Analogy</button>
             </div>
           )}
         </div>
       )}
 
-      {/* Training simulation */}
-      {showMode === "training" && (
-        <Word2VecTrainingSim stageColor={stage.color} />
-      )}
-
       {/* Architecture */}
       {showMode === "arch" && (
         <div>
-          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
-            Skip-Gram Architecture
-          </h2>
+          <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>Skip-Gram Architecture</h2>
           <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
             Word2Vec's skip-gram model is a shallow neural network: the input word is mapped to a dense embedding layer,
             which is then used to predict surrounding context words. The embedding layer IS the word vectors we use.
-            Click "Propagate" to see a word's activation flow through the network.
           </p>
-          <NeuralNetworkViz
-            config={{
-              layers: [1, 10, 300, 10, 1],
-              labels: ["Input word", "One-hot\n(vocab)", "Embedding\n(300d)", "Hidden", "Output\n(context)"],
-              activations: [
-                [1],
-                [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-                [0.7, -0.3, 0.5, 0.1, -0.6, 0.8, -0.2, 0.4, 0.3, -0.1],
-                [0.4, 0.6, -0.2, 0.3, 0.5, -0.4, 0.7, 0.1, -0.3, 0.2],
-                [0.9],
-              ],
-            }}
-            stageColor={stage.color}
-            label="Word2Vec Skip-Gram"
-          />
+          <NeuralNetworkViz config={{
+            layers: [1, 10, 300, 10, 1],
+            labels: ["Input word", "One-hot\
+(vocab)", "Embedding\
+(300d)", "Hidden", "Output\
+(context)"],
+            activations: [[1],[0,0,0,1,0,0,0,0,0,0],[0.7,-0.3,0.5,0.1,-0.6,0.8,-0.2,0.4,0.3,-0.1],[0.4,0.6,-0.2,0.3,0.5,-0.4,0.7,0.1,-0.3,0.2],[0.9]],
+          }} stageColor={stage.color} label="Word2Vec Skip-Gram" />
           <div style={{
             fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
             marginTop: 12, lineHeight: 1.6, padding: "10px 14px",
-            background: "rgba(0,0,0,0.2)", borderRadius: 6,
-            borderLeft: "3px solid " + stage.color + "40",
+            background: "rgba(0,0,0,0.2)", borderRadius: 6, borderLeft: "3px solid " + stage.color + "40",
           }}>
             <strong style={{ color: COLORS.text }}>The trick:</strong> We don't care about the network's predictions.
             We care about the embedding layer (the 300-dimensional middle layer). After training, this layer contains
