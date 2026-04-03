@@ -2748,10 +2748,9 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
           fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
           marginBottom: 12, lineHeight: 1.5,
         }}>
-          {tokenLevel === "chars"
-            ? "Can you predict the next character? Given the context, click the character you think comes next."
-            : "Can you predict the next word? Given the context, click the word you think comes next."}
-          {" "}Score 60% or higher after 10+ rounds to unlock the next stage.
+          The model looks at the last {tokenLevel === "chars" ? order + " character" + (order > 1 ? "s" : "") : order + " word" + (order > 1 ? "s" : "")} and
+          predicts what comes next based on the training text frequencies. Can you beat it?
+          Score 60% or higher after 10+ rounds to unlock the next stage.
         </p>
 
         {!gameActive ? (
@@ -2788,70 +2787,150 @@ function MarkovPlayground({ stageIndex, dispatch, stageProgress }) {
               )}
             </div>
 
-            {/* Context display */}
-            <div style={{
-              fontFamily: FONTS.mono, fontSize: 18, color: COLORS.text,
-              marginBottom: 16, padding: 12, background: "rgba(0,0,0,0.3)",
-              borderRadius: 6, display: "flex", alignItems: "center",
-            }}>
-              <span style={{ opacity: 0.5 }}>{gameContext.substring(0, gameContext.length - order)}</span>
-              <span style={{
-                color: stage.color, fontWeight: 600,
-                textDecoration: "underline", textUnderlineOffset: 4,
-              }}>{gameContext.substring(gameContext.length - order)}</span>
-              <span style={{
-                color: gameRevealed ? (gameFeedback === "correct" ? "#72E1A0" : "#FF6B6B") : COLORS.textDim,
-                fontWeight: 600, marginLeft: 2,
+            {/* Step 1: Context — clearly labeled */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                From the training text:
+              </div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 16, color: COLORS.text,
+                padding: "12px 14px", background: "rgba(0,0,0,0.3)",
+                borderRadius: 6, lineHeight: 1.6,
               }}>
-                {gameRevealed ? (gameAnswer === " " ? "\u2423" : gameAnswer) : "?"}
-              </span>
+                {tokenLevel === "chars" ? (
+                  <span>
+                    <span style={{ opacity: 0.4 }}>{gameContext.substring(0, gameContext.length - order)}</span>
+                    <span style={{
+                      color: stage.color, fontWeight: 700, background: stage.color + "20",
+                      padding: "1px 2px", borderRadius: 2,
+                    }}>{gameContext.substring(gameContext.length - order).split("").map(c => c === " " ? "\u2423" : c).join("")}</span>
+                    <span style={{ color: COLORS.textDim, fontSize: 20, fontWeight: 700 }}> ?</span>
+                  </span>
+                ) : (
+                  <span>
+                    {(() => {
+                      const ctxWords = gameContext.split(" ");
+                      const leading = ctxWords.slice(0, ctxWords.length - order);
+                      const key = ctxWords.slice(ctxWords.length - order);
+                      return (
+                        <span>
+                          <span style={{ opacity: 0.4 }}>{leading.join(" ")}{leading.length > 0 ? " " : ""}</span>
+                          <span style={{
+                            color: stage.color, fontWeight: 700, background: stage.color + "20",
+                            padding: "2px 4px", borderRadius: 3,
+                          }}>{key.join(" ")}</span>
+                          <span style={{ color: COLORS.textDim, fontSize: 20, fontWeight: 700 }}> ?</span>
+                        </span>
+                      );
+                    })()}
+                  </span>
+                )}
+              </div>
             </div>
 
-            {/* Token buttons */}
-            <div style={{
-              display: "flex", flexWrap: "wrap", gap: 4, marginBottom: 16,
-            }}>
-              {tokenLevel === "chars" ? chars.map(ch => {
-                const isAnswer = gameRevealed && ch === gameAnswer;
-                const label = ch === " " ? "\u2423" : ch;
-                return (
-                  <button key={ch} onClick={() => handleGameGuess(ch)} disabled={gameRevealed} style={{
-                    width: 32, height: 32, borderRadius: 4,
-                    border: `1px solid ${isAnswer ? "#72E1A0" : COLORS.border}`,
-                    background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
-                    color: isAnswer ? "#72E1A0" : COLORS.text,
-                    fontFamily: FONTS.mono, fontSize: 13,
-                    cursor: gameRevealed ? "default" : "pointer",
-                    opacity: gameRevealed && !isAnswer ? 0.3 : 1,
-                    transition: "all 0.15s",
-                  }}>{label}</button>
-                );
-              }) : wordChoices.map(w => {
-                const isAnswer = gameRevealed && w === gameAnswer;
-                return (
-                  <button key={w} onClick={() => handleGameGuess(w)} disabled={gameRevealed} style={{
-                    padding: "6px 14px", borderRadius: 4,
-                    border: `1px solid ${isAnswer ? "#72E1A0" : COLORS.border}`,
-                    background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
-                    color: isAnswer ? "#72E1A0" : COLORS.text,
-                    fontFamily: FONTS.mono, fontSize: 13,
-                    cursor: gameRevealed ? "default" : "pointer",
-                    opacity: gameRevealed && !isAnswer ? 0.3 : 1,
-                    transition: "all 0.15s",
-                  }}>{w}</button>
-                );
-              })}
+            {/* Step 2: Model's hint — show what the model sees BEFORE guessing */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                The model's top predictions (from the transition {tokenLevel === "chars" ? "matrix" : "table"}):
+              </div>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                {predictions.length > 0 ? predictions.map(function(p, i) {
+                  const label = tokenLevel === "chars" ? (p.ch === " " ? "\u2423" : p.ch) : p.ch;
+                  const isAnswer = gameRevealed && p.ch === gameAnswer;
+                  return (
+                    <div key={p.ch} style={{
+                      fontFamily: FONTS.mono, fontSize: 12, padding: "4px 10px", borderRadius: 4,
+                      background: isAnswer ? "rgba(114,225,160,0.15)" : "rgba(255,255,255,0.04)",
+                      border: "1px solid " + (isAnswer ? "rgba(114,225,160,0.4)" : COLORS.border),
+                      color: isAnswer ? "#72E1A0" : COLORS.text,
+                    }}>
+                      {label} <span style={{ color: stage.color, fontSize: 11 }}>{(p.prob * 100).toFixed(0)}%</span>
+                    </div>
+                  );
+                }) : (
+                  <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim }}>
+                    (no data for this context in the training text)
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Model's predictions with explanation */}
-            {gameRevealed && predictions.length > 0 && (
-              <PredictionExplanation
-                predictions={predictions}
-                gameAnswer={gameAnswer}
-                gameContext={gameContext}
-                order={order}
-                stageColor={stage.color}
-              />
+            {/* Step 3: Your guess */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                {gameRevealed ? (gameFeedback === "correct"
+                  ? "\u2713 Correct! The actual next " + (tokenLevel === "chars" ? "character" : "word") + " was:"
+                  : "\u2717 The actual next " + (tokenLevel === "chars" ? "character" : "word") + " was: " + (gameAnswer === " " ? "\u2423" : gameAnswer)
+                ) : "Your guess \u2014 what " + (tokenLevel === "chars" ? "character" : "word") + " comes next?"}
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                {tokenLevel === "chars" ? predictions.slice(0, 8).concat(
+                  // Add a few random chars not in predictions as distractors
+                  chars.filter(c => !predictions.some(p => p.ch === c)).sort(() => Math.random() - 0.5).slice(0, 4).map(c => ({ ch: c, prob: 0 }))
+                ).sort(() => Math.random() - 0.5).map(function(p) {
+                  const isAnswer = gameRevealed && p.ch === gameAnswer;
+                  const label = p.ch === " " ? "\u2423" : p.ch;
+                  return (
+                    <button key={p.ch} onClick={() => handleGameGuess(p.ch)} disabled={gameRevealed} style={{
+                      minWidth: 36, height: 36, borderRadius: 4, padding: "0 8px",
+                      border: "1px solid " + (isAnswer ? "#72E1A0" : COLORS.border),
+                      background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
+                      color: isAnswer ? "#72E1A0" : COLORS.text,
+                      fontFamily: FONTS.mono, fontSize: 14,
+                      cursor: gameRevealed ? "default" : "pointer",
+                      opacity: gameRevealed && !isAnswer ? 0.3 : 1,
+                      transition: "all 0.15s",
+                    }}>{label}</button>
+                  );
+                }) : wordChoices.map(w => {
+                  const isAnswer = gameRevealed && w === gameAnswer;
+                  return (
+                    <button key={w} onClick={() => handleGameGuess(w)} disabled={gameRevealed} style={{
+                      padding: "6px 14px", borderRadius: 4,
+                      border: "1px solid " + (isAnswer ? "#72E1A0" : COLORS.border),
+                      background: isAnswer ? "rgba(114,225,160,0.15)" : "transparent",
+                      color: isAnswer ? "#72E1A0" : COLORS.text,
+                      fontFamily: FONTS.mono, fontSize: 13,
+                      cursor: gameRevealed ? "default" : "pointer",
+                      opacity: gameRevealed && !isAnswer ? 0.3 : 1,
+                      transition: "all 0.15s",
+                    }}>{w}</button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Step 4: Explanation (after reveal) */}
+            {gameRevealed && (
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                lineHeight: 1.6, padding: "10px 14px",
+                background: "rgba(0,0,0,0.2)", borderRadius: 6,
+                borderLeft: "3px solid " + stage.color + "40", marginBottom: 16,
+              }}>
+                {tokenLevel === "chars" ? (
+                  <span>
+                    <strong style={{ color: COLORS.text }}>How the model decided:</strong>{" "}
+                    In the training text, after "<span style={{ color: stage.color }}>{gameContext.substring(gameContext.length - order).split("").map(c => c === " " ? "\u2423" : c).join("")}</span>",
+                    the character {gameAnswer === " " ? "space" : "'" + gameAnswer + "'"} appeared{" "}
+                    {predictions.find(p => p.ch === gameAnswer)
+                      ? (predictions.find(p => p.ch === gameAnswer).prob * 100).toFixed(0) + "% of the time."
+                      : "rarely or never \u2014 the model would not have predicted this."
+                    }
+                    {" "}The model does not understand language \u2014 it only counts frequencies.
+                  </span>
+                ) : (
+                  <span>
+                    <strong style={{ color: COLORS.text }}>How the model decided:</strong>{" "}
+                    After the word{order > 1 ? "s" : ""} "<span style={{ color: stage.color }}>{gameContext.split(" ").slice(-order).join(" ")}</span>",
+                    the word "{gameAnswer}" appeared{" "}
+                    {predictions.find(p => p.ch === gameAnswer)
+                      ? (predictions.find(p => p.ch === gameAnswer).prob * 100).toFixed(0) + "% of the time in the training text."
+                      : "rarely or never in the training text."
+                    }
+                  </span>
+                )}
+              </div>
             )}
 
             {/* Next round button */}
