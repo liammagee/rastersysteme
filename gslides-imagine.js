@@ -140,7 +140,8 @@ async function generatePrompts(slides, options = {}) {
     generate: options.generate || false,
     engine: options.engine || "midjourney",
     outputDir: options.outDir,
-    slides: options.slides,
+    // Don't pass slides range — filtering already happened at the presentation level
+    // slides: options.slides,
     force: true,
   });
 

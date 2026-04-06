@@ -312,22 +312,32 @@ async function generateWithMidjourney(prompt, outputPath, envKeys, aspectRatio) 
 
   // Upscale image 1 (top-left) — best default for consistent compositions
   // The hash and msgId come from the imagine response
+  // Add 120s timeout to prevent indefinite hangs on upscale
   process.stderr.write(`\r  ${dim("  upscaling U1...")}   `);
-  const upscaled = await client.Upscale({
-    index: 1,
-    msgId: imagine.id || imagine.msgId,
-    hash: imagine.hash,
-    flags: imagine.flags || 0,
-    loading: (uri, progress) => {
-      process.stderr.write(`\r  ${dim("  U1")} ${amber(progress)}   `);
-    },
-  });
+  let upscaled;
+  try {
+    upscaled = await Promise.race([
+      client.Upscale({
+        index: 1,
+        msgId: imagine.id || imagine.msgId,
+        hash: imagine.hash,
+        flags: imagine.flags || 0,
+        loading: (uri, progress) => {
+          process.stderr.write(`\r  ${dim("  U1")} ${amber(progress)}   `);
+        },
+      }),
+      new Promise((_, reject) => setTimeout(() => reject(new Error("Upscale timeout")), 120000)),
+    ]);
+  } catch (err) {
+    process.stderr.write(dim(` (${err.message}, using grid)`));
+    upscaled = null;
+  }
 
   if (upscaled && upscaled.uri) {
     await downloadImage(upscaled.uri, outputPath);
   } else {
-    // Fallback: use the grid image if upscale fails
-    process.stderr.write(dim(" (upscale failed, using grid)"));
+    // Fallback: use the grid image if upscale fails or times out
+    if (!upscaled) process.stderr.write(dim(" (upscale failed, using grid)"));
     fs.copyFileSync(gridPath, outputPath);
   }
 
