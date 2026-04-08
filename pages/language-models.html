@@ -852,8 +852,8 @@ function softmax(arr) {
 
 const initialState = {
   currentStage: 0,
-  freeExplore: false,
-  unlockedStages: [true, false, false, false, false],
+  freeExplore: true,
+  unlockedStages: [true, true, true, true, true],
   stageProgress: [
     { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
     { challengeScore: 0, challengeAttempts: 0, challengeCompleted: false },
@@ -866,11 +866,7 @@ const initialState = {
 function reducer(state, action) {
   switch (action.type) {
     case "NAVIGATE": {
-      if (!state.unlockedStages[action.stage] && !state.freeExplore) return state;
       return { ...state, currentStage: action.stage };
-    }
-    case "TOGGLE_FREE_EXPLORE": {
-      return { ...state, freeExplore: !state.freeExplore };
     }
     case "COMPLETE_CHALLENGE": {
       const newProgress = [...state.stageProgress];
@@ -941,26 +937,24 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
         }} />
 
         {STAGES.map((stage, i) => {
-          const unlocked = unlockedStages[i] || freeExplore;
           const completed = stageProgress[i].challengeCompleted;
           const active = currentStage === i;
           return (
             <div key={stage.id}
-              onClick={() => unlocked && dispatch({ type: "NAVIGATE", stage: i })}
+              onClick={() => dispatch({ type: "NAVIGATE", stage: i })}
               style={{
                 display: "flex", alignItems: "flex-start", gap: 12,
                 padding: "12px 8px", borderRadius: 6,
-                cursor: unlocked ? "pointer" : "default",
+                cursor: "pointer",
                 background: active ? stage.colorDim : "transparent",
                 transition: "background 0.2s",
                 position: "relative", zIndex: 1,
-                opacity: unlocked ? 1 : 0.35,
               }}
             >
               {/* Node circle */}
               <div style={{
                 width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
-                border: `2px solid ${unlocked ? stage.color : COLORS.textDim}`,
+                border: `2px solid ${stage.color}`,
                 background: completed ? stage.color : active ? `${stage.color}30` : "transparent",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 12, color: completed ? "#0B0A09" : stage.color,
@@ -969,19 +963,19 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
                 transition: "all 0.3s",
                 marginTop: 2,
               }}>
-                {completed ? "\u2713" : !unlocked ? "\u25CB" : i + 1}
+                {completed ? "\u2713" : i + 1}
               </div>
 
               {/* Label */}
               <div>
                 <div style={{
                   fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
-                  color: unlocked ? COLORS.text : COLORS.textDim,
+                  color: COLORS.text,
                   lineHeight: 1.3,
                 }}>{stage.title}</div>
                 <div style={{
                   fontFamily: FONTS.mono, fontSize: 12,
-                  color: unlocked ? stage.color : COLORS.textDim,
+                  color: stage.color,
                   marginTop: 2,
                 }}>{stage.year}</div>
               </div>
@@ -998,17 +992,6 @@ function StageNavigator({ currentStage, unlockedStages, stageProgress, freeExplo
         color: COLORS.textDim,
       }}>
         {stageProgress.filter(s => s.challengeCompleted).length} / 5 stages completed
-        <div
-          onClick={() => dispatch({ type: "TOGGLE_FREE_EXPLORE" })}
-          style={{
-            marginTop: 10, padding: "5px 0", cursor: "pointer",
-            color: freeExplore ? "#72E1A0" : COLORS.textDim,
-            fontSize: 12, letterSpacing: "0.06em",
-            transition: "color 0.2s",
-          }}
-        >
-          {freeExplore ? "\u2713 Free explore on" : "Unlock all stages"}
-        </div>
       </div>
     </nav>
   );
@@ -4882,6 +4865,643 @@ function TransformerPredictPanel({ stageColor }) {
 }
 
 
+function AutoregressiveInference({ stageColor }) {
+  const DEFAULT_SENTENCE = ["the", "cat", "sat", "on", "the", "mat"];
+
+  // Word type mapping for auto-generating context labels on custom input
+  const WORD_TYPES = {
+    the: "definite", a: "indefinite",
+    cat: "animate noun", dog: "animate noun",
+    mat: "surface noun", house: "place", park: "place",
+    sat: "past action", ran: "past action",
+    is: "present state", was: "past state",
+    on: "spatial prep.", to: "directional",
+    big: "size adj.", small: "size adj.",
+    red: "color adj.", blue: "color adj.",
+    happy: "emotion adj.", and: "conjunction", very: "intensifier",
+  };
+
+  const PRESETS = [
+    "the cat sat on the mat",
+    "the big dog ran to the park",
+    "a happy cat was very red",
+    "the small blue house on the mat",
+  ];
+
+  // Custom sentence state — null means use default curated data
+  const [customWords, setCustomWords] = useState(null);
+  const [inputText, setInputText] = useState(DEFAULT_SENTENCE.join(" "));
+  const SENTENCE = customWords || DEFAULT_SENTENCE;
+  const isDefault = !customWords;
+
+  // Curated predictions and attention weights that tell a realistic pedagogical story.
+  // The actual TINY_TRANSFORMER model is too small to produce natural-looking distributions,
+  // so we use illustrative data that matches how a real transformer would behave.
+  const CURATED_STEPS = [
+    { // Step 1: "the" -> ? (very flat — a bare determiner could precede almost any noun/adj)
+      predictions: [
+        { word: "cat", prob: 0.14 }, { word: "dog", prob: 0.12 }, { word: "big", prob: 0.10 },
+        { word: "small", prob: 0.09 }, { word: "happy", prob: 0.08 }, { word: "red", prob: 0.07 },
+      ],
+      attention: [{ token: "the", weight: 1.0 }],
+    },
+    { // Step 2: "the cat" -> ? (noun primes verbs — sat, ran, is, was)
+      predictions: [
+        { word: "sat", prob: 0.24 }, { word: "ran", prob: 0.19 }, { word: "is", prob: 0.14 },
+        { word: "was", prob: 0.13 }, { word: "and", prob: 0.08 }, { word: "on", prob: 0.05 },
+      ],
+      attention: [{ token: "the", weight: 0.35 }, { token: "cat", weight: 0.65 }],
+    },
+    { // Step 3: "the cat sat" -> ? (past-tense verb primes prepositions)
+      predictions: [
+        { word: "on", prob: 0.38 }, { word: "to", prob: 0.15 }, { word: "and", prob: 0.12 },
+        { word: "very", prob: 0.07 }, { word: "happy", prob: 0.05 }, { word: "a", prob: 0.04 },
+      ],
+      attention: [{ token: "the", weight: 0.12 }, { token: "cat", weight: 0.55 }, { token: "sat", weight: 0.33 }],
+    },
+    { // Step 4: "the cat sat on" -> ? (preposition primes determiner/article)
+      predictions: [
+        { word: "the", prob: 0.45 }, { word: "a", prob: 0.28 }, { word: "big", prob: 0.06 },
+        { word: "small", prob: 0.05 }, { word: "red", prob: 0.04 }, { word: "blue", prob: 0.03 },
+      ],
+      attention: [{ token: "the", weight: 0.08 }, { token: "cat", weight: 0.12 }, { token: "sat", weight: 0.52 }, { token: "on", weight: 0.28 }],
+    },
+    { // Step 5: "the cat sat on the" -> ? (full context converges on "mat")
+      predictions: [
+        { word: "mat", prob: 0.52 }, { word: "house", prob: 0.14 }, { word: "park", prob: 0.10 },
+        { word: "dog", prob: 0.07 }, { word: "cat", prob: 0.05 }, { word: "big", prob: 0.03 },
+      ],
+      attention: [{ token: "the", weight: 0.10 }, { token: "cat", weight: 0.25 }, { token: "sat", weight: 0.15 }, { token: "on", weight: 0.35 }, { token: "the", weight: 0.15 }],
+    },
+    { // Step 6: "the cat sat on the mat" (complete — show what might follow)
+      predictions: [
+        { word: "and", prob: 0.22 }, { word: "the", prob: 0.15 }, { word: "very", prob: 0.10 },
+        { word: "is", prob: 0.09 }, { word: "was", prob: 0.08 }, { word: "happy", prob: 0.07 },
+      ],
+      attention: [{ token: "the", weight: 0.08 }, { token: "cat", weight: 0.22 }, { token: "sat", weight: 0.12 }, { token: "on", weight: 0.18 }, { token: "the", weight: 0.30 }, { token: "mat", weight: 0.10 }],
+    },
+  ];
+
+  // What each token's representation "becomes" through backward attention.
+  // `enriched` prefix shows what the source token ALREADY carries — this makes the
+  // recursive nature of contextual enrichment explicit: when "sat" attends to "cat",
+  // it's attending to a [definite] cat, not a raw "cat".
+  const CONTEXT_STACK = [
+    [],
+    [{ label: "definite", from: "the", enriched: "" }],
+    [{ label: "definite", from: "the", enriched: "" },
+     { label: "animate", from: "cat", enriched: "def." }],
+    [{ label: "def. subject", from: "the", enriched: "" },
+     { label: "animate agent", from: "cat", enriched: "def." },
+     { label: "past action", from: "sat", enriched: "def.\u00B7anim." }],
+    [{ label: "def. entity", from: "the", enriched: "" },
+     { label: "agent", from: "cat", enriched: "def." },
+     { label: "seated", from: "sat", enriched: "def.\u00B7anim." },
+     { label: "spatial", from: "on", enriched: "subj.\u00B7act." }],
+    [{ label: "definite", from: "the", enriched: "" },
+     { label: "agent", from: "cat", enriched: "def." },
+     { label: "action", from: "sat", enriched: "def.\u00B7anim." },
+     { label: "spatial", from: "on", enriched: "subj.\u00B7act." },
+     { label: "loc. det.", from: "the", enriched: "scene" }],
+  ];
+
+  // Three attention head types (colors match Watch Training tab)
+  const HEAD_COLORS = ["#E8A838", "#C4A1FF", "#48BFE3"]; // positional, syntactic, semantic
+  const HEAD_LABELS = ["positional", "syntactic", "semantic"];
+
+  const [committed, setCommitted] = useState(1);
+  const [phase, setPhase] = useState("predict"); // "predict" | "selected"
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [speed, setSpeed] = useState(1);
+  const [stochastic, setStochastic] = useState(false);
+  const [sampledToken, setSampledToken] = useState(null); // non-null when stochastic picks a non-top token
+
+  // Split a single attention array into 3 "head" patterns
+  function deriveHeads(attention) {
+    if (!attention || attention.length < 2) return null;
+    const n = attention.length;
+    return [0, 1, 2].map(h => {
+      return attention.map((a, i) => {
+        const distBias = h === 0 ? Math.max(0, 1 - Math.abs(n - 1 - i) * 0.25) : 1; // positional: nearby
+        const syntBias = h === 1 ? (a.weight > 0.2 ? 1.4 : 0.7) : 1; // syntactic: amplify strong deps
+        const semBias = h === 2 ? (["cat","dog","sat","ran","mat","house","park","happy"].includes(a.token) ? 1.5 : 0.5) : 1;
+        const w = a.weight * [distBias, syntBias, semBias][h];
+        return { token: a.token, weight: w };
+      });
+    }).map(head => {
+      const sum = head.reduce((s, a) => s + a.weight, 0) || 1;
+      return head.map(a => ({ ...a, weight: a.weight / sum }));
+    });
+  }
+
+  // Sample from prediction distribution (for stochastic mode)
+  // Must normalize since curated predictions don't sum to 1.0
+  function sampleFromDist(predictions) {
+    const total = predictions.reduce((s, p) => s + p.prob, 0);
+    const r = Math.random() * total;
+    let cumulative = 0;
+    for (const p of predictions) {
+      cumulative += p.prob;
+      if (r < cumulative) return p.word;
+    }
+    return predictions[predictions.length - 1].word;
+  }
+
+  const tokenW = 92, tokenGap = 6;
+  const totalW = SENTENCE.length * tokenW + (SENTENCE.length - 1) * tokenGap;
+  const arcH = 95;
+  const tokenCX = (i) => i * (tokenW + tokenGap) + tokenW / 2;
+
+  // Unified data: curated for default sentence, computed for custom input
+  const allSteps = useMemo(() => {
+    if (isDefault) return CURATED_STEPS;
+    return SENTENCE.map((_, i) => {
+      const result = transformerPredict(SENTENCE.slice(0, i + 1));
+      return result || { predictions: [{ word: "?", prob: 1 }], attention: [] };
+    });
+  }, [SENTENCE, isDefault]);
+
+  const allContext = useMemo(() => {
+    if (isDefault) return CONTEXT_STACK;
+    return SENTENCE.map((_, i) =>
+      SENTENCE.slice(0, i).map((w, j) => {
+        const prior = SENTENCE.slice(0, j).map(pw => (WORD_TYPES[pw] || pw).substring(0, 4)).join("\u00B7");
+        return { label: WORD_TYPES[w] || w, from: w, enriched: prior };
+      })
+    );
+  }, [SENTENCE, isDefault]);
+
+  const applySentence = useCallback((text) => {
+    const words = text.toLowerCase().trim().split(/\s+/).filter(w => TINY_TRANSFORMER.embeddings[w]);
+    if (words.length < 2) return;
+    if (words.join(" ") === DEFAULT_SENTENCE.join(" ")) {
+      setCustomWords(null);
+    } else {
+      setCustomWords(words);
+    }
+    setInputText(text);
+    setCommitted(1);
+    setPhase("predict");
+    setIsPlaying(false);
+  }, []);
+
+  const current = allSteps[committed - 1];
+  const nextWord = committed < SENTENCE.length ? SENTENCE[committed] : null;
+  const topProb = current ? current.predictions[0].prob : 0;
+
+  // Auto-play timer
+  useEffect(() => {
+    if (!isPlaying) return;
+    const delay = phase === "predict" ? 2200 / speed : 1000 / speed;
+    const timer = setTimeout(() => {
+      if (phase === "predict" && nextWord) {
+        // In stochastic mode, occasionally sample a different token
+        if (stochastic && current && current.predictions.length > 1) {
+          const picked = sampleFromDist(current.predictions);
+          setSampledToken(picked !== current.predictions[0].word ? picked : null);
+        } else {
+          setSampledToken(null);
+        }
+        setPhase("selected");
+      } else if (phase === "selected" && committed < SENTENCE.length) {
+        setCommitted(c => c + 1);
+        setPhase("predict");
+        setSampledToken(null);
+      } else {
+        setIsPlaying(false);
+      }
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [isPlaying, phase, committed, speed, nextWord, stochastic, current]);
+
+  const canAdvance = (phase === "predict" && nextWord != null) || (phase === "selected" && committed < SENTENCE.length);
+
+  const advance = useCallback(() => {
+    if (phase === "predict" && nextWord) {
+      if (stochastic && current && current.predictions.length > 1) {
+        const picked = sampleFromDist(current.predictions);
+        setSampledToken(picked !== current.predictions[0].word ? picked : null);
+      } else {
+        setSampledToken(null);
+      }
+      setPhase("selected");
+    } else if (phase === "selected" && committed < SENTENCE.length) {
+      setCommitted(c => c + 1);
+      setPhase("predict");
+      setSampledToken(null);
+    }
+  }, [phase, committed, nextWord, stochastic, current]);
+
+  const reset = useCallback(() => {
+    setCommitted(1);
+    setPhase("predict");
+    setIsPlaying(false);
+  }, []);
+
+  const INSIGHTS = [
+    "With just \u201Cthe\u201D, the model has minimal signal. A determiner could precede almost any noun or adjective \u2014 the distribution is nearly flat. Top-1 confidence is just 14%.",
+    "\u201Ccat\u201D activates noun \u2192 verb patterns. Attention flows strongly from \u201Ccat\u201D back to \u201Cthe\u201D (65%), capturing the determiner-noun relationship. Verbs now dominate the predictions.",
+    "\u201Csat\u201D confirms a past-tense narrative. Attention from \u201Csat\u201D focuses on \u201Ccat\u201D (55%) \u2014 the subject-verb link. Prepositions like \u201Con\u201D surge to 38%.",
+    "\u201Con\u201D primes the model for a noun phrase. Attention concentrates on \u201Csat\u201D (52%) \u2014 the verb-preposition dependency. Articles \u201Cthe\u201D and \u201Ca\u201D capture 73% of the probability mass.",
+    "Full context converges: \u201Cmat\u201D reaches 52%. Attention from the second \u201Cthe\u201D reaches back to \u201Con\u201D (35%) and \u201Ccat\u201D (25%) \u2014 the whole sentence structure contributes to this prediction.",
+    "Each new token reshaped the probability landscape. Top-1 confidence rose from 14% \u2192 52%. Context accumulated through self-attention, and predictions sharpened \u2014 this is autoregressive inference."
+  ];
+
+  // Top-1 confidence for each step (monotonically increases as context accumulates)
+  const confidences = allSteps.map(step => step.predictions[0] ? step.predictions[0].prob : 0);
+
+  const buttonLabel = phase === "predict" && nextWord ? "Select next \u25B6"
+    : phase === "selected" && committed < SENTENCE.length ? "Commit & continue \u25B6"
+    : "Complete";
+
+  return (
+    <div>
+      <h2 style={{ fontFamily: FONTS.heading, fontSize: 22, color: COLORS.text, marginBottom: 4 }}>
+        Autoregressive Inference
+      </h2>
+      <p style={{ fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim, marginBottom: 16, lineHeight: 1.5 }}>
+        Transformers generate text <strong style={{ color: stageColor }}>one token at a time</strong>.
+        At each step, the full context flows through self-attention to produce a probability distribution
+        over the vocabulary. Watch how predictions sharpen as context accumulates.
+      </p>
+
+      {/* Custom sentence input */}
+      <div style={{ marginBottom: 16 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8 }}>
+          <input type="text" value={inputText}
+            onChange={e => setInputText(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter") applySentence(inputText); }}
+            placeholder="Enter words from the vocabulary..."
+            style={{
+              flex: 1, padding: "8px 12px", fontFamily: FONTS.mono, fontSize: 12,
+              background: "#08080A", border: "1px solid " + COLORS.border, borderRadius: 6,
+              color: COLORS.text, outline: "none",
+            }}
+          />
+          <button onClick={() => applySentence(inputText)} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "8px 14px", borderRadius: 6,
+            border: "1px solid " + stageColor, background: stageColor + "15",
+            color: stageColor, cursor: "pointer",
+          }}>Apply</button>
+        </div>
+        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+          {PRESETS.map(p => (
+            <button key={p} onClick={() => { setInputText(p); applySentence(p); }} style={{
+              fontFamily: FONTS.mono, fontSize: 10, padding: "3px 8px", borderRadius: 3,
+              border: "1px solid " + (SENTENCE.join(" ") === p.split(/\s+/).filter(w => TINY_TRANSFORMER.embeddings[w]).join(" ") ? stageColor : COLORS.border),
+              background: SENTENCE.join(" ") === p.split(/\s+/).filter(w => TINY_TRANSFORMER.embeddings[w]).join(" ") ? stageColor + "15" : "transparent",
+              color: SENTENCE.join(" ") === p.split(/\s+/).filter(w => TINY_TRANSFORMER.embeddings[w]).join(" ") ? stageColor : COLORS.textDim,
+              cursor: "pointer",
+            }}>{p}</button>
+          ))}
+        </div>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 9, color: COLORS.textDim, marginTop: 6, opacity: 0.6 }}>
+          Vocabulary: {TINY_TRANSFORMER.vocab.join(", ")}
+          {!isDefault && <span style={{ color: stageColor, marginLeft: 8 }}>(using toy model &mdash; predictions are illustrative)</span>}
+        </div>
+      </div>
+
+      {/* Step & context indicator */}
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, marginBottom: 16,
+        display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap",
+      }}>
+        <span>Token {committed}/{SENTENCE.length}</span>
+        <span style={{ color: stageColor }}>
+          &ldquo;{SENTENCE.slice(0, committed).join(" ")}&rdquo;
+        </span>
+        {nextWord && <span style={{ opacity: 0.5 }}>&rarr; ???</span>}
+        {!nextWord && <span style={{ color: "#72E1A0" }}>{"\u2713"} complete</span>}
+      </div>
+
+      {/* Token row + attention arcs */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: 20, overflowX: "auto" }}>
+        <div style={{ position: "relative", width: totalW, minWidth: totalW }}>
+          {/* Multi-head attention arcs (3 heads: positional/gold, syntactic/purple, semantic/cyan) */}
+          <svg width={totalW} height={arcH} style={{ display: "block" }}>
+            {committed > 1 && (() => {
+              const heads = deriveHeads(current.attention);
+              if (!heads) return null;
+              return heads.map((head, hi) => (
+                head.map((a, i) => {
+                  if (i === committed - 1) return null;
+                  const fromX = tokenCX(committed - 1);
+                  const toX = tokenCX(i);
+                  const dist = Math.abs(committed - 1 - i);
+                  const maxDist = Math.max(SENTENCE.length - 1, 1);
+                  const baseY = arcH - 15 - (dist / maxDist) * (arcH - 35);
+                  const peakY = baseY + (hi - 1) * 7; // vertical offset per head
+                  const midX = (fromX + toX) / 2;
+                  return (
+                    <path key={hi + "-" + i}
+                      d={"M " + fromX + " " + arcH + " Q " + midX + " " + peakY + " " + toX + " " + arcH}
+                      fill="none" stroke={HEAD_COLORS[hi]}
+                      strokeWidth={Math.max(1.2, a.weight * 7)}
+                      opacity={0.15 + a.weight * 0.65}
+                      strokeLinecap="round"
+                    />
+                  );
+                })
+              ));
+            })()}
+            {/* Endpoint dots */}
+            {committed > 1 && current.attention.map((a, i) => {
+              if (i === committed - 1) return null;
+              return <circle key={i} cx={tokenCX(i)} cy={arcH - 2} r="2"
+                fill={COLORS.textDim} opacity="0.4" />;
+            })}
+            {committed > 1 && (
+              <circle cx={tokenCX(committed - 1)} cy={arcH - 2} r="3"
+                fill={COLORS.text} opacity="0.6" />
+            )}
+            {/* Head legend */}
+            {committed > 1 && HEAD_LABELS.map((label, hi) => (
+              <g key={hi}>
+                <line x1={8} y1={8 + hi * 14} x2={24} y2={8 + hi * 14}
+                  stroke={HEAD_COLORS[hi]} strokeWidth="3" opacity="0.8" strokeLinecap="round" />
+                <text x={28} y={12 + hi * 14} fill={HEAD_COLORS[hi]}
+                  fontSize="9" fontFamily="JetBrains Mono" opacity="0.8">
+                  {label}
+                </text>
+              </g>
+            ))}
+          </svg>
+
+          {/* Token chips with inline prediction history */}
+          <div style={{ display: "flex", gap: tokenGap, alignItems: "flex-start" }}>
+            {SENTENCE.map((token, i) => {
+              const isCommitted = i < committed;
+              const isLatest = i === committed - 1;
+              const isNextSelected = i === committed && phase === "selected";
+              const isPredicting = i === committed && phase === "predict";
+              const isFuture = i > committed;
+
+              // Show prediction annotation for committed tokens (except first) and selected next
+              const showAnnotation = (i > 0 && i < committed) || (i > 0 && isNextSelected);
+              const predStep = showAnnotation ? allSteps[i - 1] : null;
+              const chosenProb = predStep ? (predStep.predictions.find(p => p.word === token) || {}).prob : null;
+              const runners = predStep ? predStep.predictions.filter(p => p.word !== token).slice(0, 2) : [];
+
+              // Context depth drives visual enrichment of the chip
+              const ctxDepth = (showAnnotation && allContext[i]) ? allContext[i].length : 0;
+
+              return (
+                <div key={i} style={{ display: "flex", flexDirection: "column", alignItems: "center", width: tokenW }}>
+                  {/* Token chip — gets visually "thicker" with context depth */}
+                  <div style={{
+                    width: "100%", textAlign: "center",
+                    fontFamily: FONTS.mono, fontSize: 18, padding: "10px 0",
+                    borderRadius: 6,
+                    background: isNextSelected ? "#72E1A018"
+                      : isLatest ? stageColor + "12"
+                      : isCommitted && ctxDepth > 0 ? "linear-gradient(180deg, rgba(255,255,255,0.03), " + stageColor + (Math.min(ctxDepth * 4, 18)).toString(16).padStart(2, "0") + ")"
+                      : isCommitted ? "rgba(255,255,255,0.03)"
+                      : isPredicting ? "rgba(255,255,255,0.02)"
+                      : "rgba(255,255,255,0.01)",
+                    border: (isCommitted && ctxDepth > 0 ? Math.min(1 + ctxDepth * 0.4, 3) : 1) + "px solid " + (
+                      isNextSelected ? "#72E1A0"
+                      : isPredicting ? stageColor + "50"
+                      : isLatest ? stageColor + "40"
+                      : isCommitted && ctxDepth > 0 ? stageColor + (Math.min(20 + ctxDepth * 12, 80)).toString(16).padStart(2, "0")
+                      : isCommitted ? COLORS.border
+                      : "transparent"),
+                    color: isNextSelected ? "#72E1A0"
+                      : isPredicting ? stageColor
+                      : isCommitted ? COLORS.text
+                      : "rgba(255,255,255,0.08)",
+                    transition: "all 0.5s ease",
+                    boxShadow: isNextSelected ? "0 0 16px rgba(114,225,160,0.15)"
+                      : ctxDepth > 2 ? "0 0 " + (ctxDepth * 3) + "px " + stageColor + "15" : "none",
+                  }}>
+                    {isNextSelected ? token
+                      : isPredicting ? "?"
+                      : isFuture ? "\u00B7"
+                      : token}
+                  </div>
+
+                  {/* Context stack — what backward attention contributed to this token */}
+                  {showAnnotation && allContext[i] && allContext[i].length > 0 && (
+                    <div style={{
+                      display: "flex", flexDirection: "column", gap: 1,
+                      marginTop: 3, width: "100%",
+                      animation: "fadeInUp 0.3s ease",
+                    }}>
+                      {allContext[i].map((ctx, ci) => (
+                        <div key={ci} style={{
+                          fontFamily: FONTS.mono, fontSize: 8.5,
+                          color: stageColor,
+                          background: stageColor + "12",
+                          border: "1px solid " + stageColor + "25",
+                          borderLeft: "2px solid " + stageColor + "60",
+                          borderRadius: 2,
+                          padding: "2px 4px",
+                          textAlign: "left",
+                          lineHeight: 1.3,
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}>
+                          {ctx.enriched && (
+                            <span style={{
+                              fontSize: 7.5, color: "#48BFE3", fontWeight: 600,
+                              background: "#48BFE310", borderRadius: 2, padding: "0 2px", marginRight: 2,
+                            }}>[{ctx.enriched}]</span>
+                          )}
+                          {ctx.label} <span style={{ opacity: 0.3, fontSize: 7 }}>{"\u2190"}{ctx.from}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Inline prediction annotation */}
+                  {showAnnotation && chosenProb != null && (
+                    <div style={{
+                      marginTop: 4, width: "100%", textAlign: "center",
+                      animation: "fadeInUp 0.3s ease",
+                    }}>
+                      <div style={{
+                        width: "100%", height: 3, background: "rgba(255,255,255,0.04)",
+                        borderRadius: 2, marginBottom: 3, overflow: "hidden",
+                      }}>
+                        <div style={{
+                          width: Math.min(chosenProb * 200, 100) + "%",
+                          height: "100%", borderRadius: 2,
+                          background: isNextSelected ? "#72E1A0" : "#72E1A080",
+                          transition: "width 0.5s ease",
+                        }} />
+                      </div>
+                      <div style={{
+                        fontFamily: FONTS.mono, fontSize: 10,
+                        color: "#72E1A0", fontWeight: 600,
+                      }}>
+                        {(chosenProb * 100).toFixed(0)}%
+                      </div>
+                      {runners.map((p, ri) => (
+                        <div key={ri} style={{
+                          fontFamily: FONTS.mono, fontSize: 8,
+                          color: COLORS.textDim, opacity: 0.45,
+                          lineHeight: 1.4,
+                        }}>
+                          {p.word} {(p.prob * 100).toFixed(0)}%
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* Probability distribution */}
+      <div style={{
+        background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+        borderRadius: 8, padding: 16, marginBottom: 12,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+          marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em",
+        }}>
+          P(next | &ldquo;{SENTENCE.slice(0, committed).join(" ")}&rdquo;)
+        </div>
+        {current.predictions.map((p, i) => {
+          const isActualNext = nextWord && p.word === nextWord;
+          const isSampled = sampledToken && p.word === sampledToken && phase === "selected";
+          const highlight = (isActualNext && phase === "selected" && !sampledToken) || isSampled;
+          return (
+            <div key={p.word} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 13, width: 50, textAlign: "right",
+                color: highlight ? "#72E1A0" : i === 0 ? "#fff" : COLORS.text,
+                fontWeight: highlight || i === 0 ? 600 : 400,
+              }}>{p.word}</div>
+              <div style={{
+                flex: 1, height: 18, background: "rgba(255,255,255,0.04)",
+                borderRadius: 3, overflow: "hidden",
+              }}>
+                <div style={{
+                  width: (p.prob / current.predictions[0].prob * 100) + "%",
+                  height: "100%", borderRadius: 3,
+                  background: highlight ? "#72E1A0" : i === 0 ? stageColor : stageColor + "50",
+                  transition: "all 0.5s ease",
+                }} />
+              </div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+                width: 42, textAlign: "right",
+              }}>{(p.prob * 100).toFixed(1)}%</div>
+              {highlight && (
+                <span style={{ fontFamily: FONTS.mono, fontSize: 10, color: isSampled ? "#FF6B6B" : "#72E1A0" }}>
+                  &larr; {isSampled ? "\uD83C\uDFB2 sampled" : "next"}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Confidence sparkline (taller = more confident) */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 12, marginBottom: 12,
+        padding: "10px 14px", background: "rgba(0,0,0,0.15)", borderRadius: 6,
+      }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, whiteSpace: "nowrap" }}>
+          Confidence
+        </div>
+        <div style={{ display: "flex", gap: 3, alignItems: "flex-end", height: 24, flex: 1 }}>
+          {confidences.map((c, i) => (
+            <div key={i} style={{
+              flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
+            }}>
+              <div style={{
+                width: "100%", maxWidth: 44,
+                height: Math.max(3, c * 42),
+                background: i < committed ? stageColor : "rgba(255,255,255,0.06)",
+                opacity: i === committed - 1 ? 1 : 0.35,
+                borderRadius: 2, transition: "all 0.4s",
+              }} />
+            </div>
+          ))}
+        </div>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 9, color: stageColor, whiteSpace: "nowrap" }}>
+          {(confidences[committed - 1] * 100).toFixed(0)}%
+        </div>
+      </div>
+
+      {/* Step timeline (clickable) */}
+      <div style={{ display: "flex", gap: 4, justifyContent: "center", marginBottom: 16 }}>
+        {SENTENCE.map((token, i) => {
+          const isActive = i === committed - 1;
+          const isDone = i < committed;
+          return (
+            <button key={i}
+              onClick={() => { if (isDone || isActive) { setCommitted(i + 1); setPhase("predict"); } }}
+              style={{
+                fontFamily: FONTS.mono, fontSize: 10, padding: "3px 10px", borderRadius: 3,
+                border: "1px solid " + (isActive ? stageColor : isDone ? COLORS.border : "transparent"),
+                background: isActive ? stageColor + "20" : isDone ? "rgba(255,255,255,0.02)" : "transparent",
+                color: isActive ? stageColor : isDone ? COLORS.textDim : "rgba(255,255,255,0.1)",
+                cursor: isDone || isActive ? "pointer" : "default",
+                transition: "all 0.3s",
+              }}>{token}</button>
+          );
+        })}
+      </div>
+
+      {/* Contextual insight */}
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+        lineHeight: 1.6, padding: "10px 14px", background: "rgba(0,0,0,0.2)",
+        borderRadius: 6, borderLeft: "3px solid " + stageColor + "40", marginBottom: 16,
+      }}>
+        {isDefault ? INSIGHTS[committed - 1] : (
+          "Context: \u201C" + SENTENCE.slice(0, committed).join(" ") + "\u201D (" + committed + " token" + (committed > 1 ? "s" : "") + "). " +
+          "Top prediction: " + (current && current.predictions[0] ? current.predictions[0].word + " at " + (current.predictions[0].prob * 100).toFixed(0) + "%." : "none.") +
+          (committed > 1 ? " Each token\u2019s representation is enriched by attending backward to all predecessors." : "")
+        )}
+      </div>
+
+      {/* Controls */}
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <button onClick={advance} disabled={!canAdvance} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 18px", borderRadius: 4,
+          border: "1px solid " + stageColor, background: stageColor + "15",
+          color: stageColor, cursor: canAdvance ? "pointer" : "default",
+          opacity: canAdvance ? 1 : 0.4,
+        }}>{buttonLabel}</button>
+        <button onClick={() => setIsPlaying(!isPlaying)} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px", borderRadius: 4,
+          border: "1px solid " + (isPlaying ? stageColor : COLORS.border),
+          background: isPlaying ? stageColor + "20" : "transparent",
+          color: isPlaying ? stageColor : COLORS.textDim, cursor: "pointer",
+        }}>{isPlaying ? "Pause" : "Auto-play"}</button>
+        <button onClick={reset} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px", borderRadius: 4,
+          border: "1px solid " + COLORS.border,
+          background: "transparent", color: COLORS.textDim, cursor: "pointer",
+        }}>Reset</button>
+        <button onClick={() => setStochastic(!stochastic)} style={{
+          fontFamily: FONTS.mono, fontSize: 11, padding: "7px 12px", borderRadius: 4,
+          border: "1px solid " + (stochastic ? "#FF6B6B" : COLORS.border),
+          background: stochastic ? "#FF6B6B18" : "transparent",
+          color: stochastic ? "#FF6B6B" : COLORS.textDim, cursor: "pointer",
+        }}>{stochastic ? "\uD83C\uDFB2 Stochastic" : "Stochastic"}</button>
+        <div style={{ flex: 1 }} />
+        {[1, 2, 4].map(s => (
+          <button key={s} onClick={() => setSpeed(s)} style={{
+            fontFamily: FONTS.mono, fontSize: 12, width: 28, height: 24, borderRadius: 3,
+            border: "1px solid " + (speed === s ? stageColor : COLORS.border),
+            background: speed === s ? stageColor + "15" : "transparent",
+            color: speed === s ? stageColor : COLORS.textDim, cursor: "pointer",
+          }}>{s}x</button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
 function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
   const stage = STAGES[3];
   const [sentenceIdx, setSentenceIdx] = useState(0);
@@ -5116,7 +5736,7 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
     <div style={{ animation: "fadeInUp 0.5s ease" }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {[["attention", "Attention Heatmap"], ["predict", "Predict Next"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
+        {[["attention", "Attention Heatmap"], ["predict", "Predict Next"], ["inference", "Inference"], ["positional", "Positional Encoding"], ["architecture", "Architecture"], ["network", "Network View"], ["training", "Watch Training"], ["challenge", "Challenge"]].map(([id, label]) => (
           <button key={id} onClick={() => setShowSection(id)} style={{
             fontFamily: FONTS.mono, fontSize: 12, padding: "7px 14px",
             borderRadius: 4, border: `1px solid ${showSection === id ? stage.color : COLORS.border}`,
@@ -5190,6 +5810,11 @@ function TransformerPlayground({ stageIndex, dispatch, stageProgress }) {
       {/* Predict Next Token */}
       {showSection === "predict" && (
         <TransformerPredictPanel stageColor={stage.color} />
+      )}
+
+      {/* Autoregressive Inference */}
+      {showSection === "inference" && (
+        <AutoregressiveInference stageColor={stage.color} />
       )}
 
       {/* Positional Encoding */}
@@ -6177,18 +6802,17 @@ function App() {
         }}>
           {STAGES.map((stage, i) => (
             <div key={i}
-              onClick={() => (state.unlockedStages[i] || state.freeExplore) && dispatch({ type: "NAVIGATE", stage: i })}
+              onClick={() => dispatch({ type: "NAVIGATE", stage: i })}
               style={{
                 flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-                padding: "6px 4px", cursor: (state.unlockedStages[i] || state.freeExplore) ? "pointer" : "default",
-                opacity: (state.unlockedStages[i] || state.freeExplore) ? 1 : 0.3,
+                padding: "6px 4px", cursor: "pointer",
               }}
             >
               <div style={{
                 width: 10, height: 10, borderRadius: "50%",
                 background: state.stageProgress[i].challengeCompleted ? stage.color
                   : state.currentStage === i ? `${stage.color}60` : "transparent",
-                border: `2px solid ${state.unlockedStages[i] ? stage.color : COLORS.textDim}`,
+                border: `2px solid ${stage.color}`,
                 boxShadow: state.currentStage === i ? `0 0 8px ${stage.color}40` : "none",
               }} />
               <div style={{
