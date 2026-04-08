@@ -4891,8 +4891,9 @@ function AutoregressiveInference({ stageColor }) {
   // Custom sentence state — null means use default curated data
   const [customWords, setCustomWords] = useState(null);
   const [inputText, setInputText] = useState(DEFAULT_SENTENCE.join(" "));
-  const SENTENCE = customWords || DEFAULT_SENTENCE;
-  const isDefault = !customWords;
+  const [builtTokens, setBuiltTokens] = useState(null); // stochastic divergence
+  const SENTENCE = builtTokens || customWords || DEFAULT_SENTENCE;
+  const isDefault = !customWords && !builtTokens;
 
   // Curated predictions and attention weights that tell a realistic pedagogical story.
   // The actual TINY_TRANSFORMER model is too small to produce natural-looking distributions,
@@ -5016,7 +5017,7 @@ function AutoregressiveInference({ stageColor }) {
   const allSteps = useMemo(() => {
     if (isDefault) return CURATED_STEPS;
     return SENTENCE.map((_, i) => {
-      const result = transformerPredict(SENTENCE.slice(0, i + 1));
+      const result = transformerPredict(SENTENCE.slice(0, i + 1).filter(w => w != null));
       return result || { predictions: [{ word: "?", prob: 1 }], attention: [] };
     });
   }, [SENTENCE, isDefault]);
@@ -5024,9 +5025,9 @@ function AutoregressiveInference({ stageColor }) {
   const allContext = useMemo(() => {
     if (isDefault) return CONTEXT_STACK;
     return SENTENCE.map((_, i) =>
-      SENTENCE.slice(0, i).map((w, j) => {
-        const prior = SENTENCE.slice(0, j).map(pw => (WORD_TYPES[pw] || pw).substring(0, 4)).join("\u00B7");
-        return { label: WORD_TYPES[w] || w, from: w, enriched: prior };
+      SENTENCE.slice(0, i).filter(w => w != null).map((w, j, arr) => {
+        const prior = arr.slice(0, j).map(pw => (WORD_TYPES[pw] || pw || "?").substring(0, 4)).join("\u00B7");
+        return { label: WORD_TYPES[w] || w || "?", from: w || "?", enriched: prior };
       })
     );
   }, [SENTENCE, isDefault]);
@@ -5039,6 +5040,7 @@ function AutoregressiveInference({ stageColor }) {
     } else {
       setCustomWords(words);
     }
+    setBuiltTokens(null);
     setInputText(text);
     setCommitted(1);
     setPhase("predict");
@@ -5046,7 +5048,9 @@ function AutoregressiveInference({ stageColor }) {
   }, []);
 
   const current = allSteps[committed - 1];
+  // In stochastic mode after divergence, future positions are null — still allow advancing
   const nextWord = committed < SENTENCE.length ? SENTENCE[committed] : null;
+  const canPredict = nextWord != null || (stochastic && committed < SENTENCE.length);
   const topProb = current ? current.predictions[0].prob : 0;
 
   // Auto-play timer
@@ -5054,7 +5058,7 @@ function AutoregressiveInference({ stageColor }) {
     if (!isPlaying) return;
     const delay = phase === "predict" ? 2200 / speed : 1000 / speed;
     const timer = setTimeout(() => {
-      if (phase === "predict" && nextWord) {
+      if (phase === "predict" && canPredict) {
         // In stochastic mode, occasionally sample a different token
         if (stochastic && current && current.predictions.length > 1) {
           const picked = sampleFromDist(current.predictions);
@@ -5064,6 +5068,7 @@ function AutoregressiveInference({ stageColor }) {
         }
         setPhase("selected");
       } else if (phase === "selected" && committed < SENTENCE.length) {
+        commitStochastic();
         setCommitted(c => c + 1);
         setPhase("predict");
         setSampledToken(null);
@@ -5072,12 +5077,28 @@ function AutoregressiveInference({ stageColor }) {
       }
     }, delay);
     return () => clearTimeout(timer);
-  }, [isPlaying, phase, committed, speed, nextWord, stochastic, current]);
+  }, [isPlaying, phase, committed, speed, nextWord, stochastic, current, commitStochastic, SENTENCE.length]);
 
-  const canAdvance = (phase === "predict" && nextWord != null) || (phase === "selected" && committed < SENTENCE.length);
+  const canAdvance = (phase === "predict" && canPredict) || (phase === "selected" && committed < SENTENCE.length);
+
+  // Commit the selected/sampled token into the actual sentence
+  const commitStochastic = useCallback(() => {
+    if (!stochastic) return;
+    // Determine which token to commit: sampled or top prediction
+    const tokenToCommit = sampledToken || (current && current.predictions[0] ? current.predictions[0].word : null);
+    if (!tokenToCommit) return;
+    // If the token differs from what's in the sentence, or we're already diverged, update builtTokens
+    const base = builtTokens ? [...builtTokens] : [...(customWords || DEFAULT_SENTENCE)];
+    if (base[committed] !== tokenToCommit || builtTokens) {
+      base[committed] = tokenToCommit;
+      // Mark future positions as unknown since context may have diverged
+      for (let j = committed + 1; j < base.length; j++) base[j] = null;
+      setBuiltTokens(base);
+    }
+  }, [sampledToken, stochastic, committed, builtTokens, customWords, current]);
 
   const advance = useCallback(() => {
-    if (phase === "predict" && nextWord) {
+    if (phase === "predict" && canPredict) {
       if (stochastic && current && current.predictions.length > 1) {
         const picked = sampleFromDist(current.predictions);
         setSampledToken(picked !== current.predictions[0].word ? picked : null);
@@ -5086,16 +5107,19 @@ function AutoregressiveInference({ stageColor }) {
       }
       setPhase("selected");
     } else if (phase === "selected" && committed < SENTENCE.length) {
+      commitStochastic();
       setCommitted(c => c + 1);
       setPhase("predict");
       setSampledToken(null);
     }
-  }, [phase, committed, nextWord, stochastic, current]);
+  }, [phase, committed, nextWord, stochastic, current, commitStochastic, SENTENCE.length]);
 
   const reset = useCallback(() => {
     setCommitted(1);
     setPhase("predict");
     setIsPlaying(false);
+    setBuiltTokens(null);
+    setSampledToken(null);
   }, []);
 
   const INSIGHTS = [
@@ -5110,7 +5134,7 @@ function AutoregressiveInference({ stageColor }) {
   // Top-1 confidence for each step (monotonically increases as context accumulates)
   const confidences = allSteps.map(step => step.predictions[0] ? step.predictions[0].prob : 0);
 
-  const buttonLabel = phase === "predict" && nextWord ? "Select next \u25B6"
+  const buttonLabel = phase === "predict" && canPredict ? "Select next \u25B6"
     : phase === "selected" && committed < SENTENCE.length ? "Commit & continue \u25B6"
     : "Complete";
 
@@ -5230,11 +5254,11 @@ function AutoregressiveInference({ stageColor }) {
           {/* Token chips with inline prediction history */}
           <div style={{ display: "flex", gap: tokenGap, alignItems: "flex-start" }}>
             {SENTENCE.map((token, i) => {
-              const isCommitted = i < committed;
+              const isCommitted = i < committed && SENTENCE[i] != null;
               const isLatest = i === committed - 1;
               const isNextSelected = i === committed && phase === "selected";
               const isPredicting = i === committed && phase === "predict";
-              const isFuture = i > committed;
+              const isFuture = i > committed || SENTENCE[i] == null;
 
               // Show prediction annotation for committed tokens (except first) and selected next
               const showAnnotation = (i > 0 && i < committed) || (i > 0 && isNextSelected);
@@ -5274,7 +5298,7 @@ function AutoregressiveInference({ stageColor }) {
                     boxShadow: isNextSelected ? (sampledToken ? "0 0 16px rgba(255,107,107,0.2)" : "0 0 16px rgba(114,225,160,0.15)")
                       : ctxDepth > 2 ? "0 0 " + (ctxDepth * 3) + "px " + stageColor + "15" : "none",
                   }}>
-                    {isNextSelected ? (sampledToken || token)
+                    {isNextSelected ? (sampledToken || (stochastic && current && current.predictions[0] ? current.predictions[0].word : token))
                       : isPredicting ? "?"
                       : isFuture ? "\u00B7"
                       : token}
