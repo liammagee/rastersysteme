@@ -5239,8 +5239,9 @@ function AutoregressiveInference({ stageColor }) {
               // Show prediction annotation for committed tokens (except first) and selected next
               const showAnnotation = (i > 0 && i < committed) || (i > 0 && isNextSelected);
               const predStep = showAnnotation ? allSteps[i - 1] : null;
-              const chosenProb = predStep ? (predStep.predictions.find(p => p.word === token) || {}).prob : null;
-              const runners = predStep ? predStep.predictions.filter(p => p.word !== token).slice(0, 2) : [];
+              const displayedToken = (isNextSelected && sampledToken) ? sampledToken : token;
+              const chosenProb = predStep ? (predStep.predictions.find(p => p.word === displayedToken) || {}).prob : null;
+              const runners = predStep ? predStep.predictions.filter(p => p.word !== displayedToken).slice(0, 2) : [];
 
               // Context depth drives visual enrichment of the chip
               const ctxDepth = (showAnnotation && allContext[i]) ? allContext[i].length : 0;
@@ -5252,28 +5253,28 @@ function AutoregressiveInference({ stageColor }) {
                     width: "100%", textAlign: "center",
                     fontFamily: FONTS.mono, fontSize: 18, padding: "10px 0",
                     borderRadius: 6,
-                    background: isNextSelected ? "#72E1A018"
+                    background: isNextSelected ? (sampledToken ? "#FF6B6B18" : "#72E1A018")
                       : isLatest ? stageColor + "12"
                       : isCommitted && ctxDepth > 0 ? "linear-gradient(180deg, rgba(255,255,255,0.03), " + stageColor + (Math.min(ctxDepth * 4, 18)).toString(16).padStart(2, "0") + ")"
                       : isCommitted ? "rgba(255,255,255,0.03)"
                       : isPredicting ? "rgba(255,255,255,0.02)"
                       : "rgba(255,255,255,0.01)",
                     border: (isCommitted && ctxDepth > 0 ? Math.min(1 + ctxDepth * 0.4, 3) : 1) + "px solid " + (
-                      isNextSelected ? "#72E1A0"
+                      isNextSelected ? (sampledToken ? "#FF6B6B" : "#72E1A0")
                       : isPredicting ? stageColor + "50"
                       : isLatest ? stageColor + "40"
                       : isCommitted && ctxDepth > 0 ? stageColor + (Math.min(20 + ctxDepth * 12, 80)).toString(16).padStart(2, "0")
                       : isCommitted ? COLORS.border
                       : "transparent"),
-                    color: isNextSelected ? "#72E1A0"
+                    color: isNextSelected ? (sampledToken ? "#FF6B6B" : "#72E1A0")
                       : isPredicting ? stageColor
                       : isCommitted ? COLORS.text
                       : "rgba(255,255,255,0.08)",
                     transition: "all 0.5s ease",
-                    boxShadow: isNextSelected ? "0 0 16px rgba(114,225,160,0.15)"
+                    boxShadow: isNextSelected ? (sampledToken ? "0 0 16px rgba(255,107,107,0.2)" : "0 0 16px rgba(114,225,160,0.15)")
                       : ctxDepth > 2 ? "0 0 " + (ctxDepth * 3) + "px " + stageColor + "15" : "none",
                   }}>
-                    {isNextSelected ? token
+                    {isNextSelected ? (sampledToken || token)
                       : isPredicting ? "?"
                       : isFuture ? "\u00B7"
                       : token}
