@@ -5147,6 +5147,7 @@ function AutoregressiveInference({ stageColor }) {
         Transformers generate text <strong style={{ color: stageColor }}>one token at a time</strong>.
         At each step, the full context flows through self-attention to produce a probability distribution
         over the vocabulary. Watch how predictions sharpen as context accumulates.
+        <span style={{ opacity: 0.5 }}> (This is a simplified simulation &mdash; a real transformer uses billions of parameters across dozens of layers.)</span>
       </p>
 
       {/* Custom sentence input */}
@@ -5181,7 +5182,7 @@ function AutoregressiveInference({ stageColor }) {
         </div>
         <div style={{ fontFamily: FONTS.mono, fontSize: 9, color: COLORS.textDim, marginTop: 6, opacity: 0.6 }}>
           Vocabulary: {TINY_TRANSFORMER.vocab.join(", ")}
-          {!isDefault && <span style={{ color: stageColor, marginLeft: 8 }}>(using toy model &mdash; predictions are illustrative)</span>}
+          {(!isDefault || stochastic) && <span style={{ color: stageColor, marginLeft: 8 }}>(simulated transformer &mdash; predictions are illustrative, not from a real LLM)</span>}
         </div>
       </div>
 
