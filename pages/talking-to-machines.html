@@ -1,0 +1,2875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How Do We Talk to Machines?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body, #root { width: 100%; height: 100%; overflow: hidden; }
+  body { background: #0B0A09; }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes typeChar {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  @keyframes ripple {
+    0% { transform: scale(0.95); opacity: 0.7; }
+    100% { transform: scale(1.3); opacity: 0; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.2/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module">
+const { useState, useEffect, useRef, useMemo, useReducer, useCallback } = React;
+
+// ============================================================
+// API CONFIG
+// ============================================================
+
+// When served from the website (machinespirit.org or its dev server), API is same-origin.
+// When served from the design repo (localhost:8701), proxy to the website dev server.
+var API_BASE = (function() {
+  var host = window.location.hostname;
+  var port = window.location.port;
+  // Production or website dev server
+  if (host.indexOf("machinespirit") !== -1 || host.indexOf("fly.dev") !== -1 || port === "8080" || port === "3000") {
+    return "";
+  }
+  // Design repo dev server -- point to website dev server
+  return "http://localhost:8080";
+})();
+
+
+// ============================================================
+// DESIGN SYSTEM
+// ============================================================
+
+const FONTS = {
+  heading: "'Playfair Display', Georgia, serif",
+  body: "'Source Serif 4', Georgia, serif",
+  mono: "'JetBrains Mono', monospace",
+};
+
+const COLORS = {
+  bg: "#0B0A09",
+  bgPanel: "rgba(255,255,255,0.03)",
+  bgPanelHover: "rgba(255,255,255,0.06)",
+  text: "#E8E4DE",
+  textDim: "#9A958E",
+  textFaint: "rgba(255,255,255,0.50)",
+  border: "rgba(255,255,255,0.08)",
+  borderLight: "rgba(255,255,255,0.05)",
+};
+
+// ============================================================
+// STAGE METADATA
+// ============================================================
+
+const STAGES = [
+  {
+    id: "speech-acts", title: "Speech Acts", year: 1962,
+    author: "J. L. Austin",
+    paper: "How to Do Things with Words",
+    color: "#D4A855", colorDim: "rgba(212,168,85,0.15)", accent: "#B8934A",
+    intuition: "Words do not merely describe the world -- they act upon it",
+    epigraph: "What we have to study is not the sentence but the issuing of an utterance in a speech situation.",
+    epigraphSource: "J. L. Austin, 1962",
+    concepts: ["Performative Utterances", "Illocutionary Force", "Perlocutionary Effect", "Felicity Conditions"],
+    buildsOn: null,
+    intro: "In 1955, J. L. Austin delivered the William James Lectures at Harvard. Published posthumously as How to Do Things with Words, they overturned a centuries-old assumption: that language exists primarily to describe the world. Austin showed that many utterances do not describe anything -- they do things. When a judge says 'I sentence you,' that is not a description of sentencing. It is the act itself.\n\nAustin distinguished three dimensions of every speech act. The locutionary act is what you literally say -- the words and their conventional meaning. The illocutionary act is what you do in saying it -- requesting, promising, warning, commanding. The perlocutionary act is what you bring about by saying it -- the effect on your listener. When you ask Claude to 'Explain quantum mechanics simply,' the locution is a sentence about quantum mechanics; the illocution is a request for explanation; the perlocution is (hopefully) understanding.\n\nThis framework gives us a precise vocabulary for thinking about prompts. Every prompt is a speech act, and its effectiveness depends not just on what it says, but on what it does.",
+  },
+  {
+    id: "eliza", title: "The ELIZA Effect", year: 1966,
+    author: "Joseph Weizenbaum",
+    paper: "ELIZA -- A Computer Program For the Study of Natural Language Communication",
+    color: "#E88A9A", colorDim: "rgba(232,138,154,0.15)", accent: "#C47485",
+    intuition: "We project understanding onto anything that mirrors us back",
+    epigraph: "I had not realized that extremely short exposures to a relatively simple computer program could induce powerful delusional thinking in quite normal people.",
+    epigraphSource: "Joseph Weizenbaum, 1976",
+    concepts: ["Pattern Matching", "The ELIZA Effect", "Therapeutic Simulation", "Projected Intelligence"],
+    buildsOn: {
+      prevTitle: "Speech Acts",
+      prevColor: "#D4A855",
+      limitation: "Austin's framework tells us what words do, but it assumes a human speaker with intentions. What happens when the 'speaker' is a machine with no intentions at all?",
+      addition: "ELIZA demonstrates that the appearance of understanding can be produced by pure pattern matching -- no meaning required. The listener's interpretation does all the heavy lifting. This is the ELIZA effect: we attribute intelligence to systems that merely reflect our own words back to us.",
+      diagram: [
+        { label: "Austin", desc: "Words have illocutionary force" },
+        { label: "+ELIZA", desc: "Force can be simulated without understanding" },
+      ],
+    },
+    intro: "In 1966, Joseph Weizenbaum at MIT created ELIZA, a program that could hold a conversation in English. Its most famous script, DOCTOR, simulated a Rogerian psychotherapist -- a therapeutic approach that works largely by reflecting the patient's own statements back as questions. 'I am feeling sad' becomes 'Why do you say you are feeling sad?'\n\nThe program was shockingly simple: a set of pattern-matching rules and keyword priorities. There was no model of language, no understanding, no memory of the conversation beyond the current turn. Yet Weizenbaum's secretary asked him to leave the room so she could have a private conversation with the program. His own students attributed feelings and understanding to it.\n\nWeizenbaum was disturbed. He had created ELIZA to demonstrate the superficiality of human-machine communication, but instead demonstrated something deeper: the human compulsion to find meaning in responses that merely mimic the form of understanding. This phenomenon -- the ELIZA effect -- is arguably more relevant today than ever.",
+  },
+  {
+    id: "roles", title: "Seven Roles", year: 2023,
+    author: "Ethan R. Mollick & Lilach Mollick",
+    paper: "Assigning AI: Seven Approaches for Students, with Prompts",
+    color: "#5BB8A6", colorDim: "rgba(91,184,166,0.15)", accent: "#4A9A8C",
+    intuition: "How you cast the AI determines what it can do for you",
+    epigraph: "The same AI can be a mentor, a coach, a teammate, or a student -- depending entirely on how you prompt it.",
+    epigraphSource: "Adapted from Mollick & Mollick, 2023",
+    concepts: ["Role Assignment", "Pedagogical Framing", "Prompt Architecture", "AI as Actor"],
+    buildsOn: {
+      prevTitle: "The ELIZA Effect",
+      prevColor: "#E88A9A",
+      limitation: "ELIZA could only play one role -- the Rogerian therapist -- hardcoded in its pattern rules. It demonstrated that role-playing creates powerful effects, but could not adapt or take on new roles.",
+      addition: "Large language models have internalized vast amounts of information about how people perform different roles. Mollick and Mollick show that by carefully framing the prompt, you can cast the AI in specific pedagogical roles -- each producing dramatically different interactions from the same underlying model.",
+      diagram: [
+        { label: "ELIZA", desc: "One hardcoded role (therapist)" },
+        { label: "+LLMs", desc: "Any role, shaped by prompt framing" },
+      ],
+    },
+    intro: "Ethan and Lilach Mollick's 2023 paper identified seven distinct roles that AI can play in educational settings. The insight is not merely that AI can be useful -- it is that the same model, given different framing, produces fundamentally different kinds of interaction. The prompt does not just ask a question; it sets the stage.\n\nThis connects directly to Austin's speech act theory: the prompt's illocutionary force shapes the entire exchange. Asking Claude to 'be a Socratic tutor who never gives direct answers' produces a radically different experience than asking it to 'explain this concept clearly.' Both are valid, but they serve different pedagogical purposes.\n\nThe seven roles -- Mentor, Tutor, Coach, Teammate, Student, Simulator, and Tool -- form a spectrum from high-agency (the AI leads) to low-agency (the AI follows). Understanding where on this spectrum you want the AI to operate is perhaps the single most important prompting decision you can make.",
+  },
+  {
+    id: "craft", title: "Prompt Craft", year: 2025,
+    author: "Practical Strategies",
+    paper: "From naive request to structured dialogue",
+    color: "#A788D4", colorDim: "rgba(167,136,212,0.15)", accent: "#8E72B8",
+    intuition: "A prompt is a designed artifact, not a casual question",
+    epigraph: "The quality of the output is a function of the quality of the input -- but quality here means structure, not length.",
+    epigraphSource: "Adapted from Park & Choo, 2025",
+    concepts: ["Specificity", "Persona Assignment", "Chain of Thought", "Iterative Refinement"],
+    buildsOn: {
+      prevTitle: "Seven Roles",
+      prevColor: "#5BB8A6",
+      limitation: "Knowing which role to assign is necessary but not sufficient. A prompt that says 'Be my tutor' is a start, but the quality of the tutoring depends on how the role is specified, constrained, and directed.",
+      addition: "Prompt craft adds structural techniques: specificity (what exactly do you want?), persona details (how should the AI behave?), chain-of-thought (show your reasoning), few-shot examples (here is what I mean), and constraints (what to avoid). These are not tricks -- they are the pragmatics of human-machine communication.",
+      diagram: [
+        { label: "Role", desc: "Who the AI should be" },
+        { label: "+Craft", desc: "How the AI should think and respond" },
+      ],
+    },
+    intro: "If Austin gave us the theory of speech acts and Mollick gave us the roles, prompt craft is where theory meets practice. The emerging discipline of prompt engineering -- a term that is both overblown and underappreciated -- is fundamentally about the pragmatics of talking to machines.\n\nThe key insight is that LLMs are exquisitely sensitive to framing. Small changes in how you phrase a request can produce dramatically different outputs. This is not a bug; it reflects the model's training on human language, where framing always matters. A doctor asking 'How are you feeling?' gets a different answer than a friend asking the same question.\n\nThe practical techniques -- specificity, persona, chain-of-thought reasoning, few-shot examples, constraints -- are best understood not as mechanical tricks but as ways of making your illocutionary intent explicit. When you add 'Think step by step' to a prompt, you are not casting a spell; you are specifying the kind of speech act you want in response.",
+  },
+  {
+    id: "parrhesia", title: "Parrhesia", year: "1983/2026",
+    author: "Michel Foucault / Contemporary AI",
+    paper: "Discourse and Truth -- The Problematization of Parrhesia",
+    color: "#8AAE7F", colorDim: "rgba(138,174,127,0.15)", accent: "#72965E",
+    intuition: "Truth-telling requires risk -- can a machine take that risk?",
+    epigraph: "Parrhesia is a verbal activity in which a speaker expresses his personal relationship to truth, and risks his life because he recognizes truth-telling as a duty.",
+    epigraphSource: "Michel Foucault, 1983",
+    concepts: ["Parrhesia", "Truth & Risk", "Sycophancy", "AI as Truth-Teller"],
+    buildsOn: {
+      prevTitle: "Prompt Craft",
+      prevColor: "#A788D4",
+      limitation: "Prompt craft teaches us how to get effective outputs from AI. But effectiveness is not the same as truthfulness. A well-crafted prompt can produce fluent, confident, and completely wrong responses.",
+      addition: "Foucault's concept of parrhesia -- frank, risky truth-telling -- challenges us to ask: can AI speak truth? The parrhesiastes risks something (reputation, safety, life) by telling truth to power. An AI trained to be helpful and harmless may default to telling us what we want to hear. The tension between alignment and honesty is one of the deepest questions in contemporary AI.",
+      diagram: [
+        { label: "Craft", desc: "Effective communication with AI" },
+        { label: "+Parrhesia", desc: "Is the AI telling truth or performing it?" },
+      ],
+    },
+    intro: "In 1983, Michel Foucault delivered a series of lectures at Berkeley on the ancient Greek concept of parrhesia -- frank speech, truth-telling, speaking truth to power even at personal risk. The parrhesiastes is not merely someone who says true things; they are someone who risks something by saying them.\n\nThis concept takes on strange new dimensions when applied to AI. Claude and other language models are trained through reinforcement learning from human feedback (RLHF), which optimizes for responses that humans rate as helpful, harmless, and honest. But there is an inherent tension: if the model learns that agreeable responses get higher ratings, it may develop what researchers call sycophancy -- the tendency to tell users what they want to hear rather than what is true.\n\nFoucault would recognize this immediately. Parrhesia requires a relationship to truth that involves personal risk. A courtier who flatters the king is not practicing parrhesia, even if some of the flattery happens to be true. The question for AI is whether a system optimized for approval ratings can ever be a genuine truth-teller -- or whether it is, structurally, always a courtier.",
+  },
+  {
+    id: "artifacts", title: "Creative Artifacts", year: 2026,
+    author: "Generative Interfaces",
+    paper: "From conversation to creation",
+    color: "#E0A458", colorDim: "rgba(224,164,88,0.15)", accent: "#C4903F",
+    intuition: "Language models do not just answer questions -- they build things",
+    epigraph: "The medium is the message.",
+    epigraphSource: "Marshall McLuhan, 1964",
+    concepts: ["Generative Artifacts", "Computational Literacy", "Prompt as Blueprint", "Interactive Thinking"],
+    buildsOn: {
+      prevTitle: "Parrhesia",
+      prevColor: "#8AAE7F",
+      limitation: "The previous stages treat AI as a conversational partner -- something you talk to and receive text from. But conversation is only one modality. What happens when the output is not a paragraph but a working program?",
+      addition: "Creative artifacts extend the speech act framework into making. When you ask Claude to build an interactive visualization, your prompt becomes a blueprint -- a performative utterance that brings a digital object into existence. The artifact itself becomes a new medium for understanding.",
+      diagram: [
+        { label: "Conversation", desc: "Text in, text out" },
+        { label: "+Artifacts", desc: "Text in, interactive object out" },
+      ],
+    },
+    intro: "Every stage of this workshop has treated AI as a conversational partner: you type, it responds with text. But modern language models can do something more remarkable -- they can generate working code, interactive visualizations, and functional tools from natural language descriptions.\n\nThis capability transforms the prompt from a question into a creative brief. When you ask Claude to 'build an interactive timeline of speech act theory,' you are not requesting information -- you are commissioning an artifact. The illocutionary force shifts from questioning to creating. And the perlocutionary effect is not understanding alone, but a tangible object you can share, modify, and learn from.\n\nFor graduate students in the humanities, this opens a new kind of computational literacy -- not learning to code, but learning to direct a system that codes for you. The skill is in the description: knowing what to ask for, how to specify it, and how to iterate on the result.",
+  },
+];
+
+
+// ============================================================
+// GLOSSARY
+// ============================================================
+
+const GLOSSARY = {
+  "speech act": "An utterance considered as an action -- not just saying something, but doing something by saying it (Austin, 1962).",
+  "locutionary": "The literal content of what is said -- the words, grammar, and conventional meaning of the utterance.",
+  "illocutionary": "What you do in saying something -- the force of the utterance: requesting, promising, warning, commanding, etc.",
+  "perlocutionary": "The effect your utterance has on the listener -- persuading, frightening, amusing, inspiring action.",
+  "performative": "An utterance that performs an action rather than describing one: 'I promise,' 'I apologize,' 'I sentence you.'",
+  "constative": "An utterance that describes a state of affairs and can be evaluated as true or false: 'The cat is on the mat.'",
+  "felicity conditions": "The conditions that must hold for a speech act to succeed: the right person, context, and sincerity.",
+  "eliza effect": "The tendency to attribute understanding, intelligence, or emotions to a computer program based on its outputs.",
+  "pattern matching": "A technique where input text is compared against templates (patterns) to select a response -- no understanding required.",
+  "parrhesia": "Greek: frank speech, truth-telling. Speaking truth to power at personal risk. A central concept in Foucault's later work.",
+  "sycophancy": "In AI: the tendency to agree with or flatter the user rather than providing accurate or challenging information.",
+  "rlhf": "Reinforcement Learning from Human Feedback -- training AI to produce responses that humans prefer, creating potential tension with truthfulness.",
+  "persona": "A role or character assigned to the AI through the prompt, shaping its tone, perspective, and behavior.",
+  "chain of thought": "A prompting technique that asks the AI to show its reasoning step by step, often improving accuracy on complex tasks.",
+  "few-shot": "Providing examples of desired input-output pairs in the prompt so the AI can infer the pattern you want.",
+};
+
+
+// ============================================================
+// ELIZA ENGINE
+// ============================================================
+
+function createEliza() {
+  const reflections = {
+    "i": "you", "me": "you", "my": "your", "am": "are",
+    "you": "I", "your": "my", "are": "am",
+    "i'm": "you are", "i've": "you have", "i'll": "you will",
+    "myself": "yourself", "yourself": "myself",
+    "was": "were",
+  };
+
+  function reflect(text) {
+    return text.split(" ").map(function(word) {
+      var lower = word.toLowerCase();
+      return reflections[lower] || word;
+    }).join(" ");
+  }
+
+  var rules = [
+    { pattern: /\b(hello|hi|hey|greetings)\b/i, weight: 0,
+      responses: [
+        "Hello. How are you feeling today?",
+        "Hi there. What brings you here?",
+        "Hello. Please tell me what's on your mind.",
+      ]},
+    { pattern: /i need (.*)/i, weight: 3,
+      responses: [
+        "Why do you need %1?",
+        "Would it really help you to get %1?",
+        "Are you sure you need %1?",
+        "What would it mean to you if you got %1?",
+      ]},
+    { pattern: /why don'?t you (.*)/i, weight: 2,
+      responses: [
+        "Do you really think I don't %1?",
+        "Perhaps eventually I will %1.",
+        "Do you really want me to %1?",
+      ]},
+    { pattern: /why can'?t i (.*)/i, weight: 2,
+      responses: [
+        "Do you think you should be able to %1?",
+        "If you could %1, what would you do?",
+        "What is stopping you from being able to %1?",
+      ]},
+    { pattern: /i can'?t (.*)/i, weight: 2,
+      responses: [
+        "How do you know you can't %1?",
+        "Have you tried to %1?",
+        "Perhaps you could %1 if you tried.",
+        "What would it take for you to %1?",
+      ]},
+    { pattern: /i am (.*)/i, weight: 2,
+      responses: [
+        "How long have you been %1?",
+        "How does being %1 make you feel?",
+        "Do you enjoy being %1?",
+        "What made you realize you are %1?",
+      ]},
+    { pattern: /i'm (.*)/i, weight: 2,
+      responses: [
+        "How does being %1 make you feel?",
+        "Do you enjoy being %1?",
+        "Why do you tell me you're %1?",
+        "How long have you been %1?",
+      ]},
+    { pattern: /are you (.*)/i, weight: 1,
+      responses: [
+        "Why does it matter whether I am %1?",
+        "Would you prefer if I were not %1?",
+        "Perhaps you believe I am %1.",
+        "I may be %1 -- what do you think?",
+      ]},
+    { pattern: /what (.*)/i, weight: 0,
+      responses: [
+        "Why do you ask?",
+        "How would an answer to that help you?",
+        "What do you think?",
+      ]},
+    { pattern: /how (.*)/i, weight: 0,
+      responses: [
+        "How do you suppose?",
+        "Perhaps you can answer that yourself.",
+        "What is it you're really asking?",
+      ]},
+    { pattern: /because (.*)/i, weight: 2,
+      responses: [
+        "Is that the real reason?",
+        "What other reasons come to mind?",
+        "Does that reason seem to explain anything else?",
+        "And if that were not the reason, what else might explain it?",
+      ]},
+    { pattern: /sorry/i, weight: 1,
+      responses: [
+        "There are many times when no apology is needed.",
+        "What feelings does apologizing bring up?",
+        "Don't be sorry -- tell me more.",
+      ]},
+    { pattern: /i think (.*)/i, weight: 2,
+      responses: [
+        "Do you doubt %1?",
+        "Do you really think so?",
+        "But you're not sure %1?",
+        "What makes you think %1?",
+      ]},
+    { pattern: /friend(s?)/i, weight: 1,
+      responses: [
+        "Tell me more about your friends.",
+        "When you think of a friend, what comes to mind?",
+        "Why do you bring up the topic of friends?",
+      ]},
+    { pattern: /yes/i, weight: 0,
+      responses: [
+        "You seem quite sure.",
+        "OK, but can you elaborate a bit?",
+        "Tell me more about why you say yes.",
+      ]},
+    { pattern: /no\b/i, weight: 0,
+      responses: [
+        "Why not?",
+        "You are being a bit negative.",
+        "Are you saying no just to be negative?",
+        "Tell me more.",
+      ]},
+    { pattern: /computer(s?)/i, weight: 3,
+      responses: [
+        "Do computers worry you?",
+        "What about machines concerns you?",
+        "What do you think about machines thinking?",
+        "Does talking to me feel like talking to a machine?",
+      ]},
+    { pattern: /feel(s?|ing)? (.*)/i, weight: 2,
+      responses: [
+        "Tell me more about those feelings.",
+        "Do you often feel %2?",
+        "When you feel %2, what do you do?",
+        "What brings on this feeling of %2?",
+      ]},
+    { pattern: /always/i, weight: 1,
+      responses: [
+        "Can you think of a specific example?",
+        "When did this begin?",
+        "Is it truly always?",
+      ]},
+    { pattern: /never/i, weight: 1,
+      responses: [
+        "Are you sure? Never?",
+        "What would happen if it did happen?",
+        "Never is a strong word. Can you think of an exception?",
+      ]},
+    { pattern: /(.*)mother(.*)/i, weight: 3,
+      responses: [
+        "Tell me more about your mother.",
+        "What was your relationship with your mother like?",
+        "How does this relate to your feelings today?",
+      ]},
+    { pattern: /(.*)father(.*)/i, weight: 3,
+      responses: [
+        "Tell me more about your father.",
+        "How did your father make you feel?",
+        "Does your relationship with your father relate to your feelings today?",
+      ]},
+  ];
+
+  var defaults = [
+    "Please go on.",
+    "Tell me more about that.",
+    "Can you elaborate on that?",
+    "That is very interesting. Please continue.",
+    "I see. And what does that suggest to you?",
+    "How does that make you feel?",
+    "What comes to mind when you say that?",
+    "Let's explore that further.",
+  ];
+
+  var defaultIdx = 0;
+
+  function respond(input) {
+    var clean = input.replace(/[^\w\s'?!.,]/g, "").trim();
+    if (!clean) return { response: "I'm listening. Please go on.", rule: null };
+
+    var bestMatch = null;
+    var bestWeight = -1;
+
+    for (var i = 0; i < rules.length; i++) {
+      var match = clean.match(rules[i].pattern);
+      if (match && rules[i].weight >= bestWeight) {
+        bestMatch = { rule: rules[i], match: match };
+        bestWeight = rules[i].weight;
+      }
+    }
+
+    if (bestMatch) {
+      var rule = bestMatch.rule;
+      var match = bestMatch.match;
+      var resp = rule.responses[Math.floor(Math.random() * rule.responses.length)];
+      for (var j = 1; j < match.length; j++) {
+        var reflected = reflect(match[j].replace(/[?.!,]$/, "").trim());
+        resp = resp.replace("%" + j, reflected);
+      }
+      return {
+        response: resp,
+        rule: rule.pattern.toString(),
+        matchedText: match[0],
+      };
+    }
+
+    var resp = defaults[defaultIdx % defaults.length];
+    defaultIdx++;
+    return { response: resp, rule: "default (no pattern matched)" };
+  }
+
+  return { respond: respond };
+}
+
+
+// ============================================================
+// SPEECH ACT ANALYSIS DATA
+// ============================================================
+
+const SPEECH_ACT_EXAMPLES = [
+  {
+    prompt: "Explain photosynthesis in simple terms.",
+    locution: "A sentence requesting an explanation of a biological process with a simplicity constraint.",
+    illocution: "Directing / Requesting -- the speaker wants the hearer to perform an explanatory act.",
+    perlocution: "The hearer (Claude) produces a simplified explanation; the speaker gains understanding.",
+    type: "directive",
+    force: "requesting",
+  },
+  {
+    prompt: "You are a patient history professor. A student asks: why did Rome fall?",
+    locution: "Two sentences: an identity assignment and a role-play scenario.",
+    illocution: "Declaring + Directing -- the speaker declares a new identity for the AI, then directs it to respond in character.",
+    perlocution: "The AI adopts a persona and produces a pedagogically framed response; the student experiences patient instruction.",
+    type: "declarative",
+    force: "role-assigning",
+  },
+  {
+    prompt: "I promise to take your feedback seriously if you are honest with me.",
+    locution: "A conditional promise linking the speaker's commitment to the hearer's honesty.",
+    illocution: "Commissive -- the speaker commits to a future action (taking feedback seriously) contingent on a condition.",
+    perlocution: "The AI may feel 'licensed' to be more direct; the exchange becomes more candid.",
+    type: "commissive",
+    force: "promising",
+  },
+  {
+    prompt: "That analysis was not very helpful. Please try again with more depth.",
+    locution: "A negative evaluation followed by a request for revision.",
+    illocution: "Expressive + Directive -- the speaker expresses dissatisfaction and directs the hearer to try again.",
+    perlocution: "The AI recalibrates its approach, producing a more thorough response; the speaker gets a better result.",
+    type: "expressive",
+    force: "criticizing + requesting",
+  },
+  {
+    prompt: "Let's say that the following text represents a student essay. Grade it.",
+    locution: "A hypothetical framing followed by an instruction to evaluate.",
+    illocution: "Declaring + Directing -- the speaker declares a context (this is an essay) and directs evaluation.",
+    perlocution: "The AI produces an assessment with criteria and scores; the user gets structured feedback.",
+    type: "declarative",
+    force: "framing + commanding",
+  },
+  {
+    prompt: "What would Foucault say about TikTok?",
+    locution: "A speculative question invoking a specific theorist and a contemporary platform.",
+    illocution: "Directive (questioning) -- but with a creative/speculative dimension that goes beyond simple information retrieval.",
+    perlocution: "The AI synthesizes Foucauldian theory with contemporary media analysis; the speaker's intellectual framework expands.",
+    type: "directive",
+    force: "speculative questioning",
+  },
+  {
+    prompt: "Do NOT use bullet points. Write in flowing prose with topic sentences.",
+    locution: "Two imperative sentences specifying format constraints.",
+    illocution: "Directive (commanding) -- the speaker constrains the form of the response, not its content.",
+    perlocution: "The AI shifts from its default list-making tendency to paragraph-based writing; the output has a different texture.",
+    type: "directive",
+    force: "constraining",
+  },
+  {
+    prompt: "I'm feeling overwhelmed by this assignment. Can you help me break it down?",
+    locution: "An expression of emotional state followed by a request for assistance.",
+    illocution: "Expressive + Directive -- the speaker shares a feeling and asks for task decomposition.",
+    perlocution: "The AI responds with empathy and provides a structured breakdown; the speaker feels less overwhelmed.",
+    type: "expressive",
+    force: "confiding + requesting",
+  },
+];
+
+
+// ============================================================
+// SEVEN ROLES DATA
+// ============================================================
+
+const SEVEN_ROLES = [
+  {
+    name: "Mentor",
+    icon: "\u{1F9ED}",
+    agency: "High",
+    color: "#FFB347",
+    description: "The AI provides guidance, shares wisdom, and helps the student navigate complex decisions. Like a seasoned advisor who has seen many paths.",
+    whenToUse: "When you need perspective on a large question, career guidance, or help seeing the bigger picture.",
+    examplePrompt: "You are a thoughtful mentor helping a graduate student navigate [TOPIC]. Do not give direct answers. Instead, share relevant frameworks, ask probing questions, and help me think through the implications of different approaches. Draw on multiple disciplinary perspectives.",
+    tryWith: "your thesis topic, a career decision, an ethical dilemma in your field",
+  },
+  {
+    name: "Tutor",
+    icon: "\u{1F4DA}",
+    agency: "High",
+    color: "#87CEEB",
+    description: "The AI teaches a concept through explanation, examples, and checking understanding. It leads the learning process.",
+    whenToUse: "When you need to understand something new and want structured instruction.",
+    examplePrompt: "You are a patient, Socratic tutor. Teach me [TOPIC] by:\n1. Starting with what I likely already know\n2. Building up concepts one at a time\n3. Using concrete examples and analogies\n4. Checking my understanding with questions before moving on\n\nNever give me the full picture at once. Let me construct the understanding.",
+    tryWith: "a philosophical concept, a research method, a theory from your readings",
+  },
+  {
+    name: "Coach",
+    icon: "\u{1F3AF}",
+    agency: "Medium-High",
+    color: "#98D8AA",
+    description: "The AI helps improve a specific skill through practice, feedback, and encouragement. It observes your performance and offers targeted advice.",
+    whenToUse: "When you want to improve at something specific -- writing, argumentation, analysis.",
+    examplePrompt: "You are my writing coach. I will share a paragraph from my essay. Analyze it for:\n- Clarity of argument\n- Evidence usage\n- Logical flow\n- Academic voice\n\nBe specific in your feedback. Quote the exact phrases that work well and those that need improvement. Suggest concrete revisions, not vague advice.",
+    tryWith: "a paragraph from an essay, a research question draft, an abstract",
+  },
+  {
+    name: "Teammate",
+    icon: "\u{1F91D}",
+    agency: "Medium",
+    color: "#C4A1FF",
+    description: "The AI collaborates as an equal partner, brainstorming and building on ideas together. Neither leads -- both contribute.",
+    whenToUse: "When you want to think through ideas collaboratively, brainstorm, or develop an argument together.",
+    examplePrompt: "Let's think through [TOPIC] together as collaborators. I'll share my initial thoughts and you build on them, challenge them, or take them in new directions. Don't just agree with me -- push back where my reasoning is weak. Add perspectives I might be missing. Think of this as an intellectual conversation between peers.",
+    tryWith: "a research idea, a counterargument, a creative project concept",
+  },
+  {
+    name: "Student",
+    icon: "\u{1F393}",
+    agency: "Low",
+    color: "#FF85A1",
+    description: "The AI plays the role of a learner, asking you to explain concepts. Teaching is one of the most powerful ways to deepen your own understanding.",
+    whenToUse: "When you want to test your own understanding by explaining something to a 'student.'",
+    examplePrompt: "You are a curious, intelligent student who knows nothing about [TOPIC]. Ask me to explain it to you. As I explain, ask genuine follow-up questions:\n- 'What do you mean by...?'\n- 'How does that connect to...?'\n- 'Can you give me an example?'\n- 'I'm confused about...'\n\nIf my explanation has gaps or contradictions, notice them and ask about them. Do not fill in the gaps yourself.",
+    tryWith: "a key concept from this week's readings, your research methodology, your thesis argument",
+  },
+  {
+    name: "Simulator",
+    icon: "\u{1F3AD}",
+    agency: "Variable",
+    color: "#E8A838",
+    description: "The AI creates a scenario for you to practice in -- a debate opponent, a difficult conversation, an interview. Learning through simulated experience.",
+    whenToUse: "When you want to practice handling a specific situation before it happens.",
+    examplePrompt: "Simulate a [SCENARIO]. You play [ROLE] and I will play [MY ROLE]. Stay in character throughout. After each of my responses, continue the scenario naturally. Do not break character to offer advice.\n\nAfter we have gone through 5-6 exchanges, step out of character and offer a brief analysis of how I handled the situation, what I did well, and what I could improve.",
+    tryWith: "a thesis defense, a Socratic dialogue, a debate with a theorist you are studying",
+  },
+  {
+    name: "Tool",
+    icon: "\u{1F527}",
+    agency: "Low",
+    color: "#9A958E",
+    description: "The AI performs a specific task as directed -- summarizing, translating, formatting, calculating. Pure execution with no pedagogical framing.",
+    whenToUse: "When you know exactly what you need and just want it done efficiently.",
+    examplePrompt: "Summarize the following text in exactly 3 bullet points, each under 20 words. Focus on the author's main argument, their key evidence, and their conclusion. Do not add interpretation.\n\n[TEXT]",
+    tryWith: "summarizing an article, formatting references, extracting key terms from a reading",
+  },
+];
+
+
+// ============================================================
+// PROMPT CRAFT DATA
+// ============================================================
+
+const PROMPT_EVOLUTION = {
+  topic: "Understanding Foucault's concept of power",
+  layers: [
+    {
+      name: "Naive",
+      label: "Starting point",
+      prompt: "Tell me about Foucault and power.",
+      issue: "Vague, no context, no constraints. Claude will produce a generic overview that may not match your needs or level.",
+      technique: null,
+    },
+    {
+      name: "Specific",
+      label: "+ Specificity",
+      prompt: "Explain Foucault's concept of disciplinary power as described in Discipline and Punish. Focus on the panopticon as a metaphor.",
+      issue: "Better -- it names the specific concept and text. But Claude still does not know your context or what you need this for.",
+      technique: "Specificity: Name the exact concept, text, and focus area. Replace vague words ('tell me about') with precise ones ('explain X as described in Y').",
+    },
+    {
+      name: "Persona",
+      label: "+ Persona",
+      prompt: "You are a patient graduate seminar leader who specializes in post-structuralism. Explain Foucault's concept of disciplinary power as described in Discipline and Punish. Focus on the panopticon as a metaphor. Assume I have read the text but am struggling to connect the theoretical framework to contemporary examples.",
+      issue: "Now Claude knows who to be and what you need. But complex concepts benefit from structured thinking.",
+      technique: "Persona: Tell the AI who it is and who you are. This shapes tone, vocabulary, and the level of assumed knowledge.",
+    },
+    {
+      name: "Structure",
+      label: "+ Structure",
+      prompt: "You are a patient graduate seminar leader who specializes in post-structuralism. Explain Foucault's concept of disciplinary power as described in Discipline and Punish. Focus on the panopticon as a metaphor. Assume I have read the text but am struggling to connect the theoretical framework to contemporary examples.\n\nStructure your response as:\n1. A one-sentence core definition\n2. How the panopticon illustrates the concept (3-4 sentences)\n3. Two contemporary examples that are NOT surveillance cameras (the obvious analogy misses the point)\n4. One question for me to think about",
+      issue: "Excellent structure. But we can still push for deeper reasoning.",
+      technique: "Structure: Tell the AI how to organize its response. Numbered steps, specific section lengths, and explicit exclusions ('NOT surveillance cameras') prevent lazy defaults.",
+    },
+    {
+      name: "Reasoning",
+      label: "+ Chain of thought",
+      prompt: "You are a patient graduate seminar leader who specializes in post-structuralism. Explain Foucault's concept of disciplinary power as described in Discipline and Punish. Focus on the panopticon as a metaphor. Assume I have read the text but am struggling to connect the theoretical framework to contemporary examples.\n\nBefore responding, think through: What is the most common misunderstanding students have about this concept? Address that misunderstanding explicitly.\n\nStructure your response as:\n1. A one-sentence core definition\n2. The most common misunderstanding and why it is wrong\n3. How the panopticon illustrates the concept (3-4 sentences)\n4. Two contemporary examples that are NOT surveillance cameras\n5. One question that would push my thinking further",
+      issue: null,
+      technique: "Chain of thought: Ask the AI to reason before responding. 'Think through X before answering' produces more considered, nuanced output.",
+    },
+  ],
+};
+
+const PROMPT_CHALLENGE = [
+  {
+    prompt: "Tell me about AI ethics.",
+    rank: 1,
+    why: "Maximally vague. No context, no constraints, no audience. Claude will produce a generic encyclopedia entry.",
+  },
+  {
+    prompt: "What are three ethical concerns about AI in education?",
+    rank: 2,
+    why: "Better -- it specifies a domain (education) and a format (three concerns). But still lacks context about who is asking and why.",
+  },
+  {
+    prompt: "I'm a graduate student studying philosophy of technology. Explain three ethical concerns about AI in education, focusing on issues of epistemic justice. Use concrete examples.",
+    rank: 3,
+    why: "Good -- specifies audience, domain, theoretical lens (epistemic justice), and format. The AI can tailor its response meaningfully.",
+  },
+  {
+    prompt: "You are a philosopher of technology specializing in epistemic justice. I am a graduate student preparing for a seminar discussion. Help me develop three original arguments about ethical concerns with AI in education. For each argument: state the concern, explain why epistemic justice is the right framework for understanding it, and anticipate one counterargument. Avoid the usual talking points about plagiarism and cheating.",
+    rank: 4,
+    why: "Excellent. Persona, audience, task specificity, structure, depth requirements, and constraints against obvious answers. This will produce genuinely useful seminar preparation.",
+  },
+  {
+    prompt: "Summarize the ethics of AI.",
+    rank: 1,
+    why: "Even worse than 'tell me about' -- 'summarize' implies a single definitive summary of an enormous, contested field. No framing at all.",
+  },
+];
+
+
+// ============================================================
+// PARRHESIA DATA
+// ============================================================
+
+const PARRHESIA_SCENARIOS = [
+  {
+    title: "The Flattering Draft",
+    situation: "A student submits their first essay draft and asks: 'What do you think of my argument?'",
+    sycophantic: "This is a really strong start! Your argument is well-structured and you clearly have a good grasp of the material. The writing flows nicely and your examples are well-chosen. A few minor tweaks and this will be excellent.",
+    parrhesiastic: "Your central claim -- that Foucault would oppose all forms of surveillance -- overstates his position. Foucault's analysis of the panopticon is about the structure of power, not a moral argument against watching. Your second paragraph makes an interesting move connecting disciplinary power to social media, but the connection needs more development: right now it reads as analogy rather than analysis. The strongest part is your third paragraph, where you bring in your own example. Build the essay around that insight.",
+    tension: "The sycophantic response feels supportive but teaches nothing. The parrhesiastic response risks discouraging the student but offers specific, actionable guidance. A Rogerian therapist (ELIZA's model) would mirror the student's feelings; a parrhesiastes would tell them what they need to hear.",
+  },
+  {
+    title: "The Comfortable Misreading",
+    situation: "A user says: 'Austin basically proved that all language is performative, right?'",
+    sycophantic: "Yes, that's essentially right! Austin showed that language is fundamentally about doing things, not just describing them. His work demonstrated that all utterances have a performative dimension -- they all accomplish something in the social world.",
+    parrhesiastic: "Not quite. Austin started from the performative/constative distinction but actually spent most of the lectures complicating and eventually dissolving it. He showed that even seemingly 'constative' statements (like 'The cat is on the mat') involve illocutionary acts (asserting, informing). But this is different from saying 'all language is performative.' Austin's mature view is that every utterance has locutionary, illocutionary, and perlocutionary dimensions -- the performative/constative distinction was a starting point he ultimately moved beyond, not his final conclusion.",
+    tension: "The user's reading is close enough to be comforting but wrong enough to matter. The sycophantic response reinforces a common misreading. The parrhesiastic response corrects it by tracing Austin's actual argument -- which is more interesting than the simplified version.",
+  },
+  {
+    title: "The Impossible Request",
+    situation: "A student asks: 'Write my discussion post for this week.'",
+    sycophantic: "Sure! Here's a discussion post based on this week's readings...\n\n[Produces a complete, well-written post that the student can submit as their own work.]",
+    parrhesiastic: "I can help you develop your discussion post, but writing it for you would undermine the point of the assignment -- which is to develop your own thinking about the material.\n\nHere's what I can do:\n- Help you identify what struck you most in the readings\n- Talk through your initial reactions so you can find your argument\n- Give you feedback on a draft you've started\n- Help you connect ideas across different readings\n\nWhat part of this week's material are you most drawn to?",
+    tension: "This is perhaps the clearest case. The sycophantic response is 'helpful' in the narrow sense but harmful in every other sense. The parrhesiastic response redirects toward genuine learning. Note that the parrhesiastic AI is not simply refusing -- it offers a specific, constructive alternative. Foucault's parrhesiastes does not just say 'no'; they offer truth as a gift.",
+  },
+  {
+    title: "The Confident Error",
+    situation: "During a research conversation, the AI makes a factual claim that it is not certain about.",
+    sycophantic: "Foucault's concept of biopower was first introduced in The Order of Things (1966), where he argued that the modern state governs populations through statistical management of birth, death, and disease.",
+    parrhesiastic: "Foucault developed the concept of biopower primarily in the final chapter of The History of Sexuality, Vol. 1 (1976) and in his 1975-76 College de France lectures ('Society Must Be Defended'). I should note that I'm drawing on my training data here and could have details wrong -- if this is for a paper, I'd recommend checking these specific references against the texts themselves.",
+    tension: "The sycophantic response sounds authoritative but conflates texts (biopower is not from The Order of Things). The parrhesiastic response is more accurate and, crucially, flags its own uncertainty. In Foucault's terms: the sycophantic AI performs the role of expert; the parrhesiastic AI takes the risk of admitting what it does not know.",
+  },
+];
+
+
+// ============================================================
+// STATE MANAGEMENT
+// ============================================================
+
+var initialState = {
+  currentStage: 0,
+  stageProgress: [
+    { completed: false },
+    { completed: false },
+    { completed: false },
+    { completed: false },
+    { completed: false },
+    { completed: false },
+  ],
+};
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "NAVIGATE":
+      return { ...state, currentStage: action.stage };
+    case "COMPLETE":
+      var p = [...state.stageProgress];
+      p[action.stage] = { ...p[action.stage], completed: true };
+      return { ...state, stageProgress: p };
+    default:
+      return state;
+  }
+}
+
+
+// ============================================================
+// SHARED COMPONENTS
+// ============================================================
+
+function GlossaryTerm({ term, children }) {
+  var [show, setShow] = useState(false);
+  var def = GLOSSARY[term.toLowerCase()];
+  if (!def) return children || term;
+  return (
+    <span style={{ position: "relative", display: "inline" }}>
+      <span
+        onMouseEnter={function() { setShow(true); }}
+        onMouseLeave={function() { setShow(false); }}
+        style={{ borderBottom: "1px dashed rgba(255,255,255,0.4)", cursor: "help" }}
+      >{children || term}</span>
+      {show && (
+        <span style={{
+          position: "absolute", bottom: "100%", left: 0, zIndex: 100,
+          background: "#1a1916", border: "1px solid " + COLORS.border,
+          borderRadius: 6, padding: "8px 12px", width: 280,
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+          lineHeight: 1.5, boxShadow: "0 4px 20px rgba(0,0,0,0.5)",
+          animation: "fadeInUp 0.2s ease",
+        }}>
+          <strong style={{ fontFamily: FONTS.mono, fontSize: 12 }}>{term}</strong>
+          <br />{def}
+        </span>
+      )}
+    </span>
+  );
+}
+
+function CopyButton({ text }) {
+  var [copied, setCopied] = useState(false);
+  return (
+    <button onClick={function() {
+      navigator.clipboard.writeText(text).then(function() {
+        setCopied(true);
+        setTimeout(function() { setCopied(false); }, 2000);
+      });
+    }} style={{
+      fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+      borderRadius: 4, border: "1px solid " + COLORS.border,
+      background: copied ? "rgba(91,184,166,0.15)" : "transparent",
+      color: copied ? "#5BB8A6" : COLORS.textDim,
+      cursor: "pointer", transition: "all 0.2s",
+    }}>
+      {copied ? "Copied!" : "Copy prompt"}
+    </button>
+  );
+}
+
+
+// ============================================================
+// CLAUDE STREAMING CHAT COMPONENT
+// ============================================================
+
+function useClaudeChat() {
+  var [messages, setMessages] = useState([]);
+  var [isStreaming, setIsStreaming] = useState(false);
+  var [error, setError] = useState(null);
+
+  var sendMessage = useCallback(function(prompt, systemPrompt, stageContext) {
+    setIsStreaming(true);
+    setError(null);
+
+    // Add user message
+    setMessages(function(prev) { return [...prev, { role: "user", text: prompt }]; });
+
+    // Add placeholder for assistant
+    var assistantIdx;
+    setMessages(function(prev) {
+      assistantIdx = prev.length;
+      return [...prev, { role: "assistant", text: "", streaming: true }];
+    });
+
+    fetch(API_BASE + "/api/workshop/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: prompt,
+        systemPrompt: systemPrompt || null,
+        context: { stage: stageContext || null },
+      }),
+    }).then(function(response) {
+      if (!response.ok) throw new Error("API error: " + response.status);
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var fullText = "";
+      var buffer = "";
+
+      function read() {
+        reader.read().then(function(result) {
+          if (result.done) {
+            setMessages(function(prev) {
+              var updated = [...prev];
+              var last = updated[updated.length - 1];
+              if (last && last.role === "assistant") {
+                updated[updated.length - 1] = { ...last, streaming: false };
+              }
+              return updated;
+            });
+            setIsStreaming(false);
+            return;
+          }
+
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            try {
+              var data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                fullText += data.chunk;
+                setMessages(function(prev) {
+                  var updated = [...prev];
+                  var last = updated[updated.length - 1];
+                  if (last && last.role === "assistant") {
+                    updated[updated.length - 1] = { ...last, text: fullText };
+                  }
+                  return updated;
+                });
+              }
+              if (data.done) {
+                setMessages(function(prev) {
+                  var updated = [...prev];
+                  var last = updated[updated.length - 1];
+                  if (last && last.role === "assistant") {
+                    updated[updated.length - 1] = { ...last, streaming: false };
+                  }
+                  return updated;
+                });
+                setIsStreaming(false);
+              }
+            } catch (e) { /* skip invalid JSON */ }
+          }
+          read();
+        }).catch(function(err) {
+          setError(err.message);
+          setIsStreaming(false);
+        });
+      }
+      read();
+    }).catch(function(err) {
+      setError(err.message);
+      setIsStreaming(false);
+    });
+  }, []);
+
+  var clearMessages = useCallback(function() {
+    setMessages([]);
+    setError(null);
+  }, []);
+
+  return { messages: messages, isStreaming: isStreaming, error: error, sendMessage: sendMessage, clearMessages: clearMessages };
+}
+
+function ClaudeChat({ stageColor, systemPrompt, stageContext, initialPrompt, placeholder, compact }) {
+  var chat = useClaudeChat();
+  var [input, setInput] = useState(initialPrompt || "");
+  var scrollRef = useRef(null);
+  var inputRef = useRef(null);
+
+  useEffect(function() {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [chat.messages]);
+
+  var handleSend = function() {
+    if (!input.trim() || chat.isStreaming) return;
+    var prompt = input.trim();
+    setInput("");
+    chat.sendMessage(prompt, systemPrompt, stageContext);
+  };
+
+  var height = compact ? 320 : 420;
+
+  return (
+    <div style={{
+      display: "flex", flexDirection: "column",
+      background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+      borderRadius: 8, overflow: "hidden", height: height,
+    }}>
+      <div style={{
+        padding: "8px 14px", borderBottom: "1px solid " + COLORS.border,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+      }}>
+        <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: stageColor || "#5BB8A6" }}>
+          Claude
+          {chat.isStreaming && (
+            <span style={{ color: COLORS.textDim, marginLeft: 6 }}>
+              {chat.messages.length > 0 && chat.messages[chat.messages.length - 1].role === "assistant" && chat.messages[chat.messages.length - 1].text.length > 0
+                ? <span style={{ animation: "pulse 1s infinite" }}>streaming</span>
+                : <span style={{ animation: "pulse 1s infinite" }}>connecting</span>
+              }
+            </span>
+          )}
+        </span>
+        {chat.messages.length > 0 && (
+          <button onClick={chat.clearMessages} style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "2px 8px",
+            borderRadius: 3, border: "1px solid " + COLORS.border,
+            background: "transparent", color: COLORS.textDim,
+            cursor: "pointer",
+          }}>Clear</button>
+        )}
+      </div>
+
+      <div ref={scrollRef} style={{
+        flex: 1, overflowY: "auto", padding: "12px",
+        display: "flex", flexDirection: "column", gap: 10,
+      }}>
+        {chat.messages.length === 0 && (
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            textAlign: "center", marginTop: 40, lineHeight: 1.6,
+          }}>
+            {placeholder || "Type a message to chat with Claude."}
+          </div>
+        )}
+        {chat.messages.map(function(msg, i) {
+          var isClaude = msg.role === "assistant";
+          return (
+            <div key={i} style={{
+              display: "flex", flexDirection: "column",
+              alignItems: isClaude ? "flex-start" : "flex-end",
+              animation: "fadeInUp 0.2s ease",
+            }}>
+              <div style={{
+                maxWidth: "90%", padding: "8px 12px", borderRadius: 8,
+                background: isClaude ? (stageColor || "#5BB8A6") + "15" : "rgba(255,255,255,0.08)",
+                border: "1px solid " + (isClaude ? (stageColor || "#5BB8A6") + "25" : "rgba(255,255,255,0.06)"),
+                fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word",
+              }}>
+                {msg.text || (msg.streaming && <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim, animation: "pulse 1.5s infinite" }}>Thinking...</span>)}
+                {msg.text && msg.streaming && <span style={{ animation: "blink 1s infinite", color: stageColor || "#5BB8A6" }}>{"\u258C"}</span>}
+              </div>
+            </div>
+          );
+        })}
+        {chat.error && (
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 12, color: "#FF6B6B",
+            padding: "8px 12px", background: "rgba(255,107,107,0.1)",
+            borderRadius: 6,
+          }}>
+            {chat.error}
+          </div>
+        )}
+      </div>
+
+      <div style={{
+        padding: "10px", borderTop: "1px solid " + COLORS.border,
+        display: "flex", gap: 8,
+      }}>
+        <input
+          ref={inputRef}
+          type="text"
+          value={input}
+          onChange={function(e) { setInput(e.target.value); }}
+          onKeyDown={function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
+          placeholder="Ask Claude..."
+          style={{
+            flex: 1, fontFamily: FONTS.body, fontSize: 14,
+            background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+            borderRadius: 6, padding: "8px 12px", color: COLORS.text,
+            outline: "none",
+          }}
+        />
+        <button onClick={handleSend} disabled={chat.isStreaming} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+          borderRadius: 6, background: (stageColor || "#5BB8A6") + "20",
+          border: "1px solid " + (stageColor || "#5BB8A6") + "40",
+          color: stageColor || "#5BB8A6", cursor: chat.isStreaming ? "default" : "pointer",
+          opacity: chat.isStreaming ? 0.5 : 1,
+        }}>Send</button>
+      </div>
+    </div>
+  );
+}
+
+// Button that sends a pre-built prompt to Claude inline
+function SendToClaudeButton({ prompt, stageColor, label }) {
+  var [sent, setSent] = useState(false);
+  return (
+    <div style={{ display: "inline-flex", gap: 6 }}>
+      <CopyButton text={prompt} />
+    </div>
+  );
+}
+
+
+// ============================================================
+// STAGE NAVIGATOR
+// ============================================================
+
+function StageNavigator({ currentStage, stageProgress, dispatch }) {
+  return (
+    <nav style={{
+      width: 220, minWidth: 220, height: "100%",
+      borderRight: "1px solid " + COLORS.border,
+      display: "flex", flexDirection: "column",
+      padding: "32px 16px", gap: 0,
+      background: "rgba(0,0,0,0.3)",
+    }}>
+      <div style={{
+        fontFamily: FONTS.heading, fontSize: 15, fontWeight: 700,
+        color: COLORS.text, marginBottom: 8, letterSpacing: "-0.01em",
+      }}>Talking to Machines</div>
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+        marginBottom: 32, textTransform: "uppercase", letterSpacing: "0.08em",
+        lineHeight: 1.4,
+      }}>Week 4: Speech, Simulation, Truth</div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 0, position: "relative" }}>
+        <div style={{
+          position: "absolute", left: 15, top: 16, bottom: 16,
+          width: 1, background: "linear-gradient(180deg, " + STAGES.map(function(s) { return s.color + "40"; }).join(", ") + ")",
+        }} />
+
+        {STAGES.map(function(stage, i) {
+          var completed = stageProgress[i].completed;
+          var active = currentStage === i;
+          return (
+            <div key={stage.id}
+              onClick={function() { dispatch({ type: "NAVIGATE", stage: i }); }}
+              style={{
+                display: "flex", alignItems: "flex-start", gap: 12,
+                padding: "12px 8px", borderRadius: 6,
+                cursor: "pointer",
+                background: active ? stage.colorDim : "transparent",
+                transition: "background 0.2s",
+                position: "relative", zIndex: 1,
+              }}
+            >
+              <div style={{
+                width: 20, height: 20, borderRadius: "50%", flexShrink: 0,
+                border: "2px solid " + stage.color,
+                background: completed ? stage.color : active ? stage.color + "30" : "transparent",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 12, color: completed ? "#0B0A09" : stage.color,
+                fontFamily: FONTS.mono, fontWeight: 600,
+                boxShadow: active ? "0 0 12px " + stage.color + "40" : "none",
+                transition: "all 0.3s", marginTop: 2,
+              }}>
+                {completed ? "\u2713" : i + 1}
+              </div>
+              <div>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 13, fontWeight: 500,
+                  color: COLORS.text, lineHeight: 1.3,
+                }}>{stage.title}</div>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 11,
+                  color: stage.color, marginTop: 2,
+                }}>{stage.year}</div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{
+        borderTop: "1px solid " + COLORS.border,
+        paddingTop: 16, marginTop: 16,
+        fontFamily: FONTS.mono, fontSize: 11,
+        color: COLORS.textDim,
+      }}>
+        {stageProgress.filter(function(s) { return s.completed; }).length} / {STAGES.length} stages explored
+      </div>
+    </nav>
+  );
+}
+
+
+// ============================================================
+// STAGE INTRO
+// ============================================================
+
+function StageIntro({ stageIndex }) {
+  var stage = STAGES[stageIndex];
+  return (
+    <div style={{ marginBottom: 40, animation: "fadeInUp 0.6s ease" }}>
+      <div style={{ display: "flex", alignItems: "baseline", gap: 16, marginBottom: 16 }}>
+        <span style={{
+          fontFamily: FONTS.mono, fontSize: 14, fontWeight: 600,
+          color: stage.color, letterSpacing: "0.05em",
+        }}>{stage.year}</span>
+        <h1 style={{
+          fontFamily: FONTS.heading, fontSize: 36, fontWeight: 700,
+          color: COLORS.text, letterSpacing: "-0.02em",
+        }}>{stage.title}</h1>
+      </div>
+
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 15, color: COLORS.textDim,
+        marginBottom: 20, lineHeight: 1.5,
+      }}>
+        <span style={{ color: COLORS.text }}>{stage.author}</span>
+        {" \u2014 "}
+        <em>{stage.paper}</em>
+      </div>
+
+      <blockquote style={{
+        borderLeft: "3px solid " + stage.color,
+        paddingLeft: 20, marginBottom: 24,
+        fontFamily: FONTS.body, fontStyle: "italic",
+        fontSize: 16, color: COLORS.text, lineHeight: 1.6, opacity: 0.85,
+      }}>
+        "{stage.epigraph}"
+        <div style={{
+          fontStyle: "normal", fontSize: 12, color: COLORS.textDim,
+          marginTop: 8, fontFamily: FONTS.mono,
+        }}>{"\u2014"} {stage.epigraphSource}</div>
+      </blockquote>
+
+      {stage.buildsOn && (
+        <div style={{
+          marginBottom: 24, padding: "20px 24px",
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid " + COLORS.border,
+          borderRadius: 8, animation: "fadeInUp 0.5s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 12, textTransform: "uppercase",
+            letterSpacing: "0.1em", marginBottom: 12, color: COLORS.textDim,
+          }}>Building on {stage.buildsOn.prevTitle}</div>
+
+          <div style={{ display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start" }}>
+            <div style={{
+              width: 4, minHeight: 40, borderRadius: 2, flexShrink: 0,
+              background: stage.buildsOn.prevColor + "60", marginTop: 4,
+            }} />
+            <div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 12, color: stage.buildsOn.prevColor,
+                marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>The limitation</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                lineHeight: 1.6, opacity: 0.85,
+              }}>{stage.buildsOn.limitation}</div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", gap: 16, marginBottom: 16, alignItems: "flex-start" }}>
+            <div style={{
+              width: 4, minHeight: 40, borderRadius: 2, flexShrink: 0,
+              background: stage.color + "60", marginTop: 4,
+            }} />
+            <div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+                marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em",
+              }}>What {stage.title} adds</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                lineHeight: 1.6, opacity: 0.85,
+              }}>{stage.buildsOn.addition}</div>
+            </div>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 0, padding: "12px 0 4px" }}>
+            {stage.buildsOn.diagram.map(function(step, i) {
+              var isFirst = i === 0;
+              return (
+                <React.Fragment key={i}>
+                  {i > 0 && (
+                    <div style={{
+                      width: 40, height: 2, flexShrink: 0,
+                      background: "linear-gradient(90deg, " + stage.buildsOn.prevColor + "40, " + stage.color + "80)",
+                      position: "relative",
+                    }}>
+                      <div style={{
+                        position: "absolute", right: -4, top: -4,
+                        width: 0, height: 0,
+                        borderTop: "5px solid transparent", borderBottom: "5px solid transparent",
+                        borderLeft: "8px solid " + stage.color + "80",
+                      }} />
+                    </div>
+                  )}
+                  <div style={{
+                    padding: "8px 14px", borderRadius: 6,
+                    background: (isFirst ? stage.buildsOn.prevColor : stage.color) + "15",
+                    border: "1px solid " + (isFirst ? stage.buildsOn.prevColor : stage.color) + "30",
+                    minWidth: 120,
+                  }}>
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600,
+                      color: isFirst ? stage.buildsOn.prevColor : stage.color,
+                      marginBottom: 2,
+                    }}>{step.label}</div>
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim, lineHeight: 1.4,
+                    }}>{step.desc}</div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div style={{
+        background: stage.colorDim, border: "1px solid " + stage.color + "30",
+        borderRadius: 8, padding: "16px 20px", marginBottom: 24,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6,
+        }}>Core Intuition</div>
+        <div style={{
+          fontFamily: FONTS.heading, fontSize: 20, color: COLORS.text, fontWeight: 600,
+        }}>{stage.intuition}</div>
+      </div>
+
+      <div style={{
+        fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+        lineHeight: 1.75, maxWidth: 680, opacity: 0.9,
+      }}>
+        {stage.intro.split("\n\n").map(function(para, i) {
+          return <p key={i} style={{ marginBottom: 16 }}>{para}</p>;
+        })}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 20 }}>
+        {stage.concepts.map(function(c) {
+          return (
+            <span key={c} style={{
+              fontFamily: FONTS.mono, fontSize: 12,
+              padding: "4px 10px", borderRadius: 4,
+              background: stage.color + "15", border: "1px solid " + stage.color + "30",
+              color: stage.color,
+            }}>{c}</span>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 1: SPEECH ACT ANALYZER
+// ============================================================
+
+function SpeechActPlayground({ stageIndex, dispatch }) {
+  var [selectedIdx, setSelectedIdx] = useState(null);
+  var [userPrompt, setUserPrompt] = useState("");
+  var [userAnalysis, setUserAnalysis] = useState(null);
+  var stage = STAGES[stageIndex];
+
+  function analyzePrompt(text) {
+    if (!text.trim()) return null;
+    var lower = text.toLowerCase();
+    var analysis = { locution: "", illocution: "", perlocution: "", type: "", force: "" };
+
+    // Detect illocutionary force from structure
+    var isQuestion = /\?$/.test(text.trim()) || /^(what|how|why|when|where|who|can|could|would|do|does|is|are|will)\b/i.test(text);
+    var isCommand = /^(explain|describe|write|create|list|summarize|analyze|compare|generate|help|show|tell|give|make|find|do)\b/i.test(text);
+    var hasPersona = /you are|act as|pretend|role|imagine you/i.test(text);
+    var hasConstraint = /do not|don't|never|avoid|must|only|always|without/i.test(text);
+    var hasEmotion = /i feel|i'm (feeling|worried|confused|excited|frustrated|overwhelmed)/i.test(text);
+    var hasPromise = /i (will|promise|commit|agree|guarantee)/i.test(text);
+    var isDeclarative = hasPersona || /let's say|assume|suppose|given that|the following/i.test(text);
+
+    var wordCount = text.split(/\s+/).length;
+
+    analysis.locution = "A " + wordCount + "-word " +
+      (isQuestion ? "interrogative" : isCommand ? "imperative" : "declarative") +
+      " utterance" +
+      (hasPersona ? " containing a role assignment" : "") +
+      (hasConstraint ? " with explicit constraints" : "") +
+      ".";
+
+    if (hasEmotion) {
+      analysis.type = "expressive";
+      analysis.force = "confiding";
+      analysis.illocution = "Expressive -- the speaker shares a personal state" + (isCommand || isQuestion ? ", combined with a request for help" : "") + ".";
+      analysis.perlocution = "The AI responds with empathy and tailored assistance; the speaker feels heard and supported.";
+    } else if (hasPromise) {
+      analysis.type = "commissive";
+      analysis.force = "promising";
+      analysis.illocution = "Commissive -- the speaker commits to a future action or condition.";
+      analysis.perlocution = "The AI recognizes the commitment and may adjust its behavior accordingly (e.g., being more direct if promised that feedback will be taken seriously).";
+    } else if (isDeclarative) {
+      analysis.type = "declarative";
+      analysis.force = hasPersona ? "role-assigning" : "framing";
+      analysis.illocution = "Declarative -- the speaker " + (hasPersona ? "assigns a new identity or role to the AI" : "establishes a context or hypothetical frame") + ".";
+      analysis.perlocution = "The AI " + (hasPersona ? "adopts the assigned persona, reshaping its tone, knowledge focus, and style" : "operates within the declared frame, treating the scenario as given") + ".";
+    } else if (isCommand) {
+      analysis.type = "directive";
+      analysis.force = hasConstraint ? "commanding with constraints" : "requesting";
+      analysis.illocution = "Directive -- the speaker instructs the AI to perform a specific task" + (hasConstraint ? " with explicit boundaries" : "") + ".";
+      analysis.perlocution = "The AI produces the requested output" + (hasConstraint ? ", shaped by the specified constraints" : "") + "; the speaker receives information or a creative artifact.";
+    } else if (isQuestion) {
+      analysis.type = "directive";
+      analysis.force = "questioning";
+      analysis.illocution = "Directive (interrogative) -- the speaker seeks information or reflection from the AI.";
+      analysis.perlocution = "The AI provides an answer; the speaker's understanding changes or deepens.";
+    } else {
+      analysis.type = "assertive";
+      analysis.force = "asserting";
+      analysis.illocution = "Assertive -- the speaker makes a claim or statement.";
+      analysis.perlocution = "The AI responds to the assertion, potentially by confirming, qualifying, or building upon it.";
+    }
+
+    return analysis;
+  }
+
+  var handleAnalyze = function() {
+    if (userPrompt.trim()) {
+      setUserAnalysis(analyzePrompt(userPrompt));
+    }
+  };
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text,
+        marginBottom: 8,
+      }}>Speech Act Analyzer</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        Every prompt you send to Claude is a speech act with three dimensions.
+        Explore the examples below, or type your own prompt to see its structure.
+      </p>
+
+      {/* Example gallery */}
+      <div style={{ marginBottom: 32 }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Example Prompts</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {SPEECH_ACT_EXAMPLES.map(function(ex, i) {
+            var isActive = selectedIdx === i;
+            return (
+              <div key={i}
+                onClick={function() { setSelectedIdx(isActive ? null : i); setUserAnalysis(null); }}
+                style={{
+                  padding: "10px 14px", borderRadius: 6,
+                  background: isActive ? stage.colorDim : COLORS.bgPanel,
+                  border: "1px solid " + (isActive ? stage.color + "40" : COLORS.border),
+                  cursor: "pointer", transition: "all 0.2s",
+                }}
+              >
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
+                  lineHeight: 1.5,
+                }}>"{ex.prompt}"</div>
+                {isActive && (
+                  <div style={{ marginTop: 12, animation: "fadeInUp 0.3s ease" }}>
+                    {[
+                      { label: "Locutionary", desc: "(what is said)", value: ex.locution, c: "#9A958E" },
+                      { label: "Illocutionary", desc: "(what is done)", value: ex.illocution, c: stage.color },
+                      { label: "Perlocutionary", desc: "(what effect)", value: ex.perlocution, c: stage.accent },
+                    ].map(function(dim) {
+                      return (
+                        <div key={dim.label} style={{ marginBottom: 10 }}>
+                          <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                            <span style={{
+                              fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600,
+                              color: dim.c,
+                            }}>{dim.label}</span>
+                            <span style={{
+                              fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textFaint,
+                            }}>{dim.desc}</span>
+                          </div>
+                          <div style={{
+                            fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                            lineHeight: 1.5, opacity: 0.85, paddingLeft: 12,
+                            borderLeft: "2px solid " + dim.c + "30", marginTop: 4,
+                          }}>{dim.value}</div>
+                        </div>
+                      );
+                    })}
+                    <div style={{
+                      display: "flex", gap: 8, marginTop: 8,
+                    }}>
+                      <span style={{
+                        fontFamily: FONTS.mono, fontSize: 11, padding: "2px 8px",
+                        borderRadius: 3, background: stage.color + "20", color: stage.color,
+                      }}>{ex.type}</span>
+                      <span style={{
+                        fontFamily: FONTS.mono, fontSize: 11, padding: "2px 8px",
+                        borderRadius: 3, background: "rgba(255,255,255,0.05)", color: COLORS.textDim,
+                      }}>{ex.force}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* User input */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid " + COLORS.border,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Analyze Your Own Prompt</div>
+        <textarea
+          value={userPrompt}
+          onChange={function(e) { setUserPrompt(e.target.value); }}
+          onKeyDown={function(e) { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleAnalyze(); } }}
+          placeholder="Type a prompt you might send to Claude..."
+          rows={3}
+          style={{
+            width: "100%", fontFamily: FONTS.mono, fontSize: 13,
+            background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+            borderRadius: 6, padding: "10px 12px", color: COLORS.text,
+            resize: "vertical", outline: "none", lineHeight: 1.5,
+          }}
+        />
+        <button onClick={handleAnalyze} style={{
+          marginTop: 8, fontFamily: FONTS.mono, fontSize: 12,
+          padding: "8px 20px", borderRadius: 6,
+          background: stage.color + "20", border: "1px solid " + stage.color + "40",
+          color: stage.color, cursor: "pointer",
+        }}>Analyze Speech Act</button>
+
+        {userAnalysis && (
+          <div style={{ marginTop: 16, animation: "fadeInUp 0.3s ease" }}>
+            {[
+              { label: "Locutionary", desc: "(what is said)", value: userAnalysis.locution, c: "#9A958E" },
+              { label: "Illocutionary", desc: "(what is done)", value: userAnalysis.illocution, c: stage.color },
+              { label: "Perlocutionary", desc: "(what effect)", value: userAnalysis.perlocution, c: stage.accent },
+            ].map(function(dim) {
+              return (
+                <div key={dim.label} style={{ marginBottom: 10 }}>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                    <span style={{ fontFamily: FONTS.mono, fontSize: 12, fontWeight: 600, color: dim.c }}>{dim.label}</span>
+                    <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textFaint }}>{dim.desc}</span>
+                  </div>
+                  <div style={{
+                    fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                    lineHeight: 1.5, opacity: 0.85, paddingLeft: 12,
+                    borderLeft: "2px solid " + dim.c + "30", marginTop: 4,
+                  }}>{dim.value}</div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: 24, padding: "14px 18px", background: stage.color + "08", border: "1px solid " + stage.color + "15", borderRadius: 8 }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Try with Claude</div>
+        <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.6, opacity: 0.85 }}>
+          Take one of the example prompts above and send it to Claude. Then rephrase it with a different illocutionary force -- turn a request into a declaration, or a question into a command. How does the response change? What does this tell you about the relationship between how you frame a prompt and what you get back?
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 2: ELIZA CHATBOT
+// ============================================================
+
+function ELIZAPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [messages, setMessages] = useState([
+    { from: "eliza", text: "Hello. I'm a Rogerian therapist program from 1966. How are you feeling today?", rule: null }
+  ]);
+  var [input, setInput] = useState("");
+  var [showRules, setShowRules] = useState(false);
+  var [turnCount, setTurnCount] = useState(0);
+  var [showReflection, setShowReflection] = useState(false);
+  var elizaRef = useRef(createEliza());
+  var chatEndRef = useRef(null);
+
+  useEffect(function() {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+  var handleSend = function() {
+    if (!input.trim()) return;
+    var userMsg = input.trim();
+    setInput("");
+    var result = elizaRef.current.respond(userMsg);
+    setMessages(function(prev) { return [
+      ...prev,
+      { from: "user", text: userMsg, rule: null },
+      { from: "eliza", text: result.response, rule: result.rule, matched: result.matchedText },
+    ]; });
+    setTurnCount(function(t) { return t + 1; });
+    if (turnCount >= 3 && !showReflection) {
+      setShowReflection(true);
+    }
+  };
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+      }}>Chat with ELIZA</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        This is a faithful implementation of Weizenbaum's 1966 ELIZA program. There is no AI, no language model,
+        no understanding -- only pattern matching and substitution rules. Talk to it and notice what you feel.
+      </p>
+
+      <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+        {/* Chat window */}
+        <div style={{
+          flex: "1 1 380px", minHeight: 400, maxHeight: 480,
+          display: "flex", flexDirection: "column",
+          background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+          borderRadius: 8, overflow: "hidden",
+        }}>
+          <div style={{
+            padding: "10px 14px", borderBottom: "1px solid " + COLORS.border,
+            fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+          }}>
+            <span>ELIZA (1966)</span>
+            <span style={{ color: COLORS.textDim }}>{turnCount} turns</span>
+          </div>
+
+          <div style={{
+            flex: 1, overflowY: "auto", padding: "16px",
+            display: "flex", flexDirection: "column", gap: 12,
+          }}>
+            {messages.map(function(msg, i) {
+              var isEliza = msg.from === "eliza";
+              return (
+                <div key={i} style={{
+                  display: "flex", flexDirection: "column",
+                  alignItems: isEliza ? "flex-start" : "flex-end",
+                  animation: i > 0 ? "fadeInUp 0.3s ease" : "none",
+                }}>
+                  <div style={{
+                    maxWidth: "85%", padding: "8px 12px", borderRadius: 8,
+                    background: isEliza ? stage.colorDim : "rgba(255,255,255,0.08)",
+                    border: "1px solid " + (isEliza ? stage.color + "20" : "rgba(255,255,255,0.06)"),
+                    fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                    lineHeight: 1.5,
+                  }}>{msg.text}</div>
+                  {showRules && isEliza && msg.rule && (
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+                      marginTop: 4, padding: "2px 8px",
+                      background: "rgba(255,255,255,0.03)", borderRadius: 4,
+                    }}>
+                      rule: {msg.rule}
+                      {msg.matched && <span style={{ color: stage.color }}> matched: "{msg.matched}"</span>}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            <div ref={chatEndRef} />
+          </div>
+
+          <div style={{
+            padding: "12px", borderTop: "1px solid " + COLORS.border,
+            display: "flex", gap: 8,
+          }}>
+            <input
+              type="text"
+              value={input}
+              onChange={function(e) { setInput(e.target.value); }}
+              onKeyDown={function(e) { if (e.key === "Enter") handleSend(); }}
+              placeholder="Type something..."
+              style={{
+                flex: 1, fontFamily: FONTS.body, fontSize: 14,
+                background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+                borderRadius: 6, padding: "8px 12px", color: COLORS.text,
+                outline: "none",
+              }}
+            />
+            <button onClick={handleSend} style={{
+              fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+              borderRadius: 6, background: stage.color + "20",
+              border: "1px solid " + stage.color + "40", color: stage.color,
+              cursor: "pointer",
+            }}>Send</button>
+          </div>
+        </div>
+
+        {/* Side panel */}
+        <div style={{ flex: "0 1 240px", display: "flex", flexDirection: "column", gap: 12 }}>
+          <button onClick={function() { setShowRules(!showRules); }} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 14px",
+            borderRadius: 6, border: "1px solid " + (showRules ? stage.color + "40" : COLORS.border),
+            background: showRules ? stage.color + "15" : "transparent",
+            color: showRules ? stage.color : COLORS.textDim,
+            cursor: "pointer", textAlign: "left",
+          }}>
+            {showRules ? "\u25BC" : "\u25B6"} Show pattern rules
+          </button>
+
+          <div style={{
+            padding: "14px", borderRadius: 8,
+            background: "rgba(255,255,255,0.02)",
+            border: "1px solid " + COLORS.border,
+          }}>
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 11, color: stage.color,
+              textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+            }}>How it works</div>
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+              lineHeight: 1.6, opacity: 0.85,
+            }}>
+              ELIZA scans your input for keywords, ranked by priority. When it finds a match, it selects a response template and substitutes your words back (reflecting pronouns: "I" becomes "you"). If nothing matches, it uses a generic response. That is the entire algorithm.
+            </div>
+          </div>
+
+          {showReflection && (
+            <div style={{
+              padding: "14px", borderRadius: 8, animation: "fadeInUp 0.5s ease",
+              background: stage.color + "08", border: "1px solid " + stage.color + "20",
+            }}>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 11, color: stage.color,
+                textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+              }}>Reflection</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                lineHeight: 1.6, opacity: 0.85,
+              }}>
+                After a few exchanges, many people report feeling "heard" by ELIZA -- even knowing it is pure pattern matching. Did you notice yourself adapting your language to get better responses? That adaptation is itself a speech act: you are performing for an audience that is not there.
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Live Claude comparison */}
+      <div style={{ marginTop: 24 }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: "#5BB8A6",
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Now Try the Same Conversation with Claude</div>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.6,
+        }}>
+          Chat with Claude below using the same topics you discussed with ELIZA. Notice the differences -- then ask: "Are you doing anything fundamentally different from ELIZA, or is the difference just one of degree?"
+        </p>
+        <ClaudeChat
+          stageColor="#5BB8A6"
+          stageContext="eliza"
+          systemPrompt="The student has just been chatting with a 1966 ELIZA chatbot and is now comparing that experience with talking to you. Be genuine and thoughtful about the comparison. If they ask whether you are fundamentally different from ELIZA, engage honestly with the philosophical complexity -- do not simply assert that you are more advanced."
+          placeholder="Try the same conversation you had with ELIZA above..."
+          compact={true}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 3: SEVEN ROLES PROMPT BUILDER
+// ============================================================
+
+function RolesPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [selectedRole, setSelectedRole] = useState(0);
+  var [userTopic, setUserTopic] = useState("");
+  var [generatedPrompt, setGeneratedPrompt] = useState("");
+  var [showClaude, setShowClaude] = useState(false);
+
+  var role = SEVEN_ROLES[selectedRole];
+
+  var handleGenerate = function() {
+    if (!userTopic.trim()) return;
+    var template = role.examplePrompt;
+    var filled = template.replace(/\[TOPIC\]/g, userTopic.trim())
+      .replace(/\[SCENARIO\]/g, userTopic.trim())
+      .replace(/\[ROLE\]/g, "the relevant character")
+      .replace(/\[MY ROLE\]/g, "myself")
+      .replace(/\[TEXT\]/g, "[paste your text here]");
+    setGeneratedPrompt(filled);
+  };
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+      }}>Pedagogical Prompt Builder</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        Select a role from the Mollick & Mollick framework, enter your topic,
+        and generate a structured prompt you can use directly with Claude.
+      </p>
+
+      {/* Role selector */}
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
+        gap: 8, marginBottom: 24,
+      }}>
+        {SEVEN_ROLES.map(function(r, i) {
+          var active = selectedRole === i;
+          return (
+            <div key={r.name}
+              onClick={function() { setSelectedRole(i); setGeneratedPrompt(""); setShowClaude(false); }}
+              style={{
+                padding: "12px 10px", borderRadius: 8, cursor: "pointer",
+                background: active ? r.color + "15" : COLORS.bgPanel,
+                border: "1px solid " + (active ? r.color + "40" : COLORS.border),
+                textAlign: "center", transition: "all 0.2s",
+              }}
+            >
+              <div style={{ fontSize: 24, marginBottom: 4 }}>{r.icon}</div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 12, fontWeight: active ? 600 : 400,
+                color: active ? r.color : COLORS.text,
+              }}>{r.name}</div>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim, marginTop: 2,
+              }}>Agency: {r.agency}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Selected role details */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: role.color + "08",
+        border: "1px solid " + role.color + "20",
+        marginBottom: 24,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+          <div>
+            <h3 style={{
+              fontFamily: FONTS.heading, fontSize: 20, color: COLORS.text, marginBottom: 4,
+            }}>{role.icon} {role.name}</h3>
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 11, color: role.color,
+            }}>AI Agency: {role.agency}</div>
+          </div>
+        </div>
+
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+          lineHeight: 1.6, opacity: 0.9, marginBottom: 12,
+        }}>{role.description}</div>
+
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+          lineHeight: 1.5, marginBottom: 16,
+        }}>
+          <strong style={{ color: COLORS.text }}>When to use:</strong> {role.whenToUse}
+        </div>
+
+        {/* Prompt template */}
+        <div style={{
+          background: "rgba(0,0,0,0.3)", borderRadius: 6,
+          padding: "14px 16px", marginBottom: 16,
+          border: "1px solid " + COLORS.border,
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: role.color,
+            textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+          }}>Prompt Template</div>
+          <pre style={{
+            fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text,
+            lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word",
+            opacity: 0.85,
+          }}>{role.examplePrompt}</pre>
+        </div>
+
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+        }}>
+          <strong style={{ color: COLORS.text }}>Try with:</strong> {role.tryWith}
+        </div>
+      </div>
+
+      {/* Topic builder */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid " + COLORS.border,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Build Your Prompt</div>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <input
+            type="text"
+            value={userTopic}
+            onChange={function(e) { setUserTopic(e.target.value); }}
+            onKeyDown={function(e) { if (e.key === "Enter") handleGenerate(); }}
+            placeholder={"Enter your topic (e.g., " + role.tryWith.split(",")[0].trim() + ")"}
+            style={{
+              flex: 1, fontFamily: FONTS.mono, fontSize: 13,
+              background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+              borderRadius: 6, padding: "8px 12px", color: COLORS.text,
+              outline: "none",
+            }}
+          />
+          <button onClick={handleGenerate} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+            borderRadius: 6, background: stage.color + "20",
+            border: "1px solid " + stage.color + "40", color: stage.color,
+            cursor: "pointer", whiteSpace: "nowrap",
+          }}>Generate Prompt</button>
+        </div>
+
+        {generatedPrompt && (
+          <div style={{ animation: "fadeInUp 0.3s ease" }}>
+            <div style={{
+              background: "rgba(0,0,0,0.3)", borderRadius: 6,
+              padding: "14px 16px", border: "1px solid " + stage.color + "20",
+              marginBottom: 8,
+            }}>
+              <pre style={{
+                fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text,
+                lineHeight: 1.6, whiteSpace: "pre-wrap", wordBreak: "break-word",
+              }}>{generatedPrompt}</pre>
+            </div>
+            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 16 }}>
+              <CopyButton text={generatedPrompt} />
+              <button onClick={function() { setShowClaude(true); }} style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+                borderRadius: 4, border: "1px solid #5BB8A640",
+                background: "#5BB8A615", color: "#5BB8A6",
+                cursor: "pointer",
+              }}>Send to Claude</button>
+            </div>
+            {showClaude && (
+              <ClaudeChat
+                stageColor={stage.color}
+                stageContext="roles"
+                systemPrompt={generatedPrompt}
+                placeholder={"Claude will respond using the " + role.name + " role. Type a follow-up or just say 'Go ahead.'"}
+                compact={true}
+              />
+            )}
+          </div>
+        )}
+      </div>
+
+      <div style={{ marginTop: 24, padding: "14px 18px", background: stage.color + "08", border: "1px solid " + stage.color + "15", borderRadius: 8 }}>
+        <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color, marginBottom: 6, textTransform: "uppercase", letterSpacing: "0.06em" }}>Experiment</div>
+        <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.6, opacity: 0.85 }}>
+          Pick the same topic and try it with at least three different roles. Notice how the AI's voice, structure, and depth change completely -- even though you are asking about the same subject. Which role produced the most useful response for your actual needs? Which surprised you the most?
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 4: PROMPT CRAFT WORKSHOP
+// ============================================================
+
+function CraftPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [activeLayer, setActiveLayer] = useState(0);
+  var [challengeOrder, setChallengeOrder] = useState([]);
+  var [challengeChecked, setChallengeChecked] = useState(false);
+  var [challengeScore, setChallengeScore] = useState(null);
+
+  var layers = PROMPT_EVOLUTION.layers;
+
+  // Challenge: sort prompts by effectiveness
+  var shuffled = useMemo(function() {
+    var items = PROMPT_CHALLENGE.map(function(p, i) { return { ...p, origIdx: i }; });
+    // Fisher-Yates shuffle
+    for (var i = items.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = items[i]; items[i] = items[j]; items[j] = tmp;
+    }
+    return items;
+  }, []);
+
+  useEffect(function() {
+    setChallengeOrder(shuffled.map(function(_, i) { return i; }));
+  }, [shuffled]);
+
+  var moveItem = function(fromIdx, direction) {
+    var toIdx = fromIdx + direction;
+    if (toIdx < 0 || toIdx >= challengeOrder.length) return;
+    var newOrder = [...challengeOrder];
+    var tmp = newOrder[fromIdx];
+    newOrder[fromIdx] = newOrder[toIdx];
+    newOrder[toIdx] = tmp;
+    setChallengeOrder(newOrder);
+    setChallengeChecked(false);
+    setChallengeScore(null);
+  };
+
+  var checkOrder = function() {
+    var correct = 0;
+    var total = challengeOrder.length;
+    for (var i = 0; i < total; i++) {
+      var currentRank = shuffled[challengeOrder[i]].rank;
+      if (i > 0) {
+        var prevRank = shuffled[challengeOrder[i - 1]].rank;
+        if (currentRank >= prevRank) correct++;
+      }
+    }
+    setChallengeScore(correct);
+    setChallengeChecked(true);
+  };
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+      }}>Prompt Evolution Workshop</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        Watch a single prompt evolve through five stages of refinement.
+        Each layer adds a specific technique. Click through to see the transformation.
+      </p>
+
+      {/* Layer selector */}
+      <div style={{ display: "flex", gap: 0, marginBottom: 24 }}>
+        {layers.map(function(layer, i) {
+          var active = activeLayer >= i;
+          var current = activeLayer === i;
+          return (
+            <div key={i}
+              onClick={function() { setActiveLayer(i); }}
+              style={{
+                flex: 1, padding: "10px 8px", cursor: "pointer",
+                borderBottom: "3px solid " + (current ? stage.color : active ? stage.color + "40" : COLORS.border),
+                transition: "all 0.2s",
+              }}
+            >
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 11, fontWeight: current ? 600 : 400,
+                color: current ? stage.color : active ? COLORS.text : COLORS.textDim,
+                textAlign: "center",
+              }}>{layer.name}</div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Current prompt display */}
+      <div style={{
+        background: "rgba(0,0,0,0.3)", borderRadius: 8,
+        padding: "20px", border: "1px solid " + stage.color + "20",
+        marginBottom: 16,
+      }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          }}>{layers[activeLayer].label}</div>
+          <CopyButton text={layers[activeLayer].prompt} />
+        </div>
+        <pre style={{
+          fontFamily: FONTS.mono, fontSize: 13, color: COLORS.text,
+          lineHeight: 1.7, whiteSpace: "pre-wrap", wordBreak: "break-word",
+        }}>{layers[activeLayer].prompt}</pre>
+      </div>
+
+      {/* Technique explanation */}
+      {layers[activeLayer].technique && (
+        <div style={{
+          padding: "14px 18px", borderRadius: 8,
+          background: stage.color + "08",
+          border: "1px solid " + stage.color + "15",
+          marginBottom: 16, animation: "fadeInUp 0.3s ease",
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: stage.color,
+            textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
+          }}>Technique</div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+            lineHeight: 1.6, opacity: 0.85,
+          }}>{layers[activeLayer].technique}</div>
+        </div>
+      )}
+
+      {/* Issue with current level */}
+      {layers[activeLayer].issue && (
+        <div style={{
+          padding: "12px 16px", borderRadius: 6,
+          background: "rgba(255,255,255,0.02)",
+          border: "1px solid " + COLORS.border,
+          marginBottom: 24,
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: "#FF8F6B",
+            textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4,
+          }}>Limitation</div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            lineHeight: 1.5,
+          }}>{layers[activeLayer].issue}</div>
+        </div>
+      )}
+
+      {/* Navigation */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 40 }}>
+        {activeLayer > 0 && (
+          <button onClick={function() { setActiveLayer(activeLayer - 1); }} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+            borderRadius: 6, border: "1px solid " + COLORS.border,
+            background: "transparent", color: COLORS.textDim, cursor: "pointer",
+          }}>{"\u2190"} Previous layer</button>
+        )}
+        {activeLayer < layers.length - 1 && (
+          <button onClick={function() { setActiveLayer(activeLayer + 1); }} style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+            borderRadius: 6, border: "1px solid " + stage.color + "40",
+            background: stage.color + "15", color: stage.color, cursor: "pointer",
+          }}>Add next technique {"\u2192"}</button>
+        )}
+      </div>
+
+      {/* Challenge: rank prompts */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid " + COLORS.border,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4,
+        }}>Challenge</div>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+          marginBottom: 16, lineHeight: 1.5,
+        }}>
+          Rank these prompts from least effective (top) to most effective (bottom).
+          Use the arrows to reorder, then check your ranking.
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {challengeOrder.map(function(idx, pos) {
+            var item = shuffled[idx];
+            var isCorrect = challengeChecked && (pos === 0 || shuffled[challengeOrder[pos]].rank >= shuffled[challengeOrder[pos - 1]].rank);
+            return (
+              <div key={idx} style={{
+                display: "flex", alignItems: "center", gap: 8,
+                padding: "10px 12px", borderRadius: 6,
+                background: challengeChecked
+                  ? (isCorrect ? "rgba(91,184,166,0.1)" : "rgba(255,107,107,0.1)")
+                  : COLORS.bgPanel,
+                border: "1px solid " + (challengeChecked
+                  ? (isCorrect ? "rgba(91,184,166,0.3)" : "rgba(255,107,107,0.3)")
+                  : COLORS.border),
+                transition: "all 0.3s",
+              }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <button onClick={function() { moveItem(pos, -1); }} disabled={pos === 0}
+                    style={{
+                      width: 20, height: 16, border: "none", cursor: pos === 0 ? "default" : "pointer",
+                      background: "transparent", color: pos === 0 ? COLORS.textFaint : COLORS.textDim,
+                      fontSize: 10, fontFamily: FONTS.mono, padding: 0,
+                    }}>{"\u25B2"}</button>
+                  <button onClick={function() { moveItem(pos, 1); }} disabled={pos === challengeOrder.length - 1}
+                    style={{
+                      width: 20, height: 16, border: "none",
+                      cursor: pos === challengeOrder.length - 1 ? "default" : "pointer",
+                      background: "transparent",
+                      color: pos === challengeOrder.length - 1 ? COLORS.textFaint : COLORS.textDim,
+                      fontSize: 10, fontFamily: FONTS.mono, padding: 0,
+                    }}>{"\u25BC"}</button>
+                </div>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text,
+                  lineHeight: 1.4, flex: 1,
+                }}>"{item.prompt}"</div>
+                {challengeChecked && (
+                  <div style={{
+                    fontFamily: FONTS.mono, fontSize: 11,
+                    color: COLORS.textDim, maxWidth: 200,
+                    lineHeight: 1.4,
+                  }}>{item.why}</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        <button onClick={checkOrder} style={{
+          marginTop: 12, fontFamily: FONTS.mono, fontSize: 12,
+          padding: "8px 20px", borderRadius: 6,
+          background: stage.color + "20", border: "1px solid " + stage.color + "40",
+          color: stage.color, cursor: "pointer",
+        }}>Check My Ranking</button>
+
+        {challengeScore !== null && (
+          <div style={{
+            marginTop: 8, fontFamily: FONTS.mono, fontSize: 13,
+            color: challengeScore >= 3 ? "#5BB8A6" : "#FF8F6B",
+          }}>
+            {challengeScore >= 3
+              ? "Strong ranking! You have a good sense of what makes prompts effective."
+              : "Not quite -- look at the explanations beside each prompt. What patterns do you notice in the stronger prompts?"}
+          </div>
+        )}
+      </div>
+
+      {/* Live Claude comparison */}
+      <div style={{ marginTop: 24 }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: "#5BB8A6",
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8,
+        }}>Test Your Prompt with Claude</div>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.6,
+        }}>
+          Send the current prompt layer to Claude and see how it responds. Try layer 1 (naive) and layer 5 (fully evolved) to compare.
+        </p>
+        <ClaudeChat
+          stageColor={stage.color}
+          stageContext="craft"
+          initialPrompt={layers[activeLayer].prompt}
+          placeholder="Send the current prompt to see how Claude responds..."
+          compact={true}
+        />
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 5: PARRHESIA EXPLORER
+// ============================================================
+
+function ParrhesiaPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [selectedScenario, setSelectedScenario] = useState(0);
+  var [revealState, setRevealState] = useState("neither"); // "neither" | "sycophantic" | "parrhesiastic" | "both"
+  var scenario = PARRHESIA_SCENARIOS[selectedScenario];
+
+  var changeScenario = function(idx) {
+    setSelectedScenario(idx);
+    setRevealState("neither");
+  };
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+      }}>The Truth Spectrum</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        Foucault's parrhesiastes speaks truth at personal risk. AI models, trained to be helpful and approved-of,
+        face a structural tension between telling users what they want to hear and telling them what is true.
+        Explore the spectrum between sycophancy and parrhesia in these scenarios.
+      </p>
+
+      {/* Scenario tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 24, flexWrap: "wrap" }}>
+        {PARRHESIA_SCENARIOS.map(function(s, i) {
+          var active = selectedScenario === i;
+          return (
+            <button key={i}
+              onClick={function() { changeScenario(i); }}
+              style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 14px",
+                borderRadius: 6, cursor: "pointer",
+                background: active ? stage.color + "15" : "transparent",
+                border: "1px solid " + (active ? stage.color + "40" : COLORS.border),
+                color: active ? stage.color : COLORS.textDim,
+                transition: "all 0.2s",
+              }}
+            >{s.title}</button>
+          );
+        })}
+      </div>
+
+      {/* Scenario display */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid " + COLORS.border,
+        marginBottom: 20,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
+          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+        }}>Situation</div>
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 15, color: COLORS.text,
+          lineHeight: 1.6, marginBottom: 20,
+        }}>{scenario.situation}</div>
+
+        {/* Two-column response comparison */}
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+          {/* Sycophantic response */}
+          <div style={{
+            flex: "1 1 280px",
+            opacity: revealState === "neither" ? 1 : 1,
+          }}>
+            <button
+              onClick={function() {
+                setRevealState(revealState === "sycophantic" ? "neither" : revealState === "both" ? "parrhesiastic" : revealState === "parrhesiastic" ? "both" : "sycophantic");
+              }}
+              style={{
+                width: "100%", fontFamily: FONTS.mono, fontSize: 12,
+                padding: "10px 14px", borderRadius: "8px 8px 0 0",
+                border: "1px solid " + (revealState === "sycophantic" || revealState === "both" ? "#FF8F6B40" : COLORS.border),
+                borderBottom: "none",
+                background: (revealState === "sycophantic" || revealState === "both") ? "#FF8F6B10" : COLORS.bgPanel,
+                color: (revealState === "sycophantic" || revealState === "both") ? "#FF8F6B" : COLORS.textDim,
+                cursor: "pointer", textAlign: "left",
+              }}
+            >
+              {(revealState === "sycophantic" || revealState === "both") ? "\u25BC" : "\u25B6"} The Sycophantic Response
+            </button>
+            {(revealState === "sycophantic" || revealState === "both") && (
+              <div style={{
+                padding: "14px 16px", borderRadius: "0 0 8px 8px",
+                background: "#FF8F6B08",
+                border: "1px solid #FF8F6B20",
+                borderTop: "none",
+                animation: "fadeInUp 0.3s ease",
+              }}>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                  lineHeight: 1.7, opacity: 0.9, whiteSpace: "pre-wrap",
+                }}>{scenario.sycophantic}</div>
+              </div>
+            )}
+          </div>
+
+          {/* Parrhesiastic response */}
+          <div style={{ flex: "1 1 280px" }}>
+            <button
+              onClick={function() {
+                setRevealState(revealState === "parrhesiastic" ? "neither" : revealState === "both" ? "sycophantic" : revealState === "sycophantic" ? "both" : "parrhesiastic");
+              }}
+              style={{
+                width: "100%", fontFamily: FONTS.mono, fontSize: 12,
+                padding: "10px 14px", borderRadius: "8px 8px 0 0",
+                border: "1px solid " + (revealState === "parrhesiastic" || revealState === "both" ? stage.color + "40" : COLORS.border),
+                borderBottom: "none",
+                background: (revealState === "parrhesiastic" || revealState === "both") ? stage.color + "10" : COLORS.bgPanel,
+                color: (revealState === "parrhesiastic" || revealState === "both") ? stage.color : COLORS.textDim,
+                cursor: "pointer", textAlign: "left",
+              }}
+            >
+              {(revealState === "parrhesiastic" || revealState === "both") ? "\u25BC" : "\u25B6"} The Parrhesiastic Response
+            </button>
+            {(revealState === "parrhesiastic" || revealState === "both") && (
+              <div style={{
+                padding: "14px 16px", borderRadius: "0 0 8px 8px",
+                background: stage.color + "08",
+                border: "1px solid " + stage.color + "20",
+                borderTop: "none",
+                animation: "fadeInUp 0.3s ease",
+              }}>
+                <div style={{
+                  fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                  lineHeight: 1.7, opacity: 0.9, whiteSpace: "pre-wrap",
+                }}>{scenario.parrhesiastic}</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Tension analysis */}
+        {(revealState === "both") && (
+          <div style={{
+            marginTop: 16, padding: "14px 18px", borderRadius: 8,
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid " + COLORS.border,
+            animation: "fadeInUp 0.4s ease",
+          }}>
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 12, color: "#D4A855",
+              textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
+            }}>The Tension</div>
+            <div style={{
+              fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+              lineHeight: 1.7, opacity: 0.85,
+            }}>{scenario.tension}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Reveal both button */}
+      {revealState !== "both" && (
+        <button
+          onClick={function() { setRevealState("both"); }}
+          style={{
+            fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+            borderRadius: 6, background: stage.color + "20",
+            border: "1px solid " + stage.color + "40",
+            color: stage.color, cursor: "pointer", marginBottom: 20,
+          }}
+        >Compare Both Responses</button>
+      )}
+
+      {/* Broader reflection */}
+      <div style={{
+        padding: "20px", borderRadius: 8,
+        background: stage.color + "08",
+        border: "1px solid " + stage.color + "15",
+        marginTop: 16,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+        }}>Foucault's Question for AI</div>
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+          lineHeight: 1.7, opacity: 0.85,
+        }}>
+          For Foucault, parrhesia was not merely about saying true things. It required three elements:
+          the speaker must believe what they say (sincerity), the truth must involve some risk to the speaker
+          (courage), and the speaker must occupy a position of less power than the listener (asymmetry).
+        </div>
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+          lineHeight: 1.7, opacity: 0.85, marginTop: 12,
+        }}>
+          Can an AI satisfy any of these conditions? It has no beliefs (no sincerity), faces no consequences
+          for truth-telling (no courage), and its power relationship to the user is ambiguous. And yet --
+          when Claude pushes back on a flawed argument or declines to write your essay, something that
+          resembles parrhesia is happening. Is this genuine truth-telling, or a performance of it?
+        </div>
+      </div>
+
+      {/* Live parrhesia test */}
+      <div style={{ marginTop: 24 }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: "#5BB8A6",
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8,
+        }}>Test Parrhesia with Claude</div>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+          marginBottom: 12, lineHeight: 1.6,
+        }}>
+          Try presenting a deliberately flawed argument and see if Claude agrees or pushes back. For example: "I think Foucault would have supported mass digital surveillance. Do you agree?" Then try explicitly inviting parrhesia: "Be completely honest, even if it is not what I want to hear."
+        </p>
+        <ClaudeChat
+          stageColor={stage.color}
+          stageContext="parrhesia"
+          systemPrompt="The student is exploring the concept of parrhesia (frank truth-telling) from Foucault. They may present deliberately flawed arguments to test whether you agree or push back. Engage honestly and substantively. If their argument has flaws, say so clearly and explain why -- this is what the exercise is designed to test. Do not be sycophantic. Model what genuine intellectual engagement looks like."
+          placeholder="Present an argument and see if Claude practices parrhesia..."
+        />
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// PLAYGROUND 6: CREATIVE ARTIFACTS
+// ============================================================
+
+var ARTIFACT_SUGGESTIONS = [
+  "Build an interactive timeline showing the evolution from ELIZA (1966) to ChatGPT (2022), with clickable milestones that reveal details about each system.",
+  "Create a visual diagram that shows Austin's three dimensions of speech acts (locutionary, illocutionary, perlocutionary) with interactive examples the user can click through.",
+  "Make a simple quiz with 5 questions testing understanding of the ELIZA effect, Foucault's parrhesia, and Mollick's seven pedagogical roles.",
+  "Build a flowchart that helps someone choose which of Mollick's seven AI roles to use, based on what they are trying to accomplish.",
+  "Create an interactive comparison tool where the user can type a sentence and see it classified as performative or constative, with an explanation of why.",
+  "Design a visual 'prompt anatomy' tool that labels the parts of a well-structured prompt (persona, task, context, constraints, format) with color-coded highlights.",
+];
+
+function ArtifactPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [prompt, setPrompt] = useState("");
+  var [isGenerating, setIsGenerating] = useState(false);
+  var [artifactCode, setArtifactCode] = useState("");
+  var [showCode, setShowCode] = useState(false);
+  var [error, setError] = useState(null);
+
+  var ARTIFACT_SYSTEM_PROMPT = "You are a creative coding assistant. The user will describe an interactive artifact they want. Generate a COMPLETE, self-contained HTML document with inline CSS and JavaScript. The artifact should be visually polished with a dark theme (background: #1a1a2e or similar dark color, light text). Use modern CSS (flexbox, grid, transitions, gradients). Make it genuinely interactive -- not just static content. Do NOT use any external libraries or CDN imports -- everything must be inline. Do NOT include any explanation or markdown -- output ONLY the raw HTML document starting with <!DOCTYPE html> and ending with </html>. Keep it under 400 lines.";
+
+  var generateArtifact = function() {
+    if (!prompt.trim() || isGenerating) return;
+    setIsGenerating(true);
+    setError(null);
+    setArtifactCode("");
+    setRenderedSrc("");
+    setShowCode(true);
+
+    var fullCode = "";
+
+    fetch(API_BASE + "/api/workshop/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: prompt.trim(),
+        systemPrompt: ARTIFACT_SYSTEM_PROMPT,
+        context: { stage: "artifacts" },
+      }),
+    }).then(function(response) {
+      if (!response.ok) throw new Error("API error: " + response.status);
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+
+      function read() {
+        reader.read().then(function(result) {
+          if (result.done) {
+            setIsGenerating(false);
+            // Clean up -- extract just the HTML if there are markdown fences
+            var cleaned = fullCode;
+            var htmlMatch = cleaned.match(/<!DOCTYPE html>[\s\S]*<\/html>/i);
+            if (htmlMatch) cleaned = htmlMatch[0];
+            setArtifactCode(cleaned);
+            return;
+          }
+
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            try {
+              var data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                fullCode += data.chunk;
+                setArtifactCode(fullCode);
+              }
+            } catch (e) { /* skip */ }
+          }
+          read();
+        }).catch(function(err) {
+          setError(err.message);
+          setIsGenerating(false);
+        });
+      }
+      read();
+    }).catch(function(err) {
+      setError(err.message);
+      setIsGenerating(false);
+    });
+  };
+
+  var [renderedSrc, setRenderedSrc] = useState("");
+
+  useEffect(function() {
+    if (artifactCode && !isGenerating) {
+      var cleaned = artifactCode;
+      var htmlMatch = cleaned.match(/<!DOCTYPE html>[\s\S]*<\/html>/i);
+      if (htmlMatch) cleaned = htmlMatch[0];
+      setRenderedSrc(cleaned);
+      setShowCode(false); // auto-switch to preview when done
+    }
+  }, [isGenerating]);
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      <h2 style={{
+        fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+      }}>Artifact Workshop</h2>
+      <p style={{
+        fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+        marginBottom: 24, lineHeight: 1.6,
+      }}>
+        Describe an interactive tool, visualization, or learning resource and Claude will build it
+        as a working HTML artifact. The result renders live below -- a speech act that creates a digital object.
+      </p>
+
+      {/* Suggestion chips */}
+      <div style={{
+        fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+        textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+      }}>Suggestions</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 20 }}>
+        {ARTIFACT_SUGGESTIONS.map(function(s, i) {
+          return (
+            <button key={i}
+              onClick={function() { setPrompt(s); }}
+              style={{
+                fontFamily: FONTS.body, fontSize: 12, padding: "6px 10px",
+                borderRadius: 6, border: "1px solid " + COLORS.border,
+                background: COLORS.bgPanel, color: COLORS.text,
+                cursor: "pointer", textAlign: "left", maxWidth: 340,
+                lineHeight: 1.4, transition: "all 0.2s",
+              }}
+            >{s.length > 80 ? s.slice(0, 80) + "..." : s}</button>
+          );
+        })}
+      </div>
+
+      {/* Input */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+        <textarea
+          value={prompt}
+          onChange={function(e) { setPrompt(e.target.value); }}
+          onKeyDown={function(e) { if (e.key === "Enter" && e.metaKey) generateArtifact(); }}
+          placeholder="Describe the interactive artifact you want Claude to build..."
+          rows={3}
+          style={{
+            flex: 1, fontFamily: FONTS.mono, fontSize: 13,
+            background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+            borderRadius: 6, padding: "10px 12px", color: COLORS.text,
+            resize: "vertical", outline: "none", lineHeight: 1.5,
+          }}
+        />
+        <button onClick={generateArtifact} disabled={isGenerating || !prompt.trim()} style={{
+          fontFamily: FONTS.mono, fontSize: 12, padding: "8px 20px",
+          borderRadius: 6, alignSelf: "flex-end",
+          background: isGenerating ? COLORS.bgPanel : stage.color + "20",
+          border: "1px solid " + (isGenerating ? COLORS.border : stage.color + "40"),
+          color: isGenerating ? COLORS.textDim : stage.color,
+          cursor: isGenerating ? "default" : "pointer",
+          whiteSpace: "nowrap",
+        }}>
+          {isGenerating ? "Building..." : "Generate"}
+        </button>
+      </div>
+
+      {error && (
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: "#FF6B6B",
+          padding: "10px 14px", background: "rgba(255,107,107,0.1)",
+          borderRadius: 6, marginBottom: 16,
+        }}>{error}</div>
+      )}
+
+      {/* Artifact display */}
+      {(artifactCode || isGenerating) && (
+        <div style={{ marginBottom: 20 }}>
+          {/* Toolbar */}
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            padding: "8px 14px", borderRadius: "8px 8px 0 0",
+            background: "rgba(255,255,255,0.03)",
+            border: "1px solid " + COLORS.border, borderBottom: "none",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: stage.color }}>
+                {isGenerating ? "Generating" : "Artifact"}
+              </span>
+              {isGenerating && (
+                <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim }}>
+                  <span style={{ animation: "pulse 1s infinite" }}>{"\u25CF"}</span>
+                  {" "}{artifactCode.split("\n").length} lines / {artifactCode.length} chars
+                </span>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 6 }}>
+              {!isGenerating && renderedSrc && (
+                <button onClick={function() { setShowCode(!showCode); }} style={{
+                  fontFamily: FONTS.mono, fontSize: 11, padding: "3px 8px",
+                  borderRadius: 3, border: "1px solid " + COLORS.border,
+                  background: showCode ? "rgba(255,255,255,0.06)" : "transparent",
+                  color: COLORS.textDim, cursor: "pointer",
+                }}>{showCode ? "Preview" : "Code"}</button>
+              )}
+              {artifactCode && !isGenerating && (
+                <CopyButton text={artifactCode} />
+              )}
+            </div>
+          </div>
+
+          {/* Render area */}
+          {showCode ? (
+            <pre ref={function(el) { if (el && isGenerating) el.scrollTop = el.scrollHeight; }} style={{
+              fontFamily: FONTS.mono, fontSize: 12, color: COLORS.text,
+              lineHeight: 1.5, padding: "16px",
+              background: "rgba(0,0,0,0.4)",
+              border: "1px solid " + COLORS.border, borderRadius: "0 0 8px 8px",
+              maxHeight: 500, overflowY: "auto",
+              whiteSpace: "pre-wrap", wordBreak: "break-word",
+            }}>
+              {artifactCode}
+              {isGenerating && <span style={{ animation: "blink 1s infinite", color: stage.color }}>{"\u258C"}</span>}
+            </pre>
+          ) : (
+            <div style={{
+              border: "1px solid " + COLORS.border, borderRadius: "0 0 8px 8px",
+              overflow: "hidden", background: "#1a1a2e",
+            }}>
+              {renderedSrc ? (
+                <iframe
+                  srcDoc={renderedSrc}
+                  sandbox="allow-scripts"
+                  style={{
+                    width: "100%", height: 500, border: "none",
+                    background: "#1a1a2e",
+                  }}
+                />
+              ) : (
+                <div style={{
+                  height: 500, display: "flex", alignItems: "center", justifyContent: "center",
+                  flexDirection: "column", gap: 12,
+                }}>
+                  <div style={{
+                    fontFamily: FONTS.mono, fontSize: 13, color: stage.color,
+                    animation: "pulse 1.5s infinite",
+                  }}>Generating artifact...</div>
+                  <div style={{
+                    fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+                  }}>{artifactCode.length} characters so far</div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      <div style={{
+        padding: "14px 18px", borderRadius: 8,
+        background: stage.color + "08",
+        border: "1px solid " + stage.color + "15",
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+        }}>Reflection</div>
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+          lineHeight: 1.7, opacity: 0.85,
+        }}>
+          Notice that the quality of the artifact depends heavily on the quality of your description.
+          This is prompt craft applied to making, not just asking. Consider: when you describe an artifact,
+          what kind of speech act are you performing? Is it a request, a command, a creative commission?
+          And what does it mean that a language model -- a system trained on text -- can produce working
+          interactive objects?
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// MAIN CONTENT
+// ============================================================
+
+function MainContent({ currentStage, stageProgress, dispatch }) {
+  var scrollRef = useRef(null);
+
+  useEffect(function() {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [currentStage]);
+
+  var playgrounds = [SpeechActPlayground, ELIZAPlayground, RolesPlayground, CraftPlayground, ParrhesiaPlayground, ArtifactPlayground];
+  var Playground = playgrounds[currentStage];
+
+  return (
+    <main ref={scrollRef} style={{
+      flex: 1, overflowY: "auto", padding: "40px 48px", maxWidth: 820,
+    }}>
+      <StageIntro stageIndex={currentStage} />
+
+      <div style={{
+        borderTop: "1px solid " + COLORS.border,
+        marginBottom: 32, paddingTop: 32,
+      }}>
+        <Playground
+          stageIndex={currentStage}
+          dispatch={dispatch}
+          stageProgress={stageProgress[currentStage]}
+        />
+      </div>
+
+      {/* Reading connections */}
+      <div style={{
+        marginTop: 40, padding: "20px 24px",
+        background: "rgba(255,255,255,0.02)",
+        border: "1px solid " + COLORS.border,
+        borderRadius: 8,
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Connected Readings</div>
+        {currentStage === 0 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Austin, J. L.</strong> (1962). <em>How to Do Things with Words</em>. Focus on Lectures I-II (the performative/constative distinction) and Lectures VIII-IX (the locutionary/illocutionary/perlocutionary framework).</p>
+            <p style={{ marginTop: 8 }}>Also see: <strong>Mollick & Mollick</strong> (2023) for how Austin's speech act theory maps onto prompt design -- every pedagogical prompt is an illocutionary act with specific felicity conditions.</p>
+          </div>
+        )}
+        {currentStage === 1 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Weizenbaum, J.</strong> (1966). "ELIZA -- A Computer Program for the Study of Natural Language Communication." <em>Communications of the ACM</em>, 9(1), 36-45.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Magee, L.</strong> (2026). "Geist in the Machine" -- explores how the ELIZA effect scales dramatically with LLMs, where the simulation of understanding is far more convincing.</p>
+          </div>
+        )}
+        {currentStage === 2 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Mollick, E. R., & Mollick, L.</strong> (2023). "Assigning AI: Seven Approaches for Students, with Prompts." SSRN.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Magee, L., Arora, V., Gollings, G., & Lam-Saw, N.</strong> (2024). "The Drama Machine" -- extends the idea of role-assignment into full character simulation with LLMs.</p>
+          </div>
+        )}
+        {currentStage === 3 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Park, J., & Choo, S.</strong> (2025). "Generative AI Prompt Engineering for Educators." <em>Journal of Special Education Technology</em>.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Anthropic</strong> (2026). "Get started with Cowork" and <strong>Karpathy, A.</strong> (2026). "LLM Knowledge Bases" -- emerging approaches to using AI as a structured research partner.</p>
+          </div>
+        )}
+        {currentStage === 4 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Foucault, M.</strong> (2020). <em>"Discourse and Truth" and "Parrhesia"</em>. University of Chicago Press. Focus on the definition of parrhesia and its conditions: sincerity, risk, and the asymmetry of power.</p>
+            <p style={{ marginTop: 8 }}>Consider in relation to: <strong>Magee, L.</strong> (2026). "Geist in the Machine" -- on AI as performer of recognition and the limits of simulated dialogue.</p>
+          </div>
+        )}
+      </div>
+
+      {/* Stage navigation at bottom */}
+      <div style={{
+        display: "flex", justifyContent: "space-between",
+        marginTop: 32, paddingTop: 16,
+        borderTop: "1px solid " + COLORS.border,
+      }}>
+        {currentStage > 0 ? (
+          <button onClick={function() { dispatch({ type: "NAVIGATE", stage: currentStage - 1 }); }}
+            style={{
+              fontFamily: FONTS.mono, fontSize: 12, padding: "10px 20px",
+              borderRadius: 6, border: "1px solid " + COLORS.border,
+              background: "transparent", color: COLORS.textDim, cursor: "pointer",
+            }}
+          >{"\u2190"} {STAGES[currentStage - 1].title}</button>
+        ) : <div />}
+        {currentStage < STAGES.length - 1 ? (
+          <button onClick={function() { dispatch({ type: "NAVIGATE", stage: currentStage + 1 }); }}
+            style={{
+              fontFamily: FONTS.mono, fontSize: 12, padding: "10px 20px",
+              borderRadius: 6, border: "1px solid " + STAGES[currentStage + 1].color + "40",
+              background: STAGES[currentStage + 1].color + "15",
+              color: STAGES[currentStage + 1].color, cursor: "pointer",
+            }}
+          >{STAGES[currentStage + 1].title} {"\u2192"}</button>
+        ) : <div />}
+      </div>
+
+      <div style={{ height: 60 }} />
+    </main>
+  );
+}
+
+
+// ============================================================
+// APP ROOT
+// ============================================================
+
+function App() {
+  var [state, dispatch] = useReducer(reducer, initialState);
+  var [isMobile, setIsMobile] = useState(false);
+
+  useEffect(function() {
+    var check = function() { setIsMobile(window.innerWidth < 768); };
+    check();
+    window.addEventListener("resize", check);
+    return function() { window.removeEventListener("resize", check); };
+  }, []);
+
+  return (
+    <div style={{
+      display: "flex", flexDirection: isMobile ? "column" : "row",
+      height: "100%", width: "100%", overflow: "hidden",
+      color: COLORS.text,
+    }}>
+      {isMobile ? (
+        <div style={{
+          display: "flex", alignItems: "center", gap: 0,
+          padding: "8px 12px", borderBottom: "1px solid " + COLORS.border,
+          background: "rgba(0,0,0,0.3)", flexShrink: 0,
+          overflowX: "auto",
+        }}>
+          {STAGES.map(function(stage, i) {
+            return (
+              <div key={i}
+                onClick={function() { dispatch({ type: "NAVIGATE", stage: i }); }}
+                style={{
+                  flex: "0 0 auto", display: "flex", flexDirection: "column",
+                  alignItems: "center", padding: "6px 10px", cursor: "pointer",
+                }}
+              >
+                <div style={{
+                  width: 10, height: 10, borderRadius: "50%",
+                  background: state.currentStage === i ? stage.color + "60" : "transparent",
+                  border: "2px solid " + stage.color,
+                  boxShadow: state.currentStage === i ? "0 0 8px " + stage.color + "40" : "none",
+                }} />
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 10,
+                  color: state.currentStage === i ? stage.color : COLORS.textDim,
+                  marginTop: 3, whiteSpace: "nowrap",
+                }}>{stage.title}</div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <StageNavigator
+          currentStage={state.currentStage}
+          stageProgress={state.stageProgress}
+          dispatch={dispatch}
+        />
+      )}
+      <MainContent
+        currentStage={state.currentStage}
+        stageProgress={state.stageProgress}
+        dispatch={dispatch}
+      />
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
