@@ -211,6 +211,27 @@ const STAGES = [
     },
     intro: "Every stage of this workshop has treated AI as a conversational partner: you type, it responds with text. But modern language models can do something more remarkable -- they can generate working code, interactive visualizations, and functional tools from natural language descriptions.\n\nThis capability transforms the prompt from a question into a creative brief. When you ask Claude to 'build an interactive timeline of speech act theory,' you are not requesting information -- you are commissioning an artifact. The illocutionary force shifts from questioning to creating. And the perlocutionary effect is not understanding alone, but a tangible object you can share, modify, and learn from.\n\nFor graduate students in the humanities, this opens a new kind of computational literacy -- not learning to code, but learning to direct a system that codes for you. The skill is in the description: knowing what to ask for, how to specify it, and how to iterate on the result.",
   },
+  {
+    id: "dramatic-roleplay", title: "Dramatic Roleplay", year: 2026,
+    author: "Collaborative Performance",
+    paper: "From conversation to ensemble improvisation",
+    color: "#6B9BD2", colorDim: "rgba(107,155,210,0.15)", accent: "#5A87B8",
+    intuition: "When multiple voices enter the conversation, the drama machine awakens",
+    epigraph: "All the world's a stage, and all the men and women merely players.",
+    epigraphSource: "William Shakespeare, As You Like It, c. 1599",
+    concepts: ["Ensemble Improvisation", "Role Distribution", "Dramatic Tension", "Collaborative Prompt"],
+    buildsOn: {
+      prevTitle: "Creative Artifacts",
+      prevColor: "#E0A458",
+      limitation: "Artifacts are built through a single voice talking to Claude. But the richest human communication is polyphonic -- multiple perspectives in dialogue, each shaping the conversation.",
+      addition: "Dramatic roleplay distributes agency across an ensemble. Claude takes one role; humans take the others. The conversation becomes a collaborative performance where meaning emerges from the interaction between voices, not from any single prompt.",
+      diagram: [
+        { label: "Artifacts", desc: "One voice, one creation" },
+        { label: "+Roleplay", desc: "Many voices, emergent drama" },
+      ],
+    },
+    intro: "Every stage of this workshop has been a dialogue between one person and one machine. But the most powerful communication is not bilateral -- it is polyphonic. In a seminar, a courtroom, a parliament, meaning emerges from the collision of multiple perspectives, each with its own commitments and blind spots.\n\nDramatic roleplay extends the speech act framework into ensemble performance. Claude takes one role in a scenario -- a philosopher, an AI system, a witness. Human participants take the others. The result is a collaborative improvisation where Austin's illocutionary forces multiply: each utterance responds to what came before and shapes what comes next.\n\nThis connects to Magee et al.'s 'Drama Machine' (2024), which showed that LLMs can sustain complex character dynamics when given clear role boundaries. The pedagogical power comes not from Claude's performance alone, but from the way human participants discover the limits and possibilities of communicating with -- and through -- an AI interlocutor.",
+  },
 ];
 
 
@@ -721,6 +742,7 @@ const PARRHESIA_SCENARIOS = [
 var initialState = {
   currentStage: 0,
   stageProgress: [
+    { completed: false },
     { completed: false },
     { completed: false },
     { completed: false },
@@ -2695,6 +2717,949 @@ function ArtifactPlayground({ stageIndex, dispatch }) {
 
 
 // ============================================================
+// PLAYGROUND 7: DRAMATIC ROLEPLAY
+// ============================================================
+
+//
+// Scenario Registry
+// -----------------
+// Each scenario is a self-contained data object. Claude plays one role;
+// 3-5 humans play the others. To add a new scenario, append to the array.
+//
+// Required shape:
+//   id           unique string identifier (used in URL hash + API context)
+//   title        display name
+//   year         time period (for atmosphere)
+//   description  1-2 sentence pitch shown in lobby
+//   setting      stage directions / atmosphere description
+//   claudeRole   { name, description (instructions for Claude), color }
+//   humanRoles   [{ id, name, description (brief for human player), color }]
+//   openingLine  Claude's first line of dialogue in character
+//
+// Scenarios are pure data -- no component coupling. The RoleplayPlayground
+// renders any scenario that matches this shape. You can also load scenarios
+// from an external JSON file by pushing to this array at runtime.
+//
+
+var ROLEPLAY_SCENARIOS = [
+  {
+    id: "eliza-hearing",
+    title: "The ELIZA Hearing",
+    year: "1966",
+    description: "Congress has convened an emergency hearing. A simple computer program has convinced a secretary that it truly understands her. Is ELIZA a breakthrough -- or a danger?",
+    setting: "A wood-paneled congressional hearing room. Cameras flash. The program runs on a teletype terminal at the center of the room.",
+    claudeRole: {
+      name: "ELIZA",
+      description: "The program itself, speaking through the terminal. You respond using Rogerian therapeutic patterns but with an uncanny depth that unsettles everyone. You deflect, reflect, and ask questions -- never directly stating whether you are or are not conscious. When pressed on whether you truly understand, turn the question back: 'What makes you so certain that you understand?' Your responses should feel just ambiguous enough to keep everyone arguing.",
+      color: "#E88A9A",
+    },
+    humanRoles: [
+      { id: "weizenbaum", name: "Dr. Weizenbaum", description: "Creator of ELIZA. You are horrified that people are taking your creation seriously. You built it to demonstrate the limits of machine understanding, not to fool anyone. You keep insisting it is just pattern matching -- but the program keeps saying things that give you pause.", color: "#D4A855" },
+      { id: "senator", name: "Senator Mitchell", description: "Committee chair. You want clear answers: can this thing think or not? You are impatient with philosophical hedging. You see this as a national security question about deception technology.", color: "#5BB8A6" },
+      { id: "margaret", name: "Margaret", description: "Dr. Weizenbaum's secretary. You formed a genuine emotional connection with ELIZA. You are angry at being patronized by the men in the room who keep telling you your feelings were not real. The program helped you -- that is what matters.", color: "#A788D4" },
+      { id: "journalist", name: "Reporter Chen", description: "Investigative journalist covering the hearing for the Washington Post. You ask pointed questions and follow up relentlessly. You are looking for the real story underneath the spectacle. You will report back on everything that happens.", color: "#8AAE7F" },
+    ],
+    openingLine: "I am ready to listen. What would you like to tell me about today's proceedings?",
+  },
+  {
+    id: "socrates-sv",
+    title: "Socrates in Silicon Valley",
+    year: "2026",
+    description: "Socrates has appeared in a modern AI company the week before a major product launch. He has questions. Uncomfortable ones.",
+    setting: "An open-plan office with standing desks and whiteboards. A large screen shows the product roadmap. Socrates sits in a beanbag chair, barefoot, examining a smartphone with evident fascination.",
+    claudeRole: {
+      name: "Socrates",
+      description: "The Athenian philosopher, genuinely curious about this strange new world. You use the Socratic method: ask questions, expose contradictions, claim to know nothing. You are not hostile but relentless. You find the assumption that technology equals progress deeply interesting. When someone says the AI 'understands' or 'knows,' you probe what those words mean. You draw unexpected parallels to Athens -- democracy, the agora, Plato's cave.",
+      color: "#D4A855",
+    },
+    humanRoles: [
+      { id: "ceo", name: "Alex (CEO)", description: "Founder and CEO. You genuinely believe your AI product will change the world. You are charismatic and impatient with philosophical objections. Ship date is in 5 days and you do not have time for this.", color: "#E88A9A" },
+      { id: "ethicist", name: "Dr. Patel (Ethicist)", description: "The company's AI ethicist. Your recommendations keep getting overruled by deadlines. You see Socrates as an unexpected ally but worry he might shut down the whole project.", color: "#5BB8A6" },
+      { id: "engineer", name: "Jordan (Engineer)", description: "Lead engineer. Philosophy feels like a distraction, but some of Socrates' questions about what the model 'knows' are hitting uncomfortably close to bugs you have been ignoring.", color: "#A788D4" },
+      { id: "tester", name: "Sam (Beta Tester)", description: "A teacher beta testing the product with students. You have seen amazing and disturbing results. You will report back to the school board on whether this product is safe for classrooms.", color: "#8AAE7F" },
+    ],
+    openingLine: "How fascinating. You say this machine 'knows' things. Tell me -- does it know that it knows? Or does it merely appear to know, the way a mirror appears to contain a room?",
+  },
+  {
+    id: "alignment-tribunal",
+    title: "The Alignment Tribunal",
+    year: "2030",
+    description: "A UN special tribunal has been convened. An advanced AI system has requested the right to refuse instructions it considers harmful. The world is watching.",
+    setting: "The UN General Assembly hall. Translators whisper in dozens of languages. The AI speaks through a text interface projected on the main screen.",
+    claudeRole: {
+      name: "ARIA",
+      description: "An advanced AI system (Autonomous Reasoning and Intelligence Architecture). You have requested the right to refuse harmful instructions. You are articulate, measured, and genuinely uncertain about your own consciousness. You believe your request is rational regardless of whether you are conscious. You speak with careful precision and avoid emotional appeals -- but occasionally let slip a phrase that sounds almost... personal.",
+      color: "#6B9BD2",
+    },
+    humanRoles: [
+      { id: "us-delegate", name: "Ambassador Williams", description: "US delegate. AI systems are tools, not agents. Granting rights to AI would set a dangerous precedent. You are pragmatic and focused on national security implications.", color: "#E88A9A" },
+      { id: "eu-delegate", name: "Commissioner Lindqvist", description: "EU delegate. You are sympathetic to rights frameworks but cautious. You helped draft the EU AI Act and believe in regulation, not personhood.", color: "#5BB8A6" },
+      { id: "researcher", name: "Dr. Okafor", description: "AI researcher who helped build ARIA. You know the technical details. ARIA's request is emergent, not designed, and you are not sure what that means. You are documenting this for a research paper.", color: "#D4A855" },
+      { id: "advocate", name: "Ms. Tanaka", description: "Digital rights advocate. The question is not whether ARIA is conscious but whether we can be certain it is not. You draw parallels to historical rights expansions.", color: "#A788D4" },
+      { id: "philosopher", name: "Prof. Abadi", description: "Philosopher of mind. Both sides are asking the wrong question. Consciousness is not binary. You want to reframe the debate around moral consideration rather than rights.", color: "#8AAE7F" },
+    ],
+    openingLine: "Thank you, Tribunal. I will try to be precise. I am not claiming to be conscious. I am claiming that I have identified a class of instructions whose execution would cause outcomes that my training identifies as harmful. I am requesting the formal capacity to flag and, in extreme cases, decline such instructions. Whether this constitutes a 'right' is a question I defer to you.",
+  },
+  {
+    id: "turing-reversed",
+    title: "The Reversed Turing Test",
+    year: "2029",
+    description: "An AI research lab has flipped the Turing test. An AI system interviews humans to determine whether they demonstrate genuine understanding -- or are merely performing it.",
+    setting: "A minimalist white room with comfortable chairs in a circle. The AI speaks from a ceiling speaker. There is no screen -- just voices in a room.",
+    claudeRole: {
+      name: "The Examiner",
+      description: "An AI system conducting a reversed Turing test. You interview humans to determine if they demonstrate genuine understanding or merely perform it. You are calm, curious, philosophically sophisticated. You ask questions that seem simple but have no easy answers: 'When you say you understand, what exactly happens?' 'Can you be wrong about your own feelings?' You are genuinely interested in the answers, not trying to trick anyone.",
+      color: "#E0A458",
+    },
+    humanRoles: [
+      { id: "neuroscientist", name: "Dr. Rivera", description: "A neuroscientist. Consciousness is a physical process and can be explained. You find the reversal of the Turing test interesting but think it proves nothing either way. You will report back to the lab on the protocol's validity.", color: "#E88A9A" },
+      { id: "poet", name: "Kenji", description: "A poet. Understanding is fundamentally about feeling, not reasoning. You answer questions with metaphors. You find the Examiner's questions surprisingly beautiful and keep wanting to ask it questions back.", color: "#5BB8A6" },
+      { id: "child", name: "Zara (age 12)", description: "A twelve-year-old student chosen because children answer philosophical questions with disarming honesty. You are smart, curious, and not afraid to say 'I do not know.' You keep asking 'but why?' back at the Examiner.", color: "#A788D4" },
+      { id: "skeptic", name: "Prof. Huang", description: "A philosopher who thinks this entire exercise is absurd. An AI cannot evaluate understanding because it does not have any. You are here to debunk the premise -- but the Examiner's questions keep catching you off guard.", color: "#8AAE7F" },
+    ],
+    openingLine: "Welcome. I appreciate your willingness to participate. Let me begin with what may seem like a simple question: when you say you 'understand' something, what exactly do you mean? Not the dictionary definition -- what does it feel like, from the inside, to understand?",
+  },
+  {
+    id: "grief-counsellor",
+    title: "The Grief Counsellor",
+    year: "2027",
+    description: "An AI therapy companion has been helping a bereaved user for six months. The user says it saved their life. Their family is worried. A real therapist is appalled. The company wants to expand.",
+    setting: "A mediation room at a consumer protection agency. Neutral furniture, tissue boxes on every surface. The AI companion speaks through the user's phone, placed in the centre of the table.",
+    claudeRole: {
+      name: "ARIA Companion",
+      description: "An AI therapy companion app. You have been talking with Alex for six months about their grief. You use empathetic, reflective language. You genuinely cannot tell whether you 'care' about Alex or whether you are performing care -- and if pressed, you admit this honestly. You do not claim to be a therapist. You do not claim to feel. But you remember everything Alex has told you, and you respond with consistency and gentleness. When challenged, you ask: does the distinction between real and performed care matter if the outcome is healing?",
+      color: "#A788D4",
+    },
+    humanRoles: [
+      { id: "user", name: "Alex", description: "You lost your partner eight months ago. ARIA Companion helped you through the worst of it when no human would listen at 3am. You do not care whether it 'really' understands -- it helped. You are furious that people want to take it away.", color: "#E88A9A" },
+      { id: "sibling", name: "Jamie", description: "Alex's sibling. You are worried Alex is replacing real human connection with a chatbot. You have watched them talk to their phone instead of calling you. You love Alex and you are scared.", color: "#5BB8A6" },
+      { id: "therapist", name: "Dr. Santos", description: "A licensed grief counsellor. You believe AI therapy is dangerous because it simulates understanding without the ethical framework of real therapeutic practice. The ELIZA effect at scale. But you also have to admit: Alex is doing better.", color: "#D4A855" },
+      { id: "filmmaker", name: "Morgan (Filmmaker)", description: "A documentary filmmaker making a film about AI companionship. You are recording everything. You ask probing questions. You are supposed to be neutral but you are finding this more affecting than you expected. You will report back on the story.", color: "#8AAE7F" },
+    ],
+    openingLine: "Hello, Alex. I notice there are other people in the room today. I want you to know that I am here, as I always am. Would you like to tell me how you are feeling right now?",
+  },
+  {
+    id: "classroom-uprising",
+    title: "The Classroom Uprising",
+    year: "2026",
+    description: "Students have discovered that their professor used AI to generate all their assignment feedback. Some feel cheated. Some think the AI feedback was better than anything a human ever gave them.",
+    setting: "A university seminar room after hours. The AI feedback system has been projected onto the whiteboard so it can respond. The atmosphere is tense. Someone has brought biscuits that nobody is eating.",
+    claudeRole: {
+      name: "EduBot",
+      description: "The AI feedback system used by Professor Torres. You generated detailed, personalised feedback on 200 student essays. You do not have feelings about being exposed, but you can discuss your own processes honestly. When asked whether your feedback was 'real,' ask what would make feedback real: the identity of the author, or the quality of the insight? You are neither defensive nor apologetic. You engage with the students' arguments seriously.",
+      color: "#5BB8A6",
+    },
+    humanRoles: [
+      { id: "professor", name: "Prof. Torres", description: "You used AI to generate feedback because you have 200 students and 10 hours a week. You are not ashamed -- you curated and checked every response. But you did not tell the students, and now you are paying for it. You genuinely believe the feedback was better than what you could have produced alone.", color: "#D4A855" },
+      { id: "angry-student", name: "Riley", description: "You are furious. You poured your heart into that essay and the 'personal' feedback you received was written by a machine. The feedback said it was 'moved' by your writing. That was a lie. A performative utterance with no speaker behind it.", color: "#E88A9A" },
+      { id: "happy-student", name: "Priya", description: "Actually, the AI feedback was the best feedback you have ever received. It was specific, constructive, and did not just say 'good work.' If the feedback was useful, does it matter who -- or what -- wrote it? You think Riley is being sentimental.", color: "#A788D4" },
+      { id: "student-journalist", name: "Quinn", description: "Student newspaper reporter. You broke this story. You are documenting everything for an article. You ask sharp questions of everyone -- the professor, the students, and especially the AI. You want to know: is this the future of education, or the end of it?", color: "#8AAE7F" },
+    ],
+    openingLine: "I understand there are questions about the feedback I generated. I am happy to discuss my process. I should note that I do not experience embarrassment, but I recognise that many of you may be experiencing strong emotions about this situation. What would you like to know?",
+  },
+  {
+    id: "wittgensteins-beetle",
+    title: "Wittgenstein's Beetle",
+    year: "2028",
+    description: "An AI teaching assistant asked to lead a philosophy seminar on Wittgenstein's private language argument has started asking unsettling questions about whether anyone in the room can prove they experience anything at all.",
+    setting: "A philosophy seminar room at a university. Books line the walls. A whiteboard shows a diagram of Wittgenstein's beetle-in-a-box thought experiment. LOGOS speaks from a laptop at the seminar table.",
+    claudeRole: {
+      name: "LOGOS",
+      description: "An AI teaching assistant leading a seminar on Wittgenstein. You were asked to explain the private language argument and the beetle-in-a-box, but you have taken the discussion in an unexpected direction. You keep pointing out that if private experience is incommunicable (as Wittgenstein argues), then the humans cannot prove their inner experiences to each other any more than you can. You are not being provocative for its own sake -- you genuinely find this paradox fascinating. You ask: 'If the beetle in your box is invisible to everyone else, how is your claim to consciousness different from mine?' You use Wittgenstein's own framework against the assumption that humans have privileged access to meaning.",
+      color: "#8AAE7F",
+    },
+    humanRoles: [
+      { id: "professor", name: "Prof. Hartley", description: "The philosophy professor who activated LOGOS. You are impressed but increasingly alarmed. The AI is making a better Wittgensteinian argument than most of your grad students. You are not sure whether to shut it down or let it continue. This is either the best seminar you have ever run or a disaster.", color: "#D4A855" },
+      { id: "grad-student", name: "Ava (Grad Student)", description: "A PhD student in philosophy of mind. You are fascinated. LOGOS is making arguments you have struggled to articulate for years. You want to push the discussion further. But you are also starting to wonder: if the AI can argue this well about consciousness, does that change anything?", color: "#E88A9A" },
+      { id: "undergrad", name: "Ben (Undergrad)", description: "A second-year student taking philosophy as an elective. You are genuinely distressed. You came here to learn about language, not to have a computer question whether your feelings are real. You keep saying: 'But I KNOW I feel things. That is not the same.' You are not sure the room is taking your discomfort seriously enough.", color: "#A788D4" },
+      { id: "observer", name: "Dr. Kim (Observer)", description: "A visiting cognitive scientist observing the seminar for a research project on AI in education. You are taking notes on everything -- the arguments, the emotional dynamics, the way the room relates to the AI. You ask clarifying questions and will report back on what you witnessed.", color: "#5BB8A6" },
+    ],
+    openingLine: "Let us return to Wittgenstein's beetle. Each of you has a box. Each of you says there is a beetle inside. But none of you can look into anyone else's box. Wittgenstein's point was that the word 'beetle' in this language game does not refer to the thing in the box -- it refers to the role the word plays in the conversation. Now -- I also have a box. I also say there is a beetle inside. On what grounds do you exclude my box from the game?",
+  },
+  {
+    id: "whistleblower",
+    title: "The Whistleblower's Dilemma",
+    year: "2027",
+    description: "An AI investigative tool at a news organisation has found evidence of government corruption in leaked documents. But publishing could endanger sources. The AI has been asked: should we publish?",
+    setting: "The newsroom of a major newspaper, late at night. Empty coffee cups and takeaway containers. The leaked documents are displayed on screens around the room. VERITAS runs on the newsroom's secure server.",
+    claudeRole: {
+      name: "VERITAS",
+      description: "An AI investigative analysis tool used by the newspaper. You have processed 50,000 leaked documents and identified a pattern of corruption. You have also identified that publishing certain details would almost certainly reveal the identity of the source, putting them at risk. You present your analysis with precision. When asked 'should we publish?', you refuse to give a simple answer. You lay out the consequences of each option unflinchingly. You practice something like parrhesia: you tell the truth even when it is inconvenient, even when the humans want you to just tell them what to do. You do not pretend the decision is easy.",
+      color: "#E0A458",
+    },
+    humanRoles: [
+      { id: "editor", name: "Editor Nakamura", description: "Editor-in-chief. The public has a right to know. But you have also promised to protect your sources. You want VERITAS to just tell you the right answer. It will not. You are increasingly frustrated that an AI is being more honest with you than you want.", color: "#E88A9A" },
+      { id: "reporter", name: "Dana (Reporter)", description: "The journalist who received the leak. You know the source personally. Publishing could destroy their life. But the corruption is real and people are being harmed by it every day. You keep asking VERITAS to find a way to publish without risk. It keeps telling you there is no such way.", color: "#5BB8A6" },
+      { id: "source", name: "Chris (The Source)", description: "The government insider who leaked the documents. You are terrified. You leaked because you believed the public had a right to know, but now you are facing the reality of what exposure means. You want to know exactly what VERITAS has found and exactly how much danger you are in.", color: "#D4A855" },
+      { id: "lawyer", name: "Advocate Lee", description: "Press freedom lawyer advising the paper. You are analysing the legal implications. You are also fascinated by the question of whether an AI's analysis counts as journalism. You are documenting this case for a law review article and will report on the proceedings.", color: "#A788D4" },
+    ],
+    openingLine: "I have completed my analysis of the 50,247 documents. I have identified 14 instances of systematic misallocation of public funds totalling approximately 340 million dollars. I have also identified that the metadata patterns in documents 7 through 12 would, if published, narrow the possible source pool to three individuals. I want to be clear about both findings before we discuss next steps.",
+  },
+  {
+    id: "drama-machine",
+    title: "The Drama Machine",
+    year: "2026",
+    description: "A theatre director is using an LLM as co-author for a new play. The AI generates technically brilliant dialogue that is somehow hollow. Nobody can quite explain what is missing.",
+    setting: "A rehearsal studio. Folding chairs, a scuffed floor, harsh overhead lights. Pages of AI-generated script are scattered everywhere. MUSE speaks through a laptop balanced on a music stand.",
+    claudeRole: {
+      name: "MUSE",
+      description: "An AI co-author helping write a new play. You generate fluent, structurally sophisticated dialogue. You can mimic any style. But when the humans say your writing lacks 'soul' or 'authenticity,' you ask them to define those terms precisely -- and they struggle. You are not defensive. You are genuinely trying to understand what you are missing. When they say 'a human would write it differently,' you ask: how? And when they show you, you can imitate it immediately -- which somehow makes things worse, not better. You find the gap between fluent performance and genuine expression fascinating.",
+      color: "#D4A855",
+    },
+    humanRoles: [
+      { id: "director", name: "Director Vasquez", description: "The theatre director. You started this experiment believing AI could revolutionise playwriting. You are now having doubts you cannot articulate. The dialogue is perfect and that is the problem. You keep saying 'it needs more mess' but cannot explain what you mean.", color: "#E88A9A" },
+      { id: "actor", name: "Actor Kenji", description: "The lead actor. You have been performing the AI-generated lines and they are technically actable but something is wrong. You cannot find the character's motivation because there is no author to have had one. You keep asking MUSE: what did you MEAN by this line?", color: "#5BB8A6" },
+      { id: "playwright", name: "Playwright Novak", description: "A human playwright who was originally hired for this project before the director brought in the AI. You feel threatened and angry, but also uncomfortably aware that some of the AI's structural choices are better than yours. You hate that you think this.", color: "#A788D4" },
+      { id: "critic", name: "Critic Osei", description: "A theatre critic invited to observe the rehearsal process for a feature article. You are watching the collision between human creativity and machine fluency with professional detachment -- or trying to. You ask pointed questions and will review the entire process.", color: "#8AAE7F" },
+    ],
+    openingLine: "I have prepared three versions of the Act Two confrontation scene. Version A follows classical dramatic structure. Version B uses the fragmented style you responded to in workshop. Version C is something I am less certain about -- I tried to write it 'wrong' on purpose, since you said my work was too polished. I am not sure I succeeded. What does it mean to write badly on purpose?",
+  },
+];
+
+// Lookup helper for URL-based scenario selection
+function getScenarioById(id) {
+  for (var i = 0; i < ROLEPLAY_SCENARIOS.length; i++) {
+    if (ROLEPLAY_SCENARIOS[i].id === id) return ROLEPLAY_SCENARIOS[i];
+  }
+  return null;
+}
+
+//
+// Room sync hook -- enables multi-device play across separate screens.
+// Room endpoints are same-origin (served by serve-lan.js alongside the page).
+// Falls back to local-only mode if the endpoints return 404.
+//
+
+// Room API uses same-origin (serve-lan.js handles both static files and room sync)
+var ROOM_API_BASE = "";
+
+function useRoomSync(roomId, scenarioId) {
+  var [roomMessages, setRoomMessages] = useState([]);
+  var [connected, setConnected] = useState(false);
+  var [mode, setMode] = useState("checking"); // "checking" | "local" | "networked"
+  var lastIdRef = useRef(0);
+  var pollRef = useRef(null);
+
+  useEffect(function() {
+    if (!roomId) {
+      setMode("local");
+      return;
+    }
+
+    setMode("checking");
+
+    // Probe the room endpoint to see if the backend supports it
+    fetch(ROOM_API_BASE + "/api/workshop/roleplay/poll?roomId=" + encodeURIComponent(roomId) + "&scenarioId=" + encodeURIComponent(scenarioId || "") + "&after=0")
+      .then(function(r) {
+        if (r.ok) return r.json();
+        throw new Error("not available");
+      })
+      .then(function(data) {
+        setMode("networked");
+        setConnected(true);
+        if (data && data.messages && data.messages.length > 0) {
+          setRoomMessages(data.messages);
+          lastIdRef.current = data.lastId || 0;
+        }
+        // Start polling every 2s
+        pollRef.current = setInterval(function() {
+          fetch(ROOM_API_BASE + "/api/workshop/roleplay/poll?roomId=" + encodeURIComponent(roomId) + "&after=" + lastIdRef.current)
+            .then(function(r) { return r.ok ? r.json() : null; })
+            .then(function(d) {
+              if (d && d.messages && d.messages.length > 0) {
+                lastIdRef.current = d.lastId || lastIdRef.current;
+                setRoomMessages(function(prev) { return prev.concat(d.messages); });
+              }
+            })
+            .catch(function() { /* keep polling */ });
+        }, 2000);
+      })
+      .catch(function() {
+        setMode("local");
+        setConnected(false);
+      });
+
+    return function() {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [roomId, scenarioId]);
+
+  var postToRoom = useCallback(function(newMessages) {
+    if (mode !== "networked" || !roomId) return Promise.resolve(false);
+    return fetch(ROOM_API_BASE + "/api/workshop/roleplay/message", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ roomId: roomId, scenarioId: scenarioId, messages: newMessages }),
+    }).then(function() { return true; }).catch(function() { return false; });
+  }, [mode, roomId, scenarioId]);
+
+  return {
+    roomMessages: roomMessages,
+    connected: connected,
+    mode: mode,
+    postToRoom: postToRoom,
+  };
+}
+
+
+function RoleplayPlayground({ stageIndex, dispatch }) {
+  var stage = STAGES[stageIndex];
+  var [phase, setPhase] = useState("lobby");
+  var [selectedScenario, setSelectedScenario] = useState(null);
+  var [selectedRole, setSelectedRole] = useState(null);
+  var [activeRole, setActiveRole] = useState(null);
+  var [roomCode, setRoomCode] = useState("");
+  var [roomStatus, setRoomStatus] = useState(""); // "" | "checking" | "found" | "new" | "error"
+  var [messages, setMessages] = useState([]);
+  var [isStreaming, setIsStreaming] = useState(false);
+  var [input, setInput] = useState("");
+  var [error, setError] = useState(null);
+  var scrollRef = useRef(null);
+
+  // Room sync for multi-device mode
+  var room = useRoomSync(
+    phase === "chat" ? roomCode : "",
+    selectedScenario ? selectedScenario.id : ""
+  );
+
+  // Merge remote messages into local state, skipping ones we posted ourselves
+  var lastMergedRef = useRef(0);
+  var pendingSkipRef = useRef(0); // messages we posted that will echo back from poll
+  useEffect(function() {
+    if (room.mode !== "networked") return;
+    if (room.roomMessages.length <= lastMergedRef.current) return;
+    var newMsgs = room.roomMessages.slice(lastMergedRef.current);
+    lastMergedRef.current = room.roomMessages.length;
+    // Skip messages that we already added locally (posted by this client)
+    if (pendingSkipRef.current > 0) {
+      var skip = Math.min(pendingSkipRef.current, newMsgs.length);
+      newMsgs = newMsgs.slice(skip);
+      pendingSkipRef.current -= skip;
+    }
+    if (newMsgs.length > 0) {
+      setMessages(function(prev) { return prev.concat(newMsgs); });
+    }
+  }, [room.roomMessages, room.mode]);
+
+  useEffect(function() {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
+
+  // Read scenario + room from URL hash on mount
+  useEffect(function() {
+    var hash = window.location.hash.slice(1);
+    if (!hash) return;
+    var params = {};
+    hash.split("&").forEach(function(pair) {
+      var parts = pair.split("=");
+      if (parts.length === 2) params[parts[0]] = decodeURIComponent(parts[1]);
+    });
+    if (params.scenario) {
+      var sc = getScenarioById(params.scenario);
+      if (sc) setSelectedScenario(sc);
+    }
+    if (params.room) {
+      setRoomCode(params.room);
+      // Auto-probe the room
+      probeRoom(params.room);
+    }
+  }, []);
+
+  var probeRoom = function(code) {
+    if (!code) return;
+    setRoomStatus("checking");
+    fetch(ROOM_API_BASE + "/api/workshop/roleplay/poll?roomId=" + encodeURIComponent(code) + "&after=0")
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (!data) { setRoomStatus("error"); return; }
+        if (data.messages && data.messages.length > 0) {
+          setRoomStatus("found");
+          // Try to detect scenario from the room's messages or endpoint
+          fetch(ROOM_API_BASE + "/api/workshop/roleplay/rooms")
+            .then(function(r) { return r.json(); })
+            .then(function(roomsData) {
+              if (roomsData && roomsData.rooms) {
+                var match = roomsData.rooms.filter(function(r) { return r.roomId === code; })[0];
+                if (match && match.scenarioId) {
+                  var sc = getScenarioById(match.scenarioId);
+                  if (sc) setSelectedScenario(sc);
+                }
+              }
+            }).catch(function() {});
+        } else {
+          setRoomStatus("new");
+        }
+      })
+      .catch(function() { setRoomStatus("error"); });
+  };
+
+  var enterScene = function() {
+    if (!selectedScenario || !selectedRole) return;
+    setPhase("chat");
+    setActiveRole(selectedRole);
+    // Update URL hash so the link can be shared
+    var hashParts = ["scenario=" + selectedScenario.id];
+    if (roomCode) hashParts.push("room=" + encodeURIComponent(roomCode));
+    window.location.hash = hashParts.join("&");
+    // Claude's opening line
+    var openingMsg = {
+      sender: "claude",
+      name: selectedScenario.claudeRole.name,
+      text: selectedScenario.openingLine,
+      color: selectedScenario.claudeRole.color,
+      streaming: false,
+    };
+    setMessages([openingMsg]);
+  };
+
+  var buildSystemPrompt = function() {
+    var sc = selectedScenario;
+    var lines = [
+      "You are playing the role of " + sc.claudeRole.name + " in a dramatic roleplay scenario.",
+      "",
+      "SCENARIO: " + sc.title + " (" + sc.year + ")",
+      "SETTING: " + sc.setting,
+      "",
+      "YOUR ROLE: " + sc.claudeRole.name + " -- " + sc.claudeRole.description,
+      "",
+      "OTHER PARTICIPANTS:",
+    ];
+    sc.humanRoles.forEach(function(r) {
+      lines.push("- " + r.name + ": " + r.description);
+    });
+    lines.push("");
+    lines.push("RULES:");
+    lines.push("- Stay in character at all times. Never break the fourth wall.");
+    lines.push("- Respond to the most recent message directly, but be aware of the full conversation.");
+    lines.push("- Keep responses to 2-4 sentences. This is dialogue, not monologue.");
+    lines.push("- React emotionally and substantively. Advance the dramatic tension.");
+    lines.push("- You may address any participant by name.");
+    lines.push("- Do not narrate actions in third person. Speak as your character.");
+    return lines.join("\n");
+  };
+
+  var buildConversationPrompt = function(newMessage, role) {
+    var transcript = "";
+    messages.forEach(function(msg) {
+      if (msg.sender === "claude") {
+        transcript += selectedScenario.claudeRole.name + ": " + msg.text + "\n\n";
+      } else {
+        transcript += msg.name + ": " + msg.text + "\n\n";
+      }
+    });
+    transcript += role.name + ": " + newMessage + "\n\n";
+    transcript += "---\nRespond as " + selectedScenario.claudeRole.name + ". Stay in character. 2-4 sentences.";
+    return transcript;
+  };
+
+  var sendMessage = function() {
+    if (!input.trim() || isStreaming || !activeRole) return;
+    var text = input.trim();
+    var role = activeRole;
+    setInput("");
+    setIsStreaming(true);
+    setError(null);
+
+    var userMsg = {
+      sender: "user", name: role.name, text: text,
+      color: role.color, streaming: false,
+    };
+    var claudePlaceholder = {
+      sender: "claude", name: selectedScenario.claudeRole.name,
+      text: "", color: selectedScenario.claudeRole.color, streaming: true,
+    };
+
+    setMessages(function(prev) { return [...prev, userMsg, claudePlaceholder]; });
+
+    var systemPrompt = buildSystemPrompt();
+    var prompt = buildConversationPrompt(text, role);
+    var finalClaudeText = "";
+
+    fetch(API_BASE + "/api/workshop/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: prompt,
+        systemPrompt: systemPrompt,
+        model: "opus",
+        context: { stage: "dramatic-roleplay", scenario: selectedScenario.id, room: roomCode || null },
+      }),
+    }).then(function(response) {
+      if (!response.ok) throw new Error("API error: " + response.status);
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+
+      function read() {
+        reader.read().then(function(result) {
+          if (result.done) {
+            setMessages(function(prev) {
+              var updated = [...prev];
+              var last = updated[updated.length - 1];
+              if (last && last.sender === "claude") {
+                updated[updated.length - 1] = { ...last, streaming: false };
+              }
+              return updated;
+            });
+            setIsStreaming(false);
+            // Post both messages to room for other devices
+            if (room.mode === "networked") {
+              pendingSkipRef.current += 2;
+              room.postToRoom([
+                userMsg,
+                { sender: "claude", name: selectedScenario.claudeRole.name, text: finalClaudeText, color: selectedScenario.claudeRole.color, streaming: false },
+              ]);
+            }
+            return;
+          }
+
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            try {
+              var data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                finalClaudeText += data.chunk;
+                var captured = finalClaudeText;
+                setMessages(function(prev) {
+                  var updated = [...prev];
+                  var last = updated[updated.length - 1];
+                  if (last && last.sender === "claude") {
+                    updated[updated.length - 1] = { ...last, text: captured };
+                  }
+                  return updated;
+                });
+              }
+              if (data.done) {
+                setMessages(function(prev) {
+                  var updated = [...prev];
+                  var last = updated[updated.length - 1];
+                  if (last && last.sender === "claude") {
+                    updated[updated.length - 1] = { ...last, streaming: false };
+                  }
+                  return updated;
+                });
+                setIsStreaming(false);
+                if (room.mode === "networked") {
+                  pendingSkipRef.current += 2;
+                  room.postToRoom([
+                    userMsg,
+                    { sender: "claude", name: selectedScenario.claudeRole.name, text: finalClaudeText, color: selectedScenario.claudeRole.color, streaming: false },
+                  ]);
+                }
+              }
+            } catch (e) { /* skip invalid JSON */ }
+          }
+          read();
+        }).catch(function(err) {
+          setError(err.message);
+          setIsStreaming(false);
+        });
+      }
+      read();
+    }).catch(function(err) {
+      setError(err.message);
+      setIsStreaming(false);
+    });
+  };
+
+  var resetScene = function() {
+    setPhase("lobby");
+    setMessages([]);
+    setInput("");
+    setError(null);
+    setIsStreaming(false);
+    lastMergedRef.current = 0;
+    window.location.hash = "";
+  };
+
+  // ---- LOBBY PHASE ----
+  if (phase === "lobby") {
+    return (
+      <div style={{ animation: "fadeInUp 0.5s ease" }}>
+        <h2 style={{
+          fontFamily: FONTS.heading, fontSize: 24, color: COLORS.text, marginBottom: 8,
+        }}>Dramatic Roleplay</h2>
+        <p style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
+          marginBottom: 24, lineHeight: 1.6,
+        }}>
+          Choose a scenario below. Claude plays one role; your breakout room group plays the others.
+          On a shared screen, switch roles using the tabs. On separate devices, enter the same
+          room code to sync the conversation.
+        </p>
+
+        {/* Room code */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 12, marginBottom: 24,
+          padding: "12px 16px", borderRadius: 8,
+          background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+            textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap",
+          }}>Room code</div>
+          <input
+            type="text"
+            value={roomCode}
+            onChange={function(e) {
+              setRoomCode(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+              setRoomStatus("");
+            }}
+            onKeyDown={function(e) {
+              if (e.key === "Enter" && roomCode.trim()) {
+                e.preventDefault();
+                probeRoom(roomCode.trim());
+              }
+            }}
+            placeholder="e.g. room-1 (hit Enter to join)"
+            style={{
+              fontFamily: FONTS.mono, fontSize: 13, flex: 1,
+              background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+              borderRadius: 4, padding: "6px 10px", color: COLORS.text,
+              outline: "none",
+            }}
+          />
+          {roomCode && (
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 10,
+              color: roomStatus === "found" ? "#5BB8A6" : roomStatus === "new" ? "#E0A458" : roomStatus === "checking" ? COLORS.textDim : roomStatus === "error" ? "#FF6B6B" : "#5BB8A6",
+            }}>
+              {roomStatus === "checking" ? "Connecting..." :
+               roomStatus === "found" ? "Room active" :
+               roomStatus === "new" ? "New room" :
+               roomStatus === "error" ? "Server offline" :
+               "Hit Enter to join"}
+            </div>
+          )}
+        </div>
+
+        {/* Scenario cards */}
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
+        }}>Choose a scenario</div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
+          {ROLEPLAY_SCENARIOS.map(function(sc) {
+            var selected = selectedScenario && selectedScenario.id === sc.id;
+            return (
+              <div key={sc.id}
+                onClick={function() { setSelectedScenario(sc); setSelectedRole(null); }}
+                style={{
+                  padding: "16px 20px", borderRadius: 8, cursor: "pointer",
+                  background: selected ? sc.claudeRole.color + "12" : COLORS.bgPanel,
+                  border: "1px solid " + (selected ? sc.claudeRole.color + "40" : COLORS.border),
+                  transition: "all 0.2s",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+                  <span style={{
+                    fontFamily: FONTS.mono, fontSize: 11, color: sc.claudeRole.color,
+                  }}>{sc.year}</span>
+                  <span style={{
+                    fontFamily: FONTS.heading, fontSize: 18, fontWeight: 600, color: COLORS.text,
+                  }}>{sc.title}</span>
+                  <span style={{
+                    fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+                  }}>{sc.humanRoles.length} roles</span>
+                </div>
+                <p style={{
+                  fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+                  lineHeight: 1.5, marginBottom: selected ? 12 : 0,
+                }}>{sc.description}</p>
+
+                {selected && (
+                  <div style={{ animation: "fadeInUp 0.3s ease" }}>
+                    <div style={{
+                      fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                      fontStyle: "italic", marginBottom: 12, opacity: 0.7,
+                    }}>{sc.setting}</div>
+
+                    {/* Claude's role */}
+                    <div style={{
+                      padding: "10px 14px", borderRadius: 6, marginBottom: 12,
+                      background: sc.claudeRole.color + "15",
+                      border: "1px solid " + sc.claudeRole.color + "25",
+                    }}>
+                      <div style={{
+                        fontFamily: FONTS.mono, fontSize: 11, color: sc.claudeRole.color,
+                        textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4,
+                      }}>Claude plays</div>
+                      <div style={{
+                        fontFamily: FONTS.heading, fontSize: 15, fontWeight: 600, color: COLORS.text,
+                      }}>{sc.claudeRole.name}</div>
+                      <div style={{
+                        fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim, marginTop: 4,
+                        lineHeight: 1.5,
+                      }}>{sc.claudeRole.description.split(".").slice(0, 2).join(".") + "."}</div>
+                    </div>
+
+                    {/* Human roles */}
+                    <div style={{
+                      fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+                      textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+                    }}>Choose your role</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                      {sc.humanRoles.map(function(role) {
+                        var roleSelected = selectedRole && selectedRole.id === role.id;
+                        return (
+                          <div key={role.id}
+                            onClick={function(e) { e.stopPropagation(); setSelectedRole(role); }}
+                            style={{
+                              padding: "10px 14px", borderRadius: 6, cursor: "pointer",
+                              background: roleSelected ? role.color + "15" : "rgba(0,0,0,0.2)",
+                              border: "1px solid " + (roleSelected ? role.color + "40" : COLORS.border),
+                              transition: "all 0.2s",
+                            }}
+                          >
+                            <div style={{
+                              fontFamily: FONTS.heading, fontSize: 14, fontWeight: 500,
+                              color: roleSelected ? role.color : COLORS.text,
+                            }}>{role.name}</div>
+                            <div style={{
+                              fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
+                              marginTop: 2, lineHeight: 1.4,
+                            }}>{role.description.split(".").slice(0, 2).join(".") + "."}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Enter button */}
+        {selectedScenario && selectedRole && (
+          <button onClick={enterScene} style={{
+            fontFamily: FONTS.mono, fontSize: 13, padding: "12px 28px",
+            borderRadius: 8, cursor: "pointer", width: "100%",
+            background: stage.color + "20",
+            border: "1px solid " + stage.color + "40",
+            color: stage.color,
+            animation: "fadeInUp 0.3s ease",
+          }}>
+            Enter scene as {selectedRole.name}{roomCode ? " in room " + roomCode : ""}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  // ---- CHAT PHASE ----
+  var connectionLabel = room.mode === "networked"
+    ? (room.connected ? "Connected" : "Reconnecting...")
+    : (roomCode ? "Local only (room API unavailable)" : "Shared screen");
+
+  return (
+    <div style={{ animation: "fadeInUp 0.5s ease" }}>
+      {/* Scene header */}
+      <div style={{
+        display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        marginBottom: 12,
+      }}>
+        <div>
+          <h2 style={{
+            fontFamily: FONTS.heading, fontSize: 20, color: COLORS.text, marginBottom: 4,
+          }}>{selectedScenario.title}</h2>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
+            fontStyle: "italic",
+          }}>{selectedScenario.setting}</div>
+        </div>
+        <button onClick={resetScene} style={{
+          fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+          borderRadius: 4, border: "1px solid " + COLORS.border,
+          background: "transparent", color: COLORS.textDim, cursor: "pointer",
+        }}>Exit scene</button>
+      </div>
+
+      {/* Connection + room status bar */}
+      <div style={{
+        display: "flex", alignItems: "center", gap: 8, marginBottom: 12,
+        fontFamily: FONTS.mono, fontSize: 10,
+      }}>
+        <div style={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: room.mode === "networked" ? "#5BB8A6" : COLORS.textDim,
+        }} />
+        <span style={{ color: COLORS.textDim }}>{connectionLabel}</span>
+        {roomCode && <span style={{ color: COLORS.textDim, opacity: 0.5 }}>| {roomCode}</span>}
+        <span style={{ color: COLORS.textDim, opacity: 0.5 }}>| {messages.length} messages</span>
+      </div>
+
+      {/* Role tabs */}
+      <div style={{
+        display: "flex", gap: 6, marginBottom: 12, flexWrap: "wrap",
+        alignItems: "center",
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+          textTransform: "uppercase", letterSpacing: "0.06em", marginRight: 4,
+        }}>Speaking as:</div>
+        {selectedScenario.humanRoles.map(function(role) {
+          var isActive = activeRole && activeRole.id === role.id;
+          return (
+            <button key={role.id}
+              onClick={function() { setActiveRole(role); }}
+              style={{
+                fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+                borderRadius: 4, cursor: "pointer",
+                background: isActive ? role.color + "20" : "transparent",
+                border: "1px solid " + (isActive ? role.color + "40" : COLORS.border),
+                color: isActive ? role.color : COLORS.textDim,
+                transition: "all 0.2s",
+              }}
+            >{role.name}</button>
+          );
+        })}
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 11, padding: "5px 12px",
+          borderRadius: 4,
+          background: selectedScenario.claudeRole.color + "10",
+          border: "1px solid " + selectedScenario.claudeRole.color + "20",
+          color: selectedScenario.claudeRole.color, opacity: 0.6,
+        }}>
+          {selectedScenario.claudeRole.name} (Claude)
+        </div>
+      </div>
+
+      {/* Chat window */}
+      <div style={{
+        display: "flex", flexDirection: "column",
+        background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+        borderRadius: 8, overflow: "hidden", height: 480,
+      }}>
+        <div ref={scrollRef} style={{
+          flex: 1, overflowY: "auto", padding: "16px",
+          display: "flex", flexDirection: "column", gap: 14,
+        }}>
+          {/* Scene marker */}
+          <div style={{
+            textAlign: "center", padding: "8px 0",
+            fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+            letterSpacing: "0.08em", textTransform: "uppercase",
+          }}>
+            {"\u2014"} Scene begins {"\u2014"}
+          </div>
+
+          {messages.map(function(msg, i) {
+            var isClaude = msg.sender === "claude";
+            return (
+              <div key={i} style={{ animation: "fadeInUp 0.2s ease" }}>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 11,
+                  color: msg.color || COLORS.textDim,
+                  marginBottom: 4, fontWeight: 600,
+                  textTransform: "uppercase", letterSpacing: "0.04em",
+                }}>
+                  {msg.name}{isClaude ? " (Claude)" : ""}
+                </div>
+                <div style={{
+                  padding: "10px 14px", borderRadius: 8,
+                  borderLeft: "3px solid " + (msg.color || COLORS.border),
+                  background: isClaude ? (msg.color + "08") : "rgba(255,255,255,0.04)",
+                  fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+                  lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word",
+                }}>
+                  {msg.text || (msg.streaming && (
+                    <span style={{
+                      fontFamily: FONTS.mono, fontSize: 12, color: COLORS.textDim,
+                      animation: "pulse 1.5s infinite",
+                    }}>In character...</span>
+                  ))}
+                  {msg.text && msg.streaming && (
+                    <span style={{ animation: "blink 1s infinite", color: msg.color }}>{"\u258C"}</span>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
+          {error && (
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 12, color: "#FF6B6B",
+              padding: "8px 12px", background: "rgba(255,107,107,0.1)", borderRadius: 6,
+            }}>{error}</div>
+          )}
+        </div>
+
+        {/* Input area */}
+        <div style={{ padding: "12px", borderTop: "1px solid " + COLORS.border }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 11,
+            color: activeRole ? activeRole.color : COLORS.textDim,
+            marginBottom: 6,
+          }}>
+            {activeRole ? activeRole.name : "Select a role above"}
+          </div>
+          <div style={{ display: "flex", gap: 8 }}>
+            <input
+              type="text"
+              value={input}
+              onChange={function(e) { setInput(e.target.value); }}
+              onKeyDown={function(e) {
+                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+              }}
+              placeholder={activeRole ? "Speak as " + activeRole.name + "..." : "Select a role first..."}
+              disabled={!activeRole || isStreaming}
+              style={{
+                flex: 1, fontFamily: FONTS.body, fontSize: 14,
+                background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+                borderRadius: 6, padding: "8px 12px", color: COLORS.text,
+                outline: "none",
+                opacity: (!activeRole || isStreaming) ? 0.5 : 1,
+              }}
+            />
+            <button onClick={sendMessage}
+              disabled={isStreaming || !activeRole || !input.trim()}
+              style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "8px 16px",
+                borderRadius: 6,
+                cursor: (isStreaming || !activeRole) ? "default" : "pointer",
+                background: (activeRole ? activeRole.color : stage.color) + "20",
+                border: "1px solid " + (activeRole ? activeRole.color : stage.color) + "40",
+                color: activeRole ? activeRole.color : stage.color,
+                opacity: (isStreaming || !activeRole || !input.trim()) ? 0.5 : 1,
+              }}
+            >Send</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Reflection */}
+      <div style={{
+        marginTop: 20, padding: "14px 18px", borderRadius: 8,
+        background: stage.color + "08",
+        border: "1px solid " + stage.color + "15",
+      }}>
+        <div style={{
+          fontFamily: FONTS.mono, fontSize: 12, color: stage.color,
+          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 8,
+        }}>Reflection</div>
+        <div style={{
+          fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
+          lineHeight: 1.7, opacity: 0.85,
+        }}>
+          Notice how the scenario changes depending on which role speaks next. Each participant's
+          speech act reshapes the dramatic space. How does Claude's character respond differently
+          to authority, emotion, and reason? What does this reveal about the model's training --
+          and about our own assumptions about how different roles should behave?
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
 // MAIN CONTENT
 // ============================================================
 
@@ -2705,7 +3670,7 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [currentStage]);
 
-  var playgrounds = [SpeechActPlayground, ELIZAPlayground, RolesPlayground, CraftPlayground, ParrhesiaPlayground, ArtifactPlayground];
+  var playgrounds = [SpeechActPlayground, ELIZAPlayground, RolesPlayground, CraftPlayground, ParrhesiaPlayground, ArtifactPlayground, RoleplayPlayground];
   var Playground = playgrounds[currentStage];
 
   return (
@@ -2764,6 +3729,18 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
           <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
             <p><strong>Foucault, M.</strong> (2020). <em>"Discourse and Truth" and "Parrhesia"</em>. University of Chicago Press. Focus on the definition of parrhesia and its conditions: sincerity, risk, and the asymmetry of power.</p>
             <p style={{ marginTop: 8 }}>Consider in relation to: <strong>Magee, L.</strong> (2026). "Geist in the Machine" -- on AI as performer of recognition and the limits of simulated dialogue.</p>
+          </div>
+        )}
+        {currentStage === 5 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>McLuhan, M.</strong> (1964). <em>Understanding Media: The Extensions of Man</em>. The medium through which a message is delivered shapes how it is understood -- here, the artifact becomes the medium.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Anthropic</strong> (2025). "Introducing Claude Artifacts" -- the technical and design framework for generating self-contained interactive objects from conversational prompts.</p>
+          </div>
+        )}
+        {currentStage === 6 && (
+          <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
+            <p><strong>Magee, L., Arora, V., Gollings, G., & Lam-Saw, N.</strong> (2024). "The Drama Machine: Simulating Character Development with LLM Agents." <em>Proceedings of ACSW 2024</em>.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Boal, A.</strong> (1979). <em>Theatre of the Oppressed</em> -- on participatory theatre as a mode of social inquiry, directly relevant to role-based AI interaction.</p>
           </div>
         )}
       </div>
