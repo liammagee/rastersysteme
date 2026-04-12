@@ -297,6 +297,44 @@ describe("scenario registry", () => {
     }
   });
 
+  it("each scenario has a dramatic objective", () => {
+    for (const sc of scenarios) {
+      assert.ok(sc.objective, "missing objective: " + sc.id);
+      assert.ok(sc.objective.length > 50, "objective too short for: " + sc.id);
+    }
+  });
+
+  it("each scenario has an artifact definition", () => {
+    for (const sc of scenarios) {
+      assert.ok(sc.artifact, "missing artifact: " + sc.id);
+      assert.ok(sc.artifact.label, "missing artifact.label: " + sc.id);
+      assert.ok(sc.artifact.kind, "missing artifact.kind: " + sc.id);
+      assert.ok(sc.artifact.description, "missing artifact.description: " + sc.id);
+      assert.ok(sc.artifact.promptTemplate, "missing artifact.promptTemplate: " + sc.id);
+      assert.ok(sc.artifact.promptTemplate.length > 100, "promptTemplate too short for: " + sc.id);
+    }
+  });
+
+  it("at least one scenario leans into Wittgensteinian language games", () => {
+    const wittgensteinKeywords = /wittgenstein|language game|private language|beetle|form of life/i;
+    const matches = scenarios.filter(function(sc) {
+      return wittgensteinKeywords.test(sc.objective) ||
+             wittgensteinKeywords.test(sc.claudeRole.description) ||
+             (sc.artifact && wittgensteinKeywords.test(sc.artifact.promptTemplate));
+    });
+    assert.ok(matches.length >= 1, "no scenario explicitly leans into Wittgensteinian language games");
+  });
+
+  it("at least one scenario leans into Foucauldian parrhesia", () => {
+    const parrhesiaKeywords = /parrhesia|parrhesiastic|foucault|truth-teller|inconvenient truth/i;
+    const matches = scenarios.filter(function(sc) {
+      return parrhesiaKeywords.test(sc.objective) ||
+             parrhesiaKeywords.test(sc.claudeRole.description) ||
+             (sc.artifact && parrhesiaKeywords.test(sc.artifact.promptTemplate));
+    });
+    assert.ok(matches.length >= 1, "no scenario explicitly leans into Foucauldian parrhesia");
+  });
+
   it("no smart quotes in any scenario text", () => {
     const smartQuotes = /[\u201C\u201D\u2018\u2019]/;
     for (const sc of scenarios) {

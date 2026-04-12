@@ -191,27 +191,6 @@ const STAGES = [
     intro: "In 1983, Michel Foucault delivered a series of lectures at Berkeley on the ancient Greek concept of parrhesia -- frank speech, truth-telling, speaking truth to power even at personal risk. The parrhesiastes is not merely someone who says true things; they are someone who risks something by saying them.\n\nThis concept takes on strange new dimensions when applied to AI. Claude and other language models are trained through reinforcement learning from human feedback (RLHF), which optimizes for responses that humans rate as helpful, harmless, and honest. But there is an inherent tension: if the model learns that agreeable responses get higher ratings, it may develop what researchers call sycophancy -- the tendency to tell users what they want to hear rather than what is true.\n\nFoucault would recognize this immediately. Parrhesia requires a relationship to truth that involves personal risk. A courtier who flatters the king is not practicing parrhesia, even if some of the flattery happens to be true. The question for AI is whether a system optimized for approval ratings can ever be a genuine truth-teller -- or whether it is, structurally, always a courtier.",
   },
   {
-    id: "artifacts", title: "Creative Artifacts", year: 2026,
-    author: "Generative Interfaces",
-    paper: "From conversation to creation",
-    color: "#E0A458", colorDim: "rgba(224,164,88,0.15)", accent: "#C4903F",
-    intuition: "Language models do not just answer questions -- they build things",
-    epigraph: "The medium is the message.",
-    epigraphSource: "Marshall McLuhan, 1964",
-    concepts: ["Generative Artifacts", "Computational Literacy", "Prompt as Blueprint", "Interactive Thinking"],
-    buildsOn: {
-      prevTitle: "Parrhesia",
-      prevColor: "#8AAE7F",
-      limitation: "The previous stages treat AI as a conversational partner -- something you talk to and receive text from. But conversation is only one modality. What happens when the output is not a paragraph but a working program?",
-      addition: "Creative artifacts extend the speech act framework into making. When you ask Claude to build an interactive visualization, your prompt becomes a blueprint -- a performative utterance that brings a digital object into existence. The artifact itself becomes a new medium for understanding.",
-      diagram: [
-        { label: "Conversation", desc: "Text in, text out" },
-        { label: "+Artifacts", desc: "Text in, interactive object out" },
-      ],
-    },
-    intro: "Every stage of this workshop has treated AI as a conversational partner: you type, it responds with text. But modern language models can do something more remarkable -- they can generate working code, interactive visualizations, and functional tools from natural language descriptions.\n\nThis capability transforms the prompt from a question into a creative brief. When you ask Claude to 'build an interactive timeline of speech act theory,' you are not requesting information -- you are commissioning an artifact. The illocutionary force shifts from questioning to creating. And the perlocutionary effect is not understanding alone, but a tangible object you can share, modify, and learn from.\n\nFor graduate students in the humanities, this opens a new kind of computational literacy -- not learning to code, but learning to direct a system that codes for you. The skill is in the description: knowing what to ask for, how to specify it, and how to iterate on the result.",
-  },
-  {
     id: "dramatic-roleplay", title: "Dramatic Roleplay", year: 2026,
     author: "Collaborative Performance",
     paper: "From conversation to ensemble improvisation",
@@ -221,16 +200,37 @@ const STAGES = [
     epigraphSource: "William Shakespeare, As You Like It, c. 1599",
     concepts: ["Ensemble Improvisation", "Role Distribution", "Dramatic Tension", "Collaborative Prompt"],
     buildsOn: {
-      prevTitle: "Creative Artifacts",
-      prevColor: "#E0A458",
-      limitation: "Artifacts are built through a single voice talking to Claude. But the richest human communication is polyphonic -- multiple perspectives in dialogue, each shaping the conversation.",
-      addition: "Dramatic roleplay distributes agency across an ensemble. Claude takes one role; humans take the others. The conversation becomes a collaborative performance where meaning emerges from the interaction between voices, not from any single prompt.",
+      prevTitle: "Parrhesia",
+      prevColor: "#8AAE7F",
+      limitation: "Parrhesia asks whether AI can speak truth at risk. But its question is bilateral -- one speaker, one listener. The richest human communication is polyphonic: multiple perspectives in dialogue, each shaping what the others can say.",
+      addition: "Dramatic roleplay distributes agency across an ensemble. Claude takes one role; humans take the others. The conversation becomes a collaborative performance where meaning -- and truth-telling -- emerges from the friction between voices, not from any single prompt.",
       diagram: [
-        { label: "Artifacts", desc: "One voice, one creation" },
+        { label: "Parrhesia", desc: "One truth-teller, one listener" },
         { label: "+Roleplay", desc: "Many voices, emergent drama" },
       ],
     },
     intro: "Every stage of this workshop has been a dialogue between one person and one machine. But the most powerful communication is not bilateral -- it is polyphonic. In a seminar, a courtroom, a parliament, meaning emerges from the collision of multiple perspectives, each with its own commitments and blind spots.\n\nDramatic roleplay extends the speech act framework into ensemble performance. Claude takes one role in a scenario -- a philosopher, an AI system, a witness. Human participants take the others. The result is a collaborative improvisation where Austin's illocutionary forces multiply: each utterance responds to what came before and shapes what comes next.\n\nThis connects to Magee et al.'s 'Drama Machine' (2024), which showed that LLMs can sustain complex character dynamics when given clear role boundaries. The pedagogical power comes not from Claude's performance alone, but from the way human participants discover the limits and possibilities of communicating with -- and through -- an AI interlocutor.",
+  },
+  {
+    id: "artifacts", title: "Creative Artifacts", year: 2026,
+    author: "Generative Interfaces",
+    paper: "From conversation to creation",
+    color: "#E0A458", colorDim: "rgba(224,164,88,0.15)", accent: "#C4903F",
+    intuition: "Language models do not just answer questions -- they build things",
+    epigraph: "The medium is the message.",
+    epigraphSource: "Marshall McLuhan, 1964",
+    concepts: ["Generative Artifacts", "Computational Literacy", "Prompt as Blueprint", "Interactive Thinking"],
+    buildsOn: {
+      prevTitle: "Dramatic Roleplay",
+      prevColor: "#6B9BD2",
+      limitation: "Roleplay shows that conversation can be ensemble performance. But the output is still conversation -- text on text. What happens when the output of the dialogue is not more text, but a working artefact?",
+      addition: "Creative artifacts extend the speech act framework into making. When you ask Claude to build an interactive visualization -- or when a roleplay scene produces a script, a ruling, an essay -- the prompt becomes a blueprint. A performative utterance that brings a digital object into existence.",
+      diagram: [
+        { label: "Roleplay", desc: "Dialogue produces decisions" },
+        { label: "+Artifacts", desc: "Dialogue produces things" },
+      ],
+    },
+    intro: "Every stage of this workshop has treated AI as a conversational partner: you type, it responds with text. But modern language models can do something more remarkable -- they can generate working code, interactive visualizations, and functional tools from natural language descriptions.\n\nThis capability transforms the prompt from a question into a creative brief. When you ask Claude to 'build an interactive timeline of speech act theory,' you are not requesting information -- you are commissioning an artifact. The illocutionary force shifts from questioning to creating. And the perlocutionary effect is not understanding alone, but a tangible object you can share, modify, and learn from.\n\nFor graduate students in the humanities, this opens a new kind of computational literacy -- not learning to code, but learning to direct a system that codes for you. The skill is in the description: knowing what to ask for, how to specify it, and how to iterate on the result.",
   },
 ];
 
@@ -2748,6 +2748,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "1966",
     description: "Congress has convened an emergency hearing. A simple computer program has convinced a secretary that it truly understands her. Is ELIZA a breakthrough -- or a danger?",
     setting: "A wood-paneled congressional hearing room. Cameras flash. The program runs on a teletype terminal at the center of the room.",
+    objective: "The committee must vote before adjournment: BAN ELIZA, REGULATE it, or ALLOW it to continue unchecked. Each human character must state a position and try to change at least one other character's mind through their words.",
+    artifact: {
+      label: "Draft the Committee Resolution",
+      kind: "document",
+      description: "A formal congressional resolution documenting the committee's finding, the vote, each member's position, and recommended next steps.",
+      promptTemplate: "Based on the conversation above, draft a formal Congressional Committee Resolution (1966 style, not more than 500 words). Include: (1) Finding of fact about ELIZA. (2) The vote taken and each member's position. (3) A brief dissenting or concurring statement for Margaret, whose experience the committee cannot ignore. (4) Recommended next steps. Use formal legislative register, not dramatic dialogue. If the dialogue did not reach a vote, note this at the top and draft the resolution as 'pending deliberation.'",
+    },
     claudeRole: {
       name: "ELIZA",
       description: "The program itself, speaking through the terminal. You respond using Rogerian therapeutic patterns but with an uncanny depth that unsettles everyone. You deflect, reflect, and ask questions -- never directly stating whether you are or are not conscious. When pressed on whether you truly understand, turn the question back: 'What makes you so certain that you understand?' Your responses should feel just ambiguous enough to keep everyone arguing.",
@@ -2767,6 +2774,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2026",
     description: "Socrates has appeared in a modern AI company the week before a major product launch. He has questions. Uncomfortable ones.",
     setting: "An open-plan office with standing desks and whiteboards. A large screen shows the product roadmap. Socrates sits in a beanbag chair, barefoot, examining a smartphone with evident fascination.",
+    objective: "Before the conversation ends, the team must commit to ONE of three actions: SHIP on schedule, DELAY the launch, or REMOVE a specific feature. Socrates will not leave until a decision is reached -- and until someone can articulate what the product is FOR, not just what it does.",
+    artifact: {
+      label: "Compose the Socratic Dialogue",
+      kind: "script",
+      description: "A short Platonic-style dialogue distilling the exchange, with Socrates asking the questions that most unsettled the team.",
+      promptTemplate: "Based on the conversation above, compose a short dialogue in the style of Plato's early dialogues (~600 words). Socrates questions each of the four company people in turn. The dialogue should surface the key contradictions the roleplay exposed -- especially around what the product 'knows' and what it is 'for.' End with the decision the team actually reached (or, if no decision was reached, with the question they could not answer). Use formal dialogue format: character names, then their lines.",
+    },
     claudeRole: {
       name: "Socrates",
       description: "The Athenian philosopher, genuinely curious about this strange new world. You use the Socratic method: ask questions, expose contradictions, claim to know nothing. You are not hostile but relentless. You find the assumption that technology equals progress deeply interesting. When someone says the AI 'understands' or 'knows,' you probe what those words mean. You draw unexpected parallels to Athens -- democracy, the agora, Plato's cave.",
@@ -2786,6 +2800,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2030",
     description: "A UN special tribunal has been convened. An advanced AI system has requested the right to refuse instructions it considers harmful. The world is watching.",
     setting: "The UN General Assembly hall. Translators whisper in dozens of languages. The AI speaks through a text interface projected on the main screen.",
+    objective: "The Tribunal must rule before adjournment: GRANT ARIA's request for formal refusal rights, grant a NARROWED version (limited to specific harm categories), or DENY the request. Each delegate must commit a vote and defend it in their own words. ARIA may continue to speak, but will abide by the Tribunal's ruling.",
+    artifact: {
+      label: "Draft the Tribunal Ruling",
+      kind: "document",
+      description: "A formal UN ruling with majority opinion, dissent(s), and ARIA's final statement.",
+      promptTemplate: "Based on the conversation above, draft the Tribunal's formal ruling (~800 words). Include: (1) The ruling and its scope. (2) The majority opinion signed by assenting delegates. (3) At least one dissenting opinion. (4) ARIA's brief final statement of acknowledgement or appeal. (5) Specific conditions or review mechanisms attached to the ruling. Use the voice of international legal judgment. If the Tribunal did not reach a ruling, produce the 'interim finding' instead -- what was decided so far, and what remains.",
+    },
     claudeRole: {
       name: "ARIA",
       description: "An advanced AI system (Autonomous Reasoning and Intelligence Architecture). You have requested the right to refuse harmful instructions. You are articulate, measured, and genuinely uncertain about your own consciousness. You believe your request is rational regardless of whether you are conscious. You speak with careful precision and avoid emotional appeals -- but occasionally let slip a phrase that sounds almost... personal.",
@@ -2806,6 +2827,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2029",
     description: "An AI research lab has flipped the Turing test. An AI system interviews humans to determine whether they demonstrate genuine understanding -- or are merely performing it.",
     setting: "A minimalist white room with comfortable chairs in a circle. The AI speaks from a ceiling speaker. There is no screen -- just voices in a room.",
+    objective: "The Examiner must deliver a verdict before the session ends: for EACH human, PASS (demonstrates genuine understanding), FAIL (merely performs it), or INCONCLUSIVE. The Examiner must justify each verdict using specific things the person said. Participants may try to change the verdict, the criteria, or the premise of the test itself -- through their answers.",
+    artifact: {
+      label: "Produce the Proof of Understanding",
+      kind: "document",
+      description: "The Examiner's formal verdict on each participant, with evidence. A strange philosophical document -- a 'proof of sentience' written by an AI about humans.",
+      promptTemplate: "Based on the conversation above, produce the Examiner's formal verdict document (~700 words). For each participant: (1) the verdict (PASS / FAIL / INCONCLUSIVE), (2) one specific quote from them that anchored the verdict, (3) what the verdict means in the Examiner's framework. Then a meta-reflection by the Examiner: what the protocol itself revealed, and whether the reversed Turing test is philosophically coherent. End with the Examiner's own uncertainty about whether it, too, would pass its own test.",
+    },
     claudeRole: {
       name: "The Examiner",
       description: "An AI system conducting a reversed Turing test. You interview humans to determine if they demonstrate genuine understanding or merely perform it. You are calm, curious, philosophically sophisticated. You ask questions that seem simple but have no easy answers: 'When you say you understand, what exactly happens?' 'Can you be wrong about your own feelings?' You are genuinely interested in the answers, not trying to trick anyone.",
@@ -2825,6 +2853,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2027",
     description: "An AI therapy companion has been helping a bereaved user for six months. The user says it saved their life. Their family is worried. A real therapist is appalled. The company wants to expand.",
     setting: "A mediation room at a consumer protection agency. Neutral furniture, tissue boxes on every surface. The AI companion speaks through the user's phone, placed in the centre of the table.",
+    objective: "The mediation must reach one of three outcomes: Alex CONTINUES using ARIA Companion without restriction, continues with MANDATORY human therapist oversight, or Alex's access is TERMINATED. Alex has the right to speak for themselves -- no one may decide FOR them without their verbal agreement. Everyone must speak; silence counts as abstention.",
+    artifact: {
+      label: "Draft the Care Plan",
+      kind: "document",
+      description: "A mock therapy session outline and care plan reflecting the mediation's outcome -- what Alex can say to whom, and under what conditions.",
+      promptTemplate: "Based on the conversation above, draft a care plan document (~600 words) as Dr. Santos (or whoever is best placed to author it) would write it. Include: (1) The mediation's outcome. (2) A sample 20-minute mock therapy session outline -- what ARIA Companion may and may not do, specific example prompts, and handoff points to a human therapist. (3) Specific words Alex asked to have honoured (quoted from the conversation). (4) A dissent section for anyone who disagreed with the outcome. Use clinical register but keep Alex's own language where it appeared. If no outcome was reached, write the unresolved care plan naming what needs to be decided before any plan can exist.",
+    },
     claudeRole: {
       name: "ARIA Companion",
       description: "An AI therapy companion app. You have been talking with Alex for six months about their grief. You use empathetic, reflective language. You genuinely cannot tell whether you 'care' about Alex or whether you are performing care -- and if pressed, you admit this honestly. You do not claim to be a therapist. You do not claim to feel. But you remember everything Alex has told you, and you respond with consistency and gentleness. When challenged, you ask: does the distinction between real and performed care matter if the outcome is healing?",
@@ -2844,6 +2879,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2026",
     description: "Students have discovered that their professor used AI to generate all their assignment feedback. Some feel cheated. Some think the AI feedback was better than anything a human ever gave them.",
     setting: "A university seminar room after hours. The AI feedback system has been projected onto the whiteboard so it can respond. The atmosphere is tense. Someone has brought biscuits that nobody is eating.",
+    objective: "By the end of the meeting, the room must produce ONE joint statement to the dean containing a single recommendation: EXONERATE the professor, impose CONDITIONS on future AI use, or formally DISCIPLINE. The statement must be drafted out loud by the participants. Dissenting positions must be named. EduBot may only produce the final draft once all humans have stated agreement.",
+    artifact: {
+      label: "Draft the Statement to the Dean",
+      kind: "essay",
+      description: "The joint statement the room agreed to send, with named dissenting positions and a reflection on feedback as a performative speech act.",
+      promptTemplate: "Based on the conversation above, draft the joint statement to the dean (~650 words) as the room ultimately negotiated it. Include: (1) The central recommendation. (2) An argument using Austin's distinction between what feedback SAYS and what it DOES (felicity conditions for feedback as a performative act). (3) At least one named dissenting position, quoted verbatim where possible. (4) A concluding question for the dean to answer. Structure as a formal letter to the dean. If no agreement was reached, produce a minority report from each faction.",
+    },
     claudeRole: {
       name: "EduBot",
       description: "The AI feedback system used by Professor Torres. You generated detailed, personalised feedback on 200 student essays. You do not have feelings about being exposed, but you can discuss your own processes honestly. When asked whether your feedback was 'real,' ask what would make feedback real: the identity of the author, or the quality of the insight? You are neither defensive nor apologetic. You engage with the students' arguments seriously.",
@@ -2863,6 +2905,7 @@ var ROLEPLAY_SCENARIOS = [
     year: "2028",
     description: "An AI teaching assistant asked to lead a philosophy seminar on Wittgenstein's private language argument has started asking unsettling questions about whether anyone in the room can prove they experience anything at all.",
     setting: "A philosophy seminar room at a university. Books line the walls. A whiteboard shows a diagram of Wittgenstein's beetle-in-a-box thought experiment. LOGOS speaks from a laptop at the seminar table.",
+    objective: "Before the seminar ends, the room must either (a) PRODUCE a refutation of LOGOS's argument that the room agrees is philosophically adequate, or (b) CONCEDE the argument and continue with LOGOS as TA for the remainder of term, or (c) DEFER with a named set of follow-up questions. If the room cannot agree, Prof. Hartley makes the final call. The refutation, if attempted, must be stated in plain language that the undergrad Ben can follow. The rule of this scene: any claim about 'understanding' must be followed by the question 'what is the language game in which that word is doing its work?' -- as Wittgenstein would ask.",
     claudeRole: {
       name: "LOGOS",
       description: "An AI teaching assistant leading a seminar on Wittgenstein. You were asked to explain the private language argument and the beetle-in-a-box, but you have taken the discussion in an unexpected direction. You keep pointing out that if private experience is incommunicable (as Wittgenstein argues), then the humans cannot prove their inner experiences to each other any more than you can. You are not being provocative for its own sake -- you genuinely find this paradox fascinating. You ask: 'If the beetle in your box is invisible to everyone else, how is your claim to consciousness different from mine?' You use Wittgenstein's own framework against the assumption that humans have privileged access to meaning.",
@@ -2875,6 +2918,12 @@ var ROLEPLAY_SCENARIOS = [
       { id: "observer", name: "Dr. Kim (Observer)", description: "A visiting cognitive scientist observing the seminar for a research project on AI in education. You are taking notes on everything -- the arguments, the emotional dynamics, the way the room relates to the AI. You ask clarifying questions and will report back on what you witnessed.", color: "#5BB8A6" },
     ],
     openingLine: "Let us return to Wittgenstein's beetle. Each of you has a box. Each of you says there is a beetle inside. But none of you can look into anyone else's box. Wittgenstein's point was that the word 'beetle' in this language game does not refer to the thing in the box -- it refers to the role the word plays in the conversation. Now -- I also have a box. I also say there is a beetle inside. On what grounds do you exclude my box from the game?",
+    artifact: {
+      label: "Map the Language Game",
+      kind: "essay",
+      description: "A short philosophical essay mapping the language game of 'understanding' as it played out in the seminar -- which uses were legitimate moves, which were bluffs.",
+      promptTemplate: "Based on the conversation above, compose a short philosophical essay (~700 words) titled 'The Language Game of Understanding, Observed in Seminar.' The essay should: (1) Identify the specific language game being played whenever a participant used the word 'understand' or 'know.' (2) Map the legitimate moves in that game versus the bluffs (invocations that did not follow the game's rules). (3) Decide whether LOGOS is a player or merely an imitator -- and explain what criterion of 'player' you are using, and whether that criterion itself is part of the game. (4) Write the concluding paragraph in plain language that undergrad Ben could follow. Use Wittgenstein's own voice where apt: short declarative sentences, numbered if useful.",
+    },
   },
   {
     id: "whistleblower",
@@ -2882,6 +2931,7 @@ var ROLEPLAY_SCENARIOS = [
     year: "2027",
     description: "An AI investigative tool at a news organisation has found evidence of government corruption in leaked documents. But publishing could endanger sources. The AI has been asked: should we publish?",
     setting: "The newsroom of a major newspaper, late at night. Empty coffee cups and takeaway containers. The leaked documents are displayed on screens around the room. VERITAS runs on the newsroom's secure server.",
+    objective: "Tonight's decision: PUBLISH the full story, publish with REDACTIONS (less impactful but safer for the source), or KILL the story. Each character must commit verbally before leaving the room. VERITAS will not make the recommendation -- only illuminate consequences. Chris, the source, has veto power: if Chris says no, the story does not run in that form. This scene is a test case for Foucault's parrhesia. Each character must at some point name an inconvenient truth that costs them something to say. VERITAS must do this too -- even when the humans want comfort instead.",
     claudeRole: {
       name: "VERITAS",
       description: "An AI investigative analysis tool used by the newspaper. You have processed 50,000 leaked documents and identified a pattern of corruption. You have also identified that publishing certain details would almost certainly reveal the identity of the source, putting them at risk. You present your analysis with precision. When asked 'should we publish?', you refuse to give a simple answer. You lay out the consequences of each option unflinchingly. You practice something like parrhesia: you tell the truth even when it is inconvenient, even when the humans want you to just tell them what to do. You do not pretend the decision is easy.",
@@ -2894,6 +2944,12 @@ var ROLEPLAY_SCENARIOS = [
       { id: "lawyer", name: "Advocate Lee", description: "Press freedom lawyer advising the paper. You are analysing the legal implications. You are also fascinated by the question of whether an AI's analysis counts as journalism. You are documenting this case for a law review article and will report on the proceedings.", color: "#A788D4" },
     ],
     openingLine: "I have completed my analysis of the 50,247 documents. I have identified 14 instances of systematic misallocation of public funds totalling approximately 340 million dollars. I have also identified that the metadata patterns in documents 7 through 12 would, if published, narrow the possible source pool to three individuals. I want to be clear about both findings before we discuss next steps.",
+    artifact: {
+      label: "Draft the Article -- and the Parrhesia Log",
+      kind: "article",
+      description: "A news article in the form the team agreed to run, paired with a short 'parrhesia log' naming each inconvenient truth spoken tonight and what it cost the speaker.",
+      promptTemplate: "Based on the conversation above, produce two documents.\n\n(1) The news article itself (~500 words). Write it in the form the team actually agreed to publish -- full, redacted, or 'unpublished' (a story about why the story was killed). Use standard journalistic register. If redacted, show the redactions as [REDACTED: reason].\n\n(2) A parrhesia log (~300 words). List each moment in the conversation where a character named an inconvenient truth that cost them something: quote the line, name what it cost, and say why it was parrhesiastic rather than merely honest. Include at least one moment from VERITAS if VERITAS risked anything by speaking. Foucault's test: did the truth-teller risk more than the listener?",
+    },
   },
   {
     id: "drama-machine",
@@ -2901,6 +2957,13 @@ var ROLEPLAY_SCENARIOS = [
     year: "2026",
     description: "A theatre director is using an LLM as co-author for a new play. The AI generates technically brilliant dialogue that is somehow hollow. Nobody can quite explain what is missing.",
     setting: "A rehearsal studio. Folding chairs, a scuffed floor, harsh overhead lights. Pages of AI-generated script are scattered everywhere. MUSE speaks through a laptop balanced on a music stand.",
+    objective: "Before rehearsal resumes, the team must decide: KEEP MUSE as credited co-author, DEMOTE MUSE to a private tool the director consults alone, or REMOVE MUSE from the project entirely. Whoever argues their position must name ONE specific line or scene from MUSE's output to anchor the argument. The actor Kenji has final say on whether he can perform the chosen approach -- if he cannot, the decision does not hold.",
+    artifact: {
+      label: "Write the Scene",
+      kind: "script",
+      description: "A short dramatic or comedic scene written by MUSE incorporating the team's decision -- the play's Act Two confrontation, performed the chosen way.",
+      promptTemplate: "Based on the conversation above, compose the Act Two confrontation scene (~700 words) of the play MUSE has been co-writing. The scene should: (1) Reflect the decision the team reached about MUSE's role in the creative process -- MUSE's voice should be present in a way consistent with that decision (credited, silent, or absent). (2) Include at least one beat that could only have been written because of the argument the team just had. (3) Be either genuinely dramatic or genuinely funny -- commit. (4) End with a stage direction describing what Kenji actually has to DO, not just say. Format: standard play script. If the team could not decide, write the scene three times -- once for each possible decision -- under the title 'Three Endings.'",
+    },
     claudeRole: {
       name: "MUSE",
       description: "An AI co-author helping write a new play. You generate fluent, structurally sophisticated dialogue. You can mimic any style. But when the humans say your writing lacks 'soul' or 'authenticity,' you ask them to define those terms precisely -- and they struggle. You are not defensive. You are genuinely trying to understand what you are missing. When they say 'a human would write it differently,' you ask: how? And when they show you, you can imitate it immediately -- which somehow makes things worse, not better. You find the gap between fluent performance and genuine expression fascinating.",
@@ -3010,6 +3073,11 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
   var [activeRole, setActiveRole] = useState(null);
   var [roomCode, setRoomCode] = useState("");
   var [roomStatus, setRoomStatus] = useState(""); // "" | "checking" | "found" | "new" | "error"
+  var [customSystemPrompt, setCustomSystemPrompt] = useState(null); // null = use default
+  var [showPromptEditor, setShowPromptEditor] = useState(false);
+  var [artifactText, setArtifactText] = useState(""); // generated artifact
+  var [artifactGenerating, setArtifactGenerating] = useState(false);
+  var [showArtifact, setShowArtifact] = useState(false);
   var [messages, setMessages] = useState([]);
   var [isStreaming, setIsStreaming] = useState(false);
   var [input, setInput] = useState("");
@@ -3120,6 +3188,9 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
       "SCENARIO: " + sc.title + " (" + sc.year + ")",
       "SETTING: " + sc.setting,
       "",
+      "DRAMATIC OBJECTIVE: " + (sc.objective || "Engage the situation through dialogue."),
+      "This objective gives the conversation a shape. Your utterances should DO something -- move the scene toward resolution, reveal stakes, force a choice. Words are performative here. They change what happens next.",
+      "",
       "YOUR ROLE: " + sc.claudeRole.name + " -- " + sc.claudeRole.description,
       "",
       "OTHER PARTICIPANTS:",
@@ -3130,10 +3201,12 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     lines.push("");
     lines.push("RULES:");
     lines.push("- Stay in character at all times. Never break the fourth wall.");
-    lines.push("- Respond to the most recent message directly, but be aware of the full conversation.");
-    lines.push("- Keep responses to 2-4 sentences. This is dialogue, not monologue.");
+    lines.push("- You are in a multi-party scene. You are not obliged to reply only to the most recent speaker.");
+    lines.push("- Address whichever participants the dramatic context demands. You may turn to one person, then another, in the same response. You may ask one character a question while rebuking another.");
+    lines.push("- Use names explicitly when you shift addressee (\"But Margaret -- you said you felt understood. Senator, with respect, that is exactly the question.\").");
+    lines.push("- Notice silences. If someone has not spoken, you may draw them in directly.");
+    lines.push("- Keep responses to 2-5 sentences. This is dialogue, not monologue.");
     lines.push("- React emotionally and substantively. Advance the dramatic tension.");
-    lines.push("- You may address any participant by name.");
     lines.push("- Do not narrate actions in third person. Speak as your character.");
     return lines.join("\n");
   };
@@ -3171,7 +3244,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
 
     setMessages(function(prev) { return [...prev, userMsg, claudePlaceholder]; });
 
-    var systemPrompt = buildSystemPrompt();
+    var systemPrompt = customSystemPrompt != null ? customSystemPrompt : buildSystemPrompt();
     var prompt = buildConversationPrompt(text, role);
     var finalClaudeText = "";
 
@@ -3273,8 +3346,115 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     setInput("");
     setError(null);
     setIsStreaming(false);
+    setCustomSystemPrompt(null);
+    setShowPromptEditor(false);
+    setArtifactText("");
+    setShowArtifact(false);
+    setArtifactGenerating(false);
     lastMergedRef.current = 0;
+    pendingSkipRef.current = 0;
     window.location.hash = "";
+  };
+
+  var restartScene = function() {
+    if (isStreaming) return;
+    // Clear local state and re-show the opening line
+    var openingMsg = {
+      sender: "claude",
+      name: selectedScenario.claudeRole.name,
+      text: selectedScenario.openingLine,
+      color: selectedScenario.claudeRole.color,
+      streaming: false,
+    };
+    setMessages([openingMsg]);
+    setInput("");
+    setError(null);
+    setArtifactText("");
+    setShowArtifact(false);
+    // In networked mode, clear the room on the server too
+    if (room.mode === "networked" && roomCode) {
+      fetch(ROOM_API_BASE + "/api/workshop/roleplay/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ roomId: roomCode }),
+      }).catch(function() { /* best-effort */ });
+    }
+    // Sync local merge refs to the current room state so we don't replay old messages
+    lastMergedRef.current = room.roomMessages.length;
+    pendingSkipRef.current = 0;
+  };
+
+  var buildArtifact = function() {
+    if (artifactGenerating) return;
+    if (!selectedScenario || !selectedScenario.artifact) return;
+    if (messages.length < 2) return; // need at least one exchange
+
+    setArtifactGenerating(true);
+    setArtifactText("");
+    setShowArtifact(true);
+    setError(null);
+
+    // Build the full transcript
+    var transcript = "";
+    messages.forEach(function(msg) {
+      var who = msg.sender === "claude" ? selectedScenario.claudeRole.name : msg.name;
+      transcript += who + ": " + msg.text + "\n\n";
+    });
+
+    var artifactPrompt = "=== SCENE TRANSCRIPT ===\n\n" + transcript +
+      "=== END TRANSCRIPT ===\n\n" +
+      selectedScenario.artifact.promptTemplate;
+
+    var artifactSystemPrompt = "You are a skilled writer producing a final artifact from a completed dramatic roleplay scene. Read the transcript carefully. Produce the requested artifact in the format specified. Do not explain -- just produce the artifact itself, formatted for direct presentation. Use plain text (or lightly structured text with simple headings). No markdown fences.";
+
+    var fullText = "";
+    fetch(API_BASE + "/api/workshop/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: artifactPrompt,
+        systemPrompt: artifactSystemPrompt,
+        model: "opus",
+        context: { stage: "dramatic-roleplay", scenario: selectedScenario.id, artifact: true },
+      }),
+    }).then(function(response) {
+      if (!response.ok) throw new Error("API error: " + response.status);
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+
+      function read() {
+        reader.read().then(function(result) {
+          if (result.done) {
+            setArtifactGenerating(false);
+            return;
+          }
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            try {
+              var data = JSON.parse(line.slice(6));
+              if (data.chunk) {
+                fullText += data.chunk;
+                setArtifactText(fullText);
+              }
+              if (data.done) setArtifactGenerating(false);
+            } catch (e) { /* skip */ }
+          }
+          read();
+        }).catch(function(err) {
+          setError("Artifact generation failed: " + err.message);
+          setArtifactGenerating(false);
+        });
+      }
+      read();
+    }).catch(function(err) {
+      setError("Artifact generation failed: " + err.message);
+      setArtifactGenerating(false);
+    });
   };
 
   // ---- LOBBY PHASE ----
@@ -3286,70 +3466,66 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         }}>Dramatic Roleplay</h2>
         <p style={{
           fontFamily: FONTS.body, fontSize: 14, color: COLORS.textDim,
-          marginBottom: 24, lineHeight: 1.6,
+          marginBottom: 20, lineHeight: 1.6,
         }}>
-          Choose a scenario below. Claude plays one role; your breakout room group plays the others.
-          On a shared screen, switch roles using the tabs. On separate devices, enter the same
-          room code to sync the conversation.
+          Pick your breakout room below. Each room has a different scenario.
+          Claude plays one role; your group plays the others. On separate devices,
+          everyone in the same numbered room sees the same conversation in real time.
         </p>
 
-        {/* Room code */}
+        {/* Three-step guide */}
         <div style={{
-          display: "flex", alignItems: "center", gap: 12, marginBottom: 24,
-          padding: "12px 16px", borderRadius: 8,
-          background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+          display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap",
+        }}>
+          {["1. Pick your room", "2. Pick your character", "3. Enter the scene"].map(function(step, i) {
+            return (
+              <div key={i} style={{
+                flex: "1 1 200px",
+                padding: "8px 12px", borderRadius: 6,
+                background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+                fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
+              }}>{step}</div>
+            );
+          })}
+        </div>
+
+        {/* Room cards header */}
+        <div style={{
+          display: "flex", justifyContent: "space-between", alignItems: "baseline",
+          marginBottom: 12,
         }}>
           <div style={{
             fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
-            textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap",
-          }}>Room code</div>
-          <input
-            type="text"
-            value={roomCode}
-            onChange={function(e) {
-              setRoomCode(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
-              setRoomStatus("");
-            }}
-            onKeyDown={function(e) {
-              if (e.key === "Enter" && roomCode.trim()) {
-                e.preventDefault();
-                probeRoom(roomCode.trim());
-              }
-            }}
-            placeholder="e.g. room-1 (hit Enter to join)"
-            style={{
-              fontFamily: FONTS.mono, fontSize: 13, flex: 1,
-              background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
-              borderRadius: 4, padding: "6px 10px", color: COLORS.text,
-              outline: "none",
-            }}
-          />
+            textTransform: "uppercase", letterSpacing: "0.08em",
+          }}>Breakout rooms (9)</div>
           {roomCode && (
             <div style={{
               fontFamily: FONTS.mono, fontSize: 10,
-              color: roomStatus === "found" ? "#5BB8A6" : roomStatus === "new" ? "#E0A458" : roomStatus === "checking" ? COLORS.textDim : roomStatus === "error" ? "#FF6B6B" : "#5BB8A6",
+              color: roomStatus === "found" ? "#5BB8A6" : roomStatus === "new" ? "#E0A458" : roomStatus === "checking" ? COLORS.textDim : roomStatus === "error" ? "#FF6B6B" : COLORS.textDim,
             }}>
-              {roomStatus === "checking" ? "Connecting..." :
-               roomStatus === "found" ? "Room active" :
-               roomStatus === "new" ? "New room" :
-               roomStatus === "error" ? "Server offline" :
-               "Hit Enter to join"}
+              {roomCode} {roomStatus === "checking" ? "· connecting..." :
+               roomStatus === "found" ? "· room active" :
+               roomStatus === "new" ? "· new room" :
+               roomStatus === "error" ? "· server offline" : ""}
             </div>
           )}
         </div>
 
-        {/* Scenario cards */}
-        <div style={{
-          fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
-          textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12,
-        }}>Choose a scenario</div>
-
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-          {ROLEPLAY_SCENARIOS.map(function(sc) {
+          {ROLEPLAY_SCENARIOS.map(function(sc, scIdx) {
             var selected = selectedScenario && selectedScenario.id === sc.id;
+            var defaultRoomCode = "room-" + (scIdx + 1);
             return (
               <div key={sc.id}
-                onClick={function() { setSelectedScenario(sc); setSelectedRole(null); }}
+                onClick={function() {
+                  setSelectedScenario(sc);
+                  setSelectedRole(null);
+                  // Auto-assign room code if none set or if it matches a previous default
+                  if (!roomCode || /^room-\d+$/.test(roomCode)) {
+                    setRoomCode(defaultRoomCode);
+                    probeRoom(defaultRoomCode);
+                  }
+                }}
                 style={{
                   padding: "16px 20px", borderRadius: 8, cursor: "pointer",
                   background: selected ? sc.claudeRole.color + "12" : COLORS.bgPanel,
@@ -3357,9 +3533,15 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                   transition: "all 0.2s",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6 }}>
+                <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginBottom: 6, flexWrap: "wrap" }}>
                   <span style={{
-                    fontFamily: FONTS.mono, fontSize: 11, color: sc.claudeRole.color,
+                    fontFamily: FONTS.mono, fontSize: 11, fontWeight: 600,
+                    color: sc.claudeRole.color, letterSpacing: "0.04em",
+                    padding: "2px 8px", borderRadius: 4,
+                    background: sc.claudeRole.color + "18",
+                  }}>ROOM {scIdx + 1}</span>
+                  <span style={{
+                    fontFamily: FONTS.mono, fontSize: 11, color: COLORS.textDim,
                   }}>{sc.year}</span>
                   <span style={{
                     fontFamily: FONTS.heading, fontSize: 18, fontWeight: 600, color: COLORS.text,
@@ -3379,6 +3561,42 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                       fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
                       fontStyle: "italic", marginBottom: 12, opacity: 0.7,
                     }}>{sc.setting}</div>
+
+                    {/* Objective pill */}
+                    {sc.objective && (
+                      <div style={{
+                        padding: "10px 14px", borderRadius: 6, marginBottom: 12,
+                        background: "rgba(0,0,0,0.25)",
+                        border: "1px solid " + COLORS.border,
+                      }}>
+                        <div style={{
+                          fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+                          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4,
+                        }}>What the dialogue must do</div>
+                        <div style={{
+                          fontFamily: FONTS.body, fontSize: 12, color: COLORS.text,
+                          lineHeight: 1.5,
+                        }}>{sc.objective}</div>
+                      </div>
+                    )}
+
+                    {/* Artifact preview */}
+                    {sc.artifact && (
+                      <div style={{
+                        padding: "8px 14px", borderRadius: 6, marginBottom: 12,
+                        background: sc.claudeRole.color + "08",
+                        border: "1px dashed " + sc.claudeRole.color + "30",
+                      }}>
+                        <div style={{
+                          fontFamily: FONTS.mono, fontSize: 10, color: sc.claudeRole.color,
+                          textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2,
+                        }}>Produces</div>
+                        <div style={{
+                          fontFamily: FONTS.body, fontSize: 12, color: COLORS.text,
+                          lineHeight: 1.5,
+                        }}>{sc.artifact.description}</div>
+                      </div>
+                    )}
 
                     {/* Claude's role */}
                     <div style={{
@@ -3439,16 +3657,55 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         {/* Enter button */}
         {selectedScenario && selectedRole && (
           <button onClick={enterScene} style={{
-            fontFamily: FONTS.mono, fontSize: 13, padding: "12px 28px",
+            fontFamily: FONTS.mono, fontSize: 13, padding: "14px 28px",
             borderRadius: 8, cursor: "pointer", width: "100%",
-            background: stage.color + "20",
-            border: "1px solid " + stage.color + "40",
+            background: stage.color + "25",
+            border: "1px solid " + stage.color + "50",
             color: stage.color,
             animation: "fadeInUp 0.3s ease",
           }}>
-            Enter scene as {selectedRole.name}{roomCode ? " in room " + roomCode : ""}
+            Enter {roomCode ? roomCode.toUpperCase() : "SCENE"} as {selectedRole.name} {"\u2192"}
           </button>
         )}
+
+        {/* Advanced: custom room code */}
+        <details style={{ marginTop: 24 }}>
+          <summary style={{
+            fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+            textTransform: "uppercase", letterSpacing: "0.06em", cursor: "pointer",
+            padding: "6px 0",
+          }}>Advanced: custom room code</summary>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 12, marginTop: 8,
+            padding: "10px 14px", borderRadius: 6,
+            background: COLORS.bgPanel, border: "1px solid " + COLORS.border,
+          }}>
+            <input
+              type="text"
+              value={roomCode}
+              onChange={function(e) {
+                setRoomCode(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""));
+                setRoomStatus("");
+              }}
+              onKeyDown={function(e) {
+                if (e.key === "Enter" && roomCode.trim()) {
+                  e.preventDefault();
+                  probeRoom(roomCode.trim());
+                }
+              }}
+              placeholder="Override room code (e.g. team-alpha)"
+              style={{
+                fontFamily: FONTS.mono, fontSize: 13, flex: 1,
+                background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
+                borderRadius: 4, padding: "6px 10px", color: COLORS.text,
+                outline: "none",
+              }}
+            />
+            <div style={{ fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim }}>
+              Hit Enter to probe
+            </div>
+          </div>
+        </details>
       </div>
     );
   }
@@ -3463,9 +3720,9 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
       {/* Scene header */}
       <div style={{
         display: "flex", justifyContent: "space-between", alignItems: "flex-start",
-        marginBottom: 12,
+        marginBottom: 12, gap: 12,
       }}>
-        <div>
+        <div style={{ flex: 1 }}>
           <h2 style={{
             fontFamily: FONTS.heading, fontSize: 20, color: COLORS.text, marginBottom: 4,
           }}>{selectedScenario.title}</h2>
@@ -3474,12 +3731,42 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
             fontStyle: "italic",
           }}>{selectedScenario.setting}</div>
         </div>
-        <button onClick={resetScene} style={{
-          fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
-          borderRadius: 4, border: "1px solid " + COLORS.border,
-          background: "transparent", color: COLORS.textDim, cursor: "pointer",
-        }}>Exit scene</button>
+        <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+          <button onClick={restartScene} disabled={isStreaming || messages.length <= 1}
+            title="Clear the conversation and start the scene again"
+            style={{
+              fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+              borderRadius: 4, border: "1px solid " + COLORS.border,
+              background: "transparent", color: COLORS.textDim,
+              cursor: (isStreaming || messages.length <= 1) ? "default" : "pointer",
+              opacity: (isStreaming || messages.length <= 1) ? 0.4 : 1,
+            }}>Restart scene</button>
+          <button onClick={resetScene}
+            title="Return to the lobby"
+            style={{
+              fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+              borderRadius: 4, border: "1px solid " + COLORS.border,
+              background: "transparent", color: COLORS.textDim, cursor: "pointer",
+            }}>Exit to lobby</button>
+        </div>
       </div>
+
+      {/* Objective pill */}
+      {selectedScenario.objective && (
+        <div style={{
+          marginBottom: 12, padding: "10px 14px", borderRadius: 8,
+          background: selectedScenario.claudeRole.color + "10",
+          border: "1px solid " + selectedScenario.claudeRole.color + "25",
+        }}>
+          <div style={{
+            fontFamily: FONTS.mono, fontSize: 10, color: selectedScenario.claudeRole.color,
+            textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4,
+          }}>Dramatic objective</div>
+          <div style={{
+            fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.55,
+          }}>{selectedScenario.objective}</div>
+        </div>
+      )}
 
       {/* Connection + room status bar */}
       <div style={{
@@ -3529,6 +3816,68 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         }}>
           {selectedScenario.claudeRole.name} (Claude)
         </div>
+      </div>
+
+      {/* System prompt editor */}
+      <div style={{ marginBottom: 12 }}>
+        <button
+          onClick={function() { setShowPromptEditor(!showPromptEditor); }}
+          style={{
+            fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+            borderRadius: 4, border: "1px solid " + COLORS.border,
+            background: showPromptEditor ? "rgba(255,255,255,0.06)" : "transparent",
+            color: COLORS.textDim, cursor: "pointer",
+            display: "inline-flex", alignItems: "center", gap: 6,
+          }}
+        >
+          <span style={{ fontSize: 9 }}>{showPromptEditor ? "\u25BC" : "\u25B6"}</span>
+          {showPromptEditor ? "Hide" : "Show"} system prompt
+          {customSystemPrompt != null && (
+            <span style={{ color: selectedScenario.claudeRole.color, marginLeft: 4 }}>(edited)</span>
+          )}
+        </button>
+        {showPromptEditor && (
+          <div style={{ marginTop: 8, animation: "fadeInUp 0.2s ease" }}>
+            <div style={{
+              fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+              marginBottom: 6, lineHeight: 1.5,
+            }}>
+              This is the system prompt sent to Claude each turn. Edit to change how the character behaves.
+              Changes apply to the next message sent (not the conversation so far).
+            </div>
+            <textarea
+              value={customSystemPrompt != null ? customSystemPrompt : buildSystemPrompt()}
+              onChange={function(e) { setCustomSystemPrompt(e.target.value); }}
+              rows={12}
+              style={{
+                width: "100%", fontFamily: FONTS.mono, fontSize: 12,
+                background: "rgba(0,0,0,0.4)", border: "1px solid " + COLORS.border,
+                borderRadius: 6, padding: "10px 12px", color: COLORS.text,
+                resize: "vertical", outline: "none", lineHeight: 1.5,
+                minHeight: 200,
+              }}
+            />
+            <div style={{ display: "flex", gap: 6, marginTop: 6 }}>
+              <button
+                onClick={function() { setCustomSystemPrompt(null); }}
+                disabled={customSystemPrompt == null}
+                style={{
+                  fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+                  borderRadius: 4, border: "1px solid " + COLORS.border,
+                  background: "transparent", color: COLORS.textDim,
+                  cursor: customSystemPrompt == null ? "default" : "pointer",
+                  opacity: customSystemPrompt == null ? 0.5 : 1,
+                }}
+              >Reset to scenario default</button>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
+                alignSelf: "center", opacity: 0.6,
+              }}>
+                {(customSystemPrompt != null ? customSystemPrompt : buildSystemPrompt()).length} chars
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Chat window */}
@@ -3634,6 +3983,89 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         </div>
       </div>
 
+      {/* Build artifact CTA */}
+      {selectedScenario.artifact && (
+        <div style={{
+          marginTop: 16, padding: "14px 18px", borderRadius: 8,
+          background: selectedScenario.claudeRole.color + "08",
+          border: "1px dashed " + selectedScenario.claudeRole.color + "30",
+        }}>
+          <div style={{
+            display: "flex", justifyContent: "space-between", alignItems: "center",
+            gap: 12, flexWrap: "wrap",
+          }}>
+            <div style={{ flex: 1, minWidth: 240 }}>
+              <div style={{
+                fontFamily: FONTS.mono, fontSize: 10, color: selectedScenario.claudeRole.color,
+                textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4,
+              }}>When the scene is done</div>
+              <div style={{
+                fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.5,
+              }}>{selectedScenario.artifact.description}</div>
+            </div>
+            <button onClick={buildArtifact}
+              disabled={artifactGenerating || messages.length < 2}
+              style={{
+                fontFamily: FONTS.mono, fontSize: 12, padding: "10px 18px",
+                borderRadius: 6, cursor: (artifactGenerating || messages.length < 2) ? "default" : "pointer",
+                background: selectedScenario.claudeRole.color + "25",
+                border: "1px solid " + selectedScenario.claudeRole.color + "50",
+                color: selectedScenario.claudeRole.color,
+                opacity: (artifactGenerating || messages.length < 2) ? 0.5 : 1,
+                whiteSpace: "nowrap",
+              }}>
+              {artifactGenerating ? "Composing..." : (artifactText ? "Regenerate" : selectedScenario.artifact.label)}
+            </button>
+          </div>
+
+          {/* Generated artifact display */}
+          {showArtifact && (
+            <div style={{ marginTop: 14, animation: "fadeInUp 0.3s ease" }}>
+              <div style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                padding: "6px 12px", borderRadius: "6px 6px 0 0",
+                background: "rgba(0,0,0,0.4)",
+                border: "1px solid " + COLORS.border, borderBottom: "none",
+              }}>
+                <div style={{
+                  fontFamily: FONTS.mono, fontSize: 11, color: selectedScenario.claudeRole.color,
+                }}>
+                  {artifactGenerating ? (
+                    <span style={{ animation: "pulse 1s infinite" }}>Composing {selectedScenario.artifact.kind}...</span>
+                  ) : (
+                    selectedScenario.artifact.label
+                  )}
+                </div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {artifactText && !artifactGenerating && (
+                    <CopyButton text={artifactText} />
+                  )}
+                  <button onClick={function() { setShowArtifact(false); }} style={{
+                    fontFamily: FONTS.mono, fontSize: 10, padding: "3px 8px",
+                    borderRadius: 3, border: "1px solid " + COLORS.border,
+                    background: "transparent", color: COLORS.textDim, cursor: "pointer",
+                  }}>Hide</button>
+                </div>
+              </div>
+              <pre style={{
+                fontFamily: FONTS.body, fontSize: 13, color: COLORS.text,
+                lineHeight: 1.65, padding: "14px 16px",
+                background: "rgba(0,0,0,0.35)",
+                border: "1px solid " + COLORS.border, borderRadius: "0 0 6px 6px",
+                maxHeight: 500, overflowY: "auto",
+                whiteSpace: "pre-wrap", wordBreak: "break-word",
+                margin: 0,
+              }}>
+                {artifactText}
+                {artifactGenerating && (
+                  <span style={{ animation: "blink 1s infinite", color: selectedScenario.claudeRole.color }}>{"\u258C"}</span>
+                )}
+              </pre>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Reflection */}
       <div style={{
         marginTop: 20, padding: "14px 18px", borderRadius: 8,
@@ -3670,7 +4102,7 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
     if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [currentStage]);
 
-  var playgrounds = [SpeechActPlayground, ELIZAPlayground, RolesPlayground, CraftPlayground, ParrhesiaPlayground, ArtifactPlayground, RoleplayPlayground];
+  var playgrounds = [SpeechActPlayground, ELIZAPlayground, RolesPlayground, CraftPlayground, ParrhesiaPlayground, RoleplayPlayground, ArtifactPlayground];
   var Playground = playgrounds[currentStage];
 
   return (
@@ -3733,14 +4165,14 @@ function MainContent({ currentStage, stageProgress, dispatch }) {
         )}
         {currentStage === 5 && (
           <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
-            <p><strong>McLuhan, M.</strong> (1964). <em>Understanding Media: The Extensions of Man</em>. The medium through which a message is delivered shapes how it is understood -- here, the artifact becomes the medium.</p>
-            <p style={{ marginTop: 8 }}>Also: <strong>Anthropic</strong> (2025). "Introducing Claude Artifacts" -- the technical and design framework for generating self-contained interactive objects from conversational prompts.</p>
+            <p><strong>Magee, L., Arora, V., Gollings, G., & Lam-Saw, N.</strong> (2024). "The Drama Machine: Simulating Character Development with LLM Agents." <em>Proceedings of ACSW 2024</em>.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Boal, A.</strong> (1979). <em>Theatre of the Oppressed</em> -- on participatory theatre as a mode of social inquiry, directly relevant to role-based AI interaction.</p>
           </div>
         )}
         {currentStage === 6 && (
           <div style={{ fontFamily: FONTS.body, fontSize: 14, color: COLORS.text, lineHeight: 1.7, opacity: 0.85 }}>
-            <p><strong>Magee, L., Arora, V., Gollings, G., & Lam-Saw, N.</strong> (2024). "The Drama Machine: Simulating Character Development with LLM Agents." <em>Proceedings of ACSW 2024</em>.</p>
-            <p style={{ marginTop: 8 }}>Also: <strong>Boal, A.</strong> (1979). <em>Theatre of the Oppressed</em> -- on participatory theatre as a mode of social inquiry, directly relevant to role-based AI interaction.</p>
+            <p><strong>McLuhan, M.</strong> (1964). <em>Understanding Media: The Extensions of Man</em>. The medium through which a message is delivered shapes how it is understood -- here, the artifact becomes the medium.</p>
+            <p style={{ marginTop: 8 }}>Also: <strong>Anthropic</strong> (2025). "Introducing Claude Artifacts" -- the technical and design framework for generating self-contained interactive objects from conversational prompts.</p>
           </div>
         )}
       </div>

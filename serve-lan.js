@@ -136,6 +136,31 @@ function handleRoleplayAPI(req, res, urlPath, query) {
     return true;
   }
 
+  // POST /api/workshop/roleplay/reset — clear a room's messages (keeps scenarioId)
+  if (urlPath === "/api/workshop/roleplay/reset" && req.method === "POST") {
+    readBody(req).then((data) => {
+      const { roomId } = data;
+      if (!roomId) {
+        res.writeHead(400, { ...corsHeaders(), "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: "roomId required" }));
+        return;
+      }
+      if (rooms[roomId]) {
+        // Keep scenarioId, clear messages, but bump lastId so polling clients know to refresh
+        const prevLastId = rooms[roomId].lastId;
+        rooms[roomId].messages = [];
+        rooms[roomId].lastId = prevLastId; // don't reset — keeps clients' "after" values meaningful
+        persistRoom(roomId);
+      }
+      res.writeHead(200, { ...corsHeaders(), "Content-Type": "application/json" });
+      res.end(JSON.stringify({ ok: true }));
+    }).catch((err) => {
+      res.writeHead(400, { ...corsHeaders(), "Content-Type": "application/json" });
+      res.end(JSON.stringify({ error: err.message }));
+    });
+    return true;
+  }
+
   // GET /api/workshop/roleplay/rooms — list active rooms (for instructor)
   if (urlPath === "/api/workshop/roleplay/rooms" && req.method === "GET") {
     const summary = Object.entries(rooms).map(([id, room]) => ({
