@@ -6,8 +6,8 @@
     "start": "node rastersysteme.js",
     "raster": "node raster.js",
     "compose": "node compose.js",
-    "test": "node --test raster.test.js tools.test.js",
-    "review": "node raster.js --format review",
+    "test": "node --test raster.test.js tools.test.js roleplay.test.js",
+    "review": "node agent-deck-review.mjs",
     "studio": "node studio.js",
     "compare": "node compare.js",
     "imagine": "node imagine.js",
@@ -29,7 +29,9 @@
     "qa-live": "node qa-live.js",
     "rubric": "node rubric-headless.js",
     "eval": "node eval-harness.js",
-    "batch": "node batch.js"
+    "batch": "node batch.js",
+    "fix": "node agent-deck-fix.mjs",
+    "overflow": "node pretext-measure.mjs"
   },
   "bin": {
     "rastersysteme": "./rastersysteme.js",
@@ -39,6 +41,9 @@
     "imagine": "./imagine.js"
   },
   "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.2.96",
+    "@chenglou/pretext": "^0.0.5",
+    "canvas": "^3.2.3",
     "chalk": "^4.1.2",
     "dotenv": "^17.3.1",
     "googleapis": "^171.4.0",
