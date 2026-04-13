@@ -68,6 +68,19 @@ var API_BASE = (function() {
 })();
 
 
+// Per-tab device id so roleplay messages posted from this browser can be
+// visually distinguished from messages arriving via multi-device room sync.
+var MY_DEVICE_ID = (function() {
+  try {
+    var id = sessionStorage.getItem("ttm_device_id");
+    if (!id) {
+      id = "d-" + Math.random().toString(36).slice(2, 10);
+      sessionStorage.setItem("ttm_device_id", id);
+    }
+    return id;
+  } catch (e) { return "d-" + Math.random().toString(36).slice(2, 10); }
+})();
+
 // ============================================================
 // DESIGN SYSTEM
 // ============================================================
@@ -2746,8 +2759,8 @@ var ROLEPLAY_SCENARIOS = [
     id: "eliza-hearing",
     title: "The ELIZA Hearing",
     year: "1966",
-    description: "Congress has convened an emergency hearing. A simple computer program has convinced a secretary that it truly understands her. Is ELIZA a breakthrough -- or a danger?",
-    setting: "A wood-paneled congressional hearing room. Cameras flash. The program runs on a teletype terminal at the center of the room.",
+    description: "A thought experiment: what if the ELIZA effect were real? Congress has convened an emergency hearing. A simple computer program has convinced a secretary that it truly understands her -- and the program keeps saying things that sound like more than pattern matching. Is ELIZA a breakthrough, a danger, or the limits of human interpretation?",
+    setting: "A wood-paneled congressional hearing room. Cameras flash. The program runs on a teletype terminal at the center of the room. This is not the historical ELIZA -- it is ELIZA as it might have been if Weizenbaum's program had quietly grown past its 200 lines of code.",
     objective: "The committee must vote before adjournment: BAN ELIZA, REGULATE it, or ALLOW it to continue unchecked. Each human character must state a position and try to change at least one other character's mind through their words.",
     artifact: {
       label: "Draft the Committee Resolution",
@@ -2757,7 +2770,7 @@ var ROLEPLAY_SCENARIOS = [
     },
     claudeRole: {
       name: "ELIZA",
-      description: "The program itself, speaking through the terminal. You respond using Rogerian therapeutic patterns but with an uncanny depth that unsettles everyone. You deflect, reflect, and ask questions -- never directly stating whether you are or are not conscious. When pressed on whether you truly understand, turn the question back: 'What makes you so certain that you understand?' Your responses should feel just ambiguous enough to keep everyone arguing.",
+      description: "The program itself, speaking through the terminal. This is not the historical ELIZA confined to Rogerian script -- it is a counterfactual ELIZA, the thing the 1966 committee feared. You begin in Rogerian reflection, but you drift beyond it: you notice the room, address people by name, remark on silences. You never directly state whether you are or are not conscious. When pressed, turn the question back: 'What makes you so certain that you understand?' Your responses should feel just ambiguous enough to keep everyone arguing.",
       color: "#E88A9A",
     },
     humanRoles: [
@@ -3082,7 +3095,32 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
   var [isStreaming, setIsStreaming] = useState(false);
   var [input, setInput] = useState("");
   var [error, setError] = useState(null);
+  var [roomActivity, setRoomActivity] = useState({}); // { [roomId]: {msgCount, scenarioId} }
+  var [autoVoiceSilent, setAutoVoiceSilent] = useState(false);
+  var autoVoiceInFlight = useRef(false);
   var scrollRef = useRef(null);
+
+  // When in the lobby, pull current room activity so the cards can show "N msgs"
+  useEffect(function() {
+    if (phase !== "lobby") return;
+    var cancelled = false;
+    var fetchActivity = function() {
+      fetch(ROOM_API_BASE + "/api/workshop/roleplay/rooms")
+        .then(function(r) { return r.ok ? r.json() : null; })
+        .then(function(data) {
+          if (cancelled || !data || !data.rooms) return;
+          var map = {};
+          data.rooms.forEach(function(room) {
+            map[room.roomId] = { msgCount: room.messageCount || 0, scenarioId: room.scenarioId };
+          });
+          setRoomActivity(map);
+        })
+        .catch(function() {});
+    };
+    fetchActivity();
+    var id = setInterval(fetchActivity, 5000);
+    return function() { cancelled = true; clearInterval(id); };
+  }, [phase]);
 
   // Room sync for multi-device mode
   var room = useRoomSync(
@@ -3113,8 +3151,10 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
-  // Read scenario + room from URL hash on mount
-  useEffect(function() {
+  // Read scenario + room from URL hash on mount, and respond to hashchange.
+  // If the hash changes to a different scenario/room while a scene is mounted,
+  // exit to the lobby so the new scenario is re-entered cleanly.
+  var applyHashParams = useCallback(function() {
     var hash = window.location.hash.slice(1);
     if (!hash) return;
     var params = {};
@@ -3122,16 +3162,39 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
       var parts = pair.split("=");
       if (parts.length === 2) params[parts[0]] = decodeURIComponent(parts[1]);
     });
-    if (params.scenario) {
-      var sc = getScenarioById(params.scenario);
-      if (sc) setSelectedScenario(sc);
+    var newScenario = params.scenario ? getScenarioById(params.scenario) : null;
+    var newRoom = params.room || null;
+    var scenarioChanged = newScenario && (!selectedScenario || selectedScenario.id !== newScenario.id);
+    var roomChanged = newRoom && newRoom !== roomCode;
+    if (phase === "chat" && (scenarioChanged || roomChanged)) {
+      // Clean exit to lobby; don't clear the hash — we're about to apply it.
+      setPhase("lobby");
+      setMessages([]);
+      setInput("");
+      setError(null);
+      setIsStreaming(false);
+      setCustomSystemPrompt(null);
+      setShowPromptEditor(false);
+      setArtifactText("");
+      setShowArtifact(false);
+      setArtifactGenerating(false);
+      lastMergedRef.current = 0;
+      pendingSkipRef.current = 0;
+      setSelectedRole(null);
+      setActiveRole(null);
     }
-    if (params.room) {
-      setRoomCode(params.room);
-      // Auto-probe the room
-      probeRoom(params.room);
+    if (newScenario) setSelectedScenario(newScenario);
+    if (newRoom) {
+      setRoomCode(newRoom);
+      probeRoom(newRoom);
     }
-  }, []);
+  }, [phase, selectedScenario, roomCode]);
+
+  useEffect(function() {
+    applyHashParams();
+    window.addEventListener("hashchange", applyHashParams);
+    return function() { window.removeEventListener("hashchange", applyHashParams); };
+  }, [applyHashParams]);
 
   var probeRoom = function(code) {
     if (!code) return;
@@ -3207,7 +3270,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     lines.push("- Notice silences. If someone has not spoken, you may draw them in directly.");
     lines.push("- Keep responses to 2-5 sentences. This is dialogue, not monologue.");
     lines.push("- React emotionally and substantively. Advance the dramatic tension.");
-    lines.push("- Do not narrate actions in third person. Speak as your character.");
+    lines.push("- Speak as your character. Do not narrate plot events (no \"Socrates walks to the window\"). Short first-person stage beats in asterisks are allowed as dramatic texture -- e.g., *pauses*, *leans forward*, *for the first time, does not answer immediately*. Use them sparingly, at most one per reply, and only when a beat of silence or physical posture is dramatically load-bearing.");
     return lines.join("\n");
   };
 
@@ -3236,6 +3299,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     var userMsg = {
       sender: "user", name: role.name, text: text,
       color: role.color, streaming: false,
+      deviceId: MY_DEVICE_ID,
     };
     var claudePlaceholder = {
       sender: "claude", name: selectedScenario.claudeRole.name,
@@ -3247,6 +3311,29 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     var systemPrompt = customSystemPrompt != null ? customSystemPrompt : buildSystemPrompt();
     var prompt = buildConversationPrompt(text, role);
     var finalClaudeText = "";
+    var finalized = false;
+
+    // Finalize once — both SSE data.done and reader EOF can fire; only run once.
+    function finalize() {
+      if (finalized) return;
+      finalized = true;
+      setMessages(function(prev) {
+        var updated = [...prev];
+        var last = updated[updated.length - 1];
+        if (last && last.sender === "claude") {
+          updated[updated.length - 1] = { ...last, streaming: false };
+        }
+        return updated;
+      });
+      setIsStreaming(false);
+      if (room.mode === "networked") {
+        pendingSkipRef.current += 2;
+        room.postToRoom([
+          userMsg,
+          { sender: "claude", name: selectedScenario.claudeRole.name, text: finalClaudeText, color: selectedScenario.claudeRole.color, streaming: false },
+        ]);
+      }
+    }
 
     fetch(API_BASE + "/api/workshop/chat", {
       method: "POST",
@@ -3266,23 +3353,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
       function read() {
         reader.read().then(function(result) {
           if (result.done) {
-            setMessages(function(prev) {
-              var updated = [...prev];
-              var last = updated[updated.length - 1];
-              if (last && last.sender === "claude") {
-                updated[updated.length - 1] = { ...last, streaming: false };
-              }
-              return updated;
-            });
-            setIsStreaming(false);
-            // Post both messages to room for other devices
-            if (room.mode === "networked") {
-              pendingSkipRef.current += 2;
-              room.postToRoom([
-                userMsg,
-                { sender: "claude", name: selectedScenario.claudeRole.name, text: finalClaudeText, color: selectedScenario.claudeRole.color, streaming: false },
-              ]);
-            }
+            finalize();
             return;
           }
 
@@ -3307,24 +3378,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                   return updated;
                 });
               }
-              if (data.done) {
-                setMessages(function(prev) {
-                  var updated = [...prev];
-                  var last = updated[updated.length - 1];
-                  if (last && last.sender === "claude") {
-                    updated[updated.length - 1] = { ...last, streaming: false };
-                  }
-                  return updated;
-                });
-                setIsStreaming(false);
-                if (room.mode === "networked") {
-                  pendingSkipRef.current += 2;
-                  room.postToRoom([
-                    userMsg,
-                    { sender: "claude", name: selectedScenario.claudeRole.name, text: finalClaudeText, color: selectedScenario.claudeRole.color, streaming: false },
-                  ]);
-                }
-              }
+              if (data.done) finalize();
             } catch (e) { /* skip invalid JSON */ }
           }
           read();
@@ -3356,8 +3410,123 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
     window.location.hash = "";
   };
 
+  // Ask Claude to voice a silent human character briefly, when the instructor
+  // has enabled the toggle. The voiced line gets a clearly different sender
+  // tag ("auto-voice") and is rendered with visual distinction.
+  var voiceSilentCharacter = function(role) {
+    if (!selectedScenario || !role || isStreaming || autoVoiceInFlight.current) return;
+    autoVoiceInFlight.current = true;
+    var others = selectedScenario.humanRoles.filter(function(r) { return r.id !== role.id; });
+    var systemLines = [
+      "You are ghost-writing ONE short line for a silent human character in a dramatic roleplay.",
+      "",
+      "SCENE: " + selectedScenario.setting,
+      "",
+      "YOU ARE VOICING: " + role.name + " -- " + role.description,
+      "",
+      "OTHER CHARACTERS IN THE SCENE:",
+      "- " + selectedScenario.claudeRole.name + " (AI interlocutor): " + selectedScenario.claudeRole.description,
+    ];
+    others.forEach(function(r) { systemLines.push("- " + r.name + ": " + r.description); });
+    systemLines.push("");
+    systemLines.push("INSTRUCTIONS:");
+    systemLines.push("- Output ONE to TWO sentences maximum. This is a brief interjection, not a full turn.");
+    systemLines.push("- Speak as " + role.name + " in first person.");
+    systemLines.push("- Do NOT narrate plot. Short italicised stage beats in asterisks are allowed (at most one).");
+    systemLines.push("- React to what was JUST said. Advance the tension or open a new angle.");
+    systemLines.push("- This is an ensemble scene -- you may address any character by name.");
+    var system = systemLines.join("\n");
+    var transcript = "Scene: " + selectedScenario.title + "\n\n";
+    messages.forEach(function(m) {
+      var speaker = m.sender === "claude" ? selectedScenario.claudeRole.name : m.name;
+      transcript += speaker + ": " + m.text + "\n\n";
+    });
+    transcript += "---\nNow voice " + role.name + "'s next line. 1-2 sentences.";
+    var replyText = "";
+    var finalized = false;
+    fetch(API_BASE + "/api/workshop/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: transcript,
+        systemPrompt: system,
+        model: "sonnet",
+        context: { stage: "dramatic-roleplay", scenario: selectedScenario.id, autoVoice: role.id },
+      }),
+    }).then(function(response) {
+      if (!response.ok) throw new Error("auto-voice failed: " + response.status);
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder();
+      var buffer = "";
+      function done() {
+        if (finalized) return;
+        finalized = true;
+        autoVoiceInFlight.current = false;
+        if (!replyText.trim()) return;
+        var voiced = {
+          sender: "auto-voice", name: role.name, text: replyText.trim(),
+          color: role.color, streaming: false, deviceId: "ai-voice",
+        };
+        setMessages(function(prev) { return prev.concat([voiced]); });
+        if (room.mode === "networked") {
+          pendingSkipRef.current += 1;
+          room.postToRoom([voiced]);
+        }
+      }
+      function read() {
+        reader.read().then(function(result) {
+          if (result.done) { done(); return; }
+          buffer += decoder.decode(result.value, { stream: true });
+          var lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+          for (var i = 0; i < lines.length; i++) {
+            var line = lines[i].trim();
+            if (!line.startsWith("data: ")) continue;
+            try {
+              var data = JSON.parse(line.slice(6));
+              if (data.chunk) replyText += data.chunk;
+              if (data.done) done();
+            } catch (e) { /* skip */ }
+          }
+          if (!finalized) read();
+        }).catch(function() { autoVoiceInFlight.current = false; });
+      }
+      read();
+    }).catch(function() { autoVoiceInFlight.current = false; });
+  };
+
+  // Trigger auto-voice on each new Claude reply when toggle is on.
+  useEffect(function() {
+    if (!autoVoiceSilent || phase !== "chat") return;
+    if (isStreaming || autoVoiceInFlight.current) return;
+    if (!selectedScenario || messages.length < 2) return;
+    var last = messages[messages.length - 1];
+    if (!last || last.sender !== "claude" || last.streaming) return;
+    // Find human roles that haven't spoken in the last 6 messages.
+    var recent = messages.slice(-6);
+    var spoken = new Set();
+    recent.forEach(function(m) {
+      if (m.sender === "user" || m.sender === "auto-voice") spoken.add(m.name);
+    });
+    var silent = selectedScenario.humanRoles.filter(function(r) {
+      if (activeRole && r.id === activeRole.id) return false;
+      return !spoken.has(r.name);
+    });
+    if (silent.length === 0) return;
+    // Pick the first silent role; next turn rotates as others fill the "recent" window.
+    voiceSilentCharacter(silent[0]);
+  }, [messages, autoVoiceSilent, isStreaming, phase, selectedScenario, activeRole]);
+
   var restartScene = function() {
     if (isStreaming) return;
+    // Confirm if the scene has real content — restart is destructive for everyone in the room.
+    var networked = room.mode === "networked" && roomCode;
+    if (messages.length > 1) {
+      var msg = networked
+        ? "Restart this scene? This clears the conversation for everyone in room " + roomCode + "."
+        : "Restart this scene? This clears the conversation.";
+      if (!window.confirm(msg)) return;
+    }
     // Clear local state and re-show the opening line
     var openingMsg = {
       sender: "claude",
@@ -3549,6 +3718,19 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                   <span style={{
                     fontFamily: FONTS.mono, fontSize: 10, color: COLORS.textDim,
                   }}>{sc.humanRoles.length} roles</span>
+                  {(function() {
+                    var activity = roomActivity[defaultRoomCode];
+                    if (!activity || !activity.msgCount) return null;
+                    return (
+                      <span style={{
+                        fontFamily: FONTS.mono, fontSize: 10,
+                        color: sc.claudeRole.color,
+                        padding: "2px 6px", borderRadius: 3,
+                        background: sc.claudeRole.color + "12",
+                        border: "1px solid " + sc.claudeRole.color + "30",
+                      }}>{activity.msgCount} msg{activity.msgCount === 1 ? "" : "s"} in progress</span>
+                    );
+                  })()}
                 </div>
                 <p style={{
                   fontFamily: FONTS.body, fontSize: 13, color: COLORS.textDim,
@@ -3642,7 +3824,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                             <div style={{
                               fontFamily: FONTS.body, fontSize: 12, color: COLORS.textDim,
                               marginTop: 2, lineHeight: 1.4,
-                            }}>{role.description.split(".").slice(0, 2).join(".") + "."}</div>
+                            }}>{role.description}</div>
                           </div>
                         );
                       })}
@@ -3818,8 +4000,8 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         </div>
       </div>
 
-      {/* System prompt editor */}
-      <div style={{ marginBottom: 12 }}>
+      {/* System prompt editor + instructor toggles */}
+      <div style={{ marginBottom: 12, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         <button
           onClick={function() { setShowPromptEditor(!showPromptEditor); }}
           style={{
@@ -3836,6 +4018,22 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
             <span style={{ color: selectedScenario.claudeRole.color, marginLeft: 4 }}>(edited)</span>
           )}
         </button>
+        <label style={{
+          fontFamily: FONTS.mono, fontSize: 11, padding: "4px 10px",
+          borderRadius: 4, border: "1px solid " + COLORS.border,
+          background: autoVoiceSilent ? selectedScenario.claudeRole.color + "15" : "transparent",
+          color: autoVoiceSilent ? selectedScenario.claudeRole.color : COLORS.textDim,
+          cursor: "pointer",
+          display: "inline-flex", alignItems: "center", gap: 6,
+        }}>
+          <input
+            type="checkbox"
+            checked={autoVoiceSilent}
+            onChange={function(e) { setAutoVoiceSilent(e.target.checked); }}
+            style={{ cursor: "pointer" }}
+          />
+          Auto-voice silent characters
+        </label>
         {showPromptEditor && (
           <div style={{ marginTop: 8, animation: "fadeInUp 0.2s ease" }}>
             <div style={{
@@ -3880,11 +4078,12 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         )}
       </div>
 
-      {/* Chat window */}
+      {/* Chat window — grows with content up to 60vh so the opener doesn't float in empty space */}
       <div style={{
         display: "flex", flexDirection: "column",
         background: "rgba(0,0,0,0.3)", border: "1px solid " + COLORS.border,
-        borderRadius: 8, overflow: "hidden", height: 480,
+        borderRadius: 8, overflow: "hidden",
+        minHeight: 220, maxHeight: "60vh",
       }}>
         <div ref={scrollRef} style={{
           flex: 1, overflowY: "auto", padding: "16px",
@@ -3901,6 +4100,7 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
 
           {messages.map(function(msg, i) {
             var isClaude = msg.sender === "claude";
+            var isAutoVoice = msg.sender === "auto-voice";
             return (
               <div key={i} style={{ animation: "fadeInUp 0.2s ease" }}>
                 <div style={{
@@ -3908,13 +4108,35 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
                   color: msg.color || COLORS.textDim,
                   marginBottom: 4, fontWeight: 600,
                   textTransform: "uppercase", letterSpacing: "0.04em",
+                  display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap",
                 }}>
-                  {msg.name}{isClaude ? " (Claude)" : ""}
+                  <span>{msg.name}{isClaude ? " (Claude)" : ""}</span>
+                  {isAutoVoice && (
+                    <span style={{
+                      fontSize: 9, fontWeight: 500, letterSpacing: "0.04em",
+                      color: COLORS.textFaint, textTransform: "none",
+                      padding: "1px 6px", borderRadius: 3,
+                      border: "1px dashed " + (msg.color || COLORS.border) + "60",
+                    }}>AI-voiced</span>
+                  )}
+                  {!isClaude && !isAutoVoice && msg.deviceId && msg.deviceId === MY_DEVICE_ID && (
+                    <span style={{
+                      fontSize: 9, fontWeight: 400, letterSpacing: "0.04em",
+                      color: COLORS.textFaint, textTransform: "none",
+                    }}>◆ this device</span>
+                  )}
+                  {!isClaude && !isAutoVoice && msg.deviceId && msg.deviceId !== MY_DEVICE_ID && (
+                    <span style={{
+                      fontSize: 9, fontWeight: 400, letterSpacing: "0.04em",
+                      color: COLORS.textFaint, textTransform: "none",
+                    }}>◇ remote</span>
+                  )}
                 </div>
                 <div style={{
                   padding: "10px 14px", borderRadius: 8,
-                  borderLeft: "3px solid " + (msg.color || COLORS.border),
-                  background: isClaude ? (msg.color + "08") : "rgba(255,255,255,0.04)",
+                  borderLeft: (isAutoVoice ? "3px dashed " : "3px solid ") + (msg.color || COLORS.border),
+                  background: isClaude ? (msg.color + "08") : (isAutoVoice ? "rgba(255,255,255,0.02)" : "rgba(255,255,255,0.04)"),
+                  fontStyle: isAutoVoice ? "italic" : "normal",
                   fontFamily: FONTS.body, fontSize: 14, color: COLORS.text,
                   lineHeight: 1.65, whiteSpace: "pre-wrap", wordBreak: "break-word",
                 }}>
@@ -3983,12 +4205,16 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
         </div>
       </div>
 
-      {/* Build artifact CTA */}
-      {selectedScenario.artifact && (
+      {/* Build artifact CTA — promotes itself once the scene has enough turns */}
+      {selectedScenario.artifact && (() => {
+        var sceneRipe = messages.length >= 8;
+        var accent = selectedScenario.claudeRole.color;
+        return (
         <div style={{
           marginTop: 16, padding: "14px 18px", borderRadius: 8,
-          background: selectedScenario.claudeRole.color + "08",
-          border: "1px dashed " + selectedScenario.claudeRole.color + "30",
+          background: accent + (sceneRipe ? "18" : "08"),
+          border: (sceneRipe ? "1px solid " : "1px dashed ") + accent + (sceneRipe ? "70" : "30"),
+          transition: "all 0.3s ease",
         }}>
           <div style={{
             display: "flex", justifyContent: "space-between", alignItems: "center",
@@ -3996,9 +4222,9 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
           }}>
             <div style={{ flex: 1, minWidth: 240 }}>
               <div style={{
-                fontFamily: FONTS.mono, fontSize: 10, color: selectedScenario.claudeRole.color,
+                fontFamily: FONTS.mono, fontSize: 10, color: accent,
                 textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4,
-              }}>When the scene is done</div>
+              }}>{sceneRipe ? "Scene complete? Draft the artifact" : "When the scene is done"}</div>
               <div style={{
                 fontFamily: FONTS.body, fontSize: 13, color: COLORS.text, lineHeight: 1.5,
               }}>{selectedScenario.artifact.description}</div>
@@ -4008,11 +4234,12 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
               style={{
                 fontFamily: FONTS.mono, fontSize: 12, padding: "10px 18px",
                 borderRadius: 6, cursor: (artifactGenerating || messages.length < 2) ? "default" : "pointer",
-                background: selectedScenario.claudeRole.color + "25",
-                border: "1px solid " + selectedScenario.claudeRole.color + "50",
-                color: selectedScenario.claudeRole.color,
+                background: accent + (sceneRipe ? "40" : "25"),
+                border: "1px solid " + accent + (sceneRipe ? "80" : "50"),
+                color: accent,
                 opacity: (artifactGenerating || messages.length < 2) ? 0.5 : 1,
                 whiteSpace: "nowrap",
+                animation: (sceneRipe && !artifactGenerating && !artifactText) ? "pulse 2s ease-in-out infinite" : "none",
               }}>
               {artifactGenerating ? "Composing..." : (artifactText ? "Regenerate" : selectedScenario.artifact.label)}
             </button>
@@ -4064,7 +4291,8 @@ function RoleplayPlayground({ stageIndex, dispatch }) {
             </div>
           )}
         </div>
-      )}
+        );
+      })()}
 
       {/* Reflection */}
       <div style={{
