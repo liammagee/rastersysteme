@@ -28,8 +28,9 @@ jobs:
           cp index.html _site/
           cp gallery.html _site/ 2>/dev/null || true
           cp -r pages _site/pages
-          rsync -a \
+          rsync -a --no-links \
             --exclude 'compare-*' \
+            --exclude 'comparison' \
             --exclude '*.gslides-images' \
             --exclude 'gslides-*-images' \
             --exclude '*-uat-screenshots' \
