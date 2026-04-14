@@ -28,6 +28,14 @@ jobs:
           cp index.html _site/
           cp gallery.html _site/ 2>/dev/null || true
           cp -r pages _site/pages
+          rsync -a \
+            --exclude 'compare-*' \
+            --exclude '*.gslides-images' \
+            --exclude 'gslides-*-images' \
+            --exclude '*-uat-screenshots' \
+            --exclude '*.compose' \
+            --exclude 'prompt-images' \
+            decks/ _site/decks/
 
       - uses: actions/configure-pages@v5
 
